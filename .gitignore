@@ -73,3 +73,21 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+
+
+# Environment files
+.env
+.env.staging
+.env.production
+ios/.xcode.env
+
+# images files
+src/assets/images/*.png
+android/app/src/main/res/mipmap-*/
+
+android/app/src/main/res/mipmap-*/ic_launcher*.png
+android/app/src/main/res/drawable*/splash*.png
+ios/BIPARDADMIN/Images.xcassets/AppIcon.appiconset/*.png
+ios/BIPARDADMIN/Images.xcassets/SplashIcon.launchimage/*.png
+ios/BIPARDADMIN/Images.xcassets/SplashIcon.imageset/*.png
