@@ -1,0 +1,13 @@
+services:
+  image-repository:
+    image: harbor.internal.codebuckets.in/image-repository/stage
+    container_name: image-repository
+    restart: unless-stopped
+    networks:
+      - database-network
+    env_file:
+      - /home/ENV/<REPOSITORY_NAME>/.env
+
+networks:
+  database-network:
+    external: true

@@ -1,0 +1,30 @@
+name: SonarQube Scheduled Job
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Run Verify Workflow'
+        required: true
+        default: 'Run Verify Workflow'
+        
+  # Add a schedule trigger to run every 2 minutes
+  schedule:
+    - cron: '0 */12 * * *'
+
+jobs:
+
+  SonarQube-QualityGate:
+    name: SonarQube-QualityGate
+    runs-on: sonarqube-scanner
+    permissions: read-all
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 'stage'
+
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
