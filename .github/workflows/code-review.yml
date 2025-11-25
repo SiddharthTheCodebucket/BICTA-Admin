@@ -1,0 +1,40 @@
+name: AI Code Review Bot
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  ai-review:
+    name: Run AI Code Review
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # So we can access commit history
+
+      - name: Get last 3 PR commits
+        id: get_commits
+        run: |
+          COMMITS=$(git rev-list origin/${{ github.event.pull_request.base.ref }}..HEAD -n 3 | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "COMMITS=$COMMITS" >> $GITHUB_ENV
+
+
+      - name: Call AI Review Bot
+        env:
+          REVIEW_API: https://review-bot.codebucketstage.online/review
+        run: |
+          curl -X POST "$REVIEW_API" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "repo": "${{ github.repository }}",
+              "branch": "${{ github.head_ref }}",
+              "commits": '"${COMMITS}"',
+              "prNumber": ${{ github.event.pull_request.number }}
+            }'

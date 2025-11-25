@@ -1,0 +1,5 @@
+* @Codebucket-Solutions/admins
+docker/ @Codebucket-Solutions/DevSecOps
+/sonar-project.properties @Codebucket-Solutions/DevSecOps
+/.dockerignore @Codebucket-Solutions/DevSecOps
+.github/ @Codebucket-Solutions/DevSecOps

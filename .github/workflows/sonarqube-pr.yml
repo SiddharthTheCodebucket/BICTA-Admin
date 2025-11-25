@@ -1,0 +1,28 @@
+name: SonarQube Pull Request
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Run Verify Workflow'
+        required: true
+        default: 'Run Verify Workflow'
+
+jobs:
+
+  SonarQube-QualityGate:
+    name: SonarQube-QualityGate
+    runs-on: sonarqube-scanner
+    permissions: read-all
+
+    steps:
+      - uses: actions/checkout@v5
+          
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+ 
