@@ -11,7 +11,12 @@ import ErrorModal from '../components/organisms/ErrorModal';
 import Login from '../screens/OnBoarding/Login';
 import ForgotPassword from '../screens/OnBoarding/ForgotPassword';
 import BottomTabNavigator from './BottomTabNavigator';
-import ShowCaseNoticeModal from '../modal/ShowCaseNoticeModal';
+import VehicleManagement from '../screens/Menu/VehicleManagement';
+import VehicleRegistration from '../screens/Menu/VehicleManagement/VehicleRegistration';
+import AddVehicle from '../screens/Menu/VehicleManagement/VehicleRegistration/AddVehicle';
+import AssignVehicle from '../screens/Menu/VehicleManagement/AssignVehicle';
+import DriverMovementHistory from '../screens/Menu/VehicleManagement/AssignVehicle/DriverMovementHistory';
+import AddAssignVehicle from '../screens/Menu/VehicleManagement/AssignVehicle/AddAssignVehicle';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -58,6 +63,27 @@ const RootNavigator = () => {
           <RootStackScreen.Screen
             name="BottomTabNavigator"
             component={BottomTabNavigator}
+          />
+          <RootStackScreen.Screen
+            name="VehicleManagement"
+            component={VehicleManagement}
+          />
+          <RootStackScreen.Screen
+            name="VehicleRegistration"
+            component={VehicleRegistration}
+          />
+          <RootStackScreen.Screen name="AddVehicle" component={AddVehicle} />
+          <RootStackScreen.Screen
+            name="AssignVehicle"
+            component={AssignVehicle}
+          />
+          <RootStackScreen.Screen
+            name="DriverMovementHistory"
+            component={DriverMovementHistory}
+          />
+          <RootStackScreen.Screen
+            name="AddAssignVehicle"
+            component={AddAssignVehicle}
           />
         </RootStackScreen.Group>
         <RootStackScreen.Group

@@ -25,4 +25,7 @@ export default {
   audio: require('../assets/images/audio.png'),
   pdf: require('../assets/images/pdf.png'),
   add: require('../assets/images/add.png'),
+  delete: require('../assets/images/delete.png'),
+  release: require('../assets/images/release.png'),
+  arrowDownLeft: require('../assets/images/arrowDownLeft.png'),
 };
