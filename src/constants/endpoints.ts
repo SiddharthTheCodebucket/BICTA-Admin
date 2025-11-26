@@ -22,4 +22,8 @@ export default {
   delete_assign_vehicle: 'vehicle-management/delete-assigned-vehicle',
   add_assign_vehicle: 'vehicle-management/assign-vehicle',
   update_assign_vehicle: 'vehicle-management/update-assigned-vehicle',
+  list_trip_details: 'vehicle-management/list-trip-details',
+  add_trip_details: 'vehicle-management/add-trip-details',
+  update_trip_details: 'vehicle-management/update-trip-details',
+  delete_trip_details: 'vehicle-management/delete-trip-details',
 };

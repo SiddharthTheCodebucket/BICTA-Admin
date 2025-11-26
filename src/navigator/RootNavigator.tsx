@@ -17,6 +17,9 @@ import AddVehicle from '../screens/Menu/VehicleManagement/VehicleRegistration/Ad
 import AssignVehicle from '../screens/Menu/VehicleManagement/AssignVehicle';
 import DriverMovementHistory from '../screens/Menu/VehicleManagement/AssignVehicle/DriverMovementHistory';
 import AddAssignVehicle from '../screens/Menu/VehicleManagement/AssignVehicle/AddAssignVehicle';
+import CreateTour from '../screens/Menu/VehicleManagement/CreateTour';
+import CreateTourDetails from '../screens/Menu/VehicleManagement/CreateTour/CreateTourDetails';
+import AddCreateTour from '../screens/Menu/VehicleManagement/CreateTour/AddCreateTour';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -84,6 +87,15 @@ const RootNavigator = () => {
           <RootStackScreen.Screen
             name="AddAssignVehicle"
             component={AddAssignVehicle}
+          />
+          <RootStackScreen.Screen name="CreateTour" component={CreateTour} />
+          <RootStackScreen.Screen
+            name="CreateTourDetails"
+            component={CreateTourDetails}
+          />
+          <RootStackScreen.Screen
+            name="AddCreateTour"
+            component={AddCreateTour}
           />
         </RootStackScreen.Group>
         <RootStackScreen.Group

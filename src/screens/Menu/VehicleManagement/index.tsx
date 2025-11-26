@@ -40,7 +40,9 @@ const VehicleManagement = (props: Props) => {
     {
       id: 3,
       name: 'Create Tour',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.CreateTour);
+      },
     },
   ];
 

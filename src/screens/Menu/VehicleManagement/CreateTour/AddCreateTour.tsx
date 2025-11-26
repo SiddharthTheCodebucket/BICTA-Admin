@@ -21,23 +21,22 @@ import TextInputOrganisms from '../../../../components/organisms/TextInputOrgani
 import DropDownOrganism from '../../../../components/organisms/DropDownOrganism';
 import ButtonOrganism from '../../../../components/organisms/ButtonOrganism';
 import FullscreenLoading from '../../../../components/organisms/FullscreenLoading';
-import RadioSelectableOrganism from '../../../../components/organisms/RadioSelectableOrganism';
 import { isNullUndefined } from '../../../../utils/CommonFunction';
 import {
-  useAddAssignVehicleMutation,
+  useAddTripDetailsMutation,
   useCommonDropdownListMutation,
-  useCommonFileUploadMutation,
   useUpdateAssignVehicleMutation,
+  useUpdateTripDetailsMutation,
 } from '../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import moment from 'moment';
-import ImageUploadOrganism from '../../../../components/organisms/ImageUploadOrganism';
+import TextAtom from '../../../../components/atoms/TextAtom';
 
 interface Props {
   route: any;
   navigation: NavigationType;
 }
 
-const AddAssignVehicle = (props: Props) => {
+const AddCreateTour = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
   const input1_ref: any = createRef();
@@ -45,14 +44,13 @@ const AddAssignVehicle = (props: Props) => {
   const input3_ref: any = createRef();
 
   const [commonDropdownListApi] = useCommonDropdownListMutation();
-  const [commonFileUploadApi] = useCommonFileUploadMutation();
-  const [addAssignVehicalApi] = useAddAssignVehicleMutation();
-  const [updateAssignVehicalsApi] = useUpdateAssignVehicleMutation();
+  const [addTripDetailsApi] = useAddTripDetailsMutation();
+  const [updateTripDetailsApi] = useUpdateTripDetailsMutation();
 
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item) ? 'Edit Assign Vehicle' : 'Add Assign Vehicle',
+      !isNullUndefined(item) ? 'Edit Create Tour' : 'Add Create Tour',
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -64,10 +62,11 @@ const AddAssignVehicle = (props: Props) => {
     trainingName: {},
     vehicleRegistrationNumberList: [],
     vehicleRegistrationNumber: {},
-    status: {},
-    assignDriverList: [],
-    assignDriver: {},
-    dlFile: {},
+    tourType: {},
+    startPointList: [],
+    startPoint: {},
+    endPointList: [],
+    endPoint: {},
   });
   const [errors, setErrors] = useState<any>({});
 
@@ -92,70 +91,72 @@ const AddAssignVehicle = (props: Props) => {
 
     setLoader(true);
 
-    const loadPrefillData = async () => {
+    const prefillTourData = async () => {
       try {
-        const trainRes: any = await commonDropdownListApi({
+        const trainingRes: any = await commonDropdownListApi({
           listType: 'list-all-training',
           bipardCentre: [selectedLocation.name],
           replacements: ['%%'],
         }).unwrap();
 
-        const trainingList = trainRes?.data || [];
-
-        const driverRes: any = await commonDropdownListApi({
-          listType: 'select_driver',
-          bipardCentre: [selectedLocation.name],
-          replacements: ['%%'],
-        }).unwrap();
-
-        const driverList = driverRes?.data || [];
-
-        const vehicleRes: any = await commonDropdownListApi({
-          listType: 'select_vehicle',
-          bipardCentre: [selectedLocation.name],
-          replacements: ['%%'],
-        }).unwrap();
-
-        const vehicleList = vehicleRes?.data || [];
+        const trainingList = trainingRes?.data || [];
 
         const selectedTraining =
           trainingList.find((t: any) => t.id == item.trainingId) || {};
 
-        const selectedDriver =
-          driverList.find(
-            (d: any) =>
-              d.id == item.driverNameId ||
-              d.id == item.driverId ||
-              d.id == item.adminUserId,
-          ) || {};
+        const vehicleRes: any = await commonDropdownListApi({
+          listType: 'select_assigned_vehicle',
+          bipardCentre: [selectedLocation.name],
+          replacements: ['%%', item.trainingId],
+        }).unwrap();
+
+        const vehicleList = vehicleRes?.data || [];
 
         const selectedVehicle =
-          vehicleList.find((v: any) => v.id == item.vehicleId) || {};
+          vehicleList.find(
+            (v: any) => v.assignedVehicleId == item.assignedVehicleId,
+          ) || {};
+
+        const startPointRes: any = await commonDropdownListApi({
+          listType: 'select_trip_start_point',
+          bipardCentre: [selectedLocation.name],
+          replacements: ['%%', item.routeType],
+        }).unwrap();
+
+        const startPointList = startPointRes?.data || [];
+
+        const selectedStartPoint =
+          startPointList.find((sp: any) => sp.id == item.startPointId) || {};
+
+        const endPointRes: any = await commonDropdownListApi({
+          listType: 'select_trip_end_point',
+          bipardCentre: [selectedLocation.name],
+          replacements: ['%%', item.routeType],
+        }).unwrap();
+
+        const endPointList = endPointRes?.data || [];
+
+        const selectedEndPoint =
+          endPointList.find((ep: any) => ep.id == item.endPointId) || {};
 
         setForm((prev: any) => ({
           ...prev,
 
+          bipardLocation: selectedLocation,
+
           trainingNameList: trainingList,
           trainingName: selectedTraining,
-
-          assignDriverList: driverList,
-          assignDriver: selectedDriver,
 
           vehicleRegistrationNumberList: vehicleList,
           vehicleRegistrationNumber: selectedVehicle,
 
-          status: {
-            id: item.status,
-            value: item.status,
-          },
+          tourType: { id: item.routeType, name: item.routeType },
 
-          dlFile: item.drivingLicence
-            ? {
-                url: item.drivingLicence,
-                name: item.drivingLicence.split('/').pop(),
-                originalFilename: item.drivingLicence.split('/').pop(),
-              }
-            : {},
+          startPointList: startPointList,
+          startPoint: selectedStartPoint,
+
+          endPointList: endPointList,
+          endPoint: selectedEndPoint,
         }));
 
         setLoader(false);
@@ -164,15 +165,18 @@ const AddAssignVehicle = (props: Props) => {
       }
     };
 
-    loadPrefillData();
+    prefillTourData();
   }, [item]);
 
   const schema = Yup.object().shape({
-    assignDriver: Yup.object({
-      name: Yup.string().required('Assign driver is required'),
+    endPoint: Yup.object({
+      endPoint: Yup.string().required('End point is required'),
     }),
-    status: Yup.object({
-      id: Yup.string().required('Status is required'),
+    startPoint: Yup.object({
+      name: Yup.string().required('Start point is required'),
+    }),
+    tourType: Yup.object({
+      name: Yup.string().required('Tour type is required'),
     }),
 
     vehicleRegistrationNumber: Yup.object({
@@ -194,42 +198,27 @@ const AddAssignVehicle = (props: Props) => {
       if (item) {
         updateVehicleDetails();
       } else {
-        addVehicleDetails();
+        addTourDetails();
       }
     } catch (err: any) {
       setErrors({ [err.path]: err.message });
     }
   };
 
-  const addVehicleDetails = () => {
+  const addTourDetails = () => {
     setLoader(true);
     let params = {
-      id: '',
-      bipardCentre: [form.bipardLocation?.name],
+      bipardCentre: isNullUndefined(form.bipardLocation)
+        ? []
+        : [form.bipardLocation?.name],
       trainingId: form.trainingName.id,
-      vehicleId: form.vehicleRegistrationNumber.id,
-      driverId: form.assignDriver.id,
-      status: form.status.id,
-      drivingLicence: !isNullUndefined(form.dlFile) ? form.dlFile.url : '',
-      trainingDuration: `${
-        form.trainingName?.startDate
-          ? moment(form.trainingName.startDate).format('DD/MM/YYYY')
-          : null
-      } to ${
-        form.trainingName?.endDate
-          ? moment(form.trainingName.endDate).format('DD/MM/YYYY')
-          : null
-      }`,
-      vehicleName: form.vehicleRegistrationNumber.vehicleName,
-      vehicleColor: form.vehicleRegistrationNumber.vehicleColor,
-      vehicleOwnerName: form.vehicleRegistrationNumber.vehicleOwnerName,
-      vehicleOwnerContactNumber:
-        form.vehicleRegistrationNumber.vehicleOwnerContactNumber,
-      driverContactNumber: form.assignDriver.contactNumber,
-      isDrivingLinceceProvided: form.assignDriver.isDrivingLinceceProvided,
+      assignedVehicleId: form.vehicleRegistrationNumber.assignedVehicleId,
+      routeType: form.tourType.id,
+      startPoint: form.startPoint.id,
+      endPoint: form.endPoint.id,
     };
 
-    addAssignVehicalApi(params)
+    addTripDetailsApi(params)
       .unwrap()
       .then((res: any) => {
         navigation.dispatch(
@@ -237,7 +226,7 @@ const AddAssignVehicle = (props: Props) => {
             index: 0,
             routes: [
               {
-                name: screensName.AssignVehicle,
+                name: screensName.CreateTour,
               },
             ],
           }),
@@ -261,30 +250,16 @@ const AddAssignVehicle = (props: Props) => {
     setLoader(true);
     let params = {
       id: item.id,
-      bipardCentre: [form.bipardLocation?.name],
+      bipardCentre: isNullUndefined(form.bipardLocation)
+        ? []
+        : [form.bipardLocation?.name],
       trainingId: form.trainingName.id,
-      vehicleId: form.vehicleRegistrationNumber.id,
-      driverId: form.assignDriver.id,
-      status: form.status.id,
-      drivingLicence: !isNullUndefined(form.dlFile) ? form.dlFile.url : '',
-      trainingDuration: `${
-        form.trainingName?.startDate
-          ? moment(form.trainingName.startDate).format('DD/MM/YYYY')
-          : null
-      } to ${
-        form.trainingName?.endDate
-          ? moment(form.trainingName.endDate).format('DD/MM/YYYY')
-          : null
-      }`,
-      vehicleName: form.vehicleRegistrationNumber.vehicleName,
-      vehicleColor: form.vehicleRegistrationNumber.vehicleColor,
-      vehicleOwnerName: form.vehicleRegistrationNumber.vehicleOwnerName,
-      vehicleOwnerContactNumber:
-        form.vehicleRegistrationNumber.vehicleOwnerContactNumber,
-      driverContactNumber: form.assignDriver.contactNumber,
-      isDrivingLinceceProvided: form.assignDriver.isDrivingLinceceProvided,
+      assignedVehicleId: form.vehicleRegistrationNumber.assignedVehicleId,
+      routeType: form.tourType.id,
+      startPoint: form.startPoint.id,
+      endPoint: form.endPoint.id,
     };
-    updateAssignVehicalsApi(params)
+    updateTripDetailsApi(params)
       .unwrap()
       .then((res: any) => {
         navigation.dispatch(
@@ -292,7 +267,7 @@ const AddAssignVehicle = (props: Props) => {
             index: 0,
             routes: [
               {
-                name: screensName.AssignVehicle,
+                name: screensName.CreateTour,
               },
             ],
           }),
@@ -309,36 +284,6 @@ const AddAssignVehicle = (props: Props) => {
           text2: err?.data?.message || 'Something went wrong',
         });
         setLoader(false);
-      });
-  };
-
-  const fileUpload = (fileData: any) => {
-    setLoader(true);
-    const formData = new FormData();
-    formData.append('document', {
-      uri: fileData.uri,
-      name: fileData.fileName,
-      type: fileData.type,
-    } as any);
-
-    commonFileUploadApi(formData)
-      .unwrap()
-      .then((res: any) => {
-        Toast.show({
-          type: 'success',
-          text2: res.data.message,
-          autoHide: true,
-        });
-        setValue('dlFile', res.data);
-        setLoader(false);
-      })
-      .catch((err: any) => {
-        setLoader(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
       });
   };
 
@@ -364,17 +309,18 @@ const AddAssignVehicle = (props: Props) => {
         });
       });
   };
-  const getDriverList = (name: string) => {
+
+  const getVehicleList = (id: string) => {
     setLoader(true);
     const params = {
-      listType: 'select_driver',
-      bipardCentre: [name],
-      replacements: ['%%'],
+      listType: 'select_assigned_vehicle',
+      bipardCentre: [form.bipardLocation?.name],
+      replacements: ['%%', id],
     };
     commonDropdownListApi(params)
       .unwrap()
       .then((res: any) => {
-        setValue('assignDriverList', res.data);
+        setValue('vehicleRegistrationNumberList', res.data);
         setLoader(false);
       })
       .catch((err: any) => {
@@ -386,17 +332,41 @@ const AddAssignVehicle = (props: Props) => {
         });
       });
   };
-  const getVehicleList = (name: string) => {
+
+  const getTripStartPoint = (id: string) => {
     setLoader(true);
     const params = {
-      listType: 'select_vehicle',
-      bipardCentre: [name],
-      replacements: ['%%'],
+      listType: 'select_trip_start_point',
+      bipardCentre: [form.bipardLocation?.name],
+      replacements: ['%%', id],
     };
     commonDropdownListApi(params)
       .unwrap()
       .then((res: any) => {
-        setValue('vehicleRegistrationNumberList', res.data);
+        setValue('startPointList', res.data);
+        setLoader(false);
+      })
+      .catch((err: any) => {
+        setLoader(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+          autoHide: true,
+        });
+      });
+  };
+
+  const getTripEndPoint = (id: string) => {
+    setLoader(true);
+    const params = {
+      listType: 'select_trip_end_point',
+      bipardCentre: [form.bipardLocation?.name],
+      replacements: ['%%', id],
+    };
+    commonDropdownListApi(params)
+      .unwrap()
+      .then((res: any) => {
+        setValue('endPointList', res.data);
         setLoader(false);
       })
       .catch((err: any) => {
@@ -421,6 +391,18 @@ const AddAssignVehicle = (props: Props) => {
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={vh(80)}
       >
+        <TextAtom
+          style={{
+            fontFamily: fonts.Roboto_Bold,
+            fontSize: vw(16),
+            color: colors.black,
+            width: vw(328),
+            alignSelf: 'center',
+            marginBottom: vh(10),
+          }}
+        >
+          Vehicle Details
+        </TextAtom>
         <DropDownOrganism
           label={'Bipard Location'}
           placeholder={'Bipard Location'}
@@ -438,11 +420,8 @@ const AddAssignVehicle = (props: Props) => {
                   bipardLocation: data,
                   trainingName: {},
                   vehicleRegistrationNumber: {},
-                  assignDriver: {},
                 }));
                 getListAllTraining(data.name);
-                getDriverList(data.name);
-                getVehicleList(data.name);
 
                 setErrors({ ...errors, 'bipardLocation.name': '' });
               },
@@ -467,8 +446,9 @@ const AddAssignVehicle = (props: Props) => {
                 setForm((prev: any) => ({
                   ...prev,
                   trainingName: data,
+                  vehicleRegistrationNumber: {},
                 }));
-
+                getVehicleList(data.id);
                 setErrors({ ...errors, 'trainingName.name': '' });
               },
               typeName: 'name',
@@ -569,75 +549,103 @@ const AddAssignVehicle = (props: Props) => {
           </>
         )}
 
-        <RadioSelectableOrganism
-          data={[
-            { id: 'Active', value: 'Active' },
-            { id: 'Inactive', value: 'Inactive' },
-          ]}
-          onSelect={(item: any) => {
-            setValue('status', item);
-            setErrors({ ...errors, 'status.id': '' });
+        <TextAtom
+          style={{
+            fontFamily: fonts.Roboto_Bold,
+            fontSize: vw(16),
+            color: colors.black,
+            width: vw(328),
+            alignSelf: 'center',
+            marginBottom: vh(10),
           }}
-          label={'Status'}
-          selectedType={form.status}
-          typeName={'value'}
-          typeId={'id'}
-          isMandatory
-          errorMessage={errors['status.id']}
-        />
-
+        >
+          Create Tour
+        </TextAtom>
         <DropDownOrganism
-          label={'Assign Driver'}
-          placeholder={'Assign Driver'}
+          label={'Tour Type'}
+          placeholder={'Tour Type'}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Assign Driver',
-              Data: form.assignDriverList,
-              selectedData: form.assignDriver,
+              name: 'Tour Type',
+              Data: [
+                { id: 'Local', name: 'Local' },
+                { id: 'Out-Station', name: 'Out-Station' },
+              ],
+              selectedData: form.tourType,
               setSelectedData: (data: any) => {
                 setForm((prev: any) => ({
                   ...prev,
-                  assignDriver: data,
+                  tourType: data,
+                  startPoint: {},
+                  endPoint: {},
                 }));
-
-                setErrors({ ...errors, 'assignDriver.name': '' });
+                getTripStartPoint(data.id);
+                getTripEndPoint(data.id);
+                setErrors({ ...errors, 'tourType.name': '' });
               },
               typeName: 'name',
               typeId: 'id',
             });
           }}
-          inputText={form.assignDriver?.name}
+          inputText={form.tourType?.name}
           isMandatory
-          errorMessage={errors['assignDriver.name']}
+          errorMessage={errors['tourType.name']}
         />
-        {!isNullUndefined(form.assignDriver) && (
-          <TextInputOrganisms
-            label={'Driver Contact Number'}
-            placeholder={'Driver Contact Number'}
-            ref={input2_ref}
-            value={form.assignDriver?.contactNumber}
-            onChangeText={(val: string) => {}}
-            disabled
-            editable={false}
-          />
-        )}
-        {form.assignDriver?.isDrivingLinceceProvided === 'No' && (
-          <ImageUploadOrganism
-            label={'DL File'}
-            buttonText={strings.choose_file}
-            onSelectImage={(file: any) => {
-              fileUpload(file);
-            }}
-            defaultImage={form.dlFile?.url}
-          />
-        )}
+        <DropDownOrganism
+          label={'Start Point'}
+          placeholder={'Start Point'}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Start Point',
+              Data: form.startPointList,
+              selectedData: form.startPoint,
+              setSelectedData: (data: any) => {
+                setForm((prev: any) => ({
+                  ...prev,
+                  startPoint: data,
+                }));
+
+                setErrors({ ...errors, 'startPoint.name': '' });
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={form.startPoint?.name}
+          isMandatory
+          errorMessage={errors['startPoint.name']}
+        />
+        <DropDownOrganism
+          label={'End Point'}
+          placeholder={'End Point'}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'End Point',
+              Data: form.endPointList,
+              selectedData: form.endPoint,
+              setSelectedData: (data: any) => {
+                setForm((prev: any) => ({
+                  ...prev,
+                  endPoint: data,
+                }));
+
+                setErrors({ ...errors, 'endPoint.endPoint': '' });
+              },
+              typeName: 'endPoint',
+              typeId: 'id',
+            });
+          }}
+          inputText={form.endPoint?.endPoint}
+          isMandatory
+          errorMessage={errors['endPoint.endPoint']}
+        />
       </KeyboardAwareScrollView>
       <ButtonOrganism onPress={onSubmit} bttnText={item ? 'Update' : 'Add'} />
     </SafeAreaView>
   );
 };
 
-export default AddAssignVehicle;
+export default AddCreateTour;
 
 const styles = StyleSheet.create({
   container: {

@@ -94,6 +94,34 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listTripDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_trip_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    addTripDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.add_trip_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateTripDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_trip_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    deleteTripDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.delete_trip_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -111,4 +139,8 @@ export const {
   useDeleteAssignVehicleMutation,
   useAddAssignVehicleMutation,
   useUpdateAssignVehicleMutation,
+  useListTripDetailsMutation,
+  useAddTripDetailsMutation,
+  useUpdateTripDetailsMutation,
+  useDeleteTripDetailsMutation,
 } = apiEndpoints;

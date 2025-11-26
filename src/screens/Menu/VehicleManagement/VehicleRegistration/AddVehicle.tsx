@@ -25,6 +25,7 @@ import FullscreenLoading from '../../../../components/organisms/FullscreenLoadin
 import TextAtom from '../../../../components/atoms/TextAtom';
 import RadioSelectableOrganism from '../../../../components/organisms/RadioSelectableOrganism';
 import {
+  isNullUndefined,
   mobileRegex,
   normalizeLettersAndNumbers,
   normalizeNumber,
@@ -55,7 +56,12 @@ const AddVehicle = (props: Props) => {
   const [updateVehicleDetailsApi] = useUpdateVehicleDetailsMutation();
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Add Vehicle Management');
+    Header.setNavigation(
+      navigation,
+      !isNullUndefined(item)
+        ? 'Edit Vehicle Management'
+        : 'Add Vehicle Management',
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
 

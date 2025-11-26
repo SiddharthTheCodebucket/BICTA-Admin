@@ -12,4 +12,7 @@ export default {
   AssignVehicle: 'AssignVehicle',
   DriverMovementHistory: 'DriverMovementHistory',
   AddAssignVehicle: 'AddAssignVehicle',
+  CreateTour: 'CreateTour',
+  CreateTourDetails: 'CreateTourDetails',
+  AddCreateTour: 'AddCreateTour',
 };
