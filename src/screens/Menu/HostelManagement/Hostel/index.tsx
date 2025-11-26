@@ -1,18 +1,18 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, images, screensName, vh, vw } from '../../../constants';
+import { colors, screensName, vh, vw } from '../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../components/atoms/TextAtom';
+} from '../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../components/atoms/TextAtom';
 
 interface Props {
   navigation: NavigationType;
 }
 
-const HostelManagement = (props: Props) => {
+const Hostel = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
@@ -25,17 +25,40 @@ const HostelManagement = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Hostel',
+      name: 'Hostel Details',
       onPress: () => {
-        navigation.navigate(screensName.Hostel);
+        navigation.navigate(screensName.HostelDetails);
       },
     },
     {
       id: 2,
-      name: 'Guest',
-      onPress: () => {
-        navigation.navigate(screensName.Guest);
-      },
+      name: 'Floor Details',
+      onPress: () => {},
+    },
+    {
+      id: 3,
+      name: 'Room Details',
+      onPress: () => {},
+    },
+    {
+      id: 4,
+      name: 'Bed Details',
+      onPress: () => {},
+    },
+    {
+      id: 5,
+      name: 'Hostel Allocation',
+      onPress: () => {},
+    },
+    {
+      id: 6,
+      name: 'Hostel Allocation History',
+      onPress: () => {},
+    },
+    {
+      id: 7,
+      name: 'Bed Availability',
+      onPress: () => {},
     },
   ];
 
@@ -58,7 +81,7 @@ const HostelManagement = (props: Props) => {
   );
 };
 
-export default HostelManagement;
+export default Hostel;
 
 const styles = StyleSheet.create({
   container: {

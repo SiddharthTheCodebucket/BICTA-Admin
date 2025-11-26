@@ -32,4 +32,8 @@ export default {
   delete_guest: 'lms/delete-guest-registration',
   add_guest: 'lms/add-guest-registration',
   update_guest: 'lms/update-guest-registration',
+  hostel_details: 'hostel/list-hostel-details',
+  update_hostel_details: 'hostel/update-hostel-details',
+  delete_hostel_details: 'hostel/delete-hostel-details',
+  add_hostel_details: 'hostel/add-hostel-details',
 };

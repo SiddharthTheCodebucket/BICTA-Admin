@@ -31,6 +31,34 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    hostelDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.hostel_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateHostelDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_hostel_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    deleteHostelDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.delete_hostel_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    addHostelDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.add_hostel_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -39,4 +67,8 @@ export const {
   useDeleteGuestMutation,
   useAddGuestMutation,
   useUpdateGuestMutation,
+  useHostelDetailsMutation,
+  useUpdateHostelDetailsMutation,
+  useDeleteHostelDetailsMutation,
+  useAddHostelDetailsMutation,
 } = apiEndpoints;

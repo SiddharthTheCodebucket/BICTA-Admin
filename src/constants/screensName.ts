@@ -18,4 +18,7 @@ export default {
   HostelManagement: 'HostelManagement',
   Guest: 'Guest',
   AddGuest: 'AddGuest',
+  Hostel: 'Hostel',
+  HostelDetails: 'HostelDetails',
+  AddHostelDetails: 'AddHostelDetails',
 };

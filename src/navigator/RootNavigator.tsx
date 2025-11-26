@@ -23,6 +23,9 @@ import AddCreateTour from '../screens/Menu/VehicleManagement/CreateTour/AddCreat
 import HostelManagement from '../screens/Menu/HostelManagement';
 import Guest from '../screens/Menu/HostelManagement/Guest';
 import AddGuest from '../screens/Menu/HostelManagement/Guest/AddGuest';
+import Hostel from '../screens/Menu/HostelManagement/Hostel';
+import HostelDetails from '../screens/Menu/HostelManagement/Hostel/HostelDetails';
+import AddHostelDetails from '../screens/Menu/HostelManagement/Hostel/HostelDetails/AddHostelDetails';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -106,6 +109,15 @@ const RootNavigator = () => {
           />
           <RootStackScreen.Screen name="Guest" component={Guest} />
           <RootStackScreen.Screen name="AddGuest" component={AddGuest} />
+          <RootStackScreen.Screen name="Hostel" component={Hostel} />
+          <RootStackScreen.Screen
+            name="HostelDetails"
+            component={HostelDetails}
+          />
+          <RootStackScreen.Screen
+            name="AddHostelDetails"
+            component={AddHostelDetails}
+          />
         </RootStackScreen.Group>
         <RootStackScreen.Group
           screenOptions={{
