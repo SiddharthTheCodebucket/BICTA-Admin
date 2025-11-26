@@ -1,4 +1,9 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import {
   StyleSheet,
   View,
@@ -60,7 +65,7 @@ const Guest = (props: Props) => {
   const [page, setPage] = useState(1);
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
-
+  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
@@ -77,11 +82,17 @@ const Guest = (props: Props) => {
 
   useFocusEffect(
     useCallback(() => {
-      if (!centerSerach?.name && search === '') {
+      if (firstTimeLoad && !centerSerach?.name && search === '') {
+        setFirstTimeLoad(false);
         guestListDetails(1, true, '');
       }
-    }, [centerSerach, search]),
+    }, [firstTimeLoad, centerSerach, search]),
   );
+
+  useEffect(() => {
+    if (!centerSerach?.name) return;
+    guestListDetails(1, true, '');
+  }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
@@ -190,6 +201,7 @@ const Guest = (props: Props) => {
             text2: res.data.message,
           });
           setInitialCall(false);
+          setFirstTimeLoad(true);
         })
         .catch((err: any) => {
           setInitialCall(false);
@@ -355,7 +367,7 @@ const Guest = (props: Props) => {
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? guestListDetails(page + 1, false, '')
+            ? guestListDetails(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}

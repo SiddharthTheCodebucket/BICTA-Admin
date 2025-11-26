@@ -1,4 +1,9 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import {
   StyleSheet,
   View,
@@ -59,7 +64,7 @@ const CreateTour = (props: Props) => {
   const [page, setPage] = useState(1);
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
-
+  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
@@ -76,11 +81,17 @@ const CreateTour = (props: Props) => {
 
   useFocusEffect(
     useCallback(() => {
-      if (!centerSerach?.name && search === '') {
+      if (firstTimeLoad && !centerSerach?.name && search === '') {
+        setFirstTimeLoad(false);
         listTripDetails(1, true, '');
       }
-    }, [centerSerach, search]),
+    }, [firstTimeLoad, centerSerach, search]),
   );
+
+  useEffect(() => {
+    if (!centerSerach?.name) return;
+    listTripDetails(1, true, '');
+  }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
@@ -189,6 +200,7 @@ const CreateTour = (props: Props) => {
             text2: res.data.message,
           });
           setInitialCall(false);
+          setFirstTimeLoad(true);
         })
         .catch((err: any) => {
           setInitialCall(false);
@@ -371,7 +383,7 @@ const CreateTour = (props: Props) => {
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listTripDetails(page + 1, false, '')
+            ? listTripDetails(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}

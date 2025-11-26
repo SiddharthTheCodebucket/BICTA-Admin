@@ -1,4 +1,9 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import {
   StyleSheet,
   View,
@@ -62,6 +67,7 @@ const AssignVehicle = (props: Props) => {
   const [commonListApi] = useCommonDropdownListMutation();
   const [assignNewDriverApi] = useAssignNewDriverMutation();
 
+  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
 
@@ -98,10 +104,12 @@ const AssignVehicle = (props: Props) => {
 
       if (showAssignModal) return;
 
-      if (!centerSerach?.name && search === '') {
+      if (firstTimeLoad && !centerSerach?.name && search === '') {
+        setFirstTimeLoad(false);
         listVehicleDetails(1, true, '');
       }
     }, [
+      firstTimeLoad,
       isScreenFocused,
       centerSerach,
       search,
@@ -109,6 +117,10 @@ const AssignVehicle = (props: Props) => {
       showAssignModal,
     ]),
   );
+  useEffect(() => {
+    if (!centerSerach?.name) return;
+    listVehicleDetails(1, true, '');
+  }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
@@ -203,6 +215,7 @@ const AssignVehicle = (props: Props) => {
             text2: res.data.message,
           });
           setInitialCall(false);
+          setFirstTimeLoad(true);
         })
         .catch((err: any) => {
           setInitialCall(false);
@@ -241,6 +254,7 @@ const AssignVehicle = (props: Props) => {
           });
           setInitialCall(false);
           listVehicleDetails(1, true, search);
+          setFirstTimeLoad(true);
         })
         .catch((err: any) => {
           setInitialCall(false);
@@ -414,6 +428,7 @@ const AssignVehicle = (props: Props) => {
           text2: res.data.message,
         });
         setInitialCall(false);
+        setFirstTimeLoad(true);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -510,7 +525,7 @@ const AssignVehicle = (props: Props) => {
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listVehicleDetails(page + 1, false, '')
+            ? listVehicleDetails(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}

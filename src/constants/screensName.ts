@@ -21,4 +21,6 @@ export default {
   Hostel: 'Hostel',
   HostelDetails: 'HostelDetails',
   AddHostelDetails: 'AddHostelDetails',
+  FloorDetails: 'FloorDetails',
+  AddFloorDetails: 'AddFloorDetails',
 };

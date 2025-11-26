@@ -59,6 +59,34 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    hostelFloorDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.hostel_floor_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    deleteHostelFloor: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.delete_hostel_floor,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    addHostelFloor: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.add_hostel_floor,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateHostelFloor: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_hostel_floor,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -71,4 +99,8 @@ export const {
   useUpdateHostelDetailsMutation,
   useDeleteHostelDetailsMutation,
   useAddHostelDetailsMutation,
+  useHostelFloorDetailsMutation,
+  useDeleteHostelFloorMutation,
+  useAddHostelFloorMutation,
+  useUpdateHostelFloorMutation,
 } = apiEndpoints;

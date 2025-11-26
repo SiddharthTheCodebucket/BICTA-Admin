@@ -36,4 +36,8 @@ export default {
   update_hostel_details: 'hostel/update-hostel-details',
   delete_hostel_details: 'hostel/delete-hostel-details',
   add_hostel_details: 'hostel/add-hostel-details',
+  hostel_floor_details: 'hostel/list-hostel-floor-details',
+  delete_hostel_floor: 'hostel/delete-hostel-floor-details',
+  add_hostel_floor: 'hostel/add-hostel-floor-details',
+  update_hostel_floor: 'hostel/update-hostel-floor-details',
 };

@@ -1,4 +1,9 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import {
   StyleSheet,
   View,
@@ -62,7 +67,7 @@ const HostelDetails = (props: Props) => {
   const [page, setPage] = useState(1);
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
-
+  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
@@ -79,11 +84,17 @@ const HostelDetails = (props: Props) => {
 
   useFocusEffect(
     useCallback(() => {
-      if (!centerSerach?.name && search === '') {
+      if (firstTimeLoad && !centerSerach?.name && search === '') {
+        setFirstTimeLoad(false);
         hostelDetailsList(1, true, '');
       }
-    }, [centerSerach, search]),
+    }, [firstTimeLoad, centerSerach, search]),
   );
+
+  useEffect(() => {
+    if (!centerSerach?.name) return;
+    hostelDetailsList(1, true, '');
+  }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
@@ -164,7 +175,7 @@ const HostelDetails = (props: Props) => {
     hostelDetailsList(1, true, '');
   };
 
-  const VehicleCard = ({ item, index, navigation }: any) => {
+  const HostelCard = ({ item, index, navigation }: any) => {
     const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
@@ -180,13 +191,13 @@ const HostelDetails = (props: Props) => {
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
-          updateVehicleStatus(item.id);
+          updateHostelStatus(item.id);
         },
         cancelFunction: () => {},
       });
     };
 
-    const updateVehicleStatus = (id: any) => {
+    const updateHostelStatus = (id: any) => {
       setInitialCall(true);
       const params = {
         idForChangeStatus: id,
@@ -199,6 +210,7 @@ const HostelDetails = (props: Props) => {
             text2: res.data.message,
           });
           setInitialCall(false);
+          hostelDetailsList(1, true, search);
         })
         .catch((err: any) => {
           setInitialCall(false);
@@ -217,13 +229,13 @@ const HostelDetails = (props: Props) => {
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
-          deleteVehicleStatus(item.id);
+          deleteHostelStatus(item.id);
         },
         cancelFunction: () => {},
       });
     };
 
-    const deleteVehicleStatus = (id: any) => {
+    const deleteHostelStatus = (id: any) => {
       setInitialCall(true);
       const params = {
         id: id,
@@ -236,6 +248,7 @@ const HostelDetails = (props: Props) => {
             text2: res.data.message,
           });
           setInitialCall(false);
+          hostelDetailsList(1, true, search);
         })
         .catch((err: any) => {
           setInitialCall(false);
@@ -400,8 +413,8 @@ const HostelDetails = (props: Props) => {
     );
   };
 
-  const renderListVehicleDetails = ({ item, index }: any) => {
-    return <VehicleCard item={item} index={index} navigation={navigation} />;
+  const renderListHostelDetails = ({ item, index }: any) => {
+    return <HostelCard item={item} index={index} navigation={navigation} />;
   };
 
   return (
@@ -439,7 +452,7 @@ const HostelDetails = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListVehicleDetails}
+        renderItem={renderListHostelDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
@@ -468,7 +481,7 @@ const HostelDetails = (props: Props) => {
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? hostelDetailsList(page + 1, false, '')
+            ? hostelDetailsList(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}

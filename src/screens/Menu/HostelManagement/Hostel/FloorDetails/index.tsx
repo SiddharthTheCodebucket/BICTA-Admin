@@ -10,8 +10,7 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  Linking,
-  TouchableOpacity,
+  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -24,24 +23,25 @@ import {
   strings,
   vh,
   vw,
-} from '../../../../constants';
+} from '../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../components/atoms/TextAtom';
-import FullscreenLoading from '../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../components/organisms/FloatingButton';
+} from '../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../components/atoms/TextAtom';
+import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
+import SearchBoxOrganism from '../../../../../components/organisms/SearchBoxOrganism';
+import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
+import FloatingButton from '../../../../../components/organisms/FloatingButton';
+import ImageAtom from '../../../../../components/atoms/ImageAtom';
+import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
 import {
-  useDeleteVehicleDetailsMutation,
-  useListVehicleDetailsMutation,
-  useUpdateVehicleDetailsMutation,
-} from '../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import ImageAtom from '../../../../components/atoms/ImageAtom';
-import ViewAtom from '../../../../components/atoms/ViewAtom';
-import DropDownOrganism from '../../../../components/organisms/DropDownOrganism';
+  useDeleteHostelFloorMutation,
+  useHostelFloorDetailsMutation,
+} from '../../../../../injectEndpoints/hostelEndpoints';
+import ViewAtom from '../../../../../components/atoms/ViewAtom';
+import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
+import { useCommonDropdownListMutation } from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
   route: any;
@@ -58,13 +58,14 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const VehicleRegistration = (props: Props) => {
+const FloorDetails = (props: Props) => {
   const { navigation } = props;
 
+  const [showFilter, setShowFilter] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
-  const [listVehicleDetailsApi] = useListVehicleDetailsMutation();
-  const [updateVehicleDetailsApi] = useUpdateVehicleDetailsMutation();
-  const [deleteVehicleDetailsApi] = useDeleteVehicleDetailsMutation();
+  const [commonDropdownApi] = useCommonDropdownListMutation();
+  const [hostelFloorDetailsApi] = useHostelFloorDetailsMutation();
+  const [deleteHostelFloorsApi] = useDeleteHostelFloorMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -80,23 +81,32 @@ const VehicleRegistration = (props: Props) => {
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
+  const [hostelData, setHostelData] = useState<any>([]);
+  const [selectedHostelData, setSelecetedHostelData] = useState<any>({});
+
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Vehicle Registration Details');
+    Header.setNavigation(navigation, 'Floor Details');
     navigation.BackButtonPress = () => navigation.goBack();
   });
+
+  const toggleFilter = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShowFilter(!showFilter);
+  };
 
   useFocusEffect(
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
+        hostelFloorDetails(1, true, '');
+        getBipardCenter();
         setFirstTimeLoad(false);
-        listVehicleDetails(1, true, '');
       }
-    }, [firstTimeLoad, centerSerach, search]),
+    }, [centerSerach, search, firstTimeLoad]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listVehicleDetails(1, true, '');
+    hostelFloorDetails(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
@@ -109,21 +119,23 @@ const VehicleRegistration = (props: Props) => {
     return [centerSerach.name];
   };
 
-  const listVehicleDetails = (
+  const hostelFloorDetails = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
+    filtersArray: any[] = [],
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
 
     const centreFilter = getCentreFilter();
+
     const params: any = {
       search: keyword,
       sort: {
-        attributes: ['id'],
+        attributes: ['created_date'],
         sorts: ['desc'],
       },
-      filters: [],
+      filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
     };
@@ -132,13 +144,14 @@ const VehicleRegistration = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    listVehicleDetailsApi(params)
+    hostelFloorDetailsApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
         setInitialCall(false);
         setPagination(false);
         setRefreshing(false);
+
         if (pageNumber !== 1 && data.length > 0) {
           setData((prev: any) => [...prev, ...newData]);
         } else {
@@ -163,7 +176,7 @@ const VehicleRegistration = (props: Props) => {
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listVehicleDetails(1, true, text);
+      hostelFloorDetails(1, true, text);
     }, 500),
     [],
   );
@@ -175,55 +188,10 @@ const VehicleRegistration = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listVehicleDetails(1, true, '');
+    hostelFloorDetails(1, true, '');
   };
 
-  const VehicleCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
-
-      if (newStatus === statusValue) return;
-
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: 'Are you sure you want to change this item?',
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          updateVehicleStatus(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const updateVehicleStatus = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        idForChangeStatus: id,
-      };
-      updateVehicleDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
-
+  const FloorCard = ({ item, index, navigation }: any) => {
     const handleDelete = () => {
       navigation.navigate(screensName.AlertOrganism, {
         title: 'Delete Confirmation',
@@ -232,26 +200,26 @@ const VehicleRegistration = (props: Props) => {
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
-          deleteVehicleStatus(item.id);
+          deleteFloorDetails(item.id);
         },
         cancelFunction: () => {},
       });
     };
 
-    const deleteVehicleStatus = (id: any) => {
+    const deleteFloorDetails = (id: any) => {
       setInitialCall(true);
       const params = {
         id: id,
       };
-      deleteVehicleDetailsApi(params)
+      deleteHostelFloorsApi(params)
         .unwrap()
         .then((res: any) => {
           Toast.show({
             type: 'success',
             text2: res.data.message,
           });
-          setInitialCall(false);
           setFirstTimeLoad(true);
+          setInitialCall(false);
         })
         .catch((err: any) => {
           setInitialCall(false);
@@ -280,7 +248,9 @@ const VehicleRegistration = (props: Props) => {
                 justifyContent: 'center',
               }}
               onPress={() => {
-                navigation.navigate(screensName.AddVehicle, { item: item });
+                navigation.navigate(screensName.AddFloorDetails, {
+                  item: item,
+                });
               }}
             >
               <ImageAtom
@@ -314,126 +284,128 @@ const VehicleRegistration = (props: Props) => {
 
         <View style={styles.rowBetween}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Vehicle Name</TextAtom>
-            <TextAtom style={styles.value}>{item.vehicleName ?? '-'}</TextAtom>
+            <TextAtom style={styles.label}>Hostel Name</TextAtom>
+            <TextAtom style={styles.value}>
+              {item.selectHostelName ?? '-'}
+            </TextAtom>
           </View>
           <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Registration No</TextAtom>
+            <TextAtom style={styles.labelRight}>Floor Type</TextAtom>
             <TextAtom style={styles.valueRight}>
-              {item.registrationNo ?? '-'}
+              {item.floorType ?? '-'}
             </TextAtom>
           </View>
         </View>
-
-        <View style={[styles.rowBetween, { marginTop: vh(10) }]}>
+        <View style={styles.rowBetween}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Owner Name</TextAtom>
-            <TextAtom style={styles.value}>{item.ownerName ?? '-'}</TextAtom>
+            <TextAtom style={styles.label}>Name of Floors</TextAtom>
+            <TextAtom style={styles.value}>{item.nameOfFloors ?? '-'}</TextAtom>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Owner Contact</TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {item.ownerContactNo ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
 
-        {/* RC + QR */}
-        <View style={[styles.rowBetween, { marginTop: vh(15) }]}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Vehicle RC</TextAtom>
-            {item.rcFile ? (
-              <TouchableAtom
-                onPress={() => Linking.openURL(item.rcFile)}
-                style={{ marginTop: 5 }}
-              >
-                <ImageAtom
-                  source={{ uri: item.rcFile }}
-                  style={styles.thumbnail}
-                />
-              </TouchableAtom>
-            ) : (
-              <ViewAtom
-                style={[
-                  styles.thumbnail,
-                  { alignItems: 'center', justifyContent: 'center' },
-                ]}
-              >
-                <TextAtom style={styles.value}>No File</TextAtom>
-              </ViewAtom>
-            )}
-          </View>
-
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.label}>Vehicle QR</TextAtom>
-            <ImageAtom
-              source={{
-                uri: `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${item.qrCode}`,
-              }}
-              style={[styles.thumbnail, { alignSelf: 'flex-end' }]}
-            />
-          </View>
-        </View>
-
-        {showStatusMenu && (
-          <TouchableOpacity
-            onPress={() => setShowStatusMenu(false)}
-            style={styles.overlay}
-          />
-        )}
-
-        <View style={{ marginTop: vh(15), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Status</TextAtom>
-
-          <TouchableAtom
-            onPress={() => setShowStatusMenu(!showStatusMenu)}
-            style={[
-              styles.statusBox,
-              statusValue === 'Active' ? styles.activeBox : styles.inActiveBox,
-            ]}
-          >
-            <TextAtom
-              style={[
-                styles.statusText,
-                statusValue === 'Active'
-                  ? styles.activeText
-                  : styles.inActiveText,
-              ]}
-            >
-              {statusValue}
+            <TextAtom style={styles.labelRight}>No of Rooms</TextAtom>
+            <TextAtom numberOfLines={0} style={styles.valueRight}>
+              {item.noOfRooms ?? '-'}
             </TextAtom>
-            <ImageAtom source={images.downArrow} />
-          </TouchableAtom>
-
-          {showStatusMenu && (
-            <View style={styles.dropMenu}>
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() => onSelectStatus('Active')}
-              >
-                <TextAtom style={{ color: colors.black }}>Active</TextAtom>
-              </TouchableAtom>
-
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() => onSelectStatus('In-Active')}
-              >
-                <TextAtom style={{ color: colors.black }}>In-Active</TextAtom>
-              </TouchableAtom>
-            </View>
-          )}
+          </View>
         </View>
       </View>
     );
   };
 
-  const renderListVehicleDetails = ({ item, index }: any) => {
-    return <VehicleCard item={item} index={index} navigation={navigation} />;
+  const renderListFloorDetails = ({ item, index }: any) => {
+    return <FloorCard item={item} index={index} navigation={navigation} />;
+  };
+
+  const FilterForm = () => (
+    <View style={styles.filterContainer}>
+      <DropDownOrganism
+        label={'Filter Options'}
+        placeholder={'Filter Options'}
+        onPress={() => {
+          navigation.navigate('DropDownModal', {
+            name: 'Filter Options',
+            Data: hostelData,
+            selectedData: selectedHostelData,
+            setSelectedData: (data: any) => {
+              setSelecetedHostelData(data);
+            },
+            typeName: 'name',
+            typeId: 'id',
+          });
+        }}
+        inputText={selectedHostelData?.name}
+        isMandatory
+        errorMessage={''}
+      />
+
+      <ViewAtom style={styles.buttonRow}>
+        <ButtonOrganism
+          onPress={applyFilter}
+          bttnText="Apply Filter"
+          containerStyle={styles.applyBtn}
+        />
+        <ButtonOrganism
+          onPress={clearFilter}
+          bttnText="Clear Filter"
+          containerStyle={styles.clearBtn}
+          bttnTextStyle={{ color: colors.primary }}
+        />
+      </ViewAtom>
+    </View>
+  );
+
+  const clearFilter = () => {
+    setSelecetedHostelData({});
+    hostelFloorDetails(1, true, search, []);
+  };
+
+  const applyFilter = () => {
+    if (!selectedHostelData?.id) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please select a hostel',
+      });
+      return;
+    }
+
+    const filters = [['selectHostelNameId', '=', selectedHostelData.id]];
+
+    hostelFloorDetails(1, true, search, filters);
+  };
+
+  const getBipardCenter = () => {
+    setInitialCall(true);
+    const params = {
+      listType: 'filter_hostel_name_for_floor_details',
+      bipardCentre: ['Gaya', 'Patna'],
+      replacements: ['%%'],
+    };
+    commonDropdownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        setHostelData(res.data);
+        setInitialCall(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+          autoHide: true,
+        });
+      });
   };
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
+      <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
+        <TextAtom style={styles.filterText}>
+          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+        </TextAtom>
+      </TouchableAtom>
+      {showFilter && <FilterForm />}
       <DropDownOrganism
         label={''}
         placeholder={'Centers'}
@@ -466,7 +438,7 @@ const VehicleRegistration = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListVehicleDetails}
+        renderItem={renderListFloorDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
@@ -488,14 +460,18 @@ const VehicleRegistration = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listVehicleDetails(1, false, '');
+              hostelFloorDetails(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
+          const filters = selectedHostelData?.id
+            ? [['selectHostelNameId', '=', selectedHostelData.id]]
+            : [];
+
           nextPageAvailable
-            ? listVehicleDetails(page + 1, false, search)
+            ? hostelFloorDetails(page + 1, false, search, filters)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
@@ -503,14 +479,14 @@ const VehicleRegistration = (props: Props) => {
       />
       <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.AddVehicle);
+          navigation.navigate(screensName.AddFloorDetails);
         }}
       />
     </SafeAreaView>
   );
 };
 
-export default VehicleRegistration;
+export default FloorDetails;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -568,64 +544,33 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  thumbnail: {
-    width: 70,
-    height: 70,
-    backgroundColor: '#eaeaea',
-    borderRadius: 8,
-    marginTop: 6,
+  filterButton: {
+    borderWidth: vw(1),
+    borderColor: colors.primary,
+    borderRadius: vw(4),
+    marginTop: vh(10),
+    alignSelf: 'flex-end',
+    marginRight: vh(15),
+    paddingHorizontal: vw(10),
+    paddingVertical: vh(5),
   },
-  statusBox: {
-    marginTop: vh(8),
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(12),
-    borderRadius: vw(6),
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
-  },
-
-  inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
-  },
-
-  statusText: {
+  filterText: {
+    color: colors.black,
     fontFamily: fonts.Roboto_Medium,
     fontSize: vw(14),
   },
-
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
-
-  dropMenu: {
-    marginTop: vh(6),
+  filterContainer: { paddingHorizontal: vw(15) },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: vh(5),
+  },
+  applyBtn: { width: vw(150), height: vh(35) },
+  clearBtn: {
+    width: vw(150),
+    height: vh(35),
+    borderWidth: vw(1),
+    borderColor: colors.primary,
     backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.grey,
-    borderRadius: vw(6),
-    overflow: 'hidden',
-  },
-
-  dropItem: {
-    paddingVertical: vh(10),
-    paddingHorizontal: vw(12),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.chinese_silver,
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'transparent',
-    zIndex: 998,
   },
 });
