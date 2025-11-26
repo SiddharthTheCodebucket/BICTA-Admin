@@ -20,6 +20,9 @@ import AddAssignVehicle from '../screens/Menu/VehicleManagement/AssignVehicle/Ad
 import CreateTour from '../screens/Menu/VehicleManagement/CreateTour';
 import CreateTourDetails from '../screens/Menu/VehicleManagement/CreateTour/CreateTourDetails';
 import AddCreateTour from '../screens/Menu/VehicleManagement/CreateTour/AddCreateTour';
+import HostelManagement from '../screens/Menu/HostelManagement';
+import Guest from '../screens/Menu/HostelManagement/Guest';
+import AddGuest from '../screens/Menu/HostelManagement/Guest/AddGuest';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -97,6 +100,12 @@ const RootNavigator = () => {
             name="AddCreateTour"
             component={AddCreateTour}
           />
+          <RootStackScreen.Screen
+            name="HostelManagement"
+            component={HostelManagement}
+          />
+          <RootStackScreen.Screen name="Guest" component={Guest} />
+          <RootStackScreen.Screen name="AddGuest" component={AddGuest} />
         </RootStackScreen.Group>
         <RootStackScreen.Group
           screenOptions={{

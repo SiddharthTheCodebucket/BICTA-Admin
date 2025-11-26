@@ -26,4 +26,10 @@ export default {
   add_trip_details: 'vehicle-management/add-trip-details',
   update_trip_details: 'vehicle-management/update-trip-details',
   delete_trip_details: 'vehicle-management/delete-trip-details',
+
+  //Hostel Management
+  guest_list: 'lms/list-guest-registration',
+  delete_guest: 'lms/delete-guest-registration',
+  add_guest: 'lms/add-guest-registration',
+  update_guest: 'lms/update-guest-registration',
 };

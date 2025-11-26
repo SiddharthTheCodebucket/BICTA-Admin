@@ -15,4 +15,7 @@ export default {
   CreateTour: 'CreateTour',
   CreateTourDetails: 'CreateTourDetails',
   AddCreateTour: 'AddCreateTour',
+  HostelManagement: 'HostelManagement',
+  Guest: 'Guest',
+  AddGuest: 'AddGuest',
 };

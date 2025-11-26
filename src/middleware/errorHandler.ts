@@ -18,9 +18,9 @@ export const rtkQueryErrorHandler: Middleware = () => next => (action: any) => {
     const errorMessage = action.payload?.data?.message;
 
     if (response !== undefined && response?.data !== undefined) {
-      if (status === 401) {
-        callErrorModal(errorMessage);
-      }
+      // if (status === 401) {
+      //   callErrorModal(errorMessage);
+      // }
     }
   }
 
