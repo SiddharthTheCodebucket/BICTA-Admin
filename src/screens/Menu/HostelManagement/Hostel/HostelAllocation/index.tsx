@@ -1,4 +1,5 @@
 import React, {
+  createRef,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -12,15 +13,17 @@ import {
   RefreshControl,
   LayoutAnimation,
   ScrollView,
+  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import {
   colors,
   fonts,
   images,
   screensName,
+  strings,
   vh,
   vw,
 } from '../../../../../constants';
@@ -33,17 +36,22 @@ import FullscreenLoading from '../../../../../components/organisms/FullscreenLoa
 import SearchBoxOrganism from '../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
-import { useHostelAllocationDetailsMutation } from '../../../../../injectEndpoints/hostelEndpoints';
+import {
+  useHostelAllocationDeleteMutation,
+  useHostelAllocationDetailsMutation,
+  useHostelAllocationMutation,
+  useHostelReleaseMutation,
+} from '../../../../../injectEndpoints/hostelEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
-import DateInputOrganism from '../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
 import ImageAtom from '../../../../../components/atoms/ImageAtom';
 import {
   downloadAndOpenFile,
   isNullUndefined,
 } from '../../../../../utils/CommonFunction';
+import TextInputOrganisms from '../../../../../components/organisms/TextInputOrganisms';
 
 interface Props {
   route: any;
@@ -60,11 +68,15 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const HostelAllocationHistory = (props: Props) => {
+const HostelAllocation = (props: Props) => {
   const { navigation } = props;
-
+  const isScreenFocused = useIsFocused();
+  const input1_ref: any = createRef();
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [hostelAllocationDetailsApi] = useHostelAllocationDetailsMutation();
+  const [hostelAllocationDeleteApi] = useHostelAllocationDeleteMutation();
+  const [hostelReleaseApi] = useHostelReleaseMutation();
+  const [hostelAllocationApi] = useHostelAllocationMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -76,6 +88,14 @@ const HostelAllocationHistory = (props: Props) => {
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
 
+  const [showReleaseModal, setShowReleaseModal] = useState(false);
+  const [selectedHostel, setSelectedHostel] = useState<any>({});
+
+  const [showAllocationModal, setShowAllocationModal] = useState(false);
+  const [allocationId, setAllocationId] = useState<any>('');
+
+  const [isComingFromDropdown, setIsComingFromDropdown] = useState(false);
+
   const [trainindDetailList, setTrainingDetailList] = useState<any>([]);
   const [trainindDetail, setTrainindDetail] = useState<any>({});
   const [genderList, setGenderList] = useState<any>([
@@ -83,10 +103,14 @@ const HostelAllocationHistory = (props: Props) => {
     { id: 'Female', name: 'Female' },
   ]);
   const [gender, setGender] = useState<any>({});
+  const [allocationStatusList, setAllocationStatusList] = useState<any>([
+    { id: 'Pending for allocation', name: 'Pending' },
+    { id: 'Allocated', name: 'Allocated' },
+  ]);
+  const [allocationStatus, setAllocationStatus] = useState<any>({});
+
   const [hostelList, setHostelList] = useState<any>([]);
   const [hostel, setHostel] = useState<any>({});
-  const [startDate, setStartDate] = useState<any>('');
-  const [endDate, setEndDate] = useState<any>('');
 
   const ITEMS_PER_PAGE = 10;
 
@@ -96,19 +120,36 @@ const HostelAllocationHistory = (props: Props) => {
   const [activeTab, setActiveTab] = useState<'Trainee' | 'Guest'>('Trainee');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Hostel Allocation History');
+    Header.setNavigation(navigation, 'Hostel Allocation');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
   useFocusEffect(
     useCallback(() => {
+      if (!isScreenFocused) return;
+
+      if (isComingFromDropdown) {
+        setIsComingFromDropdown(false);
+        return;
+      }
+
+      if (showReleaseModal) return;
+      if (showAllocationModal) return;
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
         hostelAllocationDetails(1, true, '');
         getTrainingDetails();
         getHostelDetails();
       }
-    }, [firstTimeLoad, centerSerach, search]),
+    }, [
+      firstTimeLoad,
+      isScreenFocused,
+      centerSerach,
+      search,
+      isComingFromDropdown,
+      showReleaseModal,
+      showAllocationModal,
+    ]),
   );
 
   useEffect(() => {
@@ -153,7 +194,6 @@ const HostelAllocationHistory = (props: Props) => {
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
-      isReleasedData: true,
     };
 
     if (centreFilter) {
@@ -226,7 +266,7 @@ const HostelAllocationHistory = (props: Props) => {
       <TouchableAtom
         style={styles.card}
         onPress={() => {
-          navigation.navigate(screensName.TrainneHostelAllocationDetails, {
+          navigation.navigate(screensName.HostelAllocationDetails, {
             data: item,
           });
         }}
@@ -235,7 +275,74 @@ const HostelAllocationHistory = (props: Props) => {
           <TextAtom style={[styles.label, { flex: 1 }]}>
             Sr. No: {index + 1}
           </TextAtom>
+
+          {item?.status === 'Pending for allocation' ? (
+            <TouchableAtom
+              style={{
+                backgroundColor: colors.primary,
+                paddingVertical: vh(6),
+                paddingHorizontal: vw(12),
+                borderRadius: vw(6),
+              }}
+              onPress={() => {}}
+            >
+              <TextAtom
+                style={{
+                  color: colors.white,
+                  fontFamily: fonts.Roboto_Medium,
+                  fontSize: vw(14),
+                }}
+              >
+                Allocate
+              </TextAtom>
+            </TouchableAtom>
+          ) : (
+            <View style={{ flexDirection: 'row', gap: vw(15) }}>
+              <TouchableAtom
+                style={{
+                  borderWidth: vw(1),
+                  borderColor: colors.green,
+                  borderRadius: vw(6),
+                  padding: vw(3),
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onPress={() => {
+                  // navigation.navigate(screensName.AddVehicle, { item: item });
+                }}
+              >
+                <ImageAtom
+                  source={images.edit_pencil}
+                  style={{
+                    tintColor: colors.green,
+                    width: vw(15),
+                    height: vw(15),
+                  }}
+                />
+              </TouchableAtom>
+
+              <TouchableAtom
+                style={{
+                  borderWidth: vw(1),
+                  borderColor: colors.red_2,
+                  borderRadius: vw(6),
+                  padding: vw(3),
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onPress={() => {
+                  handleDelete(item.id);
+                }}
+              >
+                <ImageAtom
+                  source={images.delete}
+                  style={{ width: vw(15), height: vw(15) }}
+                />
+              </TouchableAtom>
+            </View>
+          )}
         </View>
+
         <View style={{ flex: 1 }}>
           <TextAtom style={styles.label}>Training Programme</TextAtom>
           <TextAtom style={styles.value}>
@@ -253,6 +360,7 @@ const HostelAllocationHistory = (props: Props) => {
               {moment(item.courseStartDate).format('DD-MM-YYYY')}
             </TextAtom>
           </View>
+
           <View style={{ flex: 1, alignItems: 'flex-end' }}>
             <TextAtom style={styles.labelRight}>Course End Date</TextAtom>
             <TextAtom style={styles.valueRight}>
@@ -260,6 +368,7 @@ const HostelAllocationHistory = (props: Props) => {
             </TextAtom>
           </View>
         </View>
+
         <View style={[styles.rowBetween]}>
           <View style={{ flex: 1 }}>
             <TextAtom style={styles.label}>Hostel</TextAtom>
@@ -283,9 +392,52 @@ const HostelAllocationHistory = (props: Props) => {
   const GuestCard = ({ item, index }: any) => {
     return (
       <View style={styles.card}>
-        <TextAtom style={[styles.label, { marginBottom: vh(5) }]}>
-          Sr. No: {index + 1}
-        </TextAtom>
+        <View style={{ flexDirection: 'row', gap: vw(15) }}>
+          <TextAtom style={[styles.label, { flex: 1 }]}>
+            Sr. No: {index + 1}
+          </TextAtom>
+          <TouchableAtom
+            style={{
+              borderWidth: vw(1),
+              borderColor: colors.green,
+              borderRadius: vw(6),
+              padding: vw(3),
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => {
+              //   navigation.navigate(screensName.AddVehicle, { item: item });
+            }}
+          >
+            <ImageAtom
+              source={images.edit_pencil}
+              style={{
+                tintColor: colors.green,
+                width: vw(15),
+                height: vw(15),
+              }}
+            />
+          </TouchableAtom>
+
+          <TouchableAtom
+            style={{
+              borderWidth: vw(1),
+              borderColor: colors.red_2,
+              borderRadius: vw(6),
+              padding: vw(3),
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => {
+              handleDelete(item.id);
+            }}
+          >
+            <ImageAtom
+              source={images.delete}
+              style={{ width: vw(15), height: vw(15) }}
+            />
+          </TouchableAtom>
+        </View>
 
         <View style={{ flex: 1 }}>
           <TextAtom style={styles.label}>name</TextAtom>
@@ -318,8 +470,60 @@ const HostelAllocationHistory = (props: Props) => {
             <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
           </View>
         </View>
+
+        <View style={[styles.rowBetween, { marginTop: vh(8) }]}>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>Key</TextAtom>
+            <TextAtom style={styles.value}>{item.keyProvided ?? '-'}</TextAtom>
+          </View>
+
+          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+            <TextAtom style={styles.label}>Yoga Mat</TextAtom>
+            <TextAtom style={styles.value}>
+              {item.yogaMatProvided ?? '-'}
+            </TextAtom>
+          </View>
+        </View>
       </View>
     );
+  };
+
+  const handleDelete = (id: any) => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: 'Delete Confirmation',
+      message: 'Are you sure you want to delete this item?',
+      okText: 'Confirm',
+      double: true,
+      cancelText: strings.cancel,
+      okFunction: () => {
+        deleteHostelAllocationStatus(id);
+      },
+      cancelFunction: () => {},
+    });
+  };
+
+  const deleteHostelAllocationStatus = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      id: id,
+    };
+    hostelAllocationDeleteApi(params)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+        setInitialCall(false);
+        setFirstTimeLoad(true);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || 'Something went wrong',
+        });
+      });
   };
 
   const renderListRoomDetails = ({ item, index }: any) => {
@@ -347,6 +551,24 @@ const HostelAllocationHistory = (props: Props) => {
           });
         }}
         inputText={trainindDetail?.name}
+      />
+
+      <DropDownOrganism
+        label={'Allocation Status'}
+        placeholder={'Allocation Status'}
+        onPress={() => {
+          navigation.navigate('DropDownModal', {
+            name: 'Allocation Status',
+            Data: allocationStatusList,
+            selectedData: allocationStatus,
+            setSelectedData: (data: any) => {
+              setAllocationStatus(data);
+            },
+            typeName: 'name',
+            typeId: 'id',
+          });
+        }}
+        inputText={allocationStatus?.name}
       />
 
       <DropDownOrganism
@@ -384,26 +606,6 @@ const HostelAllocationHistory = (props: Props) => {
         }}
         inputText={hostel?.name}
       />
-      <DateInputOrganism
-        label={'Start Date'}
-        placeholder={'Start Date'}
-        value={startDate}
-        onChangeText={(val: any) => {
-          setStartDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <DateInputOrganism
-        label={'End Date'}
-        placeholder={'End Date'}
-        value={endDate}
-        onChangeText={(val: any) => {
-          setEndDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
@@ -423,8 +625,7 @@ const HostelAllocationHistory = (props: Props) => {
     setTrainindDetail({});
     setGender({});
     setHostel({});
-    setStartDate('');
-    setEndDate('');
+    setAllocationStatus('');
     hostelAllocationDetails(1, true, search, []);
   };
 
@@ -435,6 +636,9 @@ const HostelAllocationHistory = (props: Props) => {
       filters.push(['nameOfTrainingProgrammeId', '=', trainindDetail.id]);
     }
 
+    if (allocationStatus?.id) {
+      filters.push(['status', '=', gender.id]);
+    }
     if (gender?.id) {
       filters.push(['gender', '=', gender.id]);
     }
@@ -443,15 +647,6 @@ const HostelAllocationHistory = (props: Props) => {
       filters.push(['hostelNameId', '=', hostel.id]);
     }
 
-    if (startDate) {
-      const formatted = moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
-      filters.push(['courseStartDate', '>=', formatted]);
-    }
-
-    if (endDate) {
-      const formatted = moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
-      filters.push(['courseEndDate', '<=', formatted]);
-    }
     hostelAllocationDetails(1, true, search, filters, isExport);
   };
 
@@ -459,7 +654,7 @@ const HostelAllocationHistory = (props: Props) => {
     setInitialCall(true);
     const params = {
       bipardCentre: ['Gaya', 'Patna'],
-      listType: 'list-all-training',
+      listType: 'filter_training_name_for_hostel_allocation_details',
       replacements: ['%%'],
     };
     commonDropdownApi(params)
@@ -500,6 +695,57 @@ const HostelAllocationHistory = (props: Props) => {
       });
   };
 
+  const hostelAllocation = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      traineeId: id,
+    };
+    hostelAllocationApi(params)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+        setInitialCall(false);
+        setFirstTimeLoad(true);
+        setAllocationId('');
+        setShowAllocationModal(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || 'Something went wrong',
+        });
+      });
+  };
+  const hostelrelease = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      trainingId: id,
+    };
+    hostelReleaseApi(params)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+        setInitialCall(false);
+        setFirstTimeLoad(true);
+        setSelectedHostel({});
+        setShowReleaseModal(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || 'Something went wrong',
+        });
+      });
+  };
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
@@ -509,14 +755,31 @@ const HostelAllocationHistory = (props: Props) => {
           <View
             style={{
               flexDirection: 'row',
-              alignSelf: 'flex-end',
+              alignSelf: 'center',
+              width: vw(328),
+              alignItems: 'center',
+              justifyContent: 'space-between',
             }}
           >
-            <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-              <TextAtom style={styles.filterText}>
-                {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-              </TextAtom>
+            <TouchableAtom
+              style={styles.filterButton}
+              onPress={() => {
+                setShowAllocationModal(true);
+                setAllocationId('');
+              }}
+            >
+              <TextAtom style={styles.filterText}>{'Request'}</TextAtom>
             </TouchableAtom>
+            <TouchableAtom
+              style={styles.filterButton}
+              onPress={() => {
+                setShowReleaseModal(true);
+                setSelectedHostel({});
+              }}
+            >
+              <TextAtom style={styles.filterText}>{'Release'}</TextAtom>
+            </TouchableAtom>
+
             <TouchableAtom
               style={styles.filterButton}
               onPress={() => applyFilter(true)}
@@ -525,6 +788,11 @@ const HostelAllocationHistory = (props: Props) => {
                 source={images.download}
                 style={{ tintColor: colors.black }}
               />
+            </TouchableAtom>
+            <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
+              <TextAtom style={styles.filterText}>
+                {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+              </TextAtom>
             </TouchableAtom>
           </View>
           {showFilter && <FilterForm />}
@@ -614,11 +882,231 @@ const HostelAllocationHistory = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
+
+      {showReleaseModal && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <View
+            style={{
+              width: '90%',
+              backgroundColor: colors.white,
+              borderRadius: 10,
+              padding: 20,
+              position: 'relative',
+            }}
+          >
+            <TouchableAtom
+              style={{ position: 'absolute', top: 10, right: 10, padding: 5 }}
+              onPress={() => {
+                setShowReleaseModal(false);
+                setSelectedHostel({});
+              }}
+            >
+              <TextAtom style={{ fontSize: vw(22), color: colors.red_2 }}>
+                ×
+              </TextAtom>
+            </TouchableAtom>
+
+            <TextAtom
+              style={{
+                fontSize: vw(16),
+                fontFamily: fonts.Roboto_Bold,
+                marginBottom: vh(15),
+                color: colors.primary,
+                textAlign: 'center',
+              }}
+            >
+              Hostel Release Request
+            </TextAtom>
+
+            {/* Dropdown */}
+            <DropDownOrganism
+              label=""
+              placeholder="Select Hostel"
+              onPress={() => {
+                setIsComingFromDropdown(true);
+                navigation.navigate('DropDownModal', {
+                  name: 'Hostel List',
+                  Data: trainindDetailList,
+                  selectedData: selectedHostel,
+                  setSelectedData: (data: any) => setSelectedHostel(data),
+                  typeName: 'name',
+                  typeId: 'id',
+                });
+              }}
+              inputText={selectedHostel?.name}
+              contentContainerStyle={{ width: '100%' }}
+              containerStyle={{ width: '100%' }}
+              downArrowStyle={{ marginLeft: vh(-50) }}
+            />
+
+            {/* Action Buttons */}
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                marginTop: 25,
+              }}
+            >
+              <TouchableAtom
+                style={{
+                  paddingVertical: vh(8),
+                  paddingHorizontal: vw(20),
+                  backgroundColor: colors.green,
+                  borderRadius: vw(6),
+                }}
+                onPress={() => {
+                  if (!selectedHostel) {
+                    Toast.show({
+                      type: 'error',
+                      text2: 'Select Hostel',
+                    });
+                    return;
+                  }
+
+                  navigation.navigate(screensName.AlertOrganism, {
+                    title: 'Hostel Release Confirmation',
+                    message: 'Are you sure you want to release the hostel?',
+                    okText: 'Confirm',
+                    double: true,
+                    cancelText: strings.cancel,
+                    okFunction: () => {
+                      hostelrelease(selectedHostel.id);
+                    },
+                    cancelFunction: () => {},
+                  });
+                }}
+              >
+                <TextAtom
+                  style={{
+                    color: colors.white,
+                    fontFamily: fonts.Roboto_Medium,
+                  }}
+                >
+                  Submit
+                </TextAtom>
+              </TouchableAtom>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {showAllocationModal && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <View
+            style={{
+              width: '90%',
+              backgroundColor: colors.white,
+              borderRadius: 10,
+              padding: 20,
+              position: 'relative',
+            }}
+          >
+            <TouchableAtom
+              style={{ position: 'absolute', top: 10, right: 10, padding: 5 }}
+              onPress={() => {
+                setShowAllocationModal(false);
+                setAllocationId('');
+              }}
+            >
+              <TextAtom style={{ fontSize: vw(22), color: colors.red_2 }}>
+                ×
+              </TextAtom>
+            </TouchableAtom>
+
+            <TextAtom
+              style={{
+                fontSize: vw(16),
+                fontFamily: fonts.Roboto_Bold,
+                marginBottom: vh(15),
+                color: colors.primary,
+                textAlign: 'center',
+              }}
+            >
+              Hostel Allocation Request
+            </TextAtom>
+            <TextInputOrganisms
+              placeholder={'Trainee Id'}
+              ref={input1_ref}
+              onSubmitEditing={() => Keyboard.dismiss()}
+              value={allocationId}
+              autoCapitalize={'none'}
+              returnKeyType={'done'}
+              onChangeText={(val: string) => {
+                setAllocationId(val);
+              }}
+              keyboardType="numeric"
+              style={{ width: vw(280) }}
+              labelStyle={{ width: vw(280) }}
+            />
+            {/* Action Buttons */}
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                marginTop: 25,
+              }}
+            >
+              <TouchableAtom
+                style={{
+                  paddingVertical: vh(8),
+                  paddingHorizontal: vw(20),
+                  backgroundColor: colors.green,
+                  borderRadius: vw(6),
+                }}
+                onPress={() => {
+                  if (!allocationId) {
+                    Toast.show({
+                      type: 'error',
+                      text2: 'Enter Trainee Id',
+                    });
+                    return;
+                  }
+
+                  hostelAllocation(allocationId);
+                }}
+              >
+                <TextAtom
+                  style={{
+                    color: colors.white,
+                    fontFamily: fonts.Roboto_Medium,
+                  }}
+                >
+                  Submit
+                </TextAtom>
+              </TouchableAtom>
+            </View>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
 
-export default HostelAllocationHistory;
+export default HostelAllocation;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -705,8 +1193,6 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     borderRadius: vw(4),
     marginTop: vh(10),
-    alignSelf: 'flex-end',
-    marginRight: vh(15),
     paddingHorizontal: vw(10),
     paddingVertical: vh(5),
   },

@@ -49,4 +49,7 @@ export default {
   delete_bed_details_room: 'hostel/delete-hostel-bed-details',
   add_bed_details_room: 'hostel/add-hostel-bed-details',
   hostel_allocation_details: 'hostel/list-hostel-allocation-details',
+  hostel_allocation_delete: 'hostel/delete-hostel-allocation-details',
+  hostel_release: 'hostel/release-hostel-by-training-id',
+  hostel_allocation: 'hostel/add-hostel-allocation-by-admin',
 };

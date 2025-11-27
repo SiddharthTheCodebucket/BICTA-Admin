@@ -54,7 +54,9 @@ const Hostel = (props: Props) => {
     {
       id: 5,
       name: 'Hostel Allocation',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.HostelAllocation);
+      },
     },
     {
       id: 6,
