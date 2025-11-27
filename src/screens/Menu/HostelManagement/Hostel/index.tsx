@@ -64,7 +64,9 @@ const Hostel = (props: Props) => {
     {
       id: 7,
       name: 'Bed Availability',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.BedAvailability);
+      },
     },
   ];
 

@@ -10,21 +10,13 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
   LayoutAnimation,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../constants';
+import { colors, fonts, screensName, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -34,16 +26,17 @@ import FullscreenLoading from '../../../../../components/organisms/FullscreenLoa
 import SearchBoxOrganism from '../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
 import FloatingButton from '../../../../../components/organisms/FloatingButton';
-import ImageAtom from '../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
 import {
   useBedDetailsRoomMutation,
-  useDeleteBedDetailsRoomMutation,
-  useUpdateBedDetailsRoomMutation,
+  useDeleteHostelRoomMutation,
+  useUpdateHostelRoomMutation,
 } from '../../../../../injectEndpoints/hostelEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
+import DateInputOrganism from '../../../../../components/organisms/DateInputOrganism';
+import moment from 'moment';
 
 interface Props {
   route: any;
@@ -60,13 +53,11 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const BedDetails = (props: Props) => {
+const BedAvailability = (props: Props) => {
   const { navigation } = props;
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [bedDetailsApi] = useBedDetailsRoomMutation();
-  const [updatebedDetailsApi] = useUpdateBedDetailsRoomMutation();
-  const [deletebedDetailsRoomApi] = useDeleteBedDetailsRoomMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -84,14 +75,20 @@ const BedDetails = (props: Props) => {
   const [selectedHostel, setSelectedHostel] = useState<any>({});
   const [selectedFloor, setSelectedFloor] = useState<any>({});
   const [selectedRoom, setSelectedRoom] = useState<any>({});
+  const [startDate, setStartDate] = useState<any>('');
+  const [endDate, setEndDate] = useState<any>('');
 
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
+  const [activeTab, setActiveTab] = useState<
+    'Vacant' | 'Allocated' | 'Blocked'
+  >('Vacant');
+
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Bed Details');
+    Header.setNavigation(navigation, 'Bed Availability Details');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -110,13 +107,15 @@ const BedDetails = (props: Props) => {
     bedDetailsList(1, true, '');
   }, [centerSerach]);
 
+  useEffect(() => {
+    bedDetailsList(1, true, search);
+  }, [activeTab]);
+
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
-
     if (centerSerach.name === 'All Centers') {
       return ['Gaya', 'Patna'];
     }
-
     return [centerSerach.name];
   };
 
@@ -135,6 +134,8 @@ const BedDetails = (props: Props) => {
 
     const centreFilter = getCentreFilter();
     const params: any = {
+      bedStatus: activeTab,
+      date: '',
       search: keyword,
       sort: {
         attributes: ['created_date'],
@@ -149,6 +150,14 @@ const BedDetails = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
+    if (startDate) {
+      params.fromDate = moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+    }
+
+    if (endDate) {
+      params.toDate = moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+    }
+
     bedDetailsApi(params)
       .unwrap()
       .then((res: any) => {
@@ -156,6 +165,7 @@ const BedDetails = (props: Props) => {
         setInitialCall(false);
         setPagination(false);
         setRefreshing(false);
+
         if (pageNumber !== 1 && data.length > 0) {
           setData((prev: any) => [...prev, ...newData]);
         } else {
@@ -195,224 +205,48 @@ const BedDetails = (props: Props) => {
     bedDetailsList(1, true, '');
   };
 
-  const BedCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
-
-      if (newStatus === statusValue) return;
-
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: 'Are you sure you want to change this item?',
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          updateBedStatus(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const updateBedStatus = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        idForChangeStatus: id,
-      };
-      updatebedDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message?.message,
-          });
-          setInitialCall(false);
-          bedDetailsList(1, true, search);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
-
-    const handleDelete = () => {
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Delete Confirmation',
-        message: 'Are you sure you want to delete this item?',
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          deleteBedHostelRoom(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const deleteBedHostelRoom = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        id: id,
-      };
-      deletebedDetailsRoomApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          bedDetailsList(1, true, search);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
-
+  const RoomCard = ({ item, index, navigation }: any) => {
     return (
       <View style={styles.card}>
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
             Sr. No: {index + 1}
           </TextAtom>
-
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
-            <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                navigation.navigate(screensName.AddBedDetails, {
-                  item: item,
-                });
-              }}
-            >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom>
-
-            <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
-            </TouchableAtom>
-          </View>
         </View>
 
         <View style={styles.rowBetween}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Hostel Name</TextAtom>
+            <TextAtom style={styles.label}>Hostel</TextAtom>
             <TextAtom style={styles.value}>
               {item.selectHostelName ?? '-'}
             </TextAtom>
           </View>
           <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Floor Name</TextAtom>
+            <TextAtom style={styles.labelRight}>Room</TextAtom>
             <TextAtom style={styles.valueRight}>
-              {item.selectFloorName ?? '-'}
+              {item.selectRoomNo ?? '-'}
             </TextAtom>
           </View>
         </View>
         <View style={styles.rowBetween}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Room No</TextAtom>
-            <TextAtom style={styles.value}>{item.selectRoomNo ?? '-'}</TextAtom>
+            <TextAtom style={styles.label}>Bed</TextAtom>
+            <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
           </View>
 
           <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Bed Name</TextAtom>
+            <TextAtom style={styles.labelRight}>Status</TextAtom>
             <TextAtom numberOfLines={0} style={styles.valueRight}>
-              {item.bedName ?? '-'}
+              {item.bedStatus ?? '-'}
             </TextAtom>
           </View>
-        </View>
-
-        {showStatusMenu && (
-          <TouchableOpacity
-            onPress={() => setShowStatusMenu(false)}
-            style={styles.overlay}
-          />
-        )}
-
-        <View style={{ marginTop: vh(0), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Status</TextAtom>
-
-          <TouchableAtom
-            onPress={() => setShowStatusMenu(!showStatusMenu)}
-            style={[
-              styles.statusBox,
-              statusValue === 'Active' ? styles.activeBox : styles.inActiveBox,
-            ]}
-          >
-            <TextAtom
-              style={[
-                styles.statusText,
-                statusValue === 'Active'
-                  ? styles.activeText
-                  : styles.inActiveText,
-              ]}
-            >
-              {statusValue}
-            </TextAtom>
-            <ImageAtom source={images.downArrow} />
-          </TouchableAtom>
-
-          {showStatusMenu && (
-            <View style={styles.dropMenu}>
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() => onSelectStatus('Active')}
-              >
-                <TextAtom style={{ color: colors.black }}>Active</TextAtom>
-              </TouchableAtom>
-
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() => onSelectStatus('In-Active')}
-              >
-                <TextAtom style={{ color: colors.black }}>In-Active</TextAtom>
-              </TouchableAtom>
-            </View>
-          )}
         </View>
       </View>
     );
   };
 
-  const renderListBedDetails = ({ item, index }: any) => {
-    return <BedCard item={item} index={index} navigation={navigation} />;
+  const renderListRoomDetails = ({ item, index }: any) => {
+    return <RoomCard item={item} index={index} navigation={navigation} />;
   };
 
   const FilterForm = () => (
@@ -472,7 +306,26 @@ const BedDetails = (props: Props) => {
         }}
         inputText={selectedRoom?.name}
       />
-
+      <DateInputOrganism
+        label={'Start Date'}
+        placeholder={'Start Date'}
+        value={startDate}
+        onChangeText={(val: any) => {
+          setStartDate(val);
+        }}
+        fieldName={'date'}
+        dateFormat="DD-MM-YYYY"
+      />
+      <DateInputOrganism
+        label={'End Date'}
+        placeholder={'End Date'}
+        value={endDate}
+        onChangeText={(val: any) => {
+          setEndDate(val);
+        }}
+        fieldName={'date'}
+        dateFormat="DD-MM-YYYY"
+      />
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
@@ -488,7 +341,6 @@ const BedDetails = (props: Props) => {
       </ViewAtom>
     </View>
   );
-
   const clearFilter = () => {
     setSelectedHostel({});
     setSelectedFloor({});
@@ -526,7 +378,6 @@ const BedDetails = (props: Props) => {
         setHostelList(res.data);
         setInitialCall(false);
         setSelectedFloor({});
-        setSelectedRoom({});
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -550,7 +401,6 @@ const BedDetails = (props: Props) => {
       .then((res: any) => {
         setFloorList(res.data);
         setInitialCall(false);
-        setSelectedRoom({});
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -586,45 +436,69 @@ const BedDetails = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-        <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-        </TextAtom>
-      </TouchableAtom>
-      {showFilter && <FilterForm />}
-      <DropDownOrganism
-        label={''}
-        placeholder={'Centers'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Center',
-            Data: [
-              { id: 'All Centers', name: 'All Centers' },
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
-            ],
-            selectedData: centerSerach,
-            setSelectedData: (data: any) => {
-              setCenterSerach(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={centerSerach?.name}
-        containerStyle={{ marginBottom: vh(-10) }}
-      />
-      <SearchBoxOrganism
-        onChangeText={onChangeSearch}
-        searchText={search}
-        onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
-      />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: vh(70) }}
+      >
+        <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
+          <TextAtom style={styles.filterText}>
+            {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+          </TextAtom>
+        </TouchableAtom>
+
+        {showFilter && <FilterForm />}
+
+        <DropDownOrganism
+          label={''}
+          placeholder={'Centers'}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Center',
+              Data: [
+                { id: 'All Centers', name: 'All Centers' },
+                { id: 'Gaya', name: 'Gaya' },
+                { id: 'Patna', name: 'Patna' },
+              ],
+              selectedData: centerSerach,
+              setSelectedData: setCenterSerach,
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={centerSerach?.name}
+          containerStyle={{ marginBottom: vh(5) }}
+        />
+        <SearchBoxOrganism
+          onChangeText={onChangeSearch}
+          searchText={search}
+          onPressCross={onClearSearch}
+          searchBox={{ marginTop: vh(10) }}
+        />
+      </ScrollView>
+      <View style={styles.tabRow}>
+        {['Vacant', 'Allocated', 'Blocked'].map(tab => (
+          <TouchableAtom
+            key={tab}
+            style={[styles.tabButton, activeTab === tab && styles.activeTab]}
+            onPress={() => setActiveTab(tab as any)}
+          >
+            <TextAtom
+              style={[
+                styles.tabText,
+                activeTab === tab && styles.activeTabText,
+              ]}
+            >
+              {tab}
+            </TextAtom>
+          </TouchableAtom>
+        ))}
+      </View>
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListBedDetails}
+        renderItem={renderListRoomDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
@@ -636,7 +510,7 @@ const BedDetails = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(15) }}
+            style={{ marginTop: vh(10) }}
           />
         }
         refreshControl={
@@ -659,22 +533,42 @@ const BedDetails = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
-      <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddBedDetails);
-        }}
-      />
     </SafeAreaView>
   );
 };
 
-export default BedDetails;
+export default BedAvailability;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
   flatListContainer: {
     paddingVertical: vh(10),
   },
+
+  tabRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: vw(10),
+    marginTop: vh(5),
+  },
+  tabButton: {
+    paddingVertical: vh(8),
+    paddingHorizontal: vw(25),
+    backgroundColor: '#EAEAEA',
+    borderRadius: vw(6),
+  },
+  activeTab: {
+    backgroundColor: colors.primary,
+  },
+  tabText: {
+    color: colors.black,
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+  },
+  activeTabText: {
+    color: colors.white,
+  },
+
   card: {
     backgroundColor: colors.white,
     marginHorizontal: vw(15),
@@ -686,6 +580,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 1,
   },
+
   label: {
     fontFamily: fonts.Roboto_Medium,
     fontSize: vw(14),
@@ -710,82 +605,20 @@ const styles = StyleSheet.create({
     marginBottom: vh(5),
     textAlign: 'right',
   },
-  divider: {
-    height: 1,
-    backgroundColor: colors.chinese_silver,
-    marginVertical: vh(5),
-  },
+
   emptyText: {
     textAlign: 'center',
     marginTop: vh(50),
     color: colors.grey,
     fontFamily: fonts.Roboto_Medium,
   },
+
   rowBetween: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  thumbnail: {
-    width: 70,
-    height: 70,
-    backgroundColor: '#eaeaea',
-    borderRadius: 8,
-    marginTop: 6,
-  },
-  statusBox: {
-    marginTop: vh(8),
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(12),
-    borderRadius: vw(6),
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
 
-  activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
-  },
-
-  inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
-  },
-
-  statusText: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-  },
-
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
-
-  dropMenu: {
-    marginTop: vh(6),
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.grey,
-    borderRadius: vw(6),
-    overflow: 'hidden',
-  },
-
-  dropItem: {
-    paddingVertical: vh(10),
-    paddingHorizontal: vw(12),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.chinese_silver,
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'transparent',
-    zIndex: 998,
-  },
   filterButton: {
     borderWidth: vw(1),
     borderColor: colors.primary,

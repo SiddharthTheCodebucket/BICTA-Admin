@@ -27,4 +27,5 @@ export default {
   AddRoomDetails: 'AddRoomDetails',
   BedDetails: 'BedDetails',
   AddBedDetails: 'AddBedDetails',
+  BedAvailability: 'BedAvailability',
 };
