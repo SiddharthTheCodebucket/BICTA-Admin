@@ -28,4 +28,5 @@ export default {
   delete: require('../assets/images/delete.png'),
   release: require('../assets/images/release.png'),
   arrowDownLeft: require('../assets/images/arrowDownLeft.png'),
+  download: require('../assets/images/download.png'),
 };

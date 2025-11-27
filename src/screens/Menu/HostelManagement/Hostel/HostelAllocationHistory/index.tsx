@@ -16,7 +16,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import { colors, fonts, screensName, vh, vw } from '../../../../../constants';
+import {
+  colors,
+  fonts,
+  images,
+  screensName,
+  vh,
+  vw,
+} from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -25,18 +32,18 @@ import TextAtom from '../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../components/organisms/FloatingButton';
 import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
-import {
-  useBedDetailsRoomMutation,
-  useDeleteHostelRoomMutation,
-  useUpdateHostelRoomMutation,
-} from '../../../../../injectEndpoints/hostelEndpoints';
+import { useHostelAllocationDetailsMutation } from '../../../../../injectEndpoints/hostelEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
 import DateInputOrganism from '../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
+import ImageAtom from '../../../../../components/atoms/ImageAtom';
+import {
+  downloadAndOpenFile,
+  isNullUndefined,
+} from '../../../../../utils/CommonFunction';
 
 interface Props {
   route: any;
@@ -53,11 +60,11 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const BedAvailability = (props: Props) => {
+const HostelAllocationHistory = (props: Props) => {
   const { navigation } = props;
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [bedDetailsApi] = useBedDetailsRoomMutation();
+  const [hostelAllocationDetailsApi] = useHostelAllocationDetailsMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -69,12 +76,15 @@ const BedAvailability = (props: Props) => {
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
 
+  const [trainindDetailList, setTrainingDetailList] = useState<any>([]);
+  const [trainindDetail, setTrainindDetail] = useState<any>({});
+  const [genderList, setGenderList] = useState<any>([
+    { id: 'Male', name: 'Male' },
+    { id: 'Female', name: 'Female' },
+  ]);
+  const [gender, setGender] = useState<any>({});
   const [hostelList, setHostelList] = useState<any>([]);
-  const [floorList, setFloorList] = useState<any>([]);
-  const [roomList, setRoomList] = useState<any>([]);
-  const [selectedHostel, setSelectedHostel] = useState<any>({});
-  const [selectedFloor, setSelectedFloor] = useState<any>({});
-  const [selectedRoom, setSelectedRoom] = useState<any>({});
+  const [hostel, setHostel] = useState<any>({});
   const [startDate, setStartDate] = useState<any>('');
   const [endDate, setEndDate] = useState<any>('');
 
@@ -83,12 +93,10 @@ const BedAvailability = (props: Props) => {
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
-  const [activeTab, setActiveTab] = useState<
-    'Vacant' | 'Allocated' | 'Blocked'
-  >('Vacant');
+  const [activeTab, setActiveTab] = useState<'Trainee' | 'Guest'>('Trainee');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Bed Availability Details');
+    Header.setNavigation(navigation, 'Hostel Allocation History');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -96,19 +104,20 @@ const BedAvailability = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        bedDetailsList(1, true, '');
-        getHostelName();
+        hostelAllocationDetails(1, true, '');
+        getTrainingDetails();
+        getHostelDetails();
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    bedDetailsList(1, true, '');
+    hostelAllocationDetails(1, true, '');
   }, [centerSerach]);
 
   useEffect(() => {
-    bedDetailsList(1, true, search);
+    hostelAllocationDetails(1, true, search);
   }, [activeTab]);
 
   const getCentreFilter = () => {
@@ -124,18 +133,18 @@ const BedAvailability = (props: Props) => {
     setShowFilter(!showFilter);
   };
 
-  const bedDetailsList = (
+  const hostelAllocationDetails = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
     filtersArray: any[] = [],
+    isExport = false,
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
 
     const centreFilter = getCentreFilter();
     const params: any = {
-      bedStatus: activeTab,
-      date: '',
+      bipardCentre: [],
       search: keyword,
       sort: {
         attributes: ['created_date'],
@@ -144,21 +153,24 @@ const BedAvailability = (props: Props) => {
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
+      isReleasedData: true,
     };
 
     if (centreFilter) {
       params.bipardCentre = centreFilter;
     }
 
-    if (startDate) {
-      params.fromDate = moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+    if (activeTab === 'Guest') {
+      params.userType = 'GUEST';
+    } else {
+      params.userType = 'TRAINEE';
     }
 
-    if (endDate) {
-      params.toDate = moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+    if (isExport) {
+      params.exportFlag = true;
     }
 
-    bedDetailsApi(params)
+    hostelAllocationDetailsApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -176,6 +188,10 @@ const BedAvailability = (props: Props) => {
 
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
+
+        if (!isNullUndefined(res.data?.exportUrl)) {
+          downloadAndOpenFile(res.data.exportUrl);
+        }
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -190,7 +206,7 @@ const BedAvailability = (props: Props) => {
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      bedDetailsList(1, true, text);
+      hostelAllocationDetails(1, true, text);
     }, 500),
     [],
   );
@@ -202,43 +218,104 @@ const BedAvailability = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    bedDetailsList(1, true, '');
+    hostelAllocationDetails(1, true, '');
   };
 
-  const RoomCard = ({ item, index, navigation }: any) => {
+  const TraineeCard = ({ item, index, navigation }: any) => {
     return (
-      <View style={styles.card}>
+      <TouchableAtom
+        style={styles.card}
+        onPress={() => {
+          navigation.navigate(screensName.TrainneHostelAllocationDetails, {
+            data: item,
+          });
+        }}
+      >
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
             Sr. No: {index + 1}
           </TextAtom>
         </View>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Training Programme</TextAtom>
+          <TextAtom style={styles.value}>
+            {item.nameOfTrainingProgramme || '-'}
+            {item.nameOfTrainingProgrammeId
+              ? ` (${item.nameOfTrainingProgrammeId})`
+              : ''}
+          </TextAtom>
+        </View>
 
         <View style={styles.rowBetween}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Hostel</TextAtom>
+            <TextAtom style={styles.label}>Course Start Date</TextAtom>
             <TextAtom style={styles.value}>
-              {item.selectHostelName ?? '-'}
+              {moment(item.courseStartDate).format('DD-MM-YYYY')}
             </TextAtom>
           </View>
           <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Room</TextAtom>
+            <TextAtom style={styles.labelRight}>Course End Date</TextAtom>
             <TextAtom style={styles.valueRight}>
-              {item.selectRoomNo ?? '-'}
+              {moment(item.courseEndDate).format('DD-MM-YYYY')}
             </TextAtom>
           </View>
         </View>
-        <View style={styles.rowBetween}>
+        <View style={[styles.rowBetween]}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Bed</TextAtom>
-            <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
+            <TextAtom style={styles.label}>Hostel</TextAtom>
+            <TextAtom style={styles.value}>{item.hostelName ?? '-'}</TextAtom>
+          </View>
+
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <TextAtom style={styles.label}>Room</TextAtom>
+            <TextAtom style={styles.value}>{item.roomNo ?? '-'}</TextAtom>
           </View>
 
           <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Status</TextAtom>
-            <TextAtom numberOfLines={0} style={styles.valueRight}>
-              {item.bedStatus ?? '-'}
-            </TextAtom>
+            <TextAtom style={styles.label}>Bed</TextAtom>
+            <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
+          </View>
+        </View>
+      </TouchableAtom>
+    );
+  };
+
+  const GuestCard = ({ item, index }: any) => {
+    return (
+      <View style={styles.card}>
+        <TextAtom style={[styles.label, { marginBottom: vh(5) }]}>
+          Sr. No: {index + 1}
+        </TextAtom>
+
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>name</TextAtom>
+          <TextAtom style={styles.value}>{item.name || '-'}</TextAtom>
+        </View>
+
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Email</TextAtom>
+          <TextAtom style={styles.value}>{item.officeEmail || '-'}</TextAtom>
+        </View>
+
+        <View style={styles.rowBetween}>
+          <TextAtom style={styles.label}>Mobile Number</TextAtom>
+          <TextAtom style={styles.value}>{item.mobileNo ?? '-'}</TextAtom>
+        </View>
+
+        <View style={[styles.rowBetween, { marginTop: vh(8) }]}>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>Hostel</TextAtom>
+            <TextAtom style={styles.value}>{item.hostelName ?? '-'}</TextAtom>
+          </View>
+
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <TextAtom style={styles.label}>Room</TextAtom>
+            <TextAtom style={styles.value}>{item.roomNo ?? '-'}</TextAtom>
+          </View>
+
+          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+            <TextAtom style={styles.label}>Bed</TextAtom>
+            <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
           </View>
         </View>
       </View>
@@ -246,11 +323,50 @@ const BedAvailability = (props: Props) => {
   };
 
   const renderListRoomDetails = ({ item, index }: any) => {
-    return <RoomCard item={item} index={index} navigation={navigation} />;
+    if (activeTab === 'Guest') {
+      return <GuestCard item={item} index={index} />;
+    } else {
+      return <TraineeCard item={item} index={index} navigation={navigation} />;
+    }
   };
-
   const FilterForm = () => (
     <View style={styles.filterContainer}>
+      <DropDownOrganism
+        label={'Training Detail'}
+        placeholder={'Training Detail'}
+        onPress={() => {
+          navigation.navigate('DropDownModal', {
+            name: 'Training Detail',
+            Data: trainindDetailList,
+            selectedData: trainindDetail,
+            setSelectedData: (data: any) => {
+              setTrainindDetail(data);
+            },
+            typeName: 'name',
+            typeId: 'id',
+          });
+        }}
+        inputText={trainindDetail?.name}
+      />
+
+      <DropDownOrganism
+        label={'Gender'}
+        placeholder={'Gender'}
+        onPress={() => {
+          navigation.navigate('DropDownModal', {
+            name: 'Gender',
+            Data: genderList,
+            selectedData: gender,
+            setSelectedData: (data: any) => {
+              setGender(data);
+            },
+            typeName: 'name',
+            typeId: 'id',
+          });
+        }}
+        inputText={gender?.name}
+      />
+
       <DropDownOrganism
         label={'Hostel'}
         placeholder={'Hostel'}
@@ -258,53 +374,15 @@ const BedAvailability = (props: Props) => {
           navigation.navigate('DropDownModal', {
             name: 'Hostel',
             Data: hostelList,
-            selectedData: selectedHostel,
+            selectedData: hostel,
             setSelectedData: (data: any) => {
-              setSelectedHostel(data);
-              getFloorName(data.id);
+              setHostel(data);
             },
             typeName: 'name',
             typeId: 'id',
           });
         }}
-        inputText={selectedHostel?.name}
-      />
-
-      <DropDownOrganism
-        label={'Floor'}
-        placeholder={'Floor'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Floor',
-            Data: floorList,
-            selectedData: selectedFloor,
-            setSelectedData: (data: any) => {
-              setSelectedFloor(data);
-              getRoomName(data.id);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedFloor?.name}
-      />
-
-      <DropDownOrganism
-        label={'Room'}
-        placeholder={'Room'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Room',
-            Data: roomList,
-            selectedData: selectedRoom,
-            setSelectedData: (data: any) => {
-              setSelectedRoom(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedRoom?.name}
+        inputText={hostel?.name}
       />
       <DateInputOrganism
         label={'Start Date'}
@@ -342,45 +420,53 @@ const BedAvailability = (props: Props) => {
     </View>
   );
   const clearFilter = () => {
-    setSelectedHostel({});
-    setSelectedFloor({});
-    setSelectedRoom({});
+    setTrainindDetail({});
+    setGender({});
+    setHostel({});
     setStartDate('');
     setEndDate('');
-    bedDetailsList(1, true, search, []);
+    hostelAllocationDetails(1, true, search, []);
   };
 
-  const applyFilter = () => {
+  const applyFilter = (isExport = false) => {
     const filters = [];
 
-    if (selectedHostel?.id) {
-      filters.push(['selectHostelNameId', '=', selectedHostel.id]);
+    if (trainindDetail?.id) {
+      filters.push(['nameOfTrainingProgrammeId', '=', trainindDetail.id]);
     }
 
-    if (selectedFloor?.id) {
-      filters.push(['selectFloorNameId', '=', selectedFloor.id]);
+    if (gender?.id) {
+      filters.push(['gender', '=', gender.id]);
     }
 
-    if (selectedRoom?.id) {
-      filters.push(['selectRoomNoId', '=', selectedRoom.id]);
+    if (hostel?.id) {
+      filters.push(['hostelNameId', '=', hostel.id]);
     }
 
-    bedDetailsList(1, true, search, filters);
+    if (startDate) {
+      const formatted = moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+      filters.push(['courseStartDate', '>=', formatted]);
+    }
+
+    if (endDate) {
+      const formatted = moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+      filters.push(['courseEndDate', '<=', formatted]);
+    }
+    hostelAllocationDetails(1, true, search, filters, isExport);
   };
 
-  const getHostelName = () => {
+  const getTrainingDetails = () => {
     setInitialCall(true);
     const params = {
       bipardCentre: ['Gaya', 'Patna'],
-      listType: 'filter_hostel_name_for_bed_details',
+      listType: 'list-all-training',
       replacements: ['%%'],
     };
     commonDropdownApi(params)
       .unwrap()
       .then((res: any) => {
-        setHostelList(res.data);
+        setTrainingDetailList(res.data);
         setInitialCall(false);
-        setSelectedFloor({});
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -392,39 +478,17 @@ const BedAvailability = (props: Props) => {
       });
   };
 
-  const getFloorName = (hostelId: any) => {
+  const getHostelDetails = () => {
     setInitialCall(true);
     const params = {
       bipardCentre: ['Gaya', 'Patna'],
-      listType: 'filter_floor_name_for_bed_details',
-      replacements: ['%%', hostelId],
+      listType: 'filter_hostel_name_for_bed_details',
+      replacements: ['%%'],
     };
     commonDropdownApi(params)
       .unwrap()
       .then((res: any) => {
-        setFloorList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-        });
-      });
-  };
-
-  const getRoomName = (floorId: any) => {
-    setInitialCall(true);
-    const params = {
-      bipardCentre: ['Gaya', 'Patna'],
-      listType: 'filter_room_no_for_bed_details',
-      replacements: ['%%', selectedHostel.id, floorId],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setRoomList(res.data);
+        setHostelList(res.data);
         setInitialCall(false);
       })
       .catch((err: any) => {
@@ -439,14 +503,30 @@ const BedAvailability = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
+
       <View style={{ height: vh(170) }}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-            <TextAtom style={styles.filterText}>
-              {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-            </TextAtom>
-          </TouchableAtom>
-
+          <View
+            style={{
+              flexDirection: 'row',
+              alignSelf: 'flex-end',
+            }}
+          >
+            <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
+              <TextAtom style={styles.filterText}>
+                {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+              </TextAtom>
+            </TouchableAtom>
+            <TouchableAtom
+              style={styles.filterButton}
+              onPress={() => applyFilter(true)}
+            >
+              <ImageAtom
+                source={images.download}
+                style={{ tintColor: colors.primary }}
+              />
+            </TouchableAtom>
+          </View>
           {showFilter && <FilterForm />}
 
           <DropDownOrganism
@@ -478,7 +558,7 @@ const BedAvailability = (props: Props) => {
         </ScrollView>
       </View>
       <View style={styles.tabRow}>
-        {['Vacant', 'Allocated', 'Blocked'].map(tab => (
+        {['Trainee', 'Guest'].map(tab => (
           <TouchableAtom
             key={tab}
             style={[styles.tabButton, activeTab === tab && styles.activeTab]}
@@ -521,14 +601,14 @@ const BedAvailability = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              bedDetailsList(1, false, '');
+              hostelAllocationDetails(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? bedDetailsList(page + 1, false, search)
+            ? hostelAllocationDetails(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
@@ -538,7 +618,7 @@ const BedAvailability = (props: Props) => {
   );
 };
 
-export default BedAvailability;
+export default HostelAllocationHistory;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -554,7 +634,7 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     paddingVertical: vh(8),
-    paddingHorizontal: vw(25),
+    paddingHorizontal: vw(35),
     backgroundColor: '#EAEAEA',
     borderRadius: vw(6),
   },

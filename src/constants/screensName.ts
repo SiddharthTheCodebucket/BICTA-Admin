@@ -28,4 +28,6 @@ export default {
   BedDetails: 'BedDetails',
   AddBedDetails: 'AddBedDetails',
   BedAvailability: 'BedAvailability',
+  HostelAllocationHistory: 'HostelAllocationHistory',
+  TrainneHostelAllocationDetails: 'TrainneHostelAllocationDetails',
 };

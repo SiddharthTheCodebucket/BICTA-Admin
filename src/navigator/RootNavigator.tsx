@@ -33,6 +33,8 @@ import AddRoomDetails from '../screens/Menu/HostelManagement/Hostel/RoomDetails/
 import BedDetails from '../screens/Menu/HostelManagement/Hostel/BedDetails';
 import AddBedDetails from '../screens/Menu/HostelManagement/Hostel/BedDetails/AddBedDetails';
 import BedAvailability from '../screens/Menu/HostelManagement/Hostel/BedAvailability';
+import HostelAllocationHistory from '../screens/Menu/HostelManagement/Hostel/HostelAllocationHistory';
+import TrainneHostelAllocationDetails from '../screens/Menu/HostelManagement/Hostel/HostelAllocationHistory/TrainneHostelAllocationDetails';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -146,6 +148,14 @@ const RootNavigator = () => {
           <RootStackScreen.Screen
             name="BedAvailability"
             component={BedAvailability}
+          />
+          <RootStackScreen.Screen
+            name="HostelAllocationHistory"
+            component={HostelAllocationHistory}
+          />
+          <RootStackScreen.Screen
+            name="TrainneHostelAllocationDetails"
+            component={TrainneHostelAllocationDetails}
           />
         </RootStackScreen.Group>
         <RootStackScreen.Group

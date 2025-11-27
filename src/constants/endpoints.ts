@@ -48,4 +48,5 @@ export default {
   update_bed_details_room: 'hostel/update-hostel-bed-details',
   delete_bed_details_room: 'hostel/delete-hostel-bed-details',
   add_bed_details_room: 'hostel/add-hostel-bed-details',
+  hostel_allocation_details: 'hostel/list-hostel-allocation-details',
 };
