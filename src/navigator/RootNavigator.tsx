@@ -28,6 +28,8 @@ import HostelDetails from '../screens/Menu/HostelManagement/Hostel/HostelDetails
 import AddHostelDetails from '../screens/Menu/HostelManagement/Hostel/HostelDetails/AddHostelDetails';
 import FloorDetails from '../screens/Menu/HostelManagement/Hostel/FloorDetails';
 import AddFloorDetails from '../screens/Menu/HostelManagement/Hostel/FloorDetails/AddFloorDetails';
+import RoomDetails from '../screens/Menu/HostelManagement/Hostel/RoomDetails';
+import AddRoomDetails from '../screens/Menu/HostelManagement/Hostel/RoomDetails/AddRoomDetails';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -127,6 +129,11 @@ const RootNavigator = () => {
           <RootStackScreen.Screen
             name="AddFloorDetails"
             component={AddFloorDetails}
+          />
+          <RootStackScreen.Screen name="RoomDetails" component={RoomDetails} />
+          <RootStackScreen.Screen
+            name="AddRoomDetails"
+            component={AddRoomDetails}
           />
         </RootStackScreen.Group>
         <RootStackScreen.Group

@@ -40,4 +40,8 @@ export default {
   delete_hostel_floor: 'hostel/delete-hostel-floor-details',
   add_hostel_floor: 'hostel/add-hostel-floor-details',
   update_hostel_floor: 'hostel/update-hostel-floor-details',
+  hostel_room_details: 'hostel/list-hostel-room-details',
+  update_hostel_room: 'hostel/update-hostel-room-details',
+  delete_hostel_room: 'hostel/delete-hostel-room-details',
+  add_hostel_room: 'hostel/add-hostel-room-details',
 };

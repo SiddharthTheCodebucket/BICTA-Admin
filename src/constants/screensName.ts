@@ -23,4 +23,6 @@ export default {
   AddHostelDetails: 'AddHostelDetails',
   FloorDetails: 'FloorDetails',
   AddFloorDetails: 'AddFloorDetails',
+  RoomDetails: 'RoomDetails',
+  AddRoomDetails: 'AddRoomDetails',
 };
