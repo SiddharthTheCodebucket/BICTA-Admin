@@ -25,4 +25,6 @@ export default {
   AddFloorDetails: 'AddFloorDetails',
   RoomDetails: 'RoomDetails',
   AddRoomDetails: 'AddRoomDetails',
+  BedDetails: 'BedDetails',
+  AddBedDetails: 'AddBedDetails',
 };

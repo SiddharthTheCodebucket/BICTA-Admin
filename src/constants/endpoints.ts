@@ -44,4 +44,8 @@ export default {
   update_hostel_room: 'hostel/update-hostel-room-details',
   delete_hostel_room: 'hostel/delete-hostel-room-details',
   add_hostel_room: 'hostel/add-hostel-room-details',
+  bed_details_room: 'hostel/list-hostel-bed-details',
+  update_bed_details_room: 'hostel/update-hostel-bed-details',
+  delete_bed_details_room: 'hostel/delete-hostel-bed-details',
+  add_bed_details_room: 'hostel/add-hostel-bed-details',
 };

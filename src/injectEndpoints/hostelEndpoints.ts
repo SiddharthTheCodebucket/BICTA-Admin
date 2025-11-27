@@ -115,6 +115,34 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    bedDetailsRoom: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.bed_details_room,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateBedDetailsRoom: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_bed_details_room,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    deleteBedDetailsRoom: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.delete_bed_details_room,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    addBedDetailsRoom: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.add_bed_details_room,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -135,4 +163,8 @@ export const {
   useUpdateHostelRoomMutation,
   useDeleteHostelRoomMutation,
   useAddHostelRoomMutation,
+  useBedDetailsRoomMutation,
+  useUpdateBedDetailsRoomMutation,
+  useDeleteBedDetailsRoomMutation,
+  useAddBedDetailsRoomMutation,
 } = apiEndpoints;

@@ -57,8 +57,6 @@ const AddHostelDetails = (props: Props) => {
   const input6_ref: any = createRef();
   const input7_ref: any = createRef();
 
-  console.log('item===>', item);
-
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [addHostelDetailsApi] = useAddHostelDetailsMutation();
   const [updateHostelDetailsApi] = useUpdateHostelDetailsMutation();
@@ -120,9 +118,11 @@ const AddHostelDetails = (props: Props) => {
   }, [item]);
 
   const schema = Yup.object().shape({
-    status: Yup.object({
-      id: Yup.string().required('Status is required'),
-    }),
+    status: isNullUndefined(item)
+      ? Yup.object({
+          id: Yup.string().required('Status is required'),
+        })
+      : Yup.mixed().notRequired(),
     trainingCenter: Yup.object({
       name: Yup.string().required('Training center is required'),
     }),
@@ -447,22 +447,24 @@ const AddHostelDetails = (props: Props) => {
           isMandatory
           errorMessage={errors['trainingCenter.name']}
         />
-        <RadioSelectableOrganism
-          data={[
-            { id: 'Active', value: 'Active' },
-            { id: 'Inactive', value: 'Inactive' },
-          ]}
-          onSelect={(item: any) => {
-            setValue('status', item);
-            setErrors({ ...errors, 'status.id': '' });
-          }}
-          label={'Status'}
-          selectedType={form.status}
-          typeName={'value'}
-          typeId={'id'}
-          isMandatory
-          errorMessage={errors['status.id']}
-        />
+        {isNullUndefined(item) && (
+          <RadioSelectableOrganism
+            data={[
+              { id: 'Active', value: 'Active' },
+              { id: 'Inactive', value: 'Inactive' },
+            ]}
+            onSelect={(item: any) => {
+              setValue('status', item);
+              setErrors({ ...errors, 'status.id': '' });
+            }}
+            label={'Status'}
+            selectedType={form.status}
+            typeName={'value'}
+            typeId={'id'}
+            isMandatory
+            errorMessage={errors['status.id']}
+          />
+        )}
 
         {form?.alternateContactNo?.map((num: any, index: any) => (
           <ViewAtom
@@ -473,7 +475,7 @@ const AddHostelDetails = (props: Props) => {
               justifyContent: 'space-between',
               width: vw(328),
               marginBottom: vh(10),
-              marginLeft: vh(15),
+              marginLeft: vh(10),
             }}
           >
             <TextInputOrganisms

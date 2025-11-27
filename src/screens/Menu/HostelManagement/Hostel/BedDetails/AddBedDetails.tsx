@@ -14,14 +14,11 @@ import TextInputOrganisms from '../../../../../components/organisms/TextInputOrg
 import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
 import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
 import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
-import {
-  isNullUndefined,
-  normalizeNumber,
-} from '../../../../../utils/CommonFunction';
+import { isNullUndefined } from '../../../../../utils/CommonFunction';
 import { useCommonDropdownListMutation } from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import {
-  useAddHostelRoomMutation,
-  useUpdateHostelRoomMutation,
+  useAddBedDetailsRoomMutation,
+  useUpdateBedDetailsRoomMutation,
 } from '../../../../../injectEndpoints/hostelEndpoints';
 import RadioSelectableOrganism from '../../../../../components/organisms/RadioSelectableOrganism';
 
@@ -37,25 +34,25 @@ const initialForm = {
   hostel: {},
   floorNameList: [],
   floorName: {},
-  roomNo: '',
-  noOfBed: '',
+  roomList: [],
+  room: {},
+  bedName: '',
   status: {},
 };
 
-const AddRoomDetails = (props: Props) => {
+const AddBedDetails = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
   const input1_ref: any = createRef();
-  const input2_ref: any = createRef();
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [addHostelRoomApi] = useAddHostelRoomMutation();
-  const [updateHostelRoomApi] = useUpdateHostelRoomMutation();
+  const [addBedDetailsmApi] = useAddBedDetailsRoomMutation();
+  const [updateBedDetailsApi] = useUpdateBedDetailsRoomMutation();
 
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item) ? 'Edit Room Details' : 'Add Room Details',
+      !isNullUndefined(item) ? 'Edit Bed Details' : 'Add Bed Details',
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -80,42 +77,51 @@ const AddRoomDetails = (props: Props) => {
 
     const selectedLocation = locationMap[item.tenantId] || {};
 
-    // SET LOCATION
     setForm((prev: any) => ({
       ...prev,
       bipardLocation: selectedLocation,
+      bedName: item.bedName || '',
+      status: {
+        id: item.status,
+        value: item.status,
+      },
     }));
 
-    // Load hostel list first
     getHostelName(selectedLocation.name);
 
-    // Load floors AFTER hostel list is ready
     setTimeout(() => {
-      getFloorName(item.selectHostelNameId, selectedLocation.name);
-
-      // Now final prefill
       setForm((prev: any) => ({
         ...prev,
-
         hostel: {
           id: item.selectHostelNameId,
           name: item.selectHostelName,
         },
+      }));
 
+      getFloorName(item.selectHostelNameId, selectedLocation.name);
+    }, 300);
+
+    setTimeout(() => {
+      setForm((prev: any) => ({
+        ...prev,
         floorName: {
           id: item.selectFloorNameId,
           name: item.selectFloorName,
         },
+      }));
 
-        roomNo: item.roomNo?.toString() || '',
-        noOfBed: item.noOfBed?.toString() || '',
+      getRoomName(item.selectFloorNameId, selectedLocation.name);
+    }, 600);
 
-        status: {
-          id: item.status,
-          value: item.status,
+    setTimeout(() => {
+      setForm((prev: any) => ({
+        ...prev,
+        room: {
+          id: item.selectRoomNoId,
+          name: item.selectRoomNo,
         },
       }));
-    }, 400);
+    }, 900);
   }, [item]);
 
   const schema = Yup.object().shape({
@@ -124,8 +130,10 @@ const AddRoomDetails = (props: Props) => {
           id: Yup.string().required('Status is required'),
         })
       : Yup.mixed().notRequired(),
-    noOfBed: Yup.string().required('Number of bed is required'),
-    roomNo: Yup.string().required('Room no is required'),
+    bedName: Yup.string().required('Bed name is required'),
+    room: Yup.object({
+      id: Yup.string().required('Room is required'),
+    }),
     floorName: Yup.object({
       id: Yup.string().required('Floor name is required'),
     }),
@@ -141,30 +149,31 @@ const AddRoomDetails = (props: Props) => {
     try {
       schema.validateSync(form);
       if (item) {
-        updateRoomDetails();
+        updateBedDetails();
       } else {
-        addRoomDetails();
+        addBedDetails();
       }
     } catch (err: any) {
       setErrors({ [err.path]: err.message });
     }
   };
 
-  const addRoomDetails = () => {
+  const addBedDetails = () => {
     setLoader(true);
     let params = {
       id: null,
       bipardCentre: [form.bipardLocation?.name],
       selectHostelName: form.hostel.id,
       selectFloorName: form.floorName.id,
+      selectRoomNo: form.room.id,
       selectHostelNameShow: '',
       selectFloorNameShow: '',
-      roomNo: form.roomNo,
-      noOfBed: form.noOfBed,
+      selectRoomNoShow: '',
+      bedName: form.bedName,
       status: form.status.id,
     };
 
-    addHostelRoomApi(params)
+    addBedDetailsmApi(params)
       .unwrap()
       .then((res: any) => {
         navigation.dispatch(
@@ -191,21 +200,22 @@ const AddRoomDetails = (props: Props) => {
         setLoader(false);
       });
   };
-  const updateRoomDetails = () => {
+  const updateBedDetails = () => {
     setLoader(true);
     let params = {
       id: item.id,
       bipardCentre: [form.bipardLocation?.name],
       selectHostelName: form.hostel.id,
       selectFloorName: form.floorName.id,
+      selectRoomNo: form.room.id,
       selectHostelNameShow: '',
       selectFloorNameShow: '',
-      roomNo: form.roomNo,
-      noOfBed: form.noOfBed,
+      selectRoomNoShow: '',
+      bedName: form.bedName,
       status: form.status.id,
     };
 
-    updateHostelRoomApi(params)
+    updateBedDetailsApi(params)
       .unwrap()
       .then((res: any) => {
         navigation.dispatch(
@@ -258,7 +268,7 @@ const AddRoomDetails = (props: Props) => {
     setLoader(true);
     const params = {
       bipardCentre: [id],
-      listType: 'select_hostel_name_for_room_details',
+      listType: 'select_hostel_name_for_bed_details',
       replacements: ['%%'],
     };
     commonDropdownApi(params)
@@ -282,7 +292,7 @@ const AddRoomDetails = (props: Props) => {
 
     const params = {
       bipardCentre: [centreName],
-      listType: 'select_floor_name_for_room_details',
+      listType: 'select_floor_name_for_bed_details',
       replacements: ['%%', hostelId],
     };
 
@@ -290,6 +300,30 @@ const AddRoomDetails = (props: Props) => {
       .unwrap()
       .then((res: any) => {
         setValue('floorNameList', res.data);
+        setLoader(false);
+      })
+      .catch((err: any) => {
+        setLoader(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+        });
+      });
+  };
+
+  const getRoomName = (floorId: any, centreName: string) => {
+    setLoader(true);
+
+    const params = {
+      bipardCentre: [centreName],
+      listType: 'select_room_no_for_bed_details',
+      replacements: ['%%', form.hostel.id, floorId],
+    };
+
+    commonDropdownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        setValue('roomList', res.data);
         setLoader(false);
       })
       .catch((err: any) => {
@@ -330,6 +364,7 @@ const AddRoomDetails = (props: Props) => {
                   bipardLocation: data,
                   hostel: {},
                   floorName: {},
+                  room: {},
                 }));
                 getHostelName(data.name);
 
@@ -357,6 +392,7 @@ const AddRoomDetails = (props: Props) => {
                   ...prev,
                   hostel: data,
                   floorName: {},
+                  room: {},
                 }));
                 getFloorName(data.id, form.bipardLocation.name);
                 setErrors({ ...errors, 'hostel.id': '' });
@@ -382,7 +418,7 @@ const AddRoomDetails = (props: Props) => {
                   ...prev,
                   floorName: data,
                 }));
-
+                getRoomName(data.id, form.bipardLocation.name);
                 setErrors({ ...errors, 'floorName.id': '' });
               },
               typeName: 'name',
@@ -393,41 +429,45 @@ const AddRoomDetails = (props: Props) => {
           isMandatory
           errorMessage={errors['floorName.id']}
         />
+
+        <DropDownOrganism
+          label={'Room'}
+          placeholder={'Room'}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Room',
+              Data: form.roomList,
+              selectedData: form.room,
+              setSelectedData: (data: any) => {
+                setForm((prev: any) => ({
+                  ...prev,
+                  room: data,
+                }));
+                setErrors({ ...errors, 'room.id': '' });
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={form.room?.name}
+          isMandatory
+          errorMessage={errors['room.id']}
+        />
         <TextInputOrganisms
-          label={'Room Number'}
-          placeholder={'Room Number'}
+          label={'Bed Name'}
+          placeholder={'Bed Name'}
           ref={input1_ref}
-          onSubmitEditing={() => input2_ref.current.focus()}
-          value={form.roomNo}
-          autoCapitalize={'none'}
-          returnKeyType={'next'}
-          onChangeText={(val: string) => {
-            setValue('roomNo', normalizeNumber(val));
-            setErrors({ ...errors, roomNo: '' });
-          }}
-          isMandatory
-          errorMessage={errors.roomNo}
-          maxLength={3}
-          keyboardType="numeric"
-        />
-
-        <TextInputOrganisms
-          label={'No Of Bed'}
-          placeholder={'No Of Bed'}
-          ref={input2_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
-          value={form.noOfBed}
-          returnKeyType={'next'}
+          value={form.bedName}
+          autoCapitalize={'none'}
+          returnKeyType={'done'}
           onChangeText={(val: string) => {
-            setValue('noOfBed', normalizeNumber(val));
-            setErrors({ ...errors, noOfBed: '' });
+            setValue('bedName', val);
+            setErrors({ ...errors, bedName: '' });
           }}
           isMandatory
-          errorMessage={errors.noOfBed}
-          maxLength={2}
-          keyboardType="numeric"
+          errorMessage={errors.bedName}
         />
-
         {isNullUndefined(item) && (
           <RadioSelectableOrganism
             data={[
@@ -453,7 +493,7 @@ const AddRoomDetails = (props: Props) => {
   );
 };
 
-export default AddRoomDetails;
+export default AddBedDetails;
 
 const styles = StyleSheet.create({
   container: {
