@@ -284,7 +284,12 @@ const HostelAllocation = (props: Props) => {
                 paddingHorizontal: vw(12),
                 borderRadius: vw(6),
               }}
-              onPress={() => {}}
+              onPress={() => {
+                navigation.navigate(screensName.EditTraineeHostelAllocation, {
+                  item: item,
+                  isAllocated: false,
+                });
+              }}
             >
               <TextAtom
                 style={{
@@ -308,7 +313,10 @@ const HostelAllocation = (props: Props) => {
                   justifyContent: 'center',
                 }}
                 onPress={() => {
-                  // navigation.navigate(screensName.AddVehicle, { item: item });
+                  navigation.navigate(screensName.EditTraineeHostelAllocation, {
+                    item: item,
+                    isAllocated: true,
+                  });
                 }}
               >
                 <ImageAtom
@@ -369,20 +377,35 @@ const HostelAllocation = (props: Props) => {
           </View>
         </View>
 
-        <View style={[styles.rowBetween]}>
+        <View style={[styles.rowBetween, { alignItems: 'flex-start' }]}>
           <View style={{ flex: 1 }}>
             <TextAtom style={styles.label}>Hostel</TextAtom>
-            <TextAtom style={styles.value}>{item.hostelName ?? '-'}</TextAtom>
+            <TextAtom
+              style={[styles.value, { flexShrink: 1 }]}
+              numberOfLines={3}
+            >
+              {item.hostelName ?? '-'}
+            </TextAtom>
           </View>
 
           <View style={{ flex: 1, alignItems: 'center' }}>
             <TextAtom style={styles.label}>Room</TextAtom>
-            <TextAtom style={styles.value}>{item.roomNo ?? '-'}</TextAtom>
+            <TextAtom
+              style={[styles.value, { flexShrink: 1 }]}
+              numberOfLines={3}
+            >
+              {item.roomNo ?? '-'}
+            </TextAtom>
           </View>
 
           <View style={{ flex: 1, alignItems: 'flex-end' }}>
             <TextAtom style={styles.label}>Bed</TextAtom>
-            <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
+            <TextAtom
+              style={[styles.value, { flexShrink: 1, textAlign: 'right' }]}
+              numberOfLines={3}
+            >
+              {item.bedName ?? '-'}
+            </TextAtom>
           </View>
         </View>
       </TouchableAtom>
@@ -406,7 +429,9 @@ const HostelAllocation = (props: Props) => {
               justifyContent: 'center',
             }}
             onPress={() => {
-              //   navigation.navigate(screensName.AddVehicle, { item: item });
+              navigation.navigate(screensName.EditGuestHostelallocation, {
+                item: item,
+              });
             }}
           >
             <ImageAtom
@@ -454,20 +479,40 @@ const HostelAllocation = (props: Props) => {
           <TextAtom style={styles.value}>{item.mobileNo ?? '-'}</TextAtom>
         </View>
 
-        <View style={[styles.rowBetween, { marginTop: vh(8) }]}>
+        <View
+          style={[
+            styles.rowBetween,
+            { alignItems: 'flex-start', marginTop: vh(8) },
+          ]}
+        >
           <View style={{ flex: 1 }}>
             <TextAtom style={styles.label}>Hostel</TextAtom>
-            <TextAtom style={styles.value}>{item.hostelName ?? '-'}</TextAtom>
+            <TextAtom
+              style={[styles.value, { flexShrink: 1 }]}
+              numberOfLines={3}
+            >
+              {item.hostelName ?? '-'}
+            </TextAtom>
           </View>
 
           <View style={{ flex: 1, alignItems: 'center' }}>
             <TextAtom style={styles.label}>Room</TextAtom>
-            <TextAtom style={styles.value}>{item.roomNo ?? '-'}</TextAtom>
+            <TextAtom
+              style={[styles.value, { flexShrink: 1 }]}
+              numberOfLines={3}
+            >
+              {item.roomNo ?? '-'}
+            </TextAtom>
           </View>
 
           <View style={{ flex: 1, alignItems: 'flex-end' }}>
             <TextAtom style={styles.label}>Bed</TextAtom>
-            <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
+            <TextAtom
+              style={[styles.value, { flexShrink: 1, textAlign: 'right' }]}
+              numberOfLines={3}
+            >
+              {item.bedName ?? '-'}
+            </TextAtom>
           </View>
         </View>
 
@@ -764,8 +809,15 @@ const HostelAllocation = (props: Props) => {
             <TouchableAtom
               style={styles.filterButton}
               onPress={() => {
-                setShowAllocationModal(true);
-                setAllocationId('');
+                if (activeTab === 'Guest') {
+                  navigation.navigate(
+                    screensName.EditGuestHostelallocation,
+                    {},
+                  );
+                } else {
+                  setShowAllocationModal(true);
+                  setAllocationId('');
+                }
               }}
             >
               <TextAtom style={styles.filterText}>{'Request'}</TextAtom>

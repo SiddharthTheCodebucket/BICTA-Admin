@@ -52,4 +52,5 @@ export default {
   hostel_allocation_delete: 'hostel/delete-hostel-allocation-details',
   hostel_release: 'hostel/release-hostel-by-training-id',
   hostel_allocation: 'hostel/add-hostel-allocation-by-admin',
+  update_hostel_allocation: 'hostel/update-hostel-allocation-details',
 };

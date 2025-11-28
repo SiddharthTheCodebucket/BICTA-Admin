@@ -171,6 +171,13 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    updateHostelAllocation: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_hostel_allocation,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -199,4 +206,5 @@ export const {
   useHostelAllocationDeleteMutation,
   useHostelReleaseMutation,
   useHostelAllocationMutation,
+  useUpdateHostelAllocationMutation,
 } = apiEndpoints;

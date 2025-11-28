@@ -32,4 +32,6 @@ export default {
   TrainneHostelAllocationDetails: 'TrainneHostelAllocationDetails',
   HostelAllocation: 'HostelAllocation',
   HostelAllocationDetails: 'HostelAllocationDetails',
+  EditTraineeHostelAllocation: 'EditTraineeHostelAllocation',
+  EditGuestHostelallocation: 'EditGuestHostelallocation',
 };
