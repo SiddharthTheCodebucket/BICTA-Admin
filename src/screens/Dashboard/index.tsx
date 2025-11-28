@@ -1,46 +1,51 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Modal,
-  ScrollView,
-  TouchableOpacity,
-  Linking,
-} from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import moment from 'moment';
-import Toast from 'react-native-toast-message';
-import { Calendar } from 'react-native-big-calendar';
-import {
-  colors,
-  fonts,
-  images,
-  vw,
-  vh,
-  strings,
-  screensName,
-} from '../../constants';
-import ImageAtom from '../../components/atoms/ImageAtom';
+import { colors, fonts, images, vw, vh } from '../../constants';
 import {
   Header,
   NavigationType,
 } from '../../components/organisms/HeaderOrganism';
-// import {
-//   useEventListMutation,
-//   useListNoticeResponseUserMutation,
-//   useNoticeListMutation,
-// } from '../../injectEndpoints/dashboardEndpoints';
 import FullscreenLoading from '../../components/organisms/FullscreenLoading';
+import TouchableAtom from '../../components/atoms/TouchableAtom';
+import TextAtom from '../../components/atoms/TextAtom';
+import DropDownOrganism from '../../components/organisms/DropDownOrganism';
+import ViewAtom from '../../components/atoms/ViewAtom';
+
+import HostelPlanning from './Hostel/HostelPlanning';
+import HostelReport from './Hostel/HostelReport';
+import AllHostel from './Hostel/AllHostel';
+import Vendor from './Vendor';
 
 interface Props {
   navigation: NavigationType;
 }
 
+const HOSTEL_INNER_TABS = ['Hostel Planning', 'Hostel Report', 'All Hostel'];
+const VENDOR_INNER_TABS = ['All', 'Gaya', 'Patna'];
+
 const Dashboard = (props: Props) => {
   const { navigation } = props;
-  const skipNextModal = React.useRef(false);
+
   const [time, setTime] = useState(new Date());
+  const [loader, setLoader] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<'Hostel' | 'Vendor'>('Hostel');
+  const [innerTab, setInnerTab] = useState('Hostel Planning');
+  const [centerSerach, setCenterSerach] = useState<any>({});
+
+  const HostelTabs: any = {
+    'Hostel Planning': HostelPlanning,
+    'Hostel Report': HostelReport,
+    'All Hostel': AllHostel,
+  };
+
+  const VendorTabs: any = {
+    Default: Vendor,
+  };
+  const ActiveComponent =
+    activeTab === 'Hostel' ? HostelTabs[innerTab] : Vendor;
+
   useLayoutEffect(() => {
     Header.setDashboardHeader(navigation, { time, logo: images.logo });
   }, [time]);
@@ -50,34 +55,88 @@ const Dashboard = (props: Props) => {
     return () => clearInterval(interval);
   }, []);
 
-  const [currentDate, setCurrentDate] = useState(new Date());
-
-  // const [eventListApi] = useEventListMutation();
-  // const [noticeListApi] = useNoticeListMutation();
-  // const [listNoticeResponseUserApi] = useListNoticeResponseUserMutation();
-
-  const [noticeListData, setNoticeListData] = useState<any>([]);
-  const [events, setEvents] = useState<any>([]);
-
-  const [expanded, setExpanded] = useState(false);
-  const [loader, setLoader] = useState(false);
-
-  useEffect(() => {
-    const onFocus = () => {
-      if (skipNextModal.current) {
-        skipNextModal.current = false;
-        return;
-      }
-    };
-
-    const unsubscribe = navigation.addListener('focus', onFocus);
-
-    return unsubscribe;
-  }, [navigation]);
-
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
+
+      <View style={styles.tabRow}>
+        {['Hostel', 'Vendor'].map(tab => (
+          <TouchableAtom
+            key={tab}
+            style={[styles.tabButton, activeTab === tab && styles.activeTab]}
+            onPress={() => {
+              setActiveTab(tab as any);
+              setInnerTab('Hostel Planning');
+            }}
+          >
+            <TextAtom
+              style={[
+                styles.tabText,
+                activeTab === tab && styles.activeTabText,
+              ]}
+            >
+              {tab}
+            </TextAtom>
+          </TouchableAtom>
+        ))}
+
+        {activeTab === 'Hostel' && (
+          <DropDownOrganism
+            label={''}
+            placeholder={'Centers'}
+            inputText={centerSerach?.name}
+            onPress={() => {
+              navigation.navigate('DropDownModal', {
+                name: 'Center',
+                Data: [
+                  { id: 'All Centers', name: 'All Centers' },
+                  { id: 'Gaya', name: 'Gaya' },
+                  { id: 'Patna', name: 'Patna' },
+                ],
+                selectedData: centerSerach,
+                setSelectedData: setCenterSerach,
+                typeName: 'name',
+                typeId: 'id',
+              });
+            }}
+            containerStyle={styles.centerContainer}
+            contentContainerStyle={styles.centerContent}
+            downArrowStyle={styles.centerDownArrow}
+          />
+        )}
+      </View>
+
+      <ViewAtom style={styles.separator} />
+
+      <ViewAtom style={styles.innerRow}>
+        {activeTab === 'Hostel' && (
+          <ViewAtom style={styles.innerRow}>
+            {HOSTEL_INNER_TABS.map(tab => (
+              <TouchableAtom
+                key={tab}
+                style={[
+                  styles.innerButton,
+                  innerTab === tab && styles.innerActive,
+                ]}
+                onPress={() => setInnerTab(tab)}
+              >
+                <TextAtom
+                  style={[
+                    styles.innerText,
+                    innerTab === tab && styles.innerActiveText,
+                  ]}
+                >
+                  {tab}
+                </TextAtom>
+              </TouchableAtom>
+            ))}
+          </ViewAtom>
+        )}
+      </ViewAtom>
+
+      <View style={styles.activeScreen}>
+        <ActiveComponent />
+      </View>
     </SafeAreaView>
   );
 };
@@ -91,5 +150,77 @@ const styles = StyleSheet.create({
     paddingHorizontal: vw(15),
     paddingTop: vh(10),
     paddingBottom: vh(10),
+  },
+  tabRow: {
+    flexDirection: 'row',
+    width: vw(330),
+    marginTop: vh(5),
+    alignItems: 'center',
+    gap: vh(10),
+  },
+  tabButton: {
+    width: vw(100),
+    height: vh(40),
+    backgroundColor: '#EAEAEA',
+    borderRadius: vw(6),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: vh(6),
+  },
+  activeTab: {
+    backgroundColor: colors.primary,
+  },
+  tabText: {
+    color: colors.black,
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+  },
+  activeTabText: {
+    color: colors.white,
+  },
+  centerContainer: {
+    width: vw(110),
+    height: vh(40),
+  },
+  centerContent: {
+    width: vw(110),
+    height: vh(40),
+  },
+  centerDownArrow: {
+    marginLeft: vh(-300),
+  },
+  separator: {
+    width: '100%',
+    height: vh(1),
+    backgroundColor: colors.chinese_silver,
+    marginVertical: vh(8),
+  },
+  innerRow: {
+    flexDirection: 'row',
+    marginTop: vh(5),
+    gap: vw(10),
+  },
+  innerButton: {
+    paddingVertical: vh(8),
+    paddingHorizontal: vw(12),
+    backgroundColor: '#EAEAEA',
+    borderRadius: vw(6),
+  },
+  innerActive: {
+    backgroundColor: colors.primary,
+  },
+  innerText: {
+    color: colors.black,
+    fontSize: vw(13),
+    fontFamily: fonts.Roboto_Medium,
+  },
+  innerActiveText: {
+    color: colors.white,
+    fontSize: vw(13),
+    fontFamily: fonts.Roboto_Medium,
+  },
+  activeScreen: {
+    flex: 1,
+    paddingTop: vh(10),
   },
 });

@@ -53,4 +53,8 @@ export default {
   hostel_release: 'hostel/release-hostel-by-training-id',
   hostel_allocation: 'hostel/add-hostel-allocation-by-admin',
   update_hostel_allocation: 'hostel/update-hostel-allocation-details',
+
+  //Dashboard
+  vendor_dashboard: 'vendor/vendor-dashboard',
+  list_vendor: 'vendor/list-vendor',
 };
