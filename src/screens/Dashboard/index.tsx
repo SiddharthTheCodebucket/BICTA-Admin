@@ -22,7 +22,6 @@ interface Props {
 }
 
 const HOSTEL_INNER_TABS = ['Hostel Planning', 'Hostel Report', 'All Hostel'];
-const VENDOR_INNER_TABS = ['All', 'Gaya', 'Patna'];
 
 const Dashboard = (props: Props) => {
   const { navigation } = props;
@@ -135,7 +134,10 @@ const Dashboard = (props: Props) => {
       </ViewAtom>
 
       <View style={styles.activeScreen}>
-        <ActiveComponent />
+        <ActiveComponent
+          navigation={navigation}
+          selectedCenter={centerSerach?.id}
+        />
       </View>
     </SafeAreaView>
   );
@@ -159,7 +161,7 @@ const styles = StyleSheet.create({
     gap: vh(10),
   },
   tabButton: {
-    width: vw(100),
+    width: vw(90),
     height: vh(40),
     backgroundColor: '#EAEAEA',
     borderRadius: vw(6),
@@ -179,11 +181,11 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   centerContainer: {
-    width: vw(110),
+    width: vw(125),
     height: vh(40),
   },
   centerContent: {
-    width: vw(110),
+    width: vw(125),
     height: vh(40),
   },
   centerDownArrow: {
