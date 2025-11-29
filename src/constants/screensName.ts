@@ -35,4 +35,5 @@ export default {
   EditTraineeHostelAllocation: 'EditTraineeHostelAllocation',
   EditGuestHostelallocation: 'EditGuestHostelallocation',
   HostelPlanningDetails: 'HostelPlanningDetails',
+  HostelDetailsDashbaord: 'HostelDetailsDashbaord',
 };

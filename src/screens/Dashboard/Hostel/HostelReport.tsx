@@ -1,11 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  FlatList,
-  ScrollView,
-  LayoutAnimation,
-} from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { StyleSheet, View, FlatList, LayoutAnimation } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, vw, vh } from '../../../constants';
 import TextAtom from '../../../components/atoms/TextAtom';
@@ -20,6 +14,7 @@ import ButtonOrganism from '../../../components/organisms/ButtonOrganism';
 import { isNullUndefined } from '../../../utils/CommonFunction';
 import { useCommonDropdownListMutation } from '../../../injectEndpoints/vehicleManagemnetEndpoints';
 import moment from 'moment';
+import { useFocusEffect } from '@react-navigation/native';
 
 const HostelReport = ({ navigation, selectedCenter }: any) => {
   const [loader, setLoader] = useState(false);
@@ -28,11 +23,13 @@ const HostelReport = ({ navigation, selectedCenter }: any) => {
   const [hostelReportDataApi] = useHostelReportDataMutation();
   const [commonListApi] = useCommonDropdownListMutation();
 
-  useEffect(() => {
-    fetchHostelReportData();
-    getTrainingList();
-    getTrainingDesignation();
-  }, [selectedCenter]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchHostelReportData();
+      getTrainingList();
+      getTrainingDesignation();
+    }, [selectedCenter]),
+  );
 
   const toggleFilter = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);

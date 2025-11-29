@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -14,6 +14,7 @@ import FullscreenLoading from '../../../components/organisms/FullscreenLoading';
 import { useHostelPlanningDataMutation } from '../../../injectEndpoints/dashboardEndpoints';
 import TouchableAtom from '../../../components/atoms/TouchableAtom';
 import { NavigationType } from '../../../components/organisms/HeaderOrganism';
+import { useFocusEffect } from '@react-navigation/native';
 interface Props {
   navigation: NavigationType;
 }
@@ -57,9 +58,11 @@ const HostelPlanning = (props: any) => {
     return days;
   };
 
-  useEffect(() => {
-    fetchHostelPlanningData();
-  }, [currentDate, selectedCenter]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchHostelPlanningData();
+    }, [currentDate, selectedCenter]),
+  );
 
   const fetchHostelPlanningData = () => {
     setLoader(true);

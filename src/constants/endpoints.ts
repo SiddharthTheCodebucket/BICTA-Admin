@@ -59,4 +59,7 @@ export default {
   list_vendor: 'vendor/list-vendor',
   hostel_planning_data: 'dashboard/list-hostel-planning-data',
   hostel_report_data: 'dashboard/list-hostel-wise-allocated-count',
+  hostel_data: 'dashboard/dashboard-data',
+  hostel_room_details_dashboard: 'dashboard/room-details',
+  hostel_bed_details_dashboard: 'dashboard/bed-details',
 };
