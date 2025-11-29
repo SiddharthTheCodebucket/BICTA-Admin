@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import { colors, fonts, vh, vw } from '../../../constants';
+import { colors, fonts, images, vh, vw } from '../../../constants';
 import { NavigationType } from '../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../components/organisms/FullscreenLoading';
@@ -21,6 +21,11 @@ import {
   useVendorDashboardMutation,
   useVendorListMutation,
 } from '../../../injectEndpoints/dashboardEndpoints';
+import ImageAtom from '../../../components/atoms/ImageAtom';
+import {
+  downloadAndOpenFile,
+  isNullUndefined,
+} from '../../../utils/CommonFunction';
 
 interface Props {
   route: any;
@@ -53,6 +58,8 @@ const InvoiceDashboard = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
+  const [exportUrlExcel, setExportUrlExcel] = useState('');
+  const [exportUrlPdf, setExportUrlPdf] = useState('');
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = useState('');
@@ -93,19 +100,14 @@ const InvoiceDashboard = (props: Props) => {
     keyword: string,
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
-
     const params: any = {
+      trainingCentre: 'all',
       search: keyword,
-      sort: {
-        attributes: ['officerId'],
-        sorts: ['desc'],
-      },
-      bipardCentre: getCentreFilter(),
-      filters: [],
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
+      bipardCentre: getCentreFilter(),
+      exportFlag: true,
     };
-
     invoiceApi(params)
       .unwrap()
       .then((res: any) => {
@@ -120,6 +122,9 @@ const InvoiceDashboard = (props: Props) => {
         } else {
           setData(newData);
         }
+
+        setExportUrlExcel(res.data?.exportUrlExcel);
+        setExportUrlPdf(res.data?.exportUrlPdf);
 
         const totalCount = res?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
@@ -288,6 +293,60 @@ const InvoiceDashboard = (props: Props) => {
             </TextAtom>
           </TouchableAtom>
         ))}
+        <TouchableAtom
+          style={styles.filterButton}
+          onPress={() => {
+            if (!isNullUndefined(exportUrlExcel)) {
+              downloadAndOpenFile(exportUrlExcel);
+            }
+          }}
+        >
+          <ImageAtom
+            source={images.download}
+            style={{
+              tintColor: colors.black,
+              resizeMode: 'contain',
+              width: vw(10),
+              height: vw(10),
+            }}
+          />
+          <TextAtom
+            style={{
+              color: colors.black,
+              fontFamily: fonts.Roboto_Regular,
+              fontSize: vw(8),
+            }}
+          >
+            Excel
+          </TextAtom>
+        </TouchableAtom>
+        <TouchableAtom
+          style={styles.filterButton}
+          onPress={() => {
+            if (!isNullUndefined(exportUrlPdf)) {
+              downloadAndOpenFile(exportUrlPdf);
+            }
+          }}
+        >
+          <ImageAtom
+            source={images.download}
+            style={{
+              tintColor: colors.black,
+              resizeMode: 'contain',
+              width: vw(10),
+              height: vw(10),
+            }}
+          />
+          <TextAtom
+            style={{
+              color: colors.black,
+              fontFamily: fonts.Roboto_Regular,
+              fontSize: vw(8),
+            }}
+          >
+            Pdf
+          </TextAtom>
+        </TouchableAtom>
       </View>
       <View style={styles.summaryWrapper}>
         <View style={[styles.summaryCard, { borderColor: '#6C7A89' }]}>
@@ -498,5 +557,16 @@ const styles = StyleSheet.create({
     color: colors.grey,
     fontSize: vw(13),
     textAlign: 'right',
+  },
+
+  filterButton: {
+    borderWidth: vw(1),
+    borderColor: colors.primary,
+    borderRadius: vw(4),
+    alignSelf: 'flex-end',
+    paddingVertical: vh(4),
+    width: vw(50),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
