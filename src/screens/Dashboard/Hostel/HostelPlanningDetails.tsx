@@ -125,6 +125,7 @@ const HostelPlanningDetails = ({ route, navigation }: Props) => {
       {renderHeader()}
 
       <FlatList
+        showsVerticalScrollIndicator={false}
         data={filteredData}
         keyExtractor={(_, index) => index.toString()}
         renderItem={renderRow}

@@ -24,6 +24,13 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    hostelReportData: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.hostel_report_data,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -31,4 +38,5 @@ export const {
   useVendorDashboardMutation,
   useVendorListMutation,
   useHostelPlanningDataMutation,
+  useHostelReportDataMutation,
 } = apiEndpoints;

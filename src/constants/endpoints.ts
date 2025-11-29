@@ -58,4 +58,5 @@ export default {
   vendor_dashboard: 'vendor/vendor-dashboard',
   list_vendor: 'vendor/list-vendor',
   hostel_planning_data: 'dashboard/list-hostel-planning-data',
+  hostel_report_data: 'dashboard/list-hostel-wise-allocated-count',
 };
