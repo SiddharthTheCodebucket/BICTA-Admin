@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     width: vw(90),
-    height: vh(40),
+    height: vh(35),
     backgroundColor: '#EAEAEA',
     borderRadius: vw(6),
     alignItems: 'center',
@@ -182,11 +182,11 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     width: vw(125),
-    height: vh(40),
+    height: vh(35),
   },
   centerContent: {
     width: vw(125),
-    height: vh(40),
+    height: vh(35),
   },
   centerDownArrow: {
     marginLeft: vh(-300),
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: vh(1),
     backgroundColor: colors.chinese_silver,
-    marginVertical: vh(8),
+    marginTop: vh(8),
   },
   innerRow: {
     flexDirection: 'row',

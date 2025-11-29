@@ -253,7 +253,6 @@ const InvoiceDashboard = (props: Props) => {
           </View>
         </View>
 
-        {/* Row 4 */}
         <View style={[styles.rowBetween, { marginTop: vh(10) }]}>
           <View style={{ flex: 1 }}>
             <TextAtom style={styles.label}>8 – 15 Days</TextAtom>
@@ -444,7 +443,7 @@ const styles = StyleSheet.create({
   },
   tabBox: {
     paddingVertical: vh(4),
-    paddingHorizontal: vw(12),
+    paddingHorizontal: vw(13),
     backgroundColor: '#EAEAEA',
     borderRadius: vw(6),
   },
@@ -565,7 +564,7 @@ const styles = StyleSheet.create({
     borderRadius: vw(4),
     alignSelf: 'flex-end',
     paddingVertical: vh(4),
-    width: vw(50),
+    width: vw(55),
     alignItems: 'center',
     justifyContent: 'center',
   },

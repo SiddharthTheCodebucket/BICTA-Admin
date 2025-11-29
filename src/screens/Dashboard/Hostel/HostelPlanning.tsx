@@ -176,18 +176,39 @@ const HostelPlanning = (props: any) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          width: vw(330),
+        }}
+      >
+        <View style={styles.calendarHeader}>
+          <TouchableOpacity onPress={goPrevMonth}>
+            <Text style={styles.calendarArrow}>◀</Text>
+          </TouchableOpacity>
 
-      <View style={styles.calendarHeader}>
-        <TouchableOpacity onPress={goPrevMonth}>
-          <Text style={styles.calendarArrow}>◀</Text>
+          <Text style={styles.calendarTitle}>
+            {moment(currentDate).format('MMMM YYYY')}
+          </Text>
+
+          <TouchableOpacity onPress={goNextMonth}>
+            <Text style={styles.calendarArrow}>▶</Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          style={[styles.buttonAction, { width: vw(50) }]}
+          onPress={() => setCurrentDate(new Date())}
+        >
+          <Text style={styles.calendarArrow}>Today</Text>
         </TouchableOpacity>
 
-        <Text style={styles.calendarTitle}>
-          {moment(currentDate).format('MMMM YYYY')}
-        </Text>
+        <TouchableOpacity style={styles.buttonAction} onPress={() => {}}>
+          <Text style={styles.calendarArrow}>Block</Text>
+        </TouchableOpacity>
 
-        <TouchableOpacity onPress={goNextMonth}>
-          <Text style={styles.calendarArrow}>▶</Text>
+        <TouchableOpacity style={styles.buttonAction} onPress={() => {}}>
+          <Text style={styles.calendarArrow}>Unblock</Text>
         </TouchableOpacity>
       </View>
 
@@ -217,15 +238,26 @@ const styles = StyleSheet.create({
     padding: vw(4),
     backgroundColor: colors.primary,
     alignItems: 'center',
+    width: vw(150),
+    height: vh(30),
+    borderRadius: vw(4),
+  },
+  buttonAction: {
+    padding: vw(4),
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: vw(60),
+    borderRadius: vw(4),
   },
   calendarArrow: {
     color: colors.white,
-    fontSize: vw(20),
+    fontSize: vw(12),
   },
   calendarTitle: {
     color: colors.white,
     fontFamily: fonts.Roboto_Bold,
-    fontSize: vw(18),
+    fontSize: vw(12),
   },
   row: {
     flexDirection: 'row',

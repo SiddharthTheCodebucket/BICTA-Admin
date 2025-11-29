@@ -225,43 +225,43 @@ const HostelDetailsDashbaord = (props: any) => {
                     <View style={styles.rowBetween}>
                       <View style={styles.tag}>
                         <TextAtom style={styles.tagText}>
-                          Floor Name: {bed.floorNumber}
+                          Floor Name: {bed?.floorNumber}
                         </TextAtom>
                       </View>
 
                       <View style={styles.tag}>
                         <TextAtom style={styles.tagText}>
-                          Room Number: {bed.roomNo}
+                          Room Number: {bed?.roomNo}
                         </TextAtom>
                       </View>
                     </View>
 
                     <View style={styles.bedTag}>
                       <TextAtom style={styles.bedTagText}>
-                        Bed Number: {bed.bedNumber}
+                        Bed Number: {bed?.bedNumber}
                       </TextAtom>
                     </View>
                     <View style={styles.rowBetween}>
                       <TextAtom style={styles.nameText}>
-                        {detail.name} ({detail.gender})
+                        {detail?.name} ({detail?.gender})
                       </TextAtom>
 
                       <TextAtom style={styles.mobileText}>
-                        +91 {detail.mobileNo}
+                        +91 {detail?.mobileNo}
                       </TextAtom>
                     </View>
                     <View style={styles.rowBetween}>
                       <TextAtom style={styles.dateText}>
-                        From: {detail.trainingStartDate}
+                        From: {detail?.trainingStartDate}
                       </TextAtom>
 
                       <TextAtom style={styles.dateText}>
-                        To: {detail.trainingEndDate}
+                        To: {detail?.trainingEndDate}
                       </TextAtom>
                     </View>
 
                     <TextAtom style={styles.trainingText}>
-                      Training: {detail.trainingName}
+                      Training: {detail?.trainingName}
                     </TextAtom>
 
                     {index !== bedReportData.length - 1 && (
