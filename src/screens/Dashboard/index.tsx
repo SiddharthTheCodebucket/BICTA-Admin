@@ -18,6 +18,7 @@ import AllHostel from './Hostel/AllHostel';
 import Vendor from './Vendor';
 
 interface Props {
+  route: any;
   navigation: NavigationType;
 }
 
@@ -53,7 +54,12 @@ const Dashboard = (props: Props) => {
     const interval = setInterval(() => setTime(new Date()), 60000);
     return () => clearInterval(interval);
   }, []);
-
+  useEffect(() => {
+    if (props.route?.params?.goToHostelPlanning) {
+      setActiveTab('Hostel');
+      setInnerTab('Hostel Planning');
+    }
+  }, [props.route?.params]);
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />

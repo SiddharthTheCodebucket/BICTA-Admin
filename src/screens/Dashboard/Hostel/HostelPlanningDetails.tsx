@@ -15,9 +15,10 @@ interface Props {
   navigation: NavigationType;
 }
 
-const HostelPlanningDetails = ({ route, navigation }: Props) => {
-  const { selectedDate, hostels } = route.params;
-
+const HostelPlanningDetails = (props: Props) => {
+  const { navigation } = props;
+  const hostels = props.route.params?.hostels;
+  const selectedDate = props.route.params?.selectedDate;
   const [activeTab, setActiveTab] = useState<'Trainee' | 'Guest'>('Trainee');
   const [filteredData, setFilteredData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

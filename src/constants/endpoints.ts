@@ -62,4 +62,6 @@ export default {
   hostel_data: 'dashboard/dashboard-data',
   hostel_room_details_dashboard: 'dashboard/room-details',
   hostel_bed_details_dashboard: 'dashboard/bed-details',
+  dashboard_block_bed_list: 'dashboard/list-blocked-bed',
+  dashboard_unblock_bed_list: 'dashboard/unblock-bed',
 };

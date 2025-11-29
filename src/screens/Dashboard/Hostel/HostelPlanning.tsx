@@ -19,7 +19,8 @@ interface Props {
   navigation: NavigationType;
 }
 const HostelPlanning = (props: any) => {
-  const { navigation, selectedCenter } = props;
+  const { navigation } = props;
+  const selectedCenter = props.route?.params?.selectedCenter;
   const [currentDate, setCurrentDate] = useState(new Date());
   const [loader, setLoader] = useState(false);
 
@@ -207,7 +208,12 @@ const HostelPlanning = (props: any) => {
           <Text style={styles.calendarArrow}>Block</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.buttonAction} onPress={() => {}}>
+        <TouchableOpacity
+          style={styles.buttonAction}
+          onPress={() => {
+            navigation.navigate(screensName.BlockDetails);
+          }}
+        >
           <Text style={styles.calendarArrow}>Unblock</Text>
         </TouchableOpacity>
       </View>

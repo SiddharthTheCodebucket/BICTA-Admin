@@ -16,7 +16,9 @@ import { useCommonDropdownListMutation } from '../../../injectEndpoints/vehicleM
 import moment from 'moment';
 import { useFocusEffect } from '@react-navigation/native';
 
-const HostelReport = ({ navigation, selectedCenter }: any) => {
+const HostelReport = (props: any) => {
+  const { navigation } = props;
+  const selectedCenter = props.route.params?.selectedCenter;
   const [loader, setLoader] = useState(false);
   const [reportData, setReportData] = useState<any[]>([]);
   const [showFilter, setShowFilter] = useState(false);

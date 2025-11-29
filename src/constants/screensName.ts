@@ -36,4 +36,5 @@ export default {
   EditGuestHostelallocation: 'EditGuestHostelallocation',
   HostelPlanningDetails: 'HostelPlanningDetails',
   HostelDetailsDashbaord: 'HostelDetailsDashbaord',
+  BlockDetails: 'BlockDetails',
 };

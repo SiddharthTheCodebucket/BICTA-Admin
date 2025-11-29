@@ -18,7 +18,9 @@ import {
 } from '../../../utils/CommonFunction';
 import { useFocusEffect } from '@react-navigation/native';
 
-const AllHostel = ({ navigation, selectedCenter }: any) => {
+const AllHostel = (props: any) => {
+  const { navigation } = props;
+  const selectedCenter = props.route.params?.selectedCenter;
   const [loader, setLoader] = useState(false);
   const [reportData, setReportData] = useState<any[]>([]);
   const [exportUrlPdf, setExportUrlPdf] = useState('');

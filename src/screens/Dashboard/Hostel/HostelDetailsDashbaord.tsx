@@ -14,8 +14,9 @@ import ViewAtom from '../../../components/atoms/ViewAtom';
 import { Header } from '../../../components/organisms/HeaderOrganism';
 
 const HostelDetailsDashbaord = (props: any) => {
-  const { navigation, selectedCenter } = props;
   const item = props.route?.params?.item;
+  const { navigation } = props;
+  const selectedCenter = props.route?.params?.selectedCenter;
 
   const [loader, setLoader] = useState(false);
   const [reportData, setReportData] = useState<any>([]);
