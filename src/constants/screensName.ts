@@ -38,4 +38,11 @@ export default {
   HostelDetailsDashbaord: 'HostelDetailsDashbaord',
   BlockDetails: 'BlockDetails',
   BlockedForm: 'BlockedForm',
+  LMS: 'LMS',
+  TrainingManagement: 'TrainingManagement',
+  TrainingCategoryMaster: 'TrainingCategoryMaster',
+  AddTrainingCategory: 'AddTrainingCategory',
+  TrainingDetails: 'TrainingDetails',
+  TrainingDetailsScreen: 'TrainingDetailsScreen',
+  AddTrainingDetails: 'AddTrainingDetails',
 };

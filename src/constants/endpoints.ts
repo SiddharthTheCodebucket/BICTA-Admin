@@ -65,4 +65,15 @@ export default {
   dashboard_block_bed_list: 'dashboard/list-blocked-bed',
   dashboard_unblock_bed_list: 'dashboard/unblock-bed',
   dashboard_block_bed: 'dashboard/block-bed',
+
+  //LMS
+  list_training_category: 'lms/list-training-category',
+  add_training_category: 'lms/add-training-category',
+  update_training_category: 'lms/update-training-category',
+  download_training_category: 'lms/download-training-category',
+  list_training_details: 'lms/list-training-details',
+  add_fileNo_training_details: 'lms/add-file-number-to-training-details',
+  update_trainee_login_details: 'lms/update-trainee-login',
+  extend_training_end_date: 'lms/extend-training-end-date',
+  delete_training_details: 'lms/delete-training-details',
 };

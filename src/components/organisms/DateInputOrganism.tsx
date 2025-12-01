@@ -27,6 +27,7 @@ type Props = {
   onPress?: Function;
   errorMessage?: string;
   errorMessageView?: ViewStyle;
+  labelStyle?: ViewStyle;
 };
 
 const DateInputOrganism = (props: Props) => {
@@ -55,6 +56,7 @@ const DateInputOrganism = (props: Props) => {
       <LabelWithMandatoryMolecules
         label={props.label}
         isMandatory={props.isMandatory}
+        labelStyle={props.labelStyle}
       />
       <TouchableAtom
         activeOpacity={1}

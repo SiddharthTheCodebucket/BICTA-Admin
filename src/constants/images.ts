@@ -29,4 +29,6 @@ export default {
   release: require('../assets/images/release.png'),
   arrowDownLeft: require('../assets/images/arrowDownLeft.png'),
   download: require('../assets/images/download.png'),
+  link: require('../assets/images/link.png'),
+  extended: require('../assets/images/extended.png'),
 };

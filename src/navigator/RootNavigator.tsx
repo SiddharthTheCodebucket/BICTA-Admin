@@ -43,6 +43,13 @@ import HostelPlanningDetails from '../screens/Dashboard/Hostel/HostelPlanningDet
 import HostelDetailsDashbaord from '../screens/Dashboard/Hostel/HostelDetailsDashbaord';
 import BlockDetails from '../screens/Dashboard/Hostel/BlockDetails';
 import BlockedForm from '../screens/Dashboard/Hostel/BlockedForm';
+import LMS from '../screens/Menu/LMS';
+import TrainingManagement from '../screens/Menu/LMS/TrainingManagement';
+import TrainingCategoryMaster from '../screens/Menu/LMS/TrainingManagement/TrainingCategoryMaster';
+import AddTrainingCategory from '../screens/Menu/LMS/TrainingManagement/TrainingCategoryMaster/AddTrainingCategory';
+import TrainingDetails from '../screens/Menu/LMS/TrainingManagement/TrainingDetails';
+import TrainingDetailsScreen from '../screens/Menu/LMS/TrainingManagement/TrainingDetails/TrainingDetailsScreen';
+import AddTrainingDetails from '../screens/Menu/LMS/TrainingManagement/TrainingDetails/AddTrainingDetails';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -194,6 +201,31 @@ const RootNavigator = () => {
             component={BlockDetails}
           />
           <RootStackScreen.Screen name="BlockedForm" component={BlockedForm} />
+          <RootStackScreen.Screen name="LMS" component={LMS} />
+          <RootStackScreen.Screen
+            name="TrainingManagement"
+            component={TrainingManagement}
+          />
+          <RootStackScreen.Screen
+            name="TrainingCategoryMaster"
+            component={TrainingCategoryMaster}
+          />
+          <RootStackScreen.Screen
+            name="AddTrainingCategory"
+            component={AddTrainingCategory}
+          />
+          <RootStackScreen.Screen
+            name="TrainingDetails"
+            component={TrainingDetails}
+          />
+          <RootStackScreen.Screen
+            name="TrainingDetailsScreen"
+            component={TrainingDetailsScreen}
+          />
+          <RootStackScreen.Screen
+            name="AddTrainingDetails"
+            component={AddTrainingDetails}
+          />
         </RootStackScreen.Group>
         <RootStackScreen.Group
           screenOptions={{
