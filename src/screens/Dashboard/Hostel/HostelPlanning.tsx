@@ -204,7 +204,12 @@ const HostelPlanning = (props: any) => {
           <Text style={styles.calendarArrow}>Today</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.buttonAction} onPress={() => {}}>
+        <TouchableOpacity
+          style={styles.buttonAction}
+          onPress={() => {
+            navigation.navigate(screensName.BlockedForm);
+          }}
+        >
           <Text style={styles.calendarArrow}>Block</Text>
         </TouchableOpacity>
 

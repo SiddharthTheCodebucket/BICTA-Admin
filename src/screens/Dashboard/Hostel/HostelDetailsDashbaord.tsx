@@ -225,14 +225,18 @@ const HostelDetailsDashbaord = (props: any) => {
                   <View key={index} style={styles.bedCard}>
                     <View style={styles.rowBetween}>
                       <View style={styles.tag}>
-                        <TextAtom style={styles.tagText}>
-                          Floor Name: {bed?.floorNumber}
+                        <TextAtom numberOfLines={0} style={styles.tagText}>
+                          Floor Name
+                        </TextAtom>
+                        <TextAtom numberOfLines={0} style={styles.tagText}>
+                          {bed?.floorNumber}
                         </TextAtom>
                       </View>
 
                       <View style={styles.tag}>
+                        <TextAtom style={styles.tagText}>Room Number</TextAtom>
                         <TextAtom style={styles.tagText}>
-                          Room Number: {bed?.roomNo}
+                          {bed?.roomNo}
                         </TextAtom>
                       </View>
                     </View>
@@ -415,11 +419,13 @@ const styles = StyleSheet.create({
     paddingVertical: vh(6),
     paddingHorizontal: vw(10),
     borderRadius: vw(6),
+    width: vw(130),
   },
   tagText: {
     fontFamily: fonts.Roboto_Medium,
     fontSize: vw(13),
     color: colors.primary,
+    textAlign: 'center',
   },
   bedTag: {
     backgroundColor: '#DDE8FF',

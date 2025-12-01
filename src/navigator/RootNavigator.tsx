@@ -42,6 +42,7 @@ import EditGuestHostelallocation from '../screens/Menu/HostelManagement/Hostel/H
 import HostelPlanningDetails from '../screens/Dashboard/Hostel/HostelPlanningDetails';
 import HostelDetailsDashbaord from '../screens/Dashboard/Hostel/HostelDetailsDashbaord';
 import BlockDetails from '../screens/Dashboard/Hostel/BlockDetails';
+import BlockedForm from '../screens/Dashboard/Hostel/BlockedForm';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -192,6 +193,7 @@ const RootNavigator = () => {
             name="BlockDetails"
             component={BlockDetails}
           />
+          <RootStackScreen.Screen name="BlockedForm" component={BlockedForm} />
         </RootStackScreen.Group>
         <RootStackScreen.Group
           screenOptions={{

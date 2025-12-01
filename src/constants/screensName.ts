@@ -37,4 +37,5 @@ export default {
   HostelPlanningDetails: 'HostelPlanningDetails',
   HostelDetailsDashbaord: 'HostelDetailsDashbaord',
   BlockDetails: 'BlockDetails',
+  BlockedForm: 'BlockedForm',
 };

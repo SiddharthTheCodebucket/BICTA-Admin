@@ -66,6 +66,13 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    dashboardBlockBed: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.dashboard_block_bed,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -79,4 +86,5 @@ export const {
   useHostelBedDetailsDataMutation,
   useDashboardBlockBedListMutation,
   useDashboardUnblockBedMutation,
+  useDashboardBlockBedMutation,
 } = apiEndpoints;

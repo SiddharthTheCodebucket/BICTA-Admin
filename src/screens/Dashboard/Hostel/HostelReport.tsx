@@ -18,7 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 
 const HostelReport = (props: any) => {
   const { navigation } = props;
-  const selectedCenter = props.route.params?.selectedCenter;
+  const selectedCenter = props.route?.params?.selectedCenter;
   const [loader, setLoader] = useState(false);
   const [reportData, setReportData] = useState<any[]>([]);
   const [showFilter, setShowFilter] = useState(false);
