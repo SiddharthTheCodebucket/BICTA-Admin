@@ -5,22 +5,40 @@ import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, screensName, vh, vw } from '../../../../../../constants';
 import {
-  Header,
-  NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
-import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
+  colors,
+  fonts,
+  screensName,
+  strings,
+  vh,
+  vw,
+} from '../../../../../../constants';
+
+import { NavigationType } from '../../../../../../components/organisms/HeaderOrganism';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import { isNullUndefined } from '../../../../../../utils/CommonFunction';
+
+import ViewAtom from '../../../../../../components/atoms/ViewAtom';
+import ImageUploadOrganism from '../../../../../../components/organisms/ImageUploadOrganism';
+
+import { useAppSelector } from '../../../../../../hooks';
+import { useDispatch } from 'react-redux';
 
 import {
-  useAddTrainingCategoryMutation,
-  useUpdateTrainingCategoryMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
+  saveCourseCoordinator,
+  saveCourseLetter,
+  saveYoungProfessional,
+  saveCourseLocation,
+  saveCourseSubLocation,
+  saveTrainingTeamLocations,
+  saveCourseSubLocationList,
+} from '../../../../../../features/TrainingManagement/trainingManagementSlice';
+
+import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import TextAtom from '../../../../../../components/atoms/TextAtom';
+import moment from 'moment';
+import { useUpdateTrainingDetailsMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 
 interface Props {
   route: any;
@@ -31,68 +49,323 @@ interface Props {
 
 const TrainingTeamLocation = (props: Props) => {
   const { navigation, goBack, goNext } = props;
-  const item = props.route?.params?.item;
-  const input1_ref: any = createRef();
-  const input2_ref: any = createRef();
+  const dispatch = useDispatch();
 
+  const [commonDropdownApi] = useCommonDropdownListMutation();
+  const [updateTrainingDetailsApi] = useUpdateTrainingDetailsMutation();
   const [loader, setLoader] = useState(false);
-  const [form, setForm] = useState<any>({
-    courseCoordinatorList: [],
-    courseCoordinator: {},
-    youngProfessionalList: [],
-    youngProfessional: {},
-    courseLocationList: [],
-    courseLocation: {},
-    courseSubLocationList: [],
-    courseSubLocation: {},
-    courseLetter: {},
-  });
+
+  const {
+    bipardLocation,
+    trainingCategory,
+    budget,
+    trainingFullName,
+    trainingShortName,
+    trainingStartDate,
+    trainingEndDate,
+    trainingType,
+    trainingFee,
+    natureOfCourse,
+    noOfParticipants,
+    parentDepartment,
+    noOfSectionAndBatches,
+    status,
+    courseThumbnail,
+    courseDesc,
+    hostel,
+    courseCoordinatorList,
+    courseCoordinator,
+    youngProfessionalList,
+    youngProfessional,
+    courseLocationList,
+    courseLocation,
+    courseSubLocation,
+    courseSubLocationList,
+    courseLetter,
+    trainingTeamLocations,
+  } = useAppSelector(state => state.TrainingManagement);
+
+  const [tempCourseLocation, setTempCourseLocation] = useState<any>(null);
+  const [tempCourseSubLocation, setTempCourseSubLocation] = useState<any>(null);
+
   const [errors, setErrors] = useState<any>({});
 
-  const setValue = (key: any, value: any) => {
-    setForm((prev: any) => ({ ...prev, [key]: value }));
-  };
+  // 🔥 EDIT MODE PREFILL
   useEffect(() => {
+    const item = props.route?.params?.item;
     if (!item) return;
 
-    const locationMap: any = {
-      1: { id: 'Gaya', name: 'Gaya' },
-      2: { id: 'Patna', name: 'Patna' },
+    // Coordinator
+    if (item.courseCoordinatorId && item.courseCoordinator) {
+      dispatch(
+        saveCourseCoordinator({
+          id: item.courseCoordinatorId,
+          name: item.courseCoordinator,
+        }),
+      );
+    }
+
+    // Young professional
+    if (item.youngProfessionalId && item.youngProfessional) {
+      dispatch(
+        saveYoungProfessional({
+          id: item.youngProfessionalId,
+          name: item.youngProfessional,
+        }),
+      );
+    }
+
+    // Training Team Location (multiple)
+    if (Array.isArray(item.courseLocation)) {
+      const locations = item.courseLocation.map(
+        (locId: any, index: number) => ({
+          courseLocation: {
+            id: item.courseLocation[index],
+            name: courseLocationList?.find(
+              x => x.id == item.courseLocation[index],
+            )?.name,
+          },
+          courseSubLocation: {
+            id: item.courseSubLocation[index],
+            name: courseSubLocationList?.find(
+              x => x.id == item.courseSubLocation[index],
+            )?.name,
+          },
+        }),
+      );
+
+      dispatch(saveTrainingTeamLocations(locations));
+    }
+
+    // Course Letter
+    if (item.letter) {
+      dispatch(
+        saveCourseLetter({
+          uri: item.letter,
+          url: item.letter,
+        }),
+      );
+    }
+  }, [props.route?.params?.item]);
+
+  const getCourseSubLocation = (id: string) => {
+    setLoader(true);
+    const params = {
+      bipardCentre: [bipardLocation?.name],
+      listType: 'course_sub_location',
+      replacements: ['%%', id],
     };
 
-    const selectedLocation = locationMap[item.tenantId] || {};
-
-    setForm({
-      bipardLocation: selectedLocation,
-      categoryName: item.categoryName || '',
-      desc: item.description || '',
-    });
-  }, [item]);
-
+    commonDropdownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        dispatch(saveCourseSubLocationList(res.data));
+        setLoader(false);
+      })
+      .catch((err: any) => {
+        setLoader(false);
+        Toast.show({ type: 'error', text2: err.data.message });
+      });
+  };
   const schema = Yup.object().shape({
-    desc: Yup.string().required('Description is required'),
-    categoryName: Yup.string().required('Category name is required'),
-    bipardLocation: Yup.object({
-      name: Yup.string().required('Bipard location is required'),
+    courseSubLocation:
+      trainingTeamLocations?.length >= 1
+        ? Yup.mixed().notRequired()
+        : Yup.object({
+            id: Yup.string().required('Course sub location is required'),
+          }),
+    courseLocation:
+      trainingTeamLocations?.length >= 1
+        ? Yup.mixed().notRequired()
+        : Yup.object({
+            id: Yup.string().required('Course location is required'),
+          }),
+
+    youngProfessional: Yup.object({
+      id: Yup.string().required('Young professional is required'),
+    }),
+
+    courseCoordinator: Yup.object({
+      id: Yup.string().required('Course coordinator is required'),
     }),
   });
 
-  const onSubmit = () => {
+  const form = {
+    courseCoordinator,
+    youngProfessional,
+    courseLocation,
+    courseSubLocation,
+    trainingTeamLocations,
+  };
+
+  const onAddTeamLocation = () => {
+    if (!tempCourseLocation || !tempCourseSubLocation) {
+      setErrors({
+        addError: 'Please select both Course Location and Course Sub Location',
+      });
+      return;
+    }
+
+    setErrors({});
+
+    const newItem = {
+      courseLocation: tempCourseLocation,
+      courseSubLocation: tempCourseSubLocation,
+    };
+
+    dispatch(saveTrainingTeamLocations([...trainingTeamLocations, newItem]));
+
+    setTempCourseLocation(null);
+    setTempCourseSubLocation(null);
+    dispatch(saveCourseLocation({}));
+    dispatch(saveCourseSubLocation({}));
+  };
+
+  const removeItem = (index: number) => {
+    const arr = [...trainingTeamLocations];
+    arr.splice(index, 1);
+    dispatch(saveTrainingTeamLocations(arr));
+  };
+
+  const onSubmit = async () => {
     try {
       schema.validateSync(form);
-      // if (item) {
-      //   updateTrainingCategoryDetails();
-      // } else {
-      //   addTrainingCategoryDetails();
-      // }
+      addTrainingDetails();
     } catch (err: any) {
       setErrors({ [err.path]: err.message });
     }
   };
 
+  const addTrainingDetails = () => {
+    setLoader(true);
+
+    const formData = new FormData();
+
+    formData.append('bipardCentre', bipardLocation.name);
+    formData.append('training_category', trainingCategory.categoryId);
+    formData.append('is_budget_training', budget.id);
+    formData.append('budget_training_id', null);
+
+    formData.append(
+      'training_full_name',
+      trainingFullName ? trainingFullName : '',
+    );
+    formData.append(
+      'training_short_name',
+      trainingShortName ? trainingShortName : '',
+    );
+
+    formData.append(
+      'course_start_date',
+      moment(trainingStartDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+    );
+    formData.append(
+      'course_end_date',
+      moment(trainingEndDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+    );
+
+    formData.append('hostel_allocation_order', [hostel.id]);
+    formData.append('training_type', trainingType.id);
+    formData.append('training_fee', trainingFee.id);
+    formData.append('fee_amount', '');
+    formData.append('nature_of_course', natureOfCourse.id);
+    formData.append('no_of_participants', noOfParticipants);
+    formData.append('parent_department', parentDepartment.name);
+    formData.append('no_of_sections', noOfSectionAndBatches);
+    formData.append('status', status.id);
+    formData.append('description', courseDesc);
+
+    if (courseThumbnail?.uri) {
+      formData.append('thumbnail', {
+        uri: courseThumbnail.uri,
+        name: courseThumbnail.fileName || 'thumb.jpg',
+        type: courseThumbnail.type || 'image/jpeg',
+      });
+    }
+    if (courseLetter?.uri) {
+      formData.append('letter', {
+        uri: courseLetter.uri,
+        name: courseLetter.fileName || 'letter.jpg',
+        type: courseLetter.type || 'image/jpeg',
+      });
+    }
+
+    formData.append('course_coordinator', courseCoordinator.id);
+
+    formData.append('young_professional', youngProfessional.id);
+
+    formData.append('course_location', 0);
+    formData.append('course_sub_location', 0);
+    // 1️⃣ Collect all locations in one array
+    let combined = [];
+
+    // If user filled top selectors but didn’t click ADD
+    if (tempCourseLocation && tempCourseSubLocation) {
+      combined.push({
+        courseLocation: tempCourseLocation.id,
+        courseSubLocation: tempCourseSubLocation.id,
+        courseSubLocationData: tempCourseSubLocation, // optional your format
+      });
+    }
+
+    trainingTeamLocations.forEach((item: any) => {
+      combined.push({
+        courseLocation: item.courseLocation.id,
+        courseSubLocation: item.courseSubLocation.id,
+      });
+    });
+
+    let uniqueLocations: any = [];
+    let mapKey = new Set();
+
+    combined.forEach(item => {
+      const key = `${item.courseLocation}-${item.courseSubLocation}`;
+
+      if (!mapKey.has(key)) {
+        mapKey.add(key);
+        uniqueLocations.push(item);
+      }
+    });
+
+    formData.append('location', JSON.stringify(uniqueLocations));
+
+    formData.append('letter', null);
+
+    formData.append('course_id', '');
+    formData.append('course_id_update', null);
+
+    updateTrainingDetailsApi(formData)
+      .unwrap()
+      .then((res: any) => {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [
+              {
+                name: screensName.TrainingDetails,
+              },
+            ],
+          }),
+        );
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+        setLoader(false);
+      })
+      .catch((err: any) => {
+        setLoader(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+        });
+      });
+  };
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
+
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         style={{ flex: 1 }}
@@ -103,64 +376,172 @@ const TrainingTeamLocation = (props: Props) => {
         extraScrollHeight={vh(80)}
       >
         <DropDownOrganism
-          label={'Bipard Location'}
-          placeholder={'Bipard Location'}
-          onPress={() => {
+          label={'Course Coordinator'}
+          placeholder={'Course Coordinator'}
+          onPress={() =>
             navigation.navigate('DropDownModal', {
-              name: 'Bipard Location',
-              Data: [
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
-              ],
-              selectedData: form.bipardLocation,
+              name: 'Course Coordinator',
+              Data: courseCoordinatorList,
+              selectedData: courseCoordinator,
               setSelectedData: (data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  bipardLocation: data,
-                  vehicleColor: {},
-                }));
-
-                setErrors({ ...errors, 'bipardLocation.name': '' });
+                dispatch(saveCourseCoordinator(data));
+                setErrors({ ...errors, 'courseCoordinator.id': '' });
               },
               typeName: 'name',
               typeId: 'id',
-            });
-          }}
-          inputText={form.bipardLocation?.name}
+            })
+          }
+          inputText={courseCoordinator?.name}
           isMandatory
-          errorMessage={errors['bipardLocation.name']}
+          errorMessage={errors['courseCoordinator.id']}
         />
-        <TextInputOrganisms
-          label={'Category Name'}
-          placeholder={'Category Name'}
-          ref={input1_ref}
-          onSubmitEditing={() => input2_ref.current.focus()}
-          value={form.categoryName}
-          autoCapitalize={'none'}
-          returnKeyType={'next'}
-          onChangeText={(val: string) => {
-            setValue('categoryName', val);
-            setErrors({ ...errors, categoryName: '' });
-          }}
+
+        <DropDownOrganism
+          label={'Young Professional'}
+          placeholder={'Young Professional'}
+          onPress={() =>
+            navigation.navigate('DropDownModal', {
+              name: 'Young Professional',
+              Data: youngProfessionalList,
+              selectedData: youngProfessional,
+              setSelectedData: (data: any) => {
+                dispatch(saveYoungProfessional(data));
+                setErrors({ ...errors, 'youngProfessional.id': '' });
+              },
+              typeName: 'name',
+              typeId: 'id',
+            })
+          }
+          inputText={youngProfessional?.name}
           isMandatory
-          errorMessage={errors.categoryName}
+          errorMessage={errors['youngProfessional.id']}
         />
-        <TextInputOrganisms
-          label={'Description'}
-          placeholder={'Description'}
-          ref={input2_ref}
-          onSubmitEditing={() => Keyboard.dismiss()}
-          value={form.desc}
-          autoCapitalize={'none'}
-          returnKeyType={'next'}
-          onChangeText={(val: string) => {
-            setValue('desc', val);
-            setErrors({ ...errors, desc: '' });
-          }}
+
+        <DropDownOrganism
+          label={'Course Location'}
+          placeholder={'Course Location'}
+          onPress={() =>
+            navigation.navigate('DropDownModal', {
+              name: 'Course Location',
+              Data: courseLocationList,
+              selectedData: courseLocation,
+              setSelectedData: (data: any) => {
+                setTempCourseLocation(data);
+                dispatch(saveCourseLocation(data));
+                getCourseSubLocation(data.id);
+                setErrors({ ...errors, 'courseLocation.id': '' });
+              },
+              typeName: 'name',
+              typeId: 'id',
+            })
+          }
+          inputText={courseLocation?.name}
           isMandatory
-          errorMessage={errors.desc}
+          errorMessage={errors['courseLocation.id']}
+        />
+
+        <DropDownOrganism
+          label={'Course Sub Location'}
+          placeholder={'Course Sub Location'}
+          onPress={() =>
+            navigation.navigate('DropDownModal', {
+              name: 'Course Sub Location',
+              Data: courseSubLocationList,
+              selectedData: courseSubLocation,
+              setSelectedData: (data: any) => {
+                setTempCourseSubLocation(data);
+                dispatch(saveCourseSubLocation(data));
+                setErrors({ ...errors, 'courseSubLocation.id': '' });
+              },
+              typeName: 'name',
+              typeId: 'id',
+            })
+          }
+          inputText={courseSubLocation?.name}
+          isMandatory
+          errorMessage={errors['courseSubLocation.id']}
+        />
+
+        {errors.addError && (
+          <TextAtom
+            numberOfLines={0}
+            style={{
+              color: colors.red,
+              fontFamily: fonts.Roboto_Regular,
+              fontSize: vw(12),
+            }}
+          >
+            {errors.addError}
+          </TextAtom>
+        )}
+
+        <ButtonOrganism
+          containerStyle={{
+            width: vw(150),
+            alignSelf: 'flex-start',
+            marginBottom: vh(10),
+          }}
+          bttnText="+ Add"
+          onPress={onAddTeamLocation}
+        />
+
+        {trainingTeamLocations.map((item: any, index: number) => (
+          <ViewAtom
+            key={index}
+            style={{
+              width: vw(320),
+              backgroundColor: colors.white,
+              marginBottom: vh(10),
+              borderRadius: vw(10),
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              elevation: 2,
+              paddingHorizontal: vh(10),
+              paddingVertical: vh(6),
+              alignSelf: 'center',
+            }}
+          >
+            <ViewAtom>
+              <TextAtom
+                style={{
+                  color: colors.black,
+                  fontFamily: fonts.Roboto_Regular,
+                  fontSize: vw(12),
+                }}
+              >
+                Location: {item.courseLocation.name}
+              </TextAtom>
+              <TextAtom
+                style={{
+                  color: colors.black,
+                  fontFamily: fonts.Roboto_Regular,
+                  fontSize: vw(12),
+                }}
+              >
+                Sub Location: {item.courseSubLocation.name}
+              </TextAtom>
+            </ViewAtom>
+            <ButtonOrganism
+              bttnText="Remove"
+              containerStyle={{
+                width: vw(60),
+                backgroundColor: colors.red,
+                height: vh(20),
+              }}
+              onPress={() => removeItem(index)}
+              bttnTextStyle={{ fontSize: vw(8) }}
+            />
+          </ViewAtom>
+        ))}
+
+        <ImageUploadOrganism
+          label={'Course Letter'}
+          buttonText={strings.choose_file}
+          onSelectImage={(file: any) => dispatch(saveCourseLetter(file))}
+          defaultImage={courseLetter?.url}
         />
       </KeyboardAwareScrollView>
+
       <ViewAtom style={styles.footer}>
         <ButtonOrganism
           containerStyle={{ width: vw(155) }}
@@ -170,8 +551,8 @@ const TrainingTeamLocation = (props: Props) => {
 
         <ButtonOrganism
           containerStyle={{ width: vw(155) }}
-          bttnText="Next"
-          onPress={goNext}
+          bttnText="Submit"
+          onPress={onSubmit}
         />
       </ViewAtom>
     </SafeAreaView>

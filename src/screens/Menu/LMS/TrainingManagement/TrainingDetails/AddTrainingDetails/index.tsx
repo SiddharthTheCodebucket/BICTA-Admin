@@ -18,11 +18,16 @@ import {
   vw,
 } from '../../../../../../constants';
 import { useAndroidBackButton } from '../../../../../../hooks/behaviour';
-import { useAppSelector } from '../../../../../../hooks';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
+
 import General from './General';
 import DescAndHostel from './DescAndHostel';
 import TrainingTeamLocation from './TrainingTeamLocation';
+
+import {
+  resetTrainingManagementState,
+  setTrainingEditData,
+} from '../../../../../../features/TrainingManagement/trainingManagementSlice';
 
 interface Props {
   navigation: NavigationType;
@@ -30,22 +35,34 @@ interface Props {
 }
 
 const AddTrainingDetails = ({ navigation, route }: Props) => {
-  const qrData = route?.params?.qrData;
+  const item = route?.params?.item; // 🔥 EDIT ITEM
   const dispatch = useDispatch();
   const [step, setStep] = useState(0);
 
+  // 🔥 STEP 1 — EDIT MODE PREFILL
+  useEffect(() => {
+    if (item) {
+      dispatch(setTrainingEditData(item));
+    }
+  }, [item]);
+
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Add Training Details');
+    Header.setNavigation(
+      navigation,
+      item ? 'Edit Training Details' : 'Add Training Details',
+    );
+
     navigation.BackButtonPress = () => {
       navigation.navigate(screensName.AlertOrganism, {
-        message:
-          'Are you sure you want to exit from Add Training Details Process?',
+        message: item
+          ? 'Are you sure you want to exit from Edit Training Details Process?'
+          : 'Are you sure you want to exit from Add Training Details Process?',
         okText: strings.ok,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
           navigation.goBack();
-          //   dispatch(resetRegistrationState());
+          dispatch(resetTrainingManagementState());
         },
         cancelFunction: () => {},
       });
@@ -54,12 +71,14 @@ const AddTrainingDetails = ({ navigation, route }: Props) => {
 
   useAndroidBackButton(() => {
     navigation.navigate(screensName.AlertOrganism, {
-      message: 'Are you sure you want to exit from Registration Process?',
+      message: item
+        ? 'Are you sure you want to exit from Edit Training Details Process?'
+        : 'Are you sure you want to exit from Registration Process?',
       okText: strings.ok,
       double: true,
       cancelText: strings.cancel,
       okFunction: () => {
-        // dispatch(resetRegistrationState());
+        dispatch(resetTrainingManagementState());
         navigation.goBack();
       },
       cancelFunction: () => {},
@@ -91,6 +110,7 @@ const AddTrainingDetails = ({ navigation, route }: Props) => {
       }}
     >
       <FullscreenLoading isVisible={loader} />
+
       <Text
         style={{
           fontFamily: fonts.Roboto_Bold,
@@ -98,14 +118,16 @@ const AddTrainingDetails = ({ navigation, route }: Props) => {
           color: colors.black,
         }}
       >
-        Registration
+        {item ? 'Edit Training' : 'Registration'}
       </Text>
 
       <StepHeader currentStep={step} />
 
       <View style={{ flex: 1 }}>
+        {/* 🔥 STEP 2 — route pass karein */}
         <ScreenComponent
           navigation={navigation}
+          route={route}
           goNext={goNext}
           goBack={goBack}
         />
@@ -113,13 +135,5 @@ const AddTrainingDetails = ({ navigation, route }: Props) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  footer: {
-    flexDirection: 'row',
-    marginTop: 20,
-    justifyContent: 'center',
-  },
-});
 
 export default AddTrainingDetails;

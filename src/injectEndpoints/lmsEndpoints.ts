@@ -66,6 +66,20 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    addTrainingDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.add_training_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateTrainingDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_training_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -79,4 +93,6 @@ export const {
   useUpdateTraineeLoginDetailsMutation,
   useExtendTrainingEndDateMutation,
   useDeleteTrainingDetailsMutation,
+  useAddTrainingDetailsMutation,
+  useUpdateTrainingDetailsMutation,
 } = apiEndpoints;

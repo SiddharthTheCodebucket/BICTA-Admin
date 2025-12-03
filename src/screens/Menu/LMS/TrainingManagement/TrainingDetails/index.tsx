@@ -916,7 +916,7 @@ const TrainingDetails = (props: Props) => {
                 if (selectedItems.length === 0) {
                   Toast.show({
                     type: 'error',
-                    text2: 'Please select to download',
+                    text2: 'Select to download',
                   });
                   return;
                 }

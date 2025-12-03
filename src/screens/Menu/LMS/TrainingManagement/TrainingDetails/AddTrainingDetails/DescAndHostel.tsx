@@ -5,22 +5,23 @@ import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, screensName, vh, vw } from '../../../../../../constants';
-import {
-  Header,
-  NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
+import { colors, strings, vh, vw } from '../../../../../../constants';
+import { NavigationType } from '../../../../../../components/organisms/HeaderOrganism';
 import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import { isNullUndefined } from '../../../../../../utils/CommonFunction';
-
-import {
-  useAddTrainingCategoryMutation,
-  useUpdateTrainingCategoryMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
+import ImageUploadOrganism from '../../../../../../components/organisms/ImageUploadOrganism';
+import { useDispatch } from 'react-redux';
+import { useAppSelector } from '../../../../../../hooks';
+import {
+  saveCourseDesc,
+  saveCourseThumbnail,
+  saveHostel,
+} from '../../../../../../features/TrainingManagement/trainingManagementSlice';
+import moment from 'moment';
+import { useUpdateTrainingDetailsMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 
 interface Props {
   route: any;
@@ -34,54 +35,260 @@ const DescAndHostel = (props: Props) => {
   const item = props.route?.params?.item;
   const input1_ref: any = createRef();
   const input2_ref: any = createRef();
+  const dispatch = useDispatch();
+  const [updateTrainingDetailsApi] = useUpdateTrainingDetailsMutation();
 
+  const {
+    bipardLocation,
+    trainingCategoryList,
+    trainingCategory,
+    budget,
+    budgetList,
+    training,
+    trainingList,
+    trainingFullName,
+    trainingShortName,
+    trainingStartDate,
+    trainingEndDate,
+    trainingType,
+    trainingFee,
+    natureOfCourse,
+    noOfParticipants,
+    parentDepartmentList,
+    parentDepartment,
+    noOfSectionAndBatches,
+    status,
+    courseThumbnail,
+    courseDesc,
+    hostel,
+    courseCoordinator,
+    youngProfessional,
+    courseLetter,
+    trainingTeamLocations,
+    hostelList,
+  } = useAppSelector(state => state.TrainingManagement);
   const [loader, setLoader] = useState(false);
-  const [form, setForm] = useState<any>({
-    courseThumbnail: {},
-    courseDesc: '',
-    hostelSequence: [],
-  });
+
   const [errors, setErrors] = useState<any>({});
 
-  const setValue = (key: any, value: any) => {
-    setForm((prev: any) => ({ ...prev, [key]: value }));
-  };
   useEffect(() => {
     if (!item) return;
 
-    const locationMap: any = {
-      1: { id: 'Gaya', name: 'Gaya' },
-      2: { id: 'Patna', name: 'Patna' },
-    };
+    // Description
+    if (item.description) {
+      dispatch(saveCourseDesc(item.description));
+    }
 
-    const selectedLocation = locationMap[item.tenantId] || {};
+    // Thumbnail
+    if (item.thumbnail) {
+      dispatch(
+        saveCourseThumbnail({
+          uri: item.thumbnail,
+          fileName: 'thumb.jpg',
+          type: 'image/jpeg',
+          url: item.thumbnail,
+        }),
+      );
+    }
 
-    setForm({
-      bipardLocation: selectedLocation,
-      categoryName: item.categoryName || '',
-      desc: item.description || '',
-    });
+    // Hostel selected value prefill
+    if (Array.isArray(item.hostelAllocationOrderId)) {
+      dispatch(
+        saveHostel({
+          id: item.hostelAllocationOrderId[0],
+          name: item.hostelAllocationOrder[0],
+        }),
+      );
+    }
   }, [item]);
 
+  const form = {
+    courseDesc,
+    hostel,
+  };
   const schema = Yup.object().shape({
-    desc: Yup.string().required('Description is required'),
-    categoryName: Yup.string().required('Category name is required'),
-    bipardLocation: Yup.object({
-      name: Yup.string().required('Bipard location is required'),
+    hostel: Yup.object({
+      id: Yup.string().required('Hostel sequence is required'),
     }),
+    courseDesc: Yup.string().required('Course description is required'),
   });
 
   const onSubmit = () => {
     try {
       schema.validateSync(form);
-      // if (item) {
-      //   updateTrainingCategoryDetails();
-      // } else {
-      //   addTrainingCategoryDetails();
-      // }
+      if (item) {
+        updateTrainingDetails();
+      } else {
+        addTrainingDetails();
+      }
     } catch (err: any) {
       setErrors({ [err.path]: err.message });
     }
+  };
+  const addTrainingDetails = () => {
+    setLoader(true);
+
+    const formData = new FormData();
+
+    formData.append('bipardCentre', bipardLocation.name);
+    formData.append('training_category', trainingCategory.categoryId);
+    formData.append('is_budget_training', budget.id);
+    formData.append('budget_training_id', null);
+
+    formData.append(
+      'training_full_name',
+      trainingFullName ? trainingFullName : '',
+    );
+    formData.append(
+      'training_short_name',
+      trainingShortName ? trainingShortName : '',
+    );
+
+    formData.append(
+      'course_start_date',
+      moment(trainingStartDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+    );
+    formData.append(
+      'course_end_date',
+      moment(trainingEndDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+    );
+
+    formData.append('hostel_allocation_order', [hostel.id]);
+    formData.append('training_type', trainingType.id);
+    formData.append('training_fee', trainingFee.id);
+    formData.append('fee_amount', '');
+    formData.append('nature_of_course', natureOfCourse.id);
+    formData.append('no_of_participants', noOfParticipants);
+    formData.append('parent_department', parentDepartment.name);
+    formData.append('no_of_sections', noOfSectionAndBatches);
+    formData.append('status', status.id);
+    formData.append('description', courseDesc);
+
+    if (courseThumbnail?.uri) {
+      formData.append('thumbnail', {
+        uri: courseThumbnail.uri,
+        name: courseThumbnail.fileName || 'thumb.jpg',
+        type: courseThumbnail.type || 'image/jpeg',
+      });
+    }
+
+    formData.append('course_coordinator', null);
+
+    formData.append('young_professional', null);
+
+    formData.append('course_location', 0);
+    formData.append('course_sub_location', 0);
+
+    formData.append('letter', null);
+
+    formData.append('course_id', '');
+    formData.append('course_id_update', null);
+
+    updateTrainingDetailsApi(formData)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+
+        goNext();
+        setLoader(false);
+      })
+      .catch((err: any) => {
+        setLoader(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+        });
+      });
+  };
+
+  const updateTrainingDetails = () => {
+    setLoader(true);
+
+    const formData = new FormData();
+
+    formData.append('bipardCentre', bipardLocation.name);
+    formData.append('training_category', trainingCategory.categoryId);
+    formData.append('is_budget_training', budget.id);
+    formData.append('budget_training_id', null);
+
+    formData.append(
+      'training_full_name',
+      trainingFullName ? trainingFullName : '',
+    );
+    formData.append(
+      'training_short_name',
+      trainingShortName ? trainingShortName : '',
+    );
+
+    formData.append(
+      'course_start_date',
+      moment(trainingStartDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+    );
+    formData.append(
+      'course_end_date',
+      moment(trainingEndDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+    );
+
+    formData.append('hostel_allocation_order', [hostel.id]);
+    formData.append('training_type', trainingType.id);
+    formData.append('training_fee', trainingFee.id);
+    formData.append('fee_amount', '');
+    formData.append('nature_of_course', natureOfCourse.id);
+    formData.append('no_of_participants', noOfParticipants);
+    formData.append('parent_department', parentDepartment.name);
+    formData.append('no_of_sections', noOfSectionAndBatches);
+    formData.append('status', status.id);
+    formData.append('description', courseDesc);
+
+    if (courseThumbnail?.uri) {
+      formData.append('thumbnail', {
+        uri: courseThumbnail.uri,
+        name: courseThumbnail.fileName || 'thumb.jpg',
+        type: courseThumbnail.type || 'image/jpeg',
+      });
+    }
+    if (courseLetter?.uri) {
+      formData.append('letter', {
+        uri: courseLetter.uri,
+        name: courseLetter.fileName || 'letter.jpg',
+        type: courseLetter.type || 'image/jpeg',
+      });
+    }
+
+    formData.append('course_coordinator', courseCoordinator.id);
+
+    formData.append('young_professional', youngProfessional.id);
+
+    formData.append('course_location', 0);
+    formData.append('course_sub_location', 0);
+
+    formData.append('location', JSON.stringify(trainingTeamLocations));
+
+    formData.append('letter', null);
+
+    formData.append('course_id', '');
+    formData.append('course_id_update', null);
+
+    updateTrainingDetailsApi(formData)
+      .unwrap()
+      .then((res: any) => {
+        goNext();
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+        setLoader(false);
+      })
+      .catch((err: any) => {
+        setLoader(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+        });
+      });
   };
 
   return (
@@ -96,63 +303,50 @@ const DescAndHostel = (props: Props) => {
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={vh(80)}
       >
+        <ImageUploadOrganism
+          label={'Course Thumbnail'}
+          buttonText={strings.choose_file}
+          onSelectImage={(file: any) => {
+            dispatch(saveCourseThumbnail(file));
+          }}
+          defaultImage={courseThumbnail?.url}
+        />
+
+        <TextInputOrganisms
+          label={'Course Description'}
+          placeholder={'Course Description'}
+          ref={input1_ref}
+          onSubmitEditing={() => input2_ref.current.focus()}
+          value={courseDesc}
+          autoCapitalize={'none'}
+          returnKeyType={'next'}
+          onChangeText={(val: string) => {
+            dispatch(saveCourseDesc(val));
+            setErrors({ ...errors, courseDesc: '' });
+          }}
+          isMandatory
+          errorMessage={errors.courseDesc}
+        />
+
         <DropDownOrganism
-          label={'Bipard Location'}
-          placeholder={'Bipard Location'}
+          label={'Hostel Sequence'}
+          placeholder={'Hostel Sequence'}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Bipard Location',
-              Data: [
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
-              ],
-              selectedData: form.bipardLocation,
+              name: 'Hostel Sequence',
+              Data: hostelList,
+              selectedData: hostel,
               setSelectedData: (data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  bipardLocation: data,
-                  vehicleColor: {},
-                }));
-
-                setErrors({ ...errors, 'bipardLocation.name': '' });
+                dispatch(saveHostel(data));
+                setErrors({ ...errors, 'hostel.id': '' });
               },
               typeName: 'name',
               typeId: 'id',
             });
           }}
-          inputText={form.bipardLocation?.name}
+          inputText={hostel?.name}
           isMandatory
-          errorMessage={errors['bipardLocation.name']}
-        />
-        <TextInputOrganisms
-          label={'Category Name'}
-          placeholder={'Category Name'}
-          ref={input1_ref}
-          onSubmitEditing={() => input2_ref.current.focus()}
-          value={form.categoryName}
-          autoCapitalize={'none'}
-          returnKeyType={'next'}
-          onChangeText={(val: string) => {
-            setValue('categoryName', val);
-            setErrors({ ...errors, categoryName: '' });
-          }}
-          isMandatory
-          errorMessage={errors.categoryName}
-        />
-        <TextInputOrganisms
-          label={'Description'}
-          placeholder={'Description'}
-          ref={input2_ref}
-          onSubmitEditing={() => Keyboard.dismiss()}
-          value={form.desc}
-          autoCapitalize={'none'}
-          returnKeyType={'next'}
-          onChangeText={(val: string) => {
-            setValue('desc', val);
-            setErrors({ ...errors, desc: '' });
-          }}
-          isMandatory
-          errorMessage={errors.desc}
+          errorMessage={errors['hostel.id']}
         />
       </KeyboardAwareScrollView>
       <ViewAtom style={styles.footer}>
@@ -165,7 +359,7 @@ const DescAndHostel = (props: Props) => {
         <ButtonOrganism
           containerStyle={{ width: vw(155) }}
           bttnText="Next"
-          onPress={goNext}
+          onPress={onSubmit}
         />
       </ViewAtom>
     </SafeAreaView>

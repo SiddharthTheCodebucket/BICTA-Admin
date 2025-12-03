@@ -76,4 +76,6 @@ export default {
   update_trainee_login_details: 'lms/update-trainee-login',
   extend_training_end_date: 'lms/extend-training-end-date',
   delete_training_details: 'lms/delete-training-details',
+  add_training_details: 'lms/add-training-details',
+  update_training_details: 'lms/update-training-details',
 };
