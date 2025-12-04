@@ -40,7 +40,9 @@ const TrainingManagement = (props: Props) => {
     {
       id: 3,
       name: 'Batch Details',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.BatchDetails);
+      },
     },
   ];
 

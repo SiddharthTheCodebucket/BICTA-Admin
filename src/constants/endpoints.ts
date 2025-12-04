@@ -78,4 +78,8 @@ export default {
   delete_training_details: 'lms/delete-training-details',
   add_training_details: 'lms/add-training-details',
   update_training_details: 'lms/update-training-details',
+  list_training_batch_details: 'lms/list-training-batch-details',
+  update_training_batch_details: 'lms/update-training-batch-details',
+  list_trainee_details: 'lms/list-trainee-details',
+  merge_training_batch_details: 'lms/merge-training-batch-details',
 };

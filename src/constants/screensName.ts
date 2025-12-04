@@ -45,4 +45,8 @@ export default {
   TrainingDetails: 'TrainingDetails',
   TrainingDetailsScreen: 'TrainingDetailsScreen',
   AddTrainingDetails: 'AddTrainingDetails',
+  BatchDetails: 'BatchDetails',
+  BatchDetailsList: 'BatchDetailsList',
+  EditBatchDetails: 'EditBatchDetails',
+  MergedBatchForm: 'MergedBatchForm',
 };

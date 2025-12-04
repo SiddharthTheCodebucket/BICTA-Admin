@@ -80,6 +80,34 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listTrainingBatchDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_training_batch_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateTrainingBatchDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_training_batch_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listTraineeDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_trainee_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    mergeTrainingBatchDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.merge_training_batch_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -95,4 +123,8 @@ export const {
   useDeleteTrainingDetailsMutation,
   useAddTrainingDetailsMutation,
   useUpdateTrainingDetailsMutation,
+  useListTrainingBatchDetailsMutation,
+  useUpdateTrainingBatchDetailsMutation,
+  useListTraineeDetailsMutation,
+  useMergeTrainingBatchDetailsMutation,
 } = apiEndpoints;
