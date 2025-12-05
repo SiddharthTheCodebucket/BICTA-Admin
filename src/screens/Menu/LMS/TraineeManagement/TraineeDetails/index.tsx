@@ -91,6 +91,7 @@ const TraineeDetails = (props: Props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [isForExcel, setIsForExcel] = useState(false);
 
   const [selectedItems, setSelectedItems] = useState<any>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -231,8 +232,8 @@ const TraineeDetails = (props: Props) => {
     listTrainingDetais(1, true, '');
   };
 
-  const handleSelectAll = (isForExcel = false) => {
-    if (!isFilterApplied && !isForExcel) {
+  const handleSelectAll = () => {
+    if (!isFilterApplied) {
       Toast.show({
         type: 'error',
         text2: 'Please apply filter first',
@@ -240,6 +241,35 @@ const TraineeDetails = (props: Props) => {
       return;
     }
 
+    if (selectedItems.length === totalCount) {
+      setSelectedItems([]);
+      return;
+    }
+
+    const params: any = {
+      search,
+      sort: {
+        attributes: ['batchNo'],
+        sorts: ['desc'],
+      },
+      filters: currentAppliedFilters,
+      pageNo: 1,
+      itemsPerPage: totalCount,
+      bipardCentre: getCentreFilter() ?? [],
+    };
+
+    if (activeTab === 'Complete Course') params.isCourseActive = false;
+    else params.isCourseActive = true;
+
+    listTraineeDetailsApi(params)
+      .unwrap()
+      .then(res => {
+        const fullData = res.data?.data ?? [];
+        setSelectedItems(fullData);
+      });
+  };
+
+  const handleSelectExcel = () => {
     if (selectedItems.length === totalCount) {
       setSelectedItems([]);
       return;
@@ -526,12 +556,10 @@ const TraineeDetails = (props: Props) => {
     }
 
     setInitialCall(true);
-
-    const formData = new FormData();
-
-    formData.append('trainee', selectedItems);
-
-    downloadTrainingDetailsApi(formData)
+    let parmas = {
+      trainee: selectedItems,
+    };
+    downloadTrainingDetailsApi(parmas)
       .unwrap()
       .then((res: any) => {
         setInitialCall(false);
@@ -540,6 +568,7 @@ const TraineeDetails = (props: Props) => {
         if (fileUrl) {
           downloadAndOpenFile(fileUrl);
         }
+        setIsForExcel(false);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -720,7 +749,13 @@ const TraineeDetails = (props: Props) => {
             </TouchableAtom>
             <TouchableAtom
               style={styles.filterButton}
-              onPress={handleSelectAll}
+              onPress={() => {
+                if (isForExcel) {
+                  handleSelectExcel();
+                } else {
+                  handleSelectAll();
+                }
+              }}
             >
               <TextAtom style={styles.filterText}>
                 {selectedItems?.length === totalCount
@@ -732,8 +767,16 @@ const TraineeDetails = (props: Props) => {
             <TouchableAtom
               style={styles.filterButton}
               onPress={() => {
-                downloadExcel();
-                handleSelectAll(true);
+                if (selectedItems.length === 0) {
+                  setIsForExcel(true);
+                  Toast.show({
+                    type: 'error',
+                    text2: 'Please select',
+                  });
+                  return;
+                } else {
+                  downloadExcel();
+                }
               }}
             >
               <ImageAtom
