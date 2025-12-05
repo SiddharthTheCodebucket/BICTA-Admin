@@ -53,4 +53,7 @@ export default {
   TraineeRegistration: 'TraineeRegistration',
   TraineeRegistrationDetails: 'TraineeRegistrationDetails',
   AddTraineeRegistration: 'AddTraineeRegistration',
+  TraineeDetails: 'TraineeDetails',
+  TraineeFullDetails: 'TraineeFullDetails',
+  IndemnityBond: 'IndemnityBond',
 };

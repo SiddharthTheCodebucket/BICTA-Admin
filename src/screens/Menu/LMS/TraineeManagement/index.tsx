@@ -33,7 +33,9 @@ const TraineeManagement = (props: Props) => {
     {
       id: 2,
       name: 'Trainee Details',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.TraineeDetails);
+      },
     },
     {
       id: 3,

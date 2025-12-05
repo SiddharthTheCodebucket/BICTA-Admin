@@ -88,4 +88,10 @@ export default {
   update_trainee_registration: 'lms/update-trainee-registration',
   approve_training_id_card: 'lms/approve-training-id-card',
   download_training_id_card: 'lms/download-training-id-card',
+  download_trainee_reg_form: 'lms/download-trainee-registration-form',
+  download_trainee_details: 'lms/download-trainee-details',
+  list_trainee_manage_indemnity_bond:
+    'lms/list-trainee-management-indemnity-bond',
+  download_trainee_manage_indemnity_bond:
+    '/lms/download-trainee-indemnity-bond',
 };

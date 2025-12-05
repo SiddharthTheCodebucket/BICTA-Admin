@@ -150,6 +150,34 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    downloadTraineeRegForm: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.download_trainee_reg_form,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listTraineeManageIndemnityBond: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_trainee_manage_indemnity_bond,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    downloadTraineeManageIndemnityBond: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.download_trainee_manage_indemnity_bond,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    downloadTraineeDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.download_trainee_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -175,4 +203,8 @@ export const {
   useUpdateTraineeRegistrationMutation,
   useApproveTrainingIdCardMutation,
   useDownloadTrainingIdCardMutation,
+  useDownloadTraineeRegFormMutation,
+  useListTraineeManageIndemnityBondMutation,
+  useDownloadTraineeManageIndemnityBondMutation,
+  useDownloadTraineeDetailsMutation,
 } = apiEndpoints;
