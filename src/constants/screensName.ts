@@ -56,4 +56,6 @@ export default {
   TraineeDetails: 'TraineeDetails',
   TraineeFullDetails: 'TraineeFullDetails',
   IndemnityBond: 'IndemnityBond',
+  TraineeRelease: 'TraineeRelease',
+  TraineeReleaseDetails: 'TraineeReleaseDetails',
 };

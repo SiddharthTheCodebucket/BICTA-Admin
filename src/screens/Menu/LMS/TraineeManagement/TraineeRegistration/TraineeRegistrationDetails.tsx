@@ -65,7 +65,7 @@ const TraineeRegistrationDetails = ({ route, navigation }: any) => {
       >
         <ViewAtom style={styles.card}>
           {/* ID */}
-          <FieldRow label="Id" value={data?.id} />
+          <FieldRow label="Id" value={data?.traineeId} />
 
           {/* U.ID */}
           <FieldRow label="U.Id" value={data?.userUniqueId} />
