@@ -49,4 +49,8 @@ export default {
   BatchDetailsList: 'BatchDetailsList',
   EditBatchDetails: 'EditBatchDetails',
   MergedBatchForm: 'MergedBatchForm',
+  TraineeManagement: 'TraineeManagement',
+  TraineeRegistration: 'TraineeRegistration',
+  TraineeRegistrationDetails: 'TraineeRegistrationDetails',
+  AddTraineeRegistration: 'AddTraineeRegistration',
 };

@@ -1,22 +1,22 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../constants';
+import { colors, screensName, vh, vw } from '../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../components/atoms/TextAtom';
+} from '../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../components/atoms/TextAtom';
 
 interface Props {
   navigation: NavigationType;
 }
 
-const LMS = (props: Props) => {
+const TraineeManagement = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'LMS');
+    Header.setNavigation(navigation, 'Trainee Management');
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,46 +25,24 @@ const LMS = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Training Management',
+      name: 'Trainee Registration',
       onPress: () => {
-        navigation.navigate(screensName.TrainingManagement);
+        navigation.navigate(screensName.TraineeRegistration);
       },
     },
     {
       id: 2,
-      name: 'Trainee Management',
-      onPress: () => {
-        navigation.navigate(screensName.TraineeManagement);
-      },
+      name: 'Trainee Details',
+      onPress: () => {},
     },
     {
       id: 3,
-      name: 'Faculty Management',
+      name: 'Others Registration',
       onPress: () => {},
     },
     {
       id: 4,
-      name: 'Curriculum/Knowledge Management',
-      onPress: () => {},
-    },
-    {
-      id: 5,
-      name: 'Class Location Management',
-      onPress: () => {},
-    },
-    {
-      id: 6,
-      name: 'Class Room Management',
-      onPress: () => {},
-    },
-    {
-      id: 7,
-      name: 'Assignment',
-      onPress: () => {},
-    },
-    {
-      id: 8,
-      name: 'Examination',
+      name: 'Trainee Release',
       onPress: () => {},
     },
   ];
@@ -88,7 +66,7 @@ const LMS = (props: Props) => {
   );
 };
 
-export default LMS;
+export default TraineeManagement;
 
 const styles = StyleSheet.create({
   container: {

@@ -54,6 +54,10 @@ import BatchDetails from '../screens/Menu/LMS/TrainingManagement/BatchDetails';
 import BatchDetailsList from '../screens/Menu/LMS/TrainingManagement/BatchDetails/BatchDetailsList';
 import EditBatchDetails from '../screens/Menu/LMS/TrainingManagement/BatchDetails/EditBatchDetails';
 import MergedBatchForm from '../screens/Menu/LMS/TrainingManagement/BatchDetails/MergedBatchForm';
+import TraineeManagement from '../screens/Menu/LMS/TraineeManagement';
+import TraineeRegistration from '../screens/Menu/LMS/TraineeManagement/TraineeRegistration';
+import TraineeRegistrationDetails from '../screens/Menu/LMS/TraineeManagement/TraineeRegistration/TraineeRegistrationDetails';
+import AddTraineeRegistration from '../screens/Menu/LMS/TraineeManagement/TraineeRegistration/AddTraineeRegistration';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -245,6 +249,22 @@ const RootNavigator = () => {
           <RootStackScreen.Screen
             name="MergedBatchForm"
             component={MergedBatchForm}
+          />
+          <RootStackScreen.Screen
+            name="TraineeManagement"
+            component={TraineeManagement}
+          />
+          <RootStackScreen.Screen
+            name="TraineeRegistration"
+            component={TraineeRegistration}
+          />
+          <RootStackScreen.Screen
+            name="TraineeRegistrationDetails"
+            component={TraineeRegistrationDetails}
+          />
+          <RootStackScreen.Screen
+            name="AddTraineeRegistration"
+            component={AddTraineeRegistration}
           />
         </RootStackScreen.Group>
         <RootStackScreen.Group

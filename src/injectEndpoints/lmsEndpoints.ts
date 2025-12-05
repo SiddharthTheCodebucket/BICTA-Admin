@@ -108,6 +108,48 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listTraineeRegistration: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_trainee_registration,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    addTraineeRegistrationBulk: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.add_trainee_registration_bulk,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    addTraineeRegistration: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.add_trainee_registration,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateTraineeRegistration: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_trainee_registration,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    approveTrainingIdCard: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.approve_training_id_card,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    downloadTrainingIdCard: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.download_training_id_card,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -127,4 +169,10 @@ export const {
   useUpdateTrainingBatchDetailsMutation,
   useListTraineeDetailsMutation,
   useMergeTrainingBatchDetailsMutation,
+  useListTraineeRegistrationMutation,
+  useAddTraineeRegistrationBulkMutation,
+  useAddTraineeRegistrationMutation,
+  useUpdateTraineeRegistrationMutation,
+  useApproveTrainingIdCardMutation,
+  useDownloadTrainingIdCardMutation,
 } = apiEndpoints;

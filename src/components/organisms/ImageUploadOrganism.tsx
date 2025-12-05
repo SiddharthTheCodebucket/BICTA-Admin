@@ -13,11 +13,14 @@ const ImageUploadOrganism = ({
   isMandatory,
   errorMessage,
   contentContainerStyle,
+  buttonContainer,
   onSelectImage,
   defaultImage,
   maxSizeMB = 3,
   instruction = `Add JPG/PNG/WEBP (max ${3} MB)`,
   note,
+  labelStyle,
+  preview,
 }: any) => {
   const [imageUri, setImageUri] = useState('');
 
@@ -56,11 +59,16 @@ const ImageUploadOrganism = ({
 
   return (
     <ViewAtom style={[styles.container, contentContainerStyle]}>
-      <LabelWithMandatoryMolecules label={label} isMandatory={isMandatory} />
+      <LabelWithMandatoryMolecules
+        label={label}
+        isMandatory={isMandatory}
+        labelStyle={labelStyle}
+      />
 
       <TouchableOpacity
         style={[
           styles.button,
+          buttonContainer,
           {
             borderColor: isNullUndefined(errorMessage)
               ? colors.grey_1
@@ -80,11 +88,7 @@ const ImageUploadOrganism = ({
       {note && <TextAtom style={styles.note}>{note}</TextAtom>}
 
       {imageUri ? (
-        <Image
-          source={{ uri: imageUri }}
-          style={styles.preview}
-          resizeMode="cover"
-        />
+        <Image source={{ uri: imageUri }} style={[styles.preview, preview]} />
       ) : null}
 
       <ErrorMolecule errorMessage={errorMessage} />
@@ -131,6 +135,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.lightGrey,
     alignSelf: 'center',
+    resizeMode: 'cover',
   },
   note: {
     marginTop: vh(5),

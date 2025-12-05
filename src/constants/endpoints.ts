@@ -82,4 +82,10 @@ export default {
   update_training_batch_details: 'lms/update-training-batch-details',
   list_trainee_details: 'lms/list-trainee-details',
   merge_training_batch_details: 'lms/merge-training-batch-details',
+  list_trainee_registration: 'lms/list-trainee-registration',
+  add_trainee_registration_bulk: 'lms/add-trainee-registration-in-bulk',
+  add_trainee_registration: 'lms/add-trainee-registration',
+  update_trainee_registration: 'lms/update-trainee-registration',
+  approve_training_id_card: 'lms/approve-training-id-card',
+  download_training_id_card: 'lms/download-training-id-card',
 };
