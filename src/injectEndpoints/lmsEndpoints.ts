@@ -178,6 +178,13 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    releaseTraineeFromTraining: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.release_trainee_from_training,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -207,4 +214,5 @@ export const {
   useListTraineeManageIndemnityBondMutation,
   useDownloadTraineeManageIndemnityBondMutation,
   useDownloadTraineeDetailsMutation,
+  useReleaseTraineeFromTrainingMutation,
 } = apiEndpoints;

@@ -469,18 +469,50 @@ const TraineeRelease = (props: Props) => {
               Indemnity Bond
             </TextAtom>
           </TouchableAtom>
-
-          <TouchableAtom
-            style={styles.filterButton}
-            onPress={() => {
-              downloadTraineeRegForm(item);
+          <View
+            style={{
+              flexDirection: 'row',
+              alignSelf: 'flex-end',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: vh(-10),
             }}
           >
-            <ImageAtom
-              source={images.download}
-              style={{ tintColor: colors.black, width: vw(14), height: vw(14) }}
-            />
-          </TouchableAtom>
+            <TouchableAtom
+              style={styles.filterButton}
+              onPress={() => {
+                downloadTraineeRegForm(item);
+              }}
+            >
+              <ImageAtom
+                source={images.download}
+                style={{
+                  tintColor: colors.black,
+                  width: vw(14),
+                  height: vw(14),
+                }}
+              />
+            </TouchableAtom>
+            {item.isReleased !== 'Yes' && (
+              <TouchableAtom
+                style={styles.filterButton}
+                onPress={() => {
+                  navigation.navigate(screensName.TraineeReleaseForm, {
+                    item: item,
+                  });
+                }}
+              >
+                <ImageAtom
+                  source={images.release}
+                  style={{
+                    tintColor: colors.black,
+                    width: vw(14),
+                    height: vw(14),
+                  }}
+                />
+              </TouchableAtom>
+            )}
+          </View>
         </View>
       </TouchableAtom>
     );

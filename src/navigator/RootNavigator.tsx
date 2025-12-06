@@ -63,6 +63,7 @@ import TraineeFullDetails from '../screens/Menu/LMS/TraineeManagement/TraineeDet
 import IndemnityBond from '../screens/Menu/LMS/TraineeManagement/TraineeDetails/IndemnityBond';
 import TraineeRelease from '../screens/Menu/LMS/TraineeManagement/TraineeRelease';
 import TraineeReleaseDetails from '../screens/Menu/LMS/TraineeManagement/TraineeRelease/TraineeReleaseDetails';
+import TraineeReleaseForm from '../screens/Menu/LMS/TraineeManagement/TraineeRelease/TraineeReleaseForm';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -290,6 +291,10 @@ const RootNavigator = () => {
           <RootStackScreen.Screen
             name="TraineeReleaseDetails"
             component={TraineeReleaseDetails}
+          />
+          <RootStackScreen.Screen
+            name="TraineeReleaseForm"
+            component={TraineeReleaseForm}
           />
         </RootStackScreen.Group>
         <RootStackScreen.Group
