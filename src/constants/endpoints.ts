@@ -95,4 +95,5 @@ export default {
   download_trainee_manage_indemnity_bond:
     '/lms/download-trainee-indemnity-bond',
   release_trainee_from_training: 'lms/release-trainee-from-training',
+  add_mukhiya_registration: 'lms/add-mukhiya-registration',
 };

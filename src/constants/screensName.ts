@@ -59,4 +59,5 @@ export default {
   TraineeRelease: 'TraineeRelease',
   TraineeReleaseDetails: 'TraineeReleaseDetails',
   TraineeReleaseForm: 'TraineeReleaseForm',
+  OthersRegistration: 'OthersRegistration',
 };

@@ -185,6 +185,13 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    addMukhiyaRegistration: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.add_mukhiya_registration,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -215,4 +222,5 @@ export const {
   useDownloadTraineeManageIndemnityBondMutation,
   useDownloadTraineeDetailsMutation,
   useReleaseTraineeFromTrainingMutation,
+  useAddMukhiyaRegistrationMutation,
 } = apiEndpoints;

@@ -40,7 +40,9 @@ const TraineeManagement = (props: Props) => {
     {
       id: 3,
       name: 'Others Registration',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.OthersRegistration);
+      },
     },
     {
       id: 4,
