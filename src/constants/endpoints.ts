@@ -107,4 +107,8 @@ export default {
     'report/list-faculty-topic-feedback-report',
   report_list_feedback_trainne_details:
     'report/list-faculty-feedback-report-trainee-details',
+  delete_faculty_details: '/lms/delete-faculty-details',
+  list_knowledge_managemnet: 'lms/list-knowledge-management-subject',
+  list_knowledge_managemnet_sub_topic:
+    '/lms/list-knowledge-management-subject-topic',
 };

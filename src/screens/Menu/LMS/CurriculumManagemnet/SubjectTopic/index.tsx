@@ -47,6 +47,8 @@ import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
 import {
   useDeleteFacultyDetailsMutation,
   useListFacultyDetailsMutation,
+  useListKnowledgeManagementMutation,
+  useListKnowledgeManagementSubTopicMutation,
   useUpdateFacultyDetailsMutation,
 } from '../../../../../injectEndpoints/lmsEndpoints';
 
@@ -65,13 +67,11 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const FacultyDetails = (props: Props) => {
+const SubjectTopic = (props: Props) => {
   const { navigation } = props;
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [listFacultyDetailsApi] = useListFacultyDetailsMutation();
-  const [updateFacultyDetailsApi] = useUpdateFacultyDetailsMutation();
-  const [deletebedDetailsRoomApi] = useDeleteFacultyDetailsMutation();
+  const [listFacultyDetailsApi] = useListKnowledgeManagementSubTopicMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -83,12 +83,8 @@ const FacultyDetails = (props: Props) => {
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
 
-  const [facultyTypeList, setFacultyTypeList] = useState<any>([]);
-  const [departmentList, setDepartmentList] = useState<any>([]);
-  const [organisationList, setOrganisationList] = useState<any>([]);
-  const [selectedFacultyType, setSelectedFacultyType] = useState<any>({});
-  const [selectedDepartment, setSelectedDepartment] = useState<any>({});
-  const [selectedOrganisation, setSelectedOrganisation] = useState<any>({});
+  const [userList, setUserList] = useState<any>([]);
+  const [selectedUser, setSelectedUser] = useState<any>({});
 
   const ITEMS_PER_PAGE = 10;
 
@@ -96,7 +92,7 @@ const FacultyDetails = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Details');
+    Header.setNavigation(navigation, 'Subject Topic Details');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -105,9 +101,7 @@ const FacultyDetails = (props: Props) => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
         listFacultyDetails(1, true, '');
-        getFacultyType();
-        getDepartment();
-        getOrganization();
+        getUser();
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
@@ -150,7 +144,9 @@ const FacultyDetails = (props: Props) => {
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
+      bipardCentre: [],
     };
+
     if (centreFilter) {
       params.bipardCentre = centreFilter;
     }
@@ -200,223 +196,30 @@ const FacultyDetails = (props: Props) => {
     setSearch('');
     listFacultyDetails(1, true, '');
   };
-
   const BedCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
-
-      if (newStatus === statusValue) return;
-
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: 'Are you sure you want to change this item?',
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          updateStatus(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const updateStatus = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        idForChangeStatus: id,
-      };
-      updateFacultyDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data?.message,
-          });
-          setInitialCall(false);
-          listFacultyDetails(1, true, search);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
-
-    const handleDelete = () => {
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Delete Confirmation',
-        message: 'Are you sure you want to delete this item?',
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          deleteBedHostelRoom(item.facultyId);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const deleteBedHostelRoom = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        faculty_id: id,
-      };
-      deletebedDetailsRoomApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          listFacultyDetails(1, true, search);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
-
     return (
       <TouchableAtom
         style={styles.card}
         onPress={() => {
-          navigation.navigate(screensName.FacultyDetailDetails, { data: item });
+          navigation.navigate(screensName.FacultySubjectFeedbackDetails, {
+            item: item,
+          });
         }}
       >
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
             Sr. No: {index + 1}
           </TextAtom>
-
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                // navigation.navigate(screensName.AddFacultyDetails, {
-                //   item: item,
-                // });
-              }}
-            >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-
-            <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
-            </TouchableAtom>
-          </View>
         </View>
 
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Faculty U.ID</TextAtom>
-            <TextAtom style={styles.value}>
-              {item.facultyUniqueId ?? '-'}
-            </TextAtom>
-          </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Faculty Id</TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {item.facultyId ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Name</TextAtom>
-            <TextAtom style={styles.value}>{item.facultyName ?? '-'}</TextAtom>
-          </View>
-
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Designation</TextAtom>
-            <TextAtom numberOfLines={0} style={styles.valueRight}>
-              {item.designation ?? '-'}
-            </TextAtom>
-          </View>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Subject</TextAtom>
+          <TextAtom style={styles.value}>{item.subject ?? '-'}</TextAtom>
         </View>
 
-        {showStatusMenu && (
-          <TouchableOpacity
-            onPress={() => setShowStatusMenu(false)}
-            style={styles.overlay}
-          />
-        )}
-
-        <View style={{ marginTop: vh(0), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Status</TextAtom>
-
-          <TouchableAtom
-            onPress={() => setShowStatusMenu(!showStatusMenu)}
-            style={[
-              styles.statusBox,
-              statusValue === 'Active' ? styles.activeBox : styles.inActiveBox,
-            ]}
-          >
-            <TextAtom
-              style={[
-                styles.statusText,
-                statusValue === 'Active'
-                  ? styles.activeText
-                  : styles.inActiveText,
-              ]}
-            >
-              {statusValue}
-            </TextAtom>
-            <ImageAtom source={images.downArrow} />
-          </TouchableAtom>
-
-          {showStatusMenu && (
-            <View style={styles.dropMenu}>
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() => onSelectStatus('Active')}
-              >
-                <TextAtom style={{ color: colors.black }}>Active</TextAtom>
-              </TouchableAtom>
-
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() => onSelectStatus('Inactive')}
-              >
-                <TextAtom style={{ color: colors.black }}>In-Active</TextAtom>
-              </TouchableAtom>
-            </View>
-          )}
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Description</TextAtom>
+          <TextAtom style={styles.value}>{item.description ?? '-'}</TextAtom>
         </View>
       </TouchableAtom>
     );
@@ -429,57 +232,21 @@ const FacultyDetails = (props: Props) => {
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Faculty Type'}
-        placeholder={'Faculty Type'}
+        label={'User Type'}
+        placeholder={'User Type'}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Faculty Type',
-            Data: facultyTypeList,
-            selectedData: selectedFacultyType,
+            name: 'User Type',
+            Data: userList,
+            selectedData: selectedUser,
             setSelectedData: (data: any) => {
-              setSelectedFacultyType(data);
+              setSelectedUser(data);
             },
             typeName: 'name',
             typeId: 'id',
           });
         }}
-        inputText={selectedFacultyType?.name}
-      />
-
-      <DropDownOrganism
-        label={'Department'}
-        placeholder={'Department'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Department',
-            Data: departmentList,
-            selectedData: selectedDepartment,
-            setSelectedData: (data: any) => {
-              setSelectedDepartment(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedDepartment?.name}
-      />
-
-      <DropDownOrganism
-        label={'Organisation'}
-        placeholder={'Organisation'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Organisation',
-            Data: organisationList,
-            selectedData: selectedOrganisation,
-            setSelectedData: (data: any) => {
-              setSelectedOrganisation(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedOrganisation?.name}
+        inputText={selectedUser?.name}
       />
 
       <ViewAtom style={styles.buttonRow}>
@@ -499,41 +266,30 @@ const FacultyDetails = (props: Props) => {
   );
 
   const clearFilter = () => {
-    setSelectedFacultyType({});
-    setSelectedDepartment({});
-    setSelectedOrganisation({});
+    setSelectedUser({});
     listFacultyDetails(1, true, search, []);
   };
 
   const applyFilter = () => {
     const filters = [];
 
-    if (selectedFacultyType?.id) {
-      filters.push(['facultyType', '=', selectedFacultyType.id]);
+    if (selectedUser?.id) {
+      filters.push(['userTypeId', '=', selectedUser.id]);
     }
-
-    if (selectedDepartment?.id) {
-      filters.push(['department', '=', selectedDepartment.id]);
-    }
-
-    if (selectedOrganisation?.id) {
-      filters.push(['facultyOrganisation', '=', selectedOrganisation.id]);
-    }
-
     listFacultyDetails(1, true, search, filters);
   };
 
-  const getFacultyType = () => {
+  const getUser = () => {
     setInitialCall(true);
     const params = {
-      listType: 'faculty_category',
-      bipardCentre: [],
-      replacements: ['%%'],
+      listType: 'select_user_type',
+      bipardCentre: getCentreFilter(),
+      replacements: [],
     };
     commonDropdownApi(params)
       .unwrap()
       .then((res: any) => {
-        setFacultyTypeList(res.data);
+        setUserList(res.data);
         setInitialCall(false);
       })
       .catch((err: any) => {
@@ -542,50 +298,6 @@ const FacultyDetails = (props: Props) => {
           type: 'error',
           text2: err.data.message,
           autoHide: true,
-        });
-      });
-  };
-
-  const getDepartment = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'filter_by_faculty_department',
-      bipardCentre: ['Gaya', 'Patna'],
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setDepartmentList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-        });
-      });
-  };
-
-  const getOrganization = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'filter_by_faculty_organisation',
-      bipardCentre: ['Gaya', 'Patna'],
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setOrganisationList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
         });
       });
   };
@@ -675,7 +387,7 @@ const FacultyDetails = (props: Props) => {
   );
 };
 
-export default FacultyDetails;
+export default SubjectTopic;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },

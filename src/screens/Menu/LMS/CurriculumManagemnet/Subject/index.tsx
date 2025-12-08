@@ -47,6 +47,7 @@ import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
 import {
   useDeleteFacultyDetailsMutation,
   useListFacultyDetailsMutation,
+  useListKnowledgeManagementMutation,
   useUpdateFacultyDetailsMutation,
 } from '../../../../../injectEndpoints/lmsEndpoints';
 
@@ -65,11 +66,11 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const FacultyDetails = (props: Props) => {
+const Subject = (props: Props) => {
   const { navigation } = props;
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [listFacultyDetailsApi] = useListFacultyDetailsMutation();
+  const [listFacultyDetailsApi] = useListKnowledgeManagementMutation();
   const [updateFacultyDetailsApi] = useUpdateFacultyDetailsMutation();
   const [deletebedDetailsRoomApi] = useDeleteFacultyDetailsMutation();
 
@@ -96,7 +97,7 @@ const FacultyDetails = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Details');
+    Header.setNavigation(navigation, 'Subject Details');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -150,7 +151,9 @@ const FacultyDetails = (props: Props) => {
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
+      bipardCentre: [],
     };
+
     if (centreFilter) {
       params.bipardCentre = centreFilter;
     }
@@ -200,222 +203,52 @@ const FacultyDetails = (props: Props) => {
     setSearch('');
     listFacultyDetails(1, true, '');
   };
-
   const BedCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
-
-      if (newStatus === statusValue) return;
-
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: 'Are you sure you want to change this item?',
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          updateStatus(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const updateStatus = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        idForChangeStatus: id,
-      };
-      updateFacultyDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data?.message,
-          });
-          setInitialCall(false);
-          listFacultyDetails(1, true, search);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
-
-    const handleDelete = () => {
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Delete Confirmation',
-        message: 'Are you sure you want to delete this item?',
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          deleteBedHostelRoom(item.facultyId);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const deleteBedHostelRoom = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        faculty_id: id,
-      };
-      deletebedDetailsRoomApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          listFacultyDetails(1, true, search);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
+    const thumbnail =
+      item?.thumbnail && item.thumbnail !== null && item.thumbnail !== ''
+        ? { uri: item.thumbnail }
+        : null;
 
     return (
       <TouchableAtom
         style={styles.card}
         onPress={() => {
-          navigation.navigate(screensName.FacultyDetailDetails, { data: item });
+          navigation.navigate(screensName.FacultySubjectFeedbackDetails, {
+            item: item,
+          });
         }}
       >
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
             Sr. No: {index + 1}
           </TextAtom>
+        </View>
 
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
-            {/* <TouchableAtom
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Subject</TextAtom>
+          <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
+        </View>
+
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Description</TextAtom>
+          <TextAtom style={styles.value}>{item.description ?? '-'}</TextAtom>
+        </View>
+
+        <TextAtom style={styles.label}>Thumbnail</TextAtom>
+        <View style={{ marginTop: vh(10) }}>
+          {thumbnail ? (
+            <ImageAtom
+              source={thumbnail}
               style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
+                width: vw(60),
+                height: vw(60),
                 borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
+                backgroundColor: colors.grey,
               }}
-              onPress={() => {
-                // navigation.navigate(screensName.AddFacultyDetails, {
-                //   item: item,
-                // });
-              }}
-            >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-
-            <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
-            </TouchableAtom>
-          </View>
-        </View>
-
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Faculty U.ID</TextAtom>
-            <TextAtom style={styles.value}>
-              {item.facultyUniqueId ?? '-'}
-            </TextAtom>
-          </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Faculty Id</TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {item.facultyId ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Name</TextAtom>
-            <TextAtom style={styles.value}>{item.facultyName ?? '-'}</TextAtom>
-          </View>
-
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Designation</TextAtom>
-            <TextAtom numberOfLines={0} style={styles.valueRight}>
-              {item.designation ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
-
-        {showStatusMenu && (
-          <TouchableOpacity
-            onPress={() => setShowStatusMenu(false)}
-            style={styles.overlay}
-          />
-        )}
-
-        <View style={{ marginTop: vh(0), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Status</TextAtom>
-
-          <TouchableAtom
-            onPress={() => setShowStatusMenu(!showStatusMenu)}
-            style={[
-              styles.statusBox,
-              statusValue === 'Active' ? styles.activeBox : styles.inActiveBox,
-            ]}
-          >
-            <TextAtom
-              style={[
-                styles.statusText,
-                statusValue === 'Active'
-                  ? styles.activeText
-                  : styles.inActiveText,
-              ]}
-            >
-              {statusValue}
-            </TextAtom>
-            <ImageAtom source={images.downArrow} />
-          </TouchableAtom>
-
-          {showStatusMenu && (
-            <View style={styles.dropMenu}>
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() => onSelectStatus('Active')}
-              >
-                <TextAtom style={{ color: colors.black }}>Active</TextAtom>
-              </TouchableAtom>
-
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() => onSelectStatus('Inactive')}
-              >
-                <TextAtom style={{ color: colors.black }}>In-Active</TextAtom>
-              </TouchableAtom>
-            </View>
+              resizeMode="cover"
+            />
+          ) : (
+            <TextAtom style={styles.value}>{'-'}</TextAtom>
           )}
         </View>
       </TouchableAtom>
@@ -593,12 +426,12 @@ const FacultyDetails = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
+      {/* <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
         <TextAtom style={styles.filterText}>
           {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
         </TextAtom>
       </TouchableAtom>
-      {showFilter && <FilterForm />}
+      {showFilter && <FilterForm />} */}
       <DropDownOrganism
         label={''}
         placeholder={'Centers'}
@@ -675,7 +508,7 @@ const FacultyDetails = (props: Props) => {
   );
 };
 
-export default FacultyDetails;
+export default Subject;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },

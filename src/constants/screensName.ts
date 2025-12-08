@@ -69,4 +69,8 @@ export default {
   FacultySubjectFeedbackDetails: 'FacultySubjectFeedbackDetails',
   FacultyTopicFeedbackDetails: 'FacultyTopicFeedbackDetails',
   TopicFeedbackCountDetails: 'TopicFeedbackCountDetails',
+  AddFacultyDetails: 'AddFacultyDetails',
+  CurriculumManagemnet: 'CurriculumManagemnet',
+  Subject: 'Subject',
+  SubjectTopic: 'SubjectTopic',
 };

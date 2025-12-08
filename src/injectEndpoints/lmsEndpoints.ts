@@ -248,6 +248,27 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    deleteFacultyDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.delete_faculty_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listKnowledgeManagement: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_knowledge_managemnet,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listKnowledgeManagementSubTopic: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_knowledge_managemnet_sub_topic,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -287,4 +308,7 @@ export const {
   useReportListFacultySubFeedbackReportMutation,
   useReportListFacultyTopicFeedbackReportMutation,
   useReportListFeedbackTrainneDetailsMutation,
+  useDeleteFacultyDetailsMutation,
+  useListKnowledgeManagementMutation,
+  useListKnowledgeManagementSubTopicMutation,
 } = apiEndpoints;

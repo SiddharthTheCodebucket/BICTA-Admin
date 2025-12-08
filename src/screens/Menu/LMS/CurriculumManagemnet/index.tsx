@@ -1,22 +1,22 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../constants';
+import { colors, screensName, vh, vw } from '../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../components/atoms/TextAtom';
+} from '../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../components/atoms/TextAtom';
 
 interface Props {
   navigation: NavigationType;
 }
 
-const LMS = (props: Props) => {
+const CurriculumManagemnet = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'LMS');
+    Header.setNavigation(navigation, 'Curriculum Management');
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,51 +25,17 @@ const LMS = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Training Management',
+      name: 'Subject',
       onPress: () => {
-        navigation.navigate(screensName.TrainingManagement);
+        navigation.navigate(screensName.Subject);
       },
     },
     {
       id: 2,
-      name: 'Trainee Management',
+      name: 'Subject Topic',
       onPress: () => {
-        navigation.navigate(screensName.TraineeManagement);
+        navigation.navigate(screensName.SubjectTopic);
       },
-    },
-    {
-      id: 3,
-      name: 'Faculty Management',
-      onPress: () => {
-        navigation.navigate(screensName.FacultyManagement);
-      },
-    },
-    {
-      id: 4,
-      name: 'Curriculum/Knowledge Management',
-      onPress: () => {
-        navigation.navigate(screensName.CurriculumManagemnet);
-      },
-    },
-    {
-      id: 5,
-      name: 'Class Location Management',
-      onPress: () => {},
-    },
-    {
-      id: 6,
-      name: 'Class Room Management',
-      onPress: () => {},
-    },
-    {
-      id: 7,
-      name: 'Assignment',
-      onPress: () => {},
-    },
-    {
-      id: 8,
-      name: 'Examination',
-      onPress: () => {},
     },
   ];
 
@@ -92,7 +58,7 @@ const LMS = (props: Props) => {
   );
 };
 
-export default LMS;
+export default CurriculumManagemnet;
 
 const styles = StyleSheet.create({
   container: {
