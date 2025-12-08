@@ -192,6 +192,34 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listFacultyDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_faculty_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateFacultyDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_faculty_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listFacultyConfirmation: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_faculty_confirmation,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateFacultyConfirmation: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_faculty_confirmation,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -223,4 +251,8 @@ export const {
   useDownloadTraineeDetailsMutation,
   useReleaseTraineeFromTrainingMutation,
   useAddMukhiyaRegistrationMutation,
+  useListFacultyDetailsMutation,
+  useUpdateFacultyDetailsMutation,
+  useListFacultyConfirmationMutation,
+  useUpdateFacultyConfirmationMutation,
 } = apiEndpoints;

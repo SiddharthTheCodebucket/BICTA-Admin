@@ -96,4 +96,8 @@ export default {
     '/lms/download-trainee-indemnity-bond',
   release_trainee_from_training: 'lms/release-trainee-from-training',
   add_mukhiya_registration: 'lms/add-mukhiya-registration',
+  list_faculty_details: 'lms/list-faculty-details',
+  update_faculty_details: 'lms/update-faculty-details',
+  list_faculty_confirmation: 'lms/list-faculty-confirmation',
+  update_faculty_confirmation: 'lms/update-faculty-confirmation',
 };

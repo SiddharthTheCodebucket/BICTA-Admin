@@ -65,6 +65,11 @@ import TraineeRelease from '../screens/Menu/LMS/TraineeManagement/TraineeRelease
 import TraineeReleaseDetails from '../screens/Menu/LMS/TraineeManagement/TraineeRelease/TraineeReleaseDetails';
 import TraineeReleaseForm from '../screens/Menu/LMS/TraineeManagement/TraineeRelease/TraineeReleaseForm';
 import OthersRegistration from '../screens/Menu/LMS/TraineeManagement/OthersRegistration';
+import FacultyManagement from '../screens/Menu/LMS/FacultyManagement';
+import FacultyDetails from '../screens/Menu/LMS/FacultyManagement/FacultyDetails';
+import FacultyDetailDetails from '../screens/Menu/LMS/FacultyManagement/FacultyDetails/FacultyDetailDetails';
+import FacultyConfirmation from '../screens/Menu/LMS/FacultyManagement/FacultyConfirmation';
+import FacultyConfirmationDetails from '../screens/Menu/LMS/FacultyManagement/FacultyConfirmation/FacultyConfirmationDetails';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -300,6 +305,26 @@ const RootNavigator = () => {
           <RootStackScreen.Screen
             name="OthersRegistration"
             component={OthersRegistration}
+          />
+          <RootStackScreen.Screen
+            name="FacultyManagement"
+            component={FacultyManagement}
+          />
+          <RootStackScreen.Screen
+            name="FacultyDetails"
+            component={FacultyDetails}
+          />
+          <RootStackScreen.Screen
+            name="FacultyDetailDetails"
+            component={FacultyDetailDetails}
+          />
+          <RootStackScreen.Screen
+            name="FacultyConfirmation"
+            component={FacultyConfirmation}
+          />
+          <RootStackScreen.Screen
+            name="FacultyConfirmationDetails"
+            component={FacultyConfirmationDetails}
           />
         </RootStackScreen.Group>
         <RootStackScreen.Group
