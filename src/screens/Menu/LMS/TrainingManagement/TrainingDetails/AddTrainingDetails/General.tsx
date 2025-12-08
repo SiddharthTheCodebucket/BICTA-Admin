@@ -45,7 +45,10 @@ import {
   saveYoungProfessionalList,
 } from '../../../../../../features/TrainingManagement/trainingManagementSlice';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import { normalizeNumber } from '../../../../../../utils/CommonFunction';
+import {
+  isNullUndefined,
+  normalizeNumber,
+} from '../../../../../../utils/CommonFunction';
 import {
   useAddTrainingDetailsMutation,
   useUpdateTrainingDetailsMutation,
@@ -470,45 +473,51 @@ const General = (props: Props) => {
         });
       });
   };
-
   const updateTrainingDetails = () => {
     setLoader(true);
 
     const formData = new FormData();
 
-    formData.append('bipardCentre', bipardLocation.name);
-    formData.append('training_category', trainingCategory.categoryId);
-    formData.append('is_budget_training', budget.id);
-    formData.append('budget_training_id', null);
+    const appendIfNotNull = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '') {
+        formData.append(key, value);
+      }
+    };
 
-    formData.append(
-      'training_full_name',
-      trainingFullName ? trainingFullName : '',
-    );
-    formData.append(
-      'training_short_name',
-      trainingShortName ? trainingShortName : '',
-    );
+    formData.append('bipardCentre', JSON.stringify([bipardLocation.name]));
 
-    formData.append(
+    appendIfNotNull('training_category', trainingCategory?.categoryId);
+    appendIfNotNull('is_budget_training', budget?.id);
+
+    appendIfNotNull('training_full_name', trainingFullName);
+    appendIfNotNull('training_short_name', trainingShortName);
+
+    appendIfNotNull(
       'course_start_date',
       moment(trainingStartDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
     );
-    formData.append(
+
+    appendIfNotNull(
       'course_end_date',
       moment(trainingEndDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
     );
 
-    formData.append('hostel_allocation_order', [hostel.id]);
-    formData.append('training_type', trainingType.id);
-    formData.append('training_fee', trainingFee.id);
-    formData.append('fee_amount', '');
-    formData.append('nature_of_course', natureOfCourse.id);
-    formData.append('no_of_participants', noOfParticipants);
-    formData.append('parent_department', parentDepartment.name);
-    formData.append('no_of_sections', noOfSectionAndBatches);
-    formData.append('status', status.id);
-    formData.append('description', courseDesc);
+    appendIfNotNull(
+      'hostel_allocation_order',
+      JSON.stringify(
+        !isNullUndefined(hostel) ? hostel.map((h: any) => Number(h.id)) : [],
+      ),
+    );
+
+    appendIfNotNull('training_type', trainingType?.id);
+    appendIfNotNull('training_fee', trainingFee?.id);
+
+    appendIfNotNull('nature_of_course', natureOfCourse?.id);
+    appendIfNotNull('no_of_participants', noOfParticipants);
+    appendIfNotNull('parent_department', parentDepartment?.name);
+    appendIfNotNull('no_of_sections', noOfSectionAndBatches);
+    appendIfNotNull('status', status?.id);
+    appendIfNotNull('description', courseDesc ?? '');
 
     if (courseThumbnail?.uri) {
       formData.append('thumbnail', {
@@ -517,6 +526,7 @@ const General = (props: Props) => {
         type: courseThumbnail.type || 'image/jpeg',
       });
     }
+
     if (courseLetter?.uri) {
       formData.append('letter', {
         uri: courseLetter.uri,
@@ -525,23 +535,29 @@ const General = (props: Props) => {
       });
     }
 
-    formData.append('course_coordinator', courseCoordinator.id);
+    appendIfNotNull('course_coordinator', courseCoordinator?.id);
+    appendIfNotNull('young_professional', youngProfessional?.id);
 
-    formData.append('young_professional', youngProfessional.id);
+    appendIfNotNull('course_location', null);
+    appendIfNotNull('course_sub_location', null);
 
-    formData.append('course_location', 0);
-    formData.append('course_sub_location', 0);
+    const formattedLocation = {
+      locations: !isNullUndefined(trainingTeamLocations)
+        ? trainingTeamLocations.map((loc: any) => ({
+            courseLocation: loc.courseLocation,
+            courseSubLocation: loc.courseSubLocation,
+          }))
+        : [],
+    };
 
-    formData.append('location', JSON.stringify(trainingTeamLocations));
+    appendIfNotNull('location', JSON.stringify(formattedLocation));
 
-    formData.append('letter', null);
-
-    formData.append('course_id', '');
-    formData.append('course_id_update', null);
+    appendIfNotNull('course_id', item?.id);
+    appendIfNotNull('course_id_update', item?.id);
 
     updateTrainingDetailsApi(formData)
       .unwrap()
-      .then((res: any) => {
+      .then(res => {
         goNext();
         Toast.show({
           type: 'success',
@@ -549,7 +565,7 @@ const General = (props: Props) => {
         });
         setLoader(false);
       })
-      .catch((err: any) => {
+      .catch(err => {
         setLoader(false);
         Toast.show({
           type: 'error',
@@ -757,7 +773,7 @@ const General = (props: Props) => {
             navigation.navigate('DropDownModal', {
               name: 'Training Type',
               Data: [
-                { id: 'Institutonal', name: 'Institutonal' },
+                { id: 'Institutional', name: 'Institutional' },
                 { id: 'Public', name: 'Public' },
               ],
               selectedData: trainingType,

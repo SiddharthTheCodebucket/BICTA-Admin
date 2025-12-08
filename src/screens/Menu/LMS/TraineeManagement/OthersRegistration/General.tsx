@@ -175,6 +175,9 @@ const General = (props: Props) => {
       });
   };
 
+  const eighteenYearsAgo = new Date();
+  eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
@@ -344,6 +347,7 @@ const General = (props: Props) => {
           dateFormat="DD-MM-YYYY"
           isMandatory
           errorMessage={errors.dob}
+          maxDate={eighteenYearsAgo}
         />
 
         <TextInputOrganisms

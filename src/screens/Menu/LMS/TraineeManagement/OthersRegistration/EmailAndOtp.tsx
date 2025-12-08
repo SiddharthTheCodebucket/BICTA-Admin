@@ -313,7 +313,7 @@ const EmailAndOtp = (props: Props) => {
 
         <ButtonOrganism
           containerStyle={{ width: vw(155) }}
-          bttnText="Next"
+          bttnText="Submit"
           onPress={handleNext}
         />
       </ViewAtom>

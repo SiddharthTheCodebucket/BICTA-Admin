@@ -39,6 +39,7 @@ import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import moment from 'moment';
 import { useUpdateTrainingDetailsMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
+import { isNullUndefined } from '../../../../../../utils/CommonFunction';
 
 interface Props {
   route: any;
@@ -49,6 +50,7 @@ interface Props {
 
 const TrainingTeamLocation = (props: Props) => {
   const { navigation, goBack, goNext } = props;
+  const item = props.route?.params?.item;
   const dispatch = useDispatch();
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
@@ -83,7 +85,7 @@ const TrainingTeamLocation = (props: Props) => {
     courseSubLocationList,
     courseLetter,
     trainingTeamLocations,
-  } = useAppSelector(state => state.TrainingManagement);
+  }: any = useAppSelector(state => state.TrainingManagement);
 
   const [tempCourseLocation, setTempCourseLocation] = useState<any>(null);
   const [tempCourseSubLocation, setTempCourseSubLocation] = useState<any>(null);
@@ -122,13 +124,13 @@ const TrainingTeamLocation = (props: Props) => {
           courseLocation: {
             id: item.courseLocation[index],
             name: courseLocationList?.find(
-              x => x.id == item.courseLocation[index],
+              (x: any) => x.id == item.courseLocation[index],
             )?.name,
           },
           courseSubLocation: {
             id: item.courseSubLocation[index],
             name: courseSubLocationList?.find(
-              x => x.id == item.courseSubLocation[index],
+              (x: any) => x.id == item.courseSubLocation[index],
             )?.name,
           },
         }),
@@ -241,39 +243,48 @@ const TrainingTeamLocation = (props: Props) => {
 
     const formData = new FormData();
 
-    formData.append('bipardCentre', bipardLocation.name);
-    formData.append('training_category', trainingCategory.categoryId);
-    formData.append('is_budget_training', budget.id);
-    formData.append('budget_training_id', null);
+    const appendIfValid = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '') {
+        formData.append(key, value);
+      }
+    };
 
-    formData.append(
-      'training_full_name',
-      trainingFullName ? trainingFullName : '',
-    );
-    formData.append(
-      'training_short_name',
-      trainingShortName ? trainingShortName : '',
-    );
+    appendIfValid('bipardCentre', JSON.stringify([bipardLocation?.name]));
 
-    formData.append(
+    appendIfValid('training_category', trainingCategory?.categoryId);
+    appendIfValid('is_budget_training', budget?.id);
+
+    appendIfValid('budget_training_id', null);
+
+    appendIfValid('training_full_name', trainingFullName);
+    appendIfValid('training_short_name', trainingShortName);
+
+    appendIfValid(
       'course_start_date',
       moment(trainingStartDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
     );
-    formData.append(
+
+    appendIfValid(
       'course_end_date',
       moment(trainingEndDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
     );
 
-    formData.append('hostel_allocation_order', [hostel.id]);
-    formData.append('training_type', trainingType.id);
-    formData.append('training_fee', trainingFee.id);
-    formData.append('fee_amount', '');
-    formData.append('nature_of_course', natureOfCourse.id);
-    formData.append('no_of_participants', noOfParticipants);
-    formData.append('parent_department', parentDepartment.name);
-    formData.append('no_of_sections', noOfSectionAndBatches);
-    formData.append('status', status.id);
-    formData.append('description', courseDesc);
+    appendIfValid(
+      'hostel_allocation_order',
+      JSON.stringify(
+        hostel && hostel.length > 0 ? hostel.map((h: any) => Number(h.id)) : [],
+      ),
+    );
+
+    appendIfValid('training_type', trainingType?.id);
+    appendIfValid('training_fee', trainingFee?.id);
+    appendIfValid('fee_amount', '');
+    appendIfValid('nature_of_course', natureOfCourse?.id);
+    appendIfValid('no_of_participants', noOfParticipants);
+    appendIfValid('parent_department', parentDepartment?.name);
+    appendIfValid('no_of_sections', noOfSectionAndBatches);
+    appendIfValid('status', status?.id);
+    appendIfValid('description', courseDesc);
 
     if (courseThumbnail?.uri) {
       formData.append('thumbnail', {
@@ -282,6 +293,7 @@ const TrainingTeamLocation = (props: Props) => {
         type: courseThumbnail.type || 'image/jpeg',
       });
     }
+
     if (courseLetter?.uri) {
       formData.append('letter', {
         uri: courseLetter.uri,
@@ -290,21 +302,15 @@ const TrainingTeamLocation = (props: Props) => {
       });
     }
 
-    formData.append('course_coordinator', courseCoordinator.id);
+    appendIfValid('course_coordinator', courseCoordinator?.id);
+    appendIfValid('young_professional', youngProfessional?.id);
 
-    formData.append('young_professional', youngProfessional.id);
-
-    formData.append('course_location', 0);
-    formData.append('course_sub_location', 0);
-    // 1️⃣ Collect all locations in one array
     let combined = [];
 
-    // If user filled top selectors but didn’t click ADD
     if (tempCourseLocation && tempCourseSubLocation) {
       combined.push({
         courseLocation: tempCourseLocation.id,
         courseSubLocation: tempCourseSubLocation.id,
-        courseSubLocationData: tempCourseSubLocation, // optional your format
       });
     }
 
@@ -315,36 +321,30 @@ const TrainingTeamLocation = (props: Props) => {
       });
     });
 
-    let uniqueLocations: any = [];
-    let mapKey = new Set();
+    // Unique array
+    const mapKey = new Set();
+    const uniqueLocations: any = [];
 
-    combined.forEach(item => {
-      const key = `${item.courseLocation}-${item.courseSubLocation}`;
-
-      if (!mapKey.has(key)) {
-        mapKey.add(key);
-        uniqueLocations.push(item);
+    combined.forEach(loc => {
+      const k = `${loc.courseLocation}-${loc.courseSubLocation}`;
+      if (!mapKey.has(k)) {
+        mapKey.add(k);
+        uniqueLocations.push(loc);
       }
     });
 
-    formData.append('location', JSON.stringify(uniqueLocations));
+    appendIfValid('location', JSON.stringify(uniqueLocations));
 
-    formData.append('letter', null);
-
-    formData.append('course_id', '');
-    formData.append('course_id_update', null);
+    appendIfValid('course_id', item?.id);
+    appendIfValid('course_id_update', item?.id);
 
     updateTrainingDetailsApi(formData)
       .unwrap()
-      .then((res: any) => {
+      .then(res => {
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
-            routes: [
-              {
-                name: screensName.TrainingDetails,
-              },
-            ],
+            routes: [{ name: screensName.TrainingDetails }],
           }),
         );
         Toast.show({
@@ -353,7 +353,7 @@ const TrainingTeamLocation = (props: Props) => {
         });
         setLoader(false);
       })
-      .catch((err: any) => {
+      .catch(err => {
         setLoader(false);
         Toast.show({
           type: 'error',

@@ -21,7 +21,7 @@ type Props = {
   placeholder: string;
   onChangeText: Function;
   isDisable?: boolean;
-  minDate?: string;
+  minDate?: any;
   maxDate?: any;
   dateFormat?: string;
   onPress?: Function;

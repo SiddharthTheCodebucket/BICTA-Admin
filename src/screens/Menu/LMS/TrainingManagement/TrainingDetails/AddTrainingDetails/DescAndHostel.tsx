@@ -1,4 +1,10 @@
-import { Keyboard, StyleSheet } from 'react-native';
+import {
+  Keyboard,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -18,10 +24,14 @@ import { useAppSelector } from '../../../../../../hooks';
 import {
   saveCourseDesc,
   saveCourseThumbnail,
-  saveHostel,
+  removeHostelItem,
+  addHostelItem,
 } from '../../../../../../features/TrainingManagement/trainingManagementSlice';
 import moment from 'moment';
 import { useUpdateTrainingDetailsMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
+import TextAtom from '../../../../../../components/atoms/TextAtom';
+import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import { isNullUndefined } from '../../../../../../utils/CommonFunction';
 
 interface Props {
   route: any;
@@ -91,14 +101,17 @@ const DescAndHostel = (props: Props) => {
       );
     }
 
-    // Hostel selected value prefill
     if (Array.isArray(item.hostelAllocationOrderId)) {
-      dispatch(
-        saveHostel({
-          id: item.hostelAllocationOrderId[0],
-          name: item.hostelAllocationOrder[0],
+      const selectedHostels = item.hostelAllocationOrderId.map(
+        (id: any, index: number) => ({
+          id,
+          name: item.hostelAllocationOrder[index],
         }),
       );
+      dispatch(addHostelItem(selectedHostels));
+      // selectedHostels.forEach((h: any) => {
+      //   dispatch(removeHostelItem(h.id));
+      // });
     }
   }, [item]);
 
@@ -107,101 +120,19 @@ const DescAndHostel = (props: Props) => {
     hostel,
   };
   const schema = Yup.object().shape({
-    hostel: Yup.object({
-      id: Yup.string().required('Hostel sequence is required'),
-    }),
+    hostel: Yup.array()
+      .min(1, 'Hostel is required')
+      .required('Hostel is required'),
     courseDesc: Yup.string().required('Course description is required'),
   });
 
   const onSubmit = () => {
     try {
       schema.validateSync(form);
-      if (item) {
-        updateTrainingDetails();
-      } else {
-        addTrainingDetails();
-      }
+      updateTrainingDetails();
     } catch (err: any) {
       setErrors({ [err.path]: err.message });
     }
-  };
-  const addTrainingDetails = () => {
-    setLoader(true);
-
-    const formData = new FormData();
-
-    formData.append('bipardCentre', bipardLocation.name);
-    formData.append('training_category', trainingCategory.categoryId);
-    formData.append('is_budget_training', budget.id);
-    formData.append('budget_training_id', null);
-
-    formData.append(
-      'training_full_name',
-      trainingFullName ? trainingFullName : '',
-    );
-    formData.append(
-      'training_short_name',
-      trainingShortName ? trainingShortName : '',
-    );
-
-    formData.append(
-      'course_start_date',
-      moment(trainingStartDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-    );
-    formData.append(
-      'course_end_date',
-      moment(trainingEndDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-    );
-
-    formData.append('hostel_allocation_order', [hostel.id]);
-    formData.append('training_type', trainingType.id);
-    formData.append('training_fee', trainingFee.id);
-    formData.append('fee_amount', '');
-    formData.append('nature_of_course', natureOfCourse.id);
-    formData.append('no_of_participants', noOfParticipants);
-    formData.append('parent_department', parentDepartment.name);
-    formData.append('no_of_sections', noOfSectionAndBatches);
-    formData.append('status', status.id);
-    formData.append('description', courseDesc);
-
-    if (courseThumbnail?.uri) {
-      formData.append('thumbnail', {
-        uri: courseThumbnail.uri,
-        name: courseThumbnail.fileName || 'thumb.jpg',
-        type: courseThumbnail.type || 'image/jpeg',
-      });
-    }
-
-    formData.append('course_coordinator', null);
-
-    formData.append('young_professional', null);
-
-    formData.append('course_location', 0);
-    formData.append('course_sub_location', 0);
-
-    formData.append('letter', null);
-
-    formData.append('course_id', '');
-    formData.append('course_id_update', null);
-
-    updateTrainingDetailsApi(formData)
-      .unwrap()
-      .then((res: any) => {
-        Toast.show({
-          type: 'success',
-          text2: res.data.message,
-        });
-
-        goNext();
-        setLoader(false);
-      })
-      .catch((err: any) => {
-        setLoader(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-        });
-      });
   };
 
   const updateTrainingDetails = () => {
@@ -209,39 +140,45 @@ const DescAndHostel = (props: Props) => {
 
     const formData = new FormData();
 
-    formData.append('bipardCentre', bipardLocation.name);
-    formData.append('training_category', trainingCategory.categoryId);
-    formData.append('is_budget_training', budget.id);
-    formData.append('budget_training_id', null);
+    const appendIfValid = (key: any, value: any) => {
+      if (value !== null && value !== undefined && value !== '') {
+        formData.append(key, value);
+      }
+    };
 
-    formData.append(
-      'training_full_name',
-      trainingFullName ? trainingFullName : '',
-    );
-    formData.append(
-      'training_short_name',
-      trainingShortName ? trainingShortName : '',
-    );
+    appendIfValid('bipardCentre', JSON.stringify([bipardLocation?.name]));
+    appendIfValid('training_category', trainingCategory?.categoryId);
+    appendIfValid('is_budget_training', budget?.id);
 
-    formData.append(
+    appendIfValid('budget_training_id', null);
+
+    appendIfValid('training_full_name', trainingFullName);
+    appendIfValid('training_short_name', trainingShortName);
+
+    appendIfValid(
       'course_start_date',
       moment(trainingStartDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
     );
-    formData.append(
+
+    appendIfValid(
       'course_end_date',
       moment(trainingEndDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
     );
 
-    formData.append('hostel_allocation_order', [hostel.id]);
-    formData.append('training_type', trainingType.id);
-    formData.append('training_fee', trainingFee.id);
-    formData.append('fee_amount', '');
-    formData.append('nature_of_course', natureOfCourse.id);
-    formData.append('no_of_participants', noOfParticipants);
-    formData.append('parent_department', parentDepartment.name);
-    formData.append('no_of_sections', noOfSectionAndBatches);
-    formData.append('status', status.id);
-    formData.append('description', courseDesc);
+    appendIfValid(
+      'hostel_allocation_order',
+      JSON.stringify(hostel.map((h: any) => Number(h.id))),
+    );
+
+    appendIfValid('training_type', trainingType?.id);
+    appendIfValid('training_fee', trainingFee?.id);
+    appendIfValid('fee_amount', '');
+    appendIfValid('nature_of_course', natureOfCourse?.id);
+    appendIfValid('no_of_participants', noOfParticipants);
+    appendIfValid('parent_department', parentDepartment?.name);
+    appendIfValid('no_of_sections', noOfSectionAndBatches);
+    appendIfValid('status', status?.id);
+    appendIfValid('description', courseDesc);
 
     if (courseThumbnail?.uri) {
       formData.append('thumbnail', {
@@ -250,6 +187,7 @@ const DescAndHostel = (props: Props) => {
         type: courseThumbnail.type || 'image/jpeg',
       });
     }
+
     if (courseLetter?.uri) {
       formData.append('letter', {
         uri: courseLetter.uri,
@@ -258,23 +196,28 @@ const DescAndHostel = (props: Props) => {
       });
     }
 
-    formData.append('course_coordinator', courseCoordinator.id);
+    appendIfValid('course_coordinator', courseCoordinator?.id);
+    appendIfValid('young_professional', youngProfessional?.id);
 
-    formData.append('young_professional', youngProfessional.id);
+    appendIfValid('course_location', null);
+    appendIfValid('course_sub_location', null);
+    const formattedLocation = {
+      locations: !isNullUndefined(trainingTeamLocations)
+        ? trainingTeamLocations.map((loc: any) => ({
+            courseLocation: loc.courseLocation,
+            courseSubLocation: loc.courseSubLocation,
+          }))
+        : [],
+    };
 
-    formData.append('course_location', 0);
-    formData.append('course_sub_location', 0);
+    appendIfValid('location', JSON.stringify(formattedLocation));
 
-    formData.append('location', JSON.stringify(trainingTeamLocations));
-
-    formData.append('letter', null);
-
-    formData.append('course_id', '');
-    formData.append('course_id_update', null);
+    appendIfValid('course_id', item?.id);
+    appendIfValid('course_id_update', item?.id);
 
     updateTrainingDetailsApi(formData)
       .unwrap()
-      .then((res: any) => {
+      .then(res => {
         goNext();
         Toast.show({
           type: 'success',
@@ -282,7 +225,7 @@ const DescAndHostel = (props: Props) => {
         });
         setLoader(false);
       })
-      .catch((err: any) => {
+      .catch(err => {
         setLoader(false);
         Toast.show({
           type: 'error',
@@ -336,6 +279,85 @@ const DescAndHostel = (props: Props) => {
               name: 'Hostel Sequence',
               Data: hostelList,
               selectedData: hostel,
+              setSelectedData: (item: any) => {
+                dispatch(addHostelItem(item));
+                setErrors({ ...errors, hostel: '' });
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={hostel?.name}
+          isMandatory
+          errorMessage={errors.hostel}
+        />
+        {hostel.length >= 0 && (
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              width: vw(328),
+              alignSelf: 'center',
+              marginTop: vh(5),
+            }}
+          >
+            {hostel?.map((hostel: any, index: number) => (
+              <View
+                key={index}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderRadius: vw(14),
+                  paddingVertical: vh(6),
+                  paddingHorizontal: vh(14),
+                  marginRight: vw(8),
+                  borderWidth: vw(1),
+                  borderColor: colors.primary,
+                  marginTop: vh(5),
+                  marginBottom: vh(5),
+                }}
+              >
+                <Text
+                  style={{
+                    color: colors.primary,
+                    fontSize: vw(12),
+                    marginRight: vw(8),
+                  }}
+                >
+                  {hostel.name}
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() => dispatch(removeHostelItem(hostel.id))}
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: 9,
+                    backgroundColor: colors.primary,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text
+                    style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}
+                  >
+                    ✕
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* 
+        <DropDownOrganism
+          label={'Hostel Sequence'}
+          placeholder={'Hostel Sequence'}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Hostel Sequence',
+              Data: hostelList,
+              selectedData: hostel,
               setSelectedData: (data: any) => {
                 dispatch(saveHostel(data));
                 setErrors({ ...errors, 'hostel.id': '' });
@@ -347,7 +369,36 @@ const DescAndHostel = (props: Props) => {
           inputText={hostel?.name}
           isMandatory
           errorMessage={errors['hostel.id']}
-        />
+        /> */}
+        {/* <ViewAtom
+          style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 10 }}
+        >
+          {hostel?.map((item: any) => (
+            <ViewAtom
+              key={item.id}
+              style={{
+                flexDirection: 'row',
+                backgroundColor: colors.lightGrey,
+                paddingHorizontal: 10,
+                paddingVertical: 6,
+                borderRadius: 20,
+                marginRight: 8,
+                marginBottom: 8,
+              }}
+            >
+              <TextAtom>{item.name}</TextAtom>
+
+              <TouchableAtom
+                onPress={() => dispatch(removeHostelItem(item.id))}
+                style={{ marginLeft: 6 }}
+              >
+                <TextAtom style={{ color: 'red', fontWeight: 'bold' }}>
+                  ×
+                </TextAtom>
+              </TouchableAtom>
+            </ViewAtom>
+          ))}
+        </ViewAtom> */}
       </KeyboardAwareScrollView>
       <ViewAtom style={styles.footer}>
         <ButtonOrganism

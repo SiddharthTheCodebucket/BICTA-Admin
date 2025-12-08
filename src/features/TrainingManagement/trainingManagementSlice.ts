@@ -59,7 +59,7 @@ export const initialState: TrainingManagementStateType = {
   courseThumbnail: {},
   courseDesc: '',
   hostelList: [],
-  hostel: {},
+  hostel: [],
   courseCoordinatorList: [],
   courseCoordinator: {},
   youngProfessionalList: [],
@@ -142,9 +142,6 @@ export const trainingManagementSlice = createSlice({
     saveHostelList: (state, { payload }) => {
       state.hostelList = payload;
     },
-    saveHostel: (state, { payload }) => {
-      state.hostel = payload;
-    },
     saveCourseCoordinatorList: (state, { payload }) => {
       state.courseCoordinatorList = payload;
     },
@@ -175,6 +172,27 @@ export const trainingManagementSlice = createSlice({
     saveTrainingTeamLocations: (state, { payload }) => {
       state.trainingTeamLocations = payload;
     },
+    addHostelItem: (state: any, { payload }) => {
+      // push to selected
+      state.hostel = [...state.hostel, payload];
+
+      // remove from list
+      state.hostelList = state.hostelList.filter(
+        (item: any) => item.id !== payload.id,
+      );
+    },
+    removeHostelItem: (state: any, { payload }) => {
+      const removedItem = state.hostel.find((i: any) => i.id === payload);
+
+      // remove from selected
+      state.hostel = state.hostel.filter((i: any) => i.id !== payload);
+
+      // add back to list
+      if (removedItem) {
+        state.hostelList = [...state.hostelList, removedItem];
+      }
+    },
+
     resetTrainingManagementState: () => initialState,
     setTrainingEditData: (state, { payload }) => {
       const item = payload;
@@ -303,7 +321,6 @@ export const {
   saveCourseThumbnail,
   saveCourseDesc,
   saveHostelList,
-  saveHostel,
   saveCourseCoordinatorList,
   saveCourseCoordinator,
   saveYoungProfessionalList,
@@ -316,6 +333,8 @@ export const {
   resetTrainingManagementState,
   saveTrainingTeamLocations,
   setTrainingEditData,
+  addHostelItem,
+  removeHostelItem,
 } = trainingManagementSlice.actions;
 
 export default trainingManagementSlice.reducer;
