@@ -41,7 +41,7 @@ const FacultyManagement = (props: Props) => {
       id: 3,
       name: 'Faculty Class Report Feedback',
       onPress: () => {
-        // navigation.navigate(screensName.BatchDetails);
+        navigation.navigate(screensName.FacultyClassReportFeedback);
       },
     },
   ];

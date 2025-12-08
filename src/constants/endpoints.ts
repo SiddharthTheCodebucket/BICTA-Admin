@@ -100,4 +100,11 @@ export default {
   update_faculty_details: 'lms/update-faculty-details',
   list_faculty_confirmation: 'lms/list-faculty-confirmation',
   update_faculty_confirmation: 'lms/update-faculty-confirmation',
+  report_list_faculty_feedback_report: 'report/list-faculty-feedback-report',
+  report_list_faculty_sub_feedback_report:
+    'report/list-faculty-subject-feedback-report',
+  report_list_faculty_tpoic_feedback_report:
+    'report/list-faculty-topic-feedback-report',
+  report_list_feedback_trainne_details:
+    'report/list-faculty-feedback-report-trainee-details',
 };

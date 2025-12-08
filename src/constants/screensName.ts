@@ -65,4 +65,8 @@ export default {
   FacultyDetailDetails: 'FacultyDetailDetails',
   FacultyConfirmation: 'FacultyConfirmation',
   FacultyConfirmationDetails: 'FacultyConfirmationDetails',
+  FacultyClassReportFeedback: 'FacultyClassReportFeedback',
+  FacultySubjectFeedbackDetails: 'FacultySubjectFeedbackDetails',
+  FacultyTopicFeedbackDetails: 'FacultyTopicFeedbackDetails',
+  TopicFeedbackCountDetails: 'TopicFeedbackCountDetails',
 };

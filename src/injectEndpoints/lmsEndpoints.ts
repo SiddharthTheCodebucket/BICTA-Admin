@@ -220,6 +220,34 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    reportListFacultyFeedbackReport: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.report_list_faculty_feedback_report,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    reportListFacultySubFeedbackReport: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.report_list_faculty_sub_feedback_report,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    reportListFacultyTopicFeedbackReport: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.report_list_faculty_tpoic_feedback_report,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    reportListFeedbackTrainneDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.report_list_feedback_trainne_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -255,4 +283,8 @@ export const {
   useUpdateFacultyDetailsMutation,
   useListFacultyConfirmationMutation,
   useUpdateFacultyConfirmationMutation,
+  useReportListFacultyFeedbackReportMutation,
+  useReportListFacultySubFeedbackReportMutation,
+  useReportListFacultyTopicFeedbackReportMutation,
+  useReportListFeedbackTrainneDetailsMutation,
 } = apiEndpoints;

@@ -70,6 +70,10 @@ import FacultyDetails from '../screens/Menu/LMS/FacultyManagement/FacultyDetails
 import FacultyDetailDetails from '../screens/Menu/LMS/FacultyManagement/FacultyDetails/FacultyDetailDetails';
 import FacultyConfirmation from '../screens/Menu/LMS/FacultyManagement/FacultyConfirmation';
 import FacultyConfirmationDetails from '../screens/Menu/LMS/FacultyManagement/FacultyConfirmation/FacultyConfirmationDetails';
+import FacultyClassReportFeedback from '../screens/Menu/LMS/FacultyManagement/FacultyClassReportFeedback';
+import FacultySubjectFeedbackDetails from '../screens/Menu/LMS/FacultyManagement/FacultyClassReportFeedback/FacultySubjectFeedbackDetails';
+import FacultyTopicFeedbackDetails from '../screens/Menu/LMS/FacultyManagement/FacultyClassReportFeedback/FacultyTopicFeedbackDetails';
+import TopicFeedbackCountDetails from '../screens/Menu/LMS/FacultyManagement/FacultyClassReportFeedback/TopicFeedbackCountDetails';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -325,6 +329,22 @@ const RootNavigator = () => {
           <RootStackScreen.Screen
             name="FacultyConfirmationDetails"
             component={FacultyConfirmationDetails}
+          />
+          <RootStackScreen.Screen
+            name="FacultyClassReportFeedback"
+            component={FacultyClassReportFeedback}
+          />
+          <RootStackScreen.Screen
+            name="FacultySubjectFeedbackDetails"
+            component={FacultySubjectFeedbackDetails}
+          />
+          <RootStackScreen.Screen
+            name="FacultyTopicFeedbackDetails"
+            component={FacultyTopicFeedbackDetails}
+          />
+          <RootStackScreen.Screen
+            name="TopicFeedbackCountDetails"
+            component={TopicFeedbackCountDetails}
           />
         </RootStackScreen.Group>
         <RootStackScreen.Group

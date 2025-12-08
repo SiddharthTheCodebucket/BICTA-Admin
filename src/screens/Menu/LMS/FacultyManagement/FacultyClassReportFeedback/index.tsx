@@ -33,13 +33,17 @@ import TextAtom from '../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../components/organisms/FloatingButton';
-import ImageAtom from '../../../../../components/atoms/ImageAtom';
+
 import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
+import { useReportListFacultyFeedbackReportMutation } from '../../../../../injectEndpoints/lmsEndpoints';
+import ViewAtom from '../../../../../components/atoms/ViewAtom';
+import { useCommonDropdownListMutation } from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
+import ImageAtom from '../../../../../components/atoms/ImageAtom';
 import {
-  useListFacultyConfirmationMutation,
-  useUpdateFacultyConfirmationMutation,
-} from '../../../../../injectEndpoints/lmsEndpoints';
+  downloadAndOpenFile,
+  isNullUndefined,
+} from '../../../../../utils/CommonFunction';
 
 interface Props {
   route: any;
@@ -56,33 +60,45 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const FacultyConfirmation = (props: Props) => {
+const FacultyClassReportFeedback = (props: Props) => {
   const { navigation } = props;
 
-  const [listFacultyDetailsApi] = useListFacultyConfirmationMutation();
-  const [updateFacultyDetailsApi] = useUpdateFacultyConfirmationMutation();
+  const [reportListFacultyFeedbackReportApi] =
+    useReportListFacultyFeedbackReportMutation();
+  const [commonDropdownApi] = useCommonDropdownListMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
+  const [url, setUrl] = useState('');
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
+
+  const [facultyNameList, setFacultyNameList] = useState<any>([]);
+  const [selectedFaculty, setSelectedFaculty] = useState<any>({});
 
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
+  const toggleFilter = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShowFilter(!showFilter);
+  };
+
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Confirmation');
+    Header.setNavigation(navigation, 'Faculty Feedback Report');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
   useFocusEffect(
     useCallback(() => {
+      getFaculty();
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
         listFacultyDetails(1, true, '');
@@ -116,16 +132,21 @@ const FacultyConfirmation = (props: Props) => {
     const centreFilter = getCentreFilter();
     const params: any = {
       search: keyword,
-      sort: { attributes: ['id'], sorts: ['desc'] },
+      sort: {
+        attributes: ['id'],
+        sorts: ['desc'],
+      },
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
+      exportFlag: true,
     };
+
     if (centreFilter) {
       params.bipardCentre = centreFilter;
     }
 
-    listFacultyDetailsApi(params)
+    reportListFacultyFeedbackReportApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -139,6 +160,7 @@ const FacultyConfirmation = (props: Props) => {
         }
 
         setPage(pageNumber);
+        setUrl(res.data.exportUrl);
 
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
@@ -171,61 +193,36 @@ const FacultyConfirmation = (props: Props) => {
     listFacultyDetails(1, true, '');
   };
 
+  const StarRating = ({ rating }: any) => {
+    // if (!rating) return <TextAtom style={styles.value}>-</TextAtom>;
+
+    const rounded = Math.round(rating); // 4.7 → 5
+
+    const stars = Array(5)
+      .fill(0)
+      .map((_, i) => (
+        <TextAtom
+          key={i}
+          style={{
+            fontSize: vw(16),
+            color: colors.primary, // ⭐ primary color
+            marginRight: vw(2),
+          }}
+        >
+          {i < rounded ? '★' : '☆'}
+        </TextAtom>
+      ));
+
+    return <ViewAtom style={{ flexDirection: 'row' }}>{stars}</ViewAtom>;
+  };
+
   const BedCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(
-      item.classConfirmation ?? 'No',
-    );
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
-
-      if (newStatus === statusValue) return;
-
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Class Confirmation',
-        message: 'Are you sure you want to change the confirmation?',
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          updateStatus(item.id, newStatus);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const updateStatus = (id: any, status: string) => {
-      setInitialCall(true);
-      const params = {
-        class_confirmation: status,
-        id: id,
-      };
-      updateFacultyDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data?.message,
-          });
-          setInitialCall(false);
-          listFacultyDetails(1, true, search);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
-
     return (
       <TouchableAtom
         style={styles.card}
         onPress={() => {
-          navigation.navigate(screensName.FacultyConfirmationDetails, {
-            data: item,
+          navigation.navigate(screensName.FacultySubjectFeedbackDetails, {
+            item: item,
           });
         }}
       >
@@ -234,65 +231,28 @@ const FacultyConfirmation = (props: Props) => {
             Sr. No: {index + 1}
           </TextAtom>
         </View>
-
         <View style={{ flex: 1 }}>
           <TextAtom style={styles.label}>Faculty Name</TextAtom>
           <TextAtom style={styles.value}>{item.facultyName ?? '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Training Name</TextAtom>
-          <TextAtom style={styles.value}>{item.trainingName ?? '-'}</TextAtom>
-        </View>
-
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Subject</TextAtom>
-          <TextAtom style={styles.value}>{item.subject ?? '-'}</TextAtom>
-        </View>
-        {showStatusMenu && (
-          <TouchableOpacity
-            onPress={() => setShowStatusMenu(false)}
-            style={styles.overlay}
-          />
-        )}
-
-        <View style={{ marginTop: vh(0), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Class Confirmation</TextAtom>
-
-          <TouchableAtom
-            onPress={() => setShowStatusMenu(!showStatusMenu)}
-            style={[
-              styles.statusBox,
-              statusValue === 'Yes' ? styles.activeBox : styles.inActiveBox,
-            ]}
-          >
-            <TextAtom
-              style={[
-                styles.statusText,
-                statusValue === 'Yes' ? styles.activeText : styles.inActiveText,
-              ]}
-            >
-              {statusValue}
+        <ViewAtom style={[styles.rowBetween]}>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>Class Count</TextAtom>
+            <TextAtom style={styles.value}>
+              {item.totalClassCount ?? '-'}
             </TextAtom>
-            <ImageAtom source={images.downArrow} />
-          </TouchableAtom>
+          </View>
+          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+            <TextAtom style={styles.label}>Rating</TextAtom>
+            <TextAtom style={styles.value}>
+              {item.averageRating ?? '-'}
+            </TextAtom>
+          </View>
+        </ViewAtom>
 
-          {showStatusMenu && (
-            <View style={styles.dropMenu}>
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() => onSelectStatus('Yes')}
-              >
-                <TextAtom style={{ color: colors.black }}>Yes</TextAtom>
-              </TouchableAtom>
-
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() => onSelectStatus('No')}
-              >
-                <TextAtom style={{ color: colors.black }}>No</TextAtom>
-              </TouchableAtom>
-            </View>
-          )}
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Average Rating</TextAtom>
+          <StarRating rating={item.averageRating} />
         </View>
       </TouchableAtom>
     );
@@ -302,10 +262,116 @@ const FacultyConfirmation = (props: Props) => {
     return <BedCard item={item} index={index} navigation={navigation} />;
   };
 
+  const FilterForm = () => (
+    <View style={styles.filterContainer}>
+      <DropDownOrganism
+        label={'Faculty'}
+        placeholder={'Faculty'}
+        onPress={() => {
+          navigation.navigate('DropDownModal', {
+            name: 'Faculty',
+            Data: facultyNameList,
+            selectedData: selectedFaculty,
+            setSelectedData: (data: any) => {
+              setSelectedFaculty(data);
+            },
+            typeName: 'name',
+            typeId: 'id',
+          });
+        }}
+        inputText={selectedFaculty?.name}
+      />
+
+      <ViewAtom style={styles.buttonRow}>
+        <ButtonOrganism
+          onPress={applyFilter}
+          bttnText="Apply Filter"
+          containerStyle={styles.applyBtn}
+        />
+        <ButtonOrganism
+          onPress={clearFilter}
+          bttnText="Clear Filter"
+          containerStyle={styles.clearBtn}
+          bttnTextStyle={{ color: colors.primary }}
+        />
+      </ViewAtom>
+    </View>
+  );
+
+  const clearFilter = () => {
+    setSelectedFaculty({});
+    listFacultyDetails(1, true, search, []);
+  };
+
+  const applyFilter = () => {
+    const filters = [];
+
+    if (selectedFaculty?.id) {
+      filters.push(['facultyId', '=', selectedFaculty.id]);
+    }
+
+    listFacultyDetails(1, true, search, filters);
+  };
+
+  const getFaculty = () => {
+    setInitialCall(true);
+
+    const params = {
+      listType: 'filter_by_faculty_in_feedback',
+      bipardCentre: getCentreFilter(),
+      replacements: ['%%'],
+    };
+
+    commonDropdownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        const modifiedList = res.data.map((item: any) => ({
+          ...item,
+          id: item.id,
+          name: `${item.id}, ${item.name}, ${item.designation || ''}`.trim(),
+        }));
+
+        setFacultyNameList(modifiedList);
+        setInitialCall(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+        });
+      });
+  };
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-
+      <View
+        style={{
+          flexDirection: 'row',
+          alignSelf: 'flex-end',
+        }}
+      >
+        <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
+          <TextAtom style={styles.filterText}>
+            {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+          </TextAtom>
+        </TouchableAtom>
+        <TouchableAtom
+          style={styles.filterButton}
+          onPress={() => {
+            if (!isNullUndefined(url)) {
+              downloadAndOpenFile(url);
+            }
+          }}
+        >
+          <ImageAtom
+            source={images.download}
+            style={{ tintColor: colors.black }}
+          />
+        </TouchableAtom>
+      </View>
+      {showFilter && <FilterForm />}
       <DropDownOrganism
         label={''}
         placeholder={'Centers'}
@@ -377,7 +443,7 @@ const FacultyConfirmation = (props: Props) => {
   );
 };
 
-export default FacultyConfirmation;
+export default FacultyClassReportFeedback;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
