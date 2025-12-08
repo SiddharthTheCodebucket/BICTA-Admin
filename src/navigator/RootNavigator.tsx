@@ -78,6 +78,11 @@ import AddFacultyDetails from '../screens/Menu/LMS/FacultyManagement/FacultyDeta
 import CurriculumManagemnet from '../screens/Menu/LMS/CurriculumManagemnet';
 import Subject from '../screens/Menu/LMS/CurriculumManagemnet/Subject';
 import SubjectTopic from '../screens/Menu/LMS/CurriculumManagemnet/SubjectTopic';
+import ClassLocationManagement from '../screens/Menu/LMS/ClassLocationManagement';
+import LocationDetails from '../screens/Menu/LMS/ClassLocationManagement/LocationDetails';
+import LocationDetailDetails from '../screens/Menu/LMS/ClassLocationManagement/LocationDetails/LocationDetailDetails';
+import SubLocationDetails from '../screens/Menu/LMS/ClassLocationManagement/SubLocationDetails';
+import LocationSubDetailDetails from '../screens/Menu/LMS/ClassLocationManagement/SubLocationDetails/LocationSubDetailDetails';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -362,6 +367,26 @@ const RootNavigator = () => {
           <RootStackScreen.Screen
             name="SubjectTopic"
             component={SubjectTopic}
+          />
+          <RootStackScreen.Screen
+            name="ClassLocationManagement"
+            component={ClassLocationManagement}
+          />
+          <RootStackScreen.Screen
+            name="LocationDetails"
+            component={LocationDetails}
+          />
+          <RootStackScreen.Screen
+            name="LocationDetailDetails"
+            component={LocationDetailDetails}
+          />
+          <RootStackScreen.Screen
+            name="SubLocationDetails"
+            component={SubLocationDetails}
+          />
+          <RootStackScreen.Screen
+            name="LocationSubDetailDetails"
+            component={LocationSubDetailDetails}
           />
         </RootStackScreen.Group>
         <RootStackScreen.Group

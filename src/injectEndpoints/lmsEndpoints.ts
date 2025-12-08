@@ -269,6 +269,34 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listClassLocationDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_class_location_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateClassLocationDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_class_location_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listClassSubLocationDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_class_sub_location_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateClassSubLocationDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_class_sub_location_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -311,4 +339,8 @@ export const {
   useDeleteFacultyDetailsMutation,
   useListKnowledgeManagementMutation,
   useListKnowledgeManagementSubTopicMutation,
+  useListClassLocationDetailsMutation,
+  useUpdateClassLocationDetailsMutation,
+  useListClassSubLocationDetailsMutation,
+  useUpdateClassSubLocationDetailsMutation,
 } = apiEndpoints;

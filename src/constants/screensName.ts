@@ -73,4 +73,9 @@ export default {
   CurriculumManagemnet: 'CurriculumManagemnet',
   Subject: 'Subject',
   SubjectTopic: 'SubjectTopic',
+  ClassLocationManagement: 'ClassLocationManagement',
+  LocationDetails: 'LocationDetails',
+  LocationDetailDetails: 'LocationDetailDetails',
+  SubLocationDetails: 'SubLocationDetails',
+  LocationSubDetailDetails: 'LocationSubDetailDetails',
 };
