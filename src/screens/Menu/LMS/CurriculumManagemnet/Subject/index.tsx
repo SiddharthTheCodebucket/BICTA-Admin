@@ -213,9 +213,9 @@ const Subject = (props: Props) => {
       <TouchableAtom
         style={styles.card}
         onPress={() => {
-          navigation.navigate(screensName.FacultySubjectFeedbackDetails, {
-            item: item,
-          });
+          // navigation.navigate(screensName.FacultySubjectFeedbackDetails, {
+          //   item: item,
+          // });
         }}
       >
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>

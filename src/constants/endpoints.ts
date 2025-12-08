@@ -115,4 +115,5 @@ export default {
   update_class_location_details: 'lms/update-class-location-details',
   list_class_sub_location_details: 'lms/list-class-sub-locations-details',
   update_class_sub_location_details: 'lms/update-class-sub-locations-details',
+  list_classroom_time_table_manage: 'lms/list-classroom-management-time-table',
 };

@@ -1,22 +1,22 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../constants';
+import { colors, screensName, vh, vw } from '../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../components/atoms/TextAtom';
+} from '../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../components/atoms/TextAtom';
 
 interface Props {
   navigation: NavigationType;
 }
 
-const LMS = (props: Props) => {
+const ClassRoomManagement = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'LMS');
+    Header.setNavigation(navigation, 'Class Room Management');
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,54 +25,26 @@ const LMS = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Training Management',
+      name: 'Time Table',
       onPress: () => {
-        navigation.navigate(screensName.TrainingManagement);
+        navigation.navigate(screensName.TimeTable);
       },
     },
     {
       id: 2,
-      name: 'Trainee Management',
-      onPress: () => {
-        navigation.navigate(screensName.TraineeManagement);
-      },
+      name: 'Bulk Scheduling Manager',
+      onPress: () => {},
     },
     {
       id: 3,
-      name: 'Faculty Management',
+      name: 'Faculty Class Approve',
       onPress: () => {
-        navigation.navigate(screensName.FacultyManagement);
+        navigation.navigate(screensName.FacultyClassApprove);
       },
     },
     {
       id: 4,
-      name: 'Curriculum/Knowledge Management',
-      onPress: () => {
-        navigation.navigate(screensName.CurriculumManagemnet);
-      },
-    },
-    {
-      id: 5,
-      name: 'Class Location Management',
-      onPress: () => {
-        navigation.navigate(screensName.ClassLocationManagement);
-      },
-    },
-    {
-      id: 6,
-      name: 'Class Room Management',
-      onPress: () => {
-        navigation.navigate(screensName.ClassRoomManagement);
-      },
-    },
-    {
-      id: 7,
-      name: 'Assignment',
-      onPress: () => {},
-    },
-    {
-      id: 8,
-      name: 'Examination',
+      name: 'Training Bulk Schedule',
       onPress: () => {},
     },
   ];
@@ -96,7 +68,7 @@ const LMS = (props: Props) => {
   );
 };
 
-export default LMS;
+export default ClassRoomManagement;
 
 const styles = StyleSheet.create({
   container: {

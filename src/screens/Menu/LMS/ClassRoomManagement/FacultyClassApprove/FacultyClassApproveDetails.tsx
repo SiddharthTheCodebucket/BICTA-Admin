@@ -41,11 +41,11 @@ const ImageField = ({ label, uri }: any) => (
   </ViewAtom>
 );
 
-const LocationSubDetailDetails = ({ route, navigation }: any) => {
+const FacultyClassApproveDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Sub Location Details');
+    Header.setNavigation(navigation, 'Faculty Class Approve');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -64,43 +64,68 @@ const LocationSubDetailDetails = ({ route, navigation }: any) => {
         contentContainerStyle={styles.scrollContainer}
       >
         <ViewAtom style={styles.card}>
-          <FieldRow label="Sr. No." value={data?.id} />
+          <FullWidthField label="Training Name" value={data?.trainingName} />
 
-          <FieldRow
-            label="Select Location Name"
-            value={data?.selectLocationName}
+          <FullWidthField
+            label="Days"
+            value={
+              data?.courseStartDate && data?.courseEndDate
+                ? `${moment(data?.courseStartDate).format(
+                    'DD-MM-YYYY',
+                  )} to ${moment(data?.courseEndDate).format('DD-MM-YYYY')}`
+                : '-'
+            }
           />
 
-          <FieldRow label="Sub Location Name" value={data?.subLocationName} />
+          <FieldRow label="Session" value={data?.selectASession} />
+
+          <FullWidthField label="Subject" value={data?.selectSubject} />
+
+          <FullWidthField label="Topic" value={data?.selectTopic} />
+
+          <FullWidthField
+            label="Faculty"
+            value={data?.selectFaculty ? data?.selectFaculty : '-'}
+          />
 
           <FieldRow
-            label="Contact Person"
+            label="F ID"
+            value={data?.selectFacultyId ? data?.selectFacultyId : '-'}
+          />
+
+          <FieldRow label="Status" value={data?.maker} />
+
+          <FieldRow label="Batch No" value={data?.batchNo} />
+
+          <FieldRow
+            label="VC"
+            value={data?.vehicleType ? data?.vehicleType : 'No'}
+          />
+
+          <FullWidthField
+            label="Is Class Photo Uploaded"
             value={
-              data?.subLocationContactPerson
-                ? data?.subLocationContactPerson
-                : data?.contactPerson
+              data?.isClassPhotoUploaded ? data?.isClassPhotoUploaded : '-'
             }
           />
 
           <FieldRow
-            label="Contact No"
+            label="Vehicle"
             value={
-              data?.subLocationContactNo
-                ? data?.subLocationContactNo
-                : data?.contactNo
+              data?.vehicleAmount
+                ? `${data?.vehicleType || ''} - ₹${data?.vehicleAmount}`
+                : '-'
             }
           />
 
-          <FieldRow label="Total Capacity" value={data?.totalCapacity} />
-
-          <FieldRow label="Status" value={data?.status} />
+          <ImageField label="Upload / View Photo" uri={data?.classPhotoUrl} />
         </ViewAtom>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default LocationSubDetailDetails;
+export default FacultyClassApproveDetails;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },

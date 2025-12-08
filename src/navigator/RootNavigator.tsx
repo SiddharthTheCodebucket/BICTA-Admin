@@ -83,6 +83,10 @@ import LocationDetails from '../screens/Menu/LMS/ClassLocationManagement/Locatio
 import LocationDetailDetails from '../screens/Menu/LMS/ClassLocationManagement/LocationDetails/LocationDetailDetails';
 import SubLocationDetails from '../screens/Menu/LMS/ClassLocationManagement/SubLocationDetails';
 import LocationSubDetailDetails from '../screens/Menu/LMS/ClassLocationManagement/SubLocationDetails/LocationSubDetailDetails';
+import ClassRoomManagement from '../screens/Menu/LMS/ClassRoomManagement';
+import TimeTable from '../screens/Menu/LMS/ClassRoomManagement/TimeTable';
+import FacultyClassApprove from '../screens/Menu/LMS/ClassRoomManagement/FacultyClassApprove';
+import FacultyClassApproveDetails from '../screens/Menu/LMS/ClassRoomManagement/FacultyClassApprove/FacultyClassApproveDetails';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -387,6 +391,19 @@ const RootNavigator = () => {
           <RootStackScreen.Screen
             name="LocationSubDetailDetails"
             component={LocationSubDetailDetails}
+          />
+          <RootStackScreen.Screen
+            name="ClassRoomManagement"
+            component={ClassRoomManagement}
+          />
+          <RootStackScreen.Screen name="TimeTable" component={TimeTable} />
+          <RootStackScreen.Screen
+            name="FacultyClassApprove"
+            component={FacultyClassApprove}
+          />
+          <RootStackScreen.Screen
+            name="FacultyClassApproveDetails"
+            component={FacultyClassApproveDetails}
           />
         </RootStackScreen.Group>
         <RootStackScreen.Group

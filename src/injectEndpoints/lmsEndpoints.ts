@@ -297,6 +297,13 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listClassroomTimeTableManage: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_classroom_time_table_manage,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -343,4 +350,5 @@ export const {
   useUpdateClassLocationDetailsMutation,
   useListClassSubLocationDetailsMutation,
   useUpdateClassSubLocationDetailsMutation,
+  useListClassroomTimeTableManageMutation,
 } = apiEndpoints;

@@ -50,6 +50,7 @@ import {
   useDeleteTrainingDetailsMutation,
   useDownloadTrainingCategoryMutation,
   useExtendTrainingEndDateMutation,
+  useListClassroomTimeTableManageMutation,
   useListTrainingDetailsMutation,
   useUpdateTraineeLoginDetailsMutation,
 } from '../../../../../injectEndpoints/lmsEndpoints';
@@ -70,11 +71,11 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const TrainingDetails = (props: Props) => {
+const FacultyClassApprove = (props: Props) => {
   const { navigation } = props;
 
   const [downloadApi] = useDownloadTrainingCategoryMutation();
-  const [listTrainingDetailsApi] = useListTrainingDetailsMutation();
+  const [listTrainingDetailsApi] = useListClassroomTimeTableManageMutation();
   const [addFileNoTrainingDetailsApi] = useAddFileNoTrainingDetailsMutation();
   const [updateTraineeLoginDetailsApi] = useUpdateTraineeLoginDetailsMutation();
   const [extendTrainingEndDateApi] = useExtendTrainingEndDateMutation();
@@ -105,12 +106,8 @@ const TrainingDetails = (props: Props) => {
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
-  const [activeTab, setActiveTab] = useState<
-    'Current Training' | 'Complete Training'
-  >('Current Training');
-
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Training Details');
+    Header.setNavigation(navigation, 'Faculty Class Approve');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -130,7 +127,7 @@ const TrainingDetails = (props: Props) => {
 
   useEffect(() => {
     listTrainingDetais(1, true, search);
-  }, [activeTab]);
+  }, []);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
@@ -157,24 +154,16 @@ const TrainingDetails = (props: Props) => {
     const params: any = {
       search: keyword,
       sort: {
-        attributes: ['created_at'],
+        attributes: ['cmtt.created_at'],
         sorts: ['desc'],
       },
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
-
       bipardCentre: [],
     };
-
     if (centreFilter) {
       params.bipardCentre = centreFilter;
-    }
-
-    if (activeTab === 'Complete Training') {
-      params.isCourseActive = false;
-    } else {
-      params.isCourseActive = true;
     }
 
     listTrainingDetailsApi(params)
@@ -246,12 +235,6 @@ const TrainingDetails = (props: Props) => {
 
         bipardCentre: getCentreFilter() ?? [],
       };
-
-      if (activeTab === 'Complete Training') {
-        params.isCourseActive = false;
-      } else {
-        params.isCourseActive = true;
-      }
 
       listTrainingDetailsApi(params)
         .unwrap()
@@ -421,7 +404,7 @@ const TrainingDetails = (props: Props) => {
     return (
       <TouchableAtom
         onPress={() => {
-          navigation.navigate(screensName.TrainingDetailsScreen, {
+          navigation.navigate(screensName.FacultyClassApproveDetails, {
             data: item,
           });
         }}
@@ -432,7 +415,7 @@ const TrainingDetails = (props: Props) => {
             Sr. No: {index + 1}
           </TextAtom>
           <View style={{ flexDirection: 'row', gap: vw(15) }}>
-            <TouchableAtom
+            {/* <TouchableAtom
               style={{
                 borderWidth: vw(1),
                 borderColor: colors.green,
@@ -456,7 +439,7 @@ const TrainingDetails = (props: Props) => {
                   resizeMode: 'contain',
                 }}
               />
-            </TouchableAtom>
+            </TouchableAtom> */}
 
             {/* <TouchableAtom
               style={{
@@ -505,7 +488,7 @@ const TrainingDetails = (props: Props) => {
               />
             </TouchableAtom> */}
 
-            <TouchableAtom
+            {/* <TouchableAtom
               style={{
                 borderWidth: vw(1),
                 borderColor: colors.red_2,
@@ -520,128 +503,24 @@ const TrainingDetails = (props: Props) => {
                 source={images.delete}
                 style={{ width: vw(15), height: vw(15) }}
               />
-            </TouchableAtom>
+            </TouchableAtom> */}
           </View>
         </View>
 
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Training Category</TextAtom>
+          <TextAtom style={styles.label}>Training Name</TextAtom>
+          <TextAtom style={styles.value}>{item.trainingName || '-'}</TextAtom>
+        </View>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Days</TextAtom>
           <TextAtom style={styles.value}>
-            {item.trainingCategory || '-'}
+            {moment(item.courseStartDate).format('DD-MM-YYYY')}
           </TextAtom>
         </View>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Name</TextAtom>
-          <TextAtom style={styles.value}>
-            {item.trainingFullName || '-'}
-          </TextAtom>
+          <TextAtom style={styles.label}>Session</TextAtom>
+          <TextAtom style={styles.value}>{item.selectASession}</TextAtom>
         </View>
-
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Start Date</TextAtom>
-            <TextAtom style={styles.value}>
-              {moment(item.courseStartDate).format('DD-MM-YYYY')}
-            </TextAtom>
-          </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>End Date</TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {moment(item.courseEndDate).format('DD-MM-YYYY')}
-            </TextAtom>
-          </View>
-        </View>
-        {/* FILE NO SECTION */}
-        <View style={{ marginTop: vh(4) }}>
-          <TextAtom style={styles.label}>File No.</TextAtom>
-
-          {!isEditingFile ? (
-            // SHOW LABEL + EDIT ICON
-            <TouchableAtom
-              style={styles.fileDisplayBox}
-              onPress={() => setIsEditingFile(true)}
-            >
-              <TextAtom style={styles.fileText}>{fileNo}</TextAtom>
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  width: vw(16),
-                  height: vw(16),
-                  tintColor: colors.black,
-                }}
-              />
-            </TouchableAtom>
-          ) : (
-            // SHOW INPUT + ✓ SAVE
-            <View style={styles.fileInputRow}>
-              <TextInput
-                value={fileNo}
-                onChangeText={setFileNo}
-                placeholder="Enter File No"
-                style={styles.fileInput}
-              />
-
-              <TouchableAtom
-                onPress={saveFileNo}
-                disabled={loadingFileSave}
-                style={styles.checkBtn}
-              >
-                <ImageAtom
-                  source={images.tick}
-                  style={{
-                    width: vw(20),
-                    height: vw(20),
-                    tintColor: colors.green,
-                  }}
-                />
-              </TouchableAtom>
-            </View>
-          )}
-        </View>
-
-        {activeTab === 'Complete Training' && (
-          <View style={{ marginTop: vh(4), zIndex: 999 }}>
-            <TextAtom style={styles.label}>Is Login Allowed</TextAtom>
-
-            <TouchableAtom
-              onPress={() => setShowStatusMenu(!showStatusMenu)}
-              style={[
-                styles.statusBox,
-                statusValue === 'Yes' ? styles.activeBox : styles.inActiveBox,
-              ]}
-            >
-              <TextAtom
-                style={[
-                  styles.statusText,
-                  statusValue === 'Yes'
-                    ? styles.activeText
-                    : styles.inActiveText,
-                ]}
-              >
-                {statusValue}
-              </TextAtom>
-              <ImageAtom source={images.downArrow} />
-            </TouchableAtom>
-
-            {showStatusMenu && (
-              <View style={styles.dropMenu}>
-                <TouchableAtom
-                  style={styles.dropItem}
-                  onPress={() => onSelectStatus('Yes')}
-                >
-                  <TextAtom style={{ color: colors.black }}>Yes</TextAtom>
-                </TouchableAtom>
-
-                <TouchableAtom
-                  style={styles.dropItem}
-                  onPress={() => onSelectStatus('No')}
-                >
-                  <TextAtom style={{ color: colors.black }}>No</TextAtom>
-                </TouchableAtom>
-              </View>
-            )}
-          </View>
-        )}
       </TouchableAtom>
     );
   };
@@ -886,21 +765,21 @@ const TrainingDetails = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-
-      <View style={{ height: vh(170) }}>
+      {/* 
+      <View style={{ height: vh(130) }}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View
+ <View
             style={{
               flexDirection: 'row',
               alignSelf: 'flex-end',
             }}
-          >
-            <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
+          > 
+        <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
               <TextAtom style={styles.filterText}>
                 {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
               </TextAtom>
-            </TouchableAtom>
-            <TouchableAtom
+            </TouchableAtom> 
+ <TouchableAtom
               style={styles.filterButton}
               onPress={handleSelectAll}
             >
@@ -958,25 +837,7 @@ const TrainingDetails = (props: Props) => {
             searchBox={{ marginTop: vh(10) }}
           />
         </ScrollView>
-      </View>
-      <View style={styles.tabRow}>
-        {['Current Training', 'Complete Training'].map(tab => (
-          <TouchableAtom
-            key={tab}
-            style={[styles.tabButton, activeTab === tab && styles.activeTab]}
-            onPress={() => setActiveTab(tab as any)}
-          >
-            <TextAtom
-              style={[
-                styles.tabText,
-                activeTab === tab && styles.activeTabText,
-              ]}
-            >
-              {tab}
-            </TextAtom>
-          </TouchableAtom>
-        ))}
-      </View>
+      </View> */}
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -1027,7 +888,7 @@ const TrainingDetails = (props: Props) => {
   );
 };
 
-export default TrainingDetails;
+export default FacultyClassApprove;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
