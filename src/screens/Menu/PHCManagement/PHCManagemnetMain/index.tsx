@@ -1,62 +1,33 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, images, screensName, vh, vw } from '../../constants';
+import { colors, images, screensName, vh, vw } from '../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../components/organisms/HeaderOrganism';
-import TextAtom from '../../components/atoms/TextAtom';
+} from '../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../components/atoms/TextAtom';
 
 interface Props {
   navigation: NavigationType;
 }
 
-const Menu = ({ navigation }: Props) => {
-  const [time, setTime] = useState(new Date());
+const PHCManagemnetMain = (props: Props) => {
+  const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setDashboardHeader(navigation, {
-      time,
-      logo: images.logo,
-      onNotificationPress: () => console.log('Notification Clicked'),
-    });
-  }, [time]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(new Date());
-    }, 1000 * 60);
-    return () => clearInterval(interval);
+    Header.setNavigation(navigation, 'PHC Management');
+    navigation.BackButtonPress = () => {
+      navigation.goBack();
+    };
   }, []);
 
   const DATA = [
     {
       id: 1,
-      name: 'Learning Management System',
+      name: 'Basic Patient Details',
       onPress: () => {
-        navigation.navigate(screensName.LMS);
-      },
-    },
-    {
-      id: 2,
-      name: 'Hostel Management',
-      onPress: () => {
-        navigation.navigate(screensName.HostelManagement);
-      },
-    },
-    {
-      id: 3,
-      name: 'PHC Management System',
-      onPress: () => {
-        navigation.navigate(screensName.PHCManagement);
-      },
-    },
-    {
-      id: 4,
-      name: 'Vehicle Management System',
-      onPress: () => {
-        navigation.navigate(screensName.VehicleManagement);
+        // navigation.navigate(screensName.Hostel);
       },
     },
   ];
@@ -80,7 +51,7 @@ const Menu = ({ navigation }: Props) => {
   );
 };
 
-export default Menu;
+export default PHCManagemnetMain;
 
 const styles = StyleSheet.create({
   container: {

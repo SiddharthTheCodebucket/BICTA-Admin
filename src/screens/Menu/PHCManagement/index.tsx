@@ -1,62 +1,47 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, images, screensName, vh, vw } from '../../constants';
+import { colors, images, screensName, vh, vw } from '../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../components/organisms/HeaderOrganism';
-import TextAtom from '../../components/atoms/TextAtom';
+} from '../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../components/atoms/TextAtom';
 
 interface Props {
   navigation: NavigationType;
 }
 
-const Menu = ({ navigation }: Props) => {
-  const [time, setTime] = useState(new Date());
+const PHCManagement = (props: Props) => {
+  const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setDashboardHeader(navigation, {
-      time,
-      logo: images.logo,
-      onNotificationPress: () => console.log('Notification Clicked'),
-    });
-  }, [time]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(new Date());
-    }, 1000 * 60);
-    return () => clearInterval(interval);
+    Header.setNavigation(navigation, 'PHC Management System');
+    navigation.BackButtonPress = () => {
+      navigation.goBack();
+    };
   }, []);
 
   const DATA = [
     {
       id: 1,
-      name: 'Learning Management System',
+      name: 'PHC Management',
       onPress: () => {
-        navigation.navigate(screensName.LMS);
+        navigation.navigate(screensName.PHCManagemnetMain);
       },
     },
     {
       id: 2,
-      name: 'Hostel Management',
+      name: 'Pharmacy',
       onPress: () => {
-        navigation.navigate(screensName.HostelManagement);
+        navigation.navigate(screensName.Pharmacy);
       },
     },
     {
       id: 3,
-      name: 'PHC Management System',
+      name: 'Trainee BMI',
       onPress: () => {
-        navigation.navigate(screensName.PHCManagement);
-      },
-    },
-    {
-      id: 4,
-      name: 'Vehicle Management System',
-      onPress: () => {
-        navigation.navigate(screensName.VehicleManagement);
+        navigation.navigate(screensName.TraineeBMI);
       },
     },
   ];
@@ -80,7 +65,7 @@ const Menu = ({ navigation }: Props) => {
   );
 };
 
-export default Menu;
+export default PHCManagement;
 
 const styles = StyleSheet.create({
   container: {

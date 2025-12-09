@@ -101,4 +101,8 @@ export default {
   TraineeResponseList: 'TraineeResponseList',
   ExamResponseDetailsListTrainee: 'ExamResponseDetailsListTrainee',
   ExamResponseSheet: 'ExamResponseSheet',
+  PHCManagement: 'PHCManagement',
+  PHCManagemnetMain: 'PHCManagemnetMain',
+  Pharmacy: 'Pharmacy',
+  TraineeBMI: 'TraineeBMI',
 };

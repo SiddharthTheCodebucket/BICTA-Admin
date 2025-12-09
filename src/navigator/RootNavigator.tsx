@@ -106,6 +106,10 @@ import ExamResponse from '../screens/Menu/LMS/Examination/ExamResponse';
 import TraineeResponseList from '../screens/Menu/LMS/Examination/ExamResponse/TraineeResponseList';
 import ExamResponseDetailsListTrainee from '../screens/Menu/LMS/Examination/ExamResponse/ExamResponseDetailsListTrainee';
 import ExamResponseSheet from '../screens/Menu/LMS/Examination/ExamResponse/ExamResponseSheet';
+import PHCManagement from '../screens/Menu/PHCManagement';
+import PHCManagemnetMain from '../screens/Menu/PHCManagement/PHCManagemnetMain';
+import Pharmacy from '../screens/Menu/PHCManagement/Pharmacy';
+import TraineeBMI from '../screens/Menu/PHCManagement/TraineeBMI';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -488,6 +492,16 @@ const RootNavigator = () => {
             name="ExamResponseSheet"
             component={ExamResponseSheet}
           />
+          <RootStackScreen.Screen
+            name="PHCManagement"
+            component={PHCManagement}
+          />
+          <RootStackScreen.Screen
+            name="PHCManagemnetMain"
+            component={PHCManagemnetMain}
+          />
+          <RootStackScreen.Screen name="Pharmacy" component={Pharmacy} />
+          <RootStackScreen.Screen name="TraineeBMI" component={TraineeBMI} />
         </RootStackScreen.Group>
         <RootStackScreen.Group
           screenOptions={{
