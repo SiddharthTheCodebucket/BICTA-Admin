@@ -346,6 +346,62 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listAssessmentCreateTest: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_assessment_create_test,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateAssessmentCreateTest: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_assessment_create_test,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listAssessmentTestAssignQuestion: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_assessment_test_assign_question,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    examQuestionOrderRandomization: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.exam_question_order_randomization,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listAssessmentQuestionBank: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_assessment_question_bank,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listExaminationSubmissionTestList: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_examination_submission_test_list,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listExaminationSubmissionReport: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_examination_submission_report,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listExaminationSubmissionAnswer: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_examination_submission_answer,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -399,4 +455,12 @@ export const {
   useUpdateAssessmentAssignmentMutation,
   useListAssignmentResponseReportMutation,
   useListAssignmentResponseMutation,
+  useListAssessmentCreateTestMutation,
+  useUpdateAssessmentCreateTestMutation,
+  useListAssessmentTestAssignQuestionMutation,
+  useExamQuestionOrderRandomizationMutation,
+  useListAssessmentQuestionBankMutation,
+  useListExaminationSubmissionTestListMutation,
+  useListExaminationSubmissionReportMutation,
+  useListExaminationSubmissionAnswerMutation,
 } = apiEndpoints;

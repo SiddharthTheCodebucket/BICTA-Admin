@@ -1,22 +1,22 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../constants';
+import { colors, screensName, vh, vw } from '../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../components/atoms/TextAtom';
+} from '../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../components/atoms/TextAtom';
 
 interface Props {
   navigation: NavigationType;
 }
 
-const LMS = (props: Props) => {
+const Examination = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'LMS');
+    Header.setNavigation(navigation, 'Examination');
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,58 +25,30 @@ const LMS = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Training Management',
+      name: 'Create Test',
       onPress: () => {
-        navigation.navigate(screensName.TrainingManagement);
+        navigation.navigate(screensName.CreateTest);
       },
     },
     {
       id: 2,
-      name: 'Trainee Management',
+      name: 'Assign Question',
       onPress: () => {
-        navigation.navigate(screensName.TraineeManagement);
+        navigation.navigate(screensName.AssignQuestionList);
       },
     },
     {
       id: 3,
-      name: 'Faculty Management',
+      name: 'Question',
       onPress: () => {
-        navigation.navigate(screensName.FacultyManagement);
+        navigation.navigate(screensName.ExaminationQuestionBank);
       },
     },
     {
       id: 4,
-      name: 'Curriculum/Knowledge Management',
+      name: 'Exam Response',
       onPress: () => {
-        navigation.navigate(screensName.CurriculumManagemnet);
-      },
-    },
-    {
-      id: 5,
-      name: 'Class Location Management',
-      onPress: () => {
-        navigation.navigate(screensName.ClassLocationManagement);
-      },
-    },
-    {
-      id: 6,
-      name: 'Class Room Management',
-      onPress: () => {
-        navigation.navigate(screensName.ClassRoomManagement);
-      },
-    },
-    {
-      id: 7,
-      name: 'Assignment',
-      onPress: () => {
-        navigation.navigate(screensName.Assignment);
-      },
-    },
-    {
-      id: 8,
-      name: 'Examination',
-      onPress: () => {
-        navigation.navigate(screensName.Examination);
+        navigation.navigate(screensName.ExamResponse);
       },
     },
   ];
@@ -100,7 +72,7 @@ const LMS = (props: Props) => {
   );
 };
 
-export default LMS;
+export default Examination;
 
 const styles = StyleSheet.create({
   container: {

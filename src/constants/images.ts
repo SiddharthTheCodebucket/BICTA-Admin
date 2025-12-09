@@ -31,4 +31,5 @@ export default {
   download: require('../assets/images/download.png'),
   link: require('../assets/images/link.png'),
   extended: require('../assets/images/extended.png'),
+  random: require('../assets/images/random.png'),
 };

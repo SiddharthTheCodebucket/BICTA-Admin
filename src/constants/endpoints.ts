@@ -123,4 +123,14 @@ export default {
   update_assessment_assignment: 'lms/update-assessment-assignment',
   list_assignment_response_report: 'lms/list-assignment-response-report',
   list_assignment_response: 'lms/list-assignment-response',
+  list_assessment_create_test: 'lms/list-assessment-create-test',
+  update_assessment_create_test: 'lms/update-assessment-create-test',
+  list_assessment_test_assign_question:
+    'lms/list-assessment-test-assign-question',
+  exam_question_order_randomization: 'lms/exam-question-order-randomization',
+  list_assessment_question_bank: 'lms/list-assessment-question-bank',
+  list_examination_submission_test_list:
+    'lms/list-examination-submission-test-list',
+  list_examination_submission_report: 'lms/list-examination-submission-report',
+  list_examination_submission_answer: 'lms/list-examination-submission-answer',
 };

@@ -96,6 +96,16 @@ import AssignmentDetailsList from '../screens/Menu/LMS/Assignment/AssignmentsDet
 import AssignmentResponse from '../screens/Menu/LMS/Assignment/AssignmentResponse';
 import AssignmentRessponseDetails from '../screens/Menu/LMS/Assignment/AssignmentResponse/AssignmentRessponseDetails';
 import AssessmentDetails from '../screens/Menu/LMS/Assignment/AssignmentsDetails/AssessmentDetails';
+import Examination from '../screens/Menu/LMS/Examination';
+import CreateTest from '../screens/Menu/LMS/Examination/CreateTest';
+import TestDetailsList from '../screens/Menu/LMS/Examination/CreateTest/TestDetailsList';
+import AssignQuestionList from '../screens/Menu/LMS/Examination/AssignQuestion';
+import ExaminationQuestionBank from '../screens/Menu/LMS/Examination/ExaminationQuestionBank';
+import ExaminationQuestionBankDetails from '../screens/Menu/LMS/Examination/ExaminationQuestionBank/ExaminationQuestionBankDetails';
+import ExamResponse from '../screens/Menu/LMS/Examination/ExamResponse';
+import TraineeResponseList from '../screens/Menu/LMS/Examination/ExamResponse/TraineeResponseList';
+import ExamResponseDetailsListTrainee from '../screens/Menu/LMS/Examination/ExamResponse/ExamResponseDetailsListTrainee';
+import ExamResponseSheet from '../screens/Menu/LMS/Examination/ExamResponse/ExamResponseSheet';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -443,6 +453,40 @@ const RootNavigator = () => {
           <RootStackScreen.Screen
             name="AssessmentDetails"
             component={AssessmentDetails}
+          />
+          <RootStackScreen.Screen name="Examination" component={Examination} />
+          <RootStackScreen.Screen name="CreateTest" component={CreateTest} />
+          <RootStackScreen.Screen
+            name="TestDetailsList"
+            component={TestDetailsList}
+          />
+          <RootStackScreen.Screen
+            name="AssignQuestionList"
+            component={AssignQuestionList}
+          />
+          <RootStackScreen.Screen
+            name="ExaminationQuestionBank"
+            component={ExaminationQuestionBank}
+          />
+          <RootStackScreen.Screen
+            name="ExaminationQuestionBankDetails"
+            component={ExaminationQuestionBankDetails}
+          />
+          <RootStackScreen.Screen
+            name="ExamResponse"
+            component={ExamResponse}
+          />
+          <RootStackScreen.Screen
+            name="TraineeResponseList"
+            component={TraineeResponseList}
+          />
+          <RootStackScreen.Screen
+            name="ExamResponseDetailsListTrainee"
+            component={ExamResponseDetailsListTrainee}
+          />
+          <RootStackScreen.Screen
+            name="ExamResponseSheet"
+            component={ExamResponseSheet}
           />
         </RootStackScreen.Group>
         <RootStackScreen.Group
