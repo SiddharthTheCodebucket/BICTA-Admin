@@ -1,4 +1,5 @@
 import React, {
+  createRef,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -14,6 +15,7 @@ import {
   ScrollView,
   TextInput,
   Modal,
+  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -55,6 +57,8 @@ import {
   useUpdateTraineeLoginDetailsMutation,
 } from '../../../../../injectEndpoints/lmsEndpoints';
 import FloatingButton from '../../../../../components/organisms/FloatingButton';
+import TextInputOrganisms from '../../../../../components/organisms/TextInputOrganisms';
+import { useCommonDropdownListMutation } from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
   route: any;
@@ -73,13 +77,14 @@ const debounce = (func: any, delay: number) => {
 
 const FacultyClassApprove = (props: Props) => {
   const { navigation } = props;
-
+  const input1_ref: any = createRef();
   const [downloadApi] = useDownloadTrainingCategoryMutation();
   const [listTrainingDetailsApi] = useListClassroomTimeTableManageMutation();
   const [addFileNoTrainingDetailsApi] = useAddFileNoTrainingDetailsMutation();
   const [updateTraineeLoginDetailsApi] = useUpdateTraineeLoginDetailsMutation();
   const [extendTrainingEndDateApi] = useExtendTrainingEndDateMutation();
   const [deleteTrainingDetailsApi] = useDeleteTrainingDetailsMutation();
+  const [dropDownApi] = useCommonDropdownListMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -101,10 +106,21 @@ const FacultyClassApprove = (props: Props) => {
   const [startDate, setStartDate] = useState<any>('');
   const [endDate, setEndDate] = useState<any>('');
 
+  const [trainingStartLimit, setTrainingStartLimit] = useState<any>(null);
+  const [trainingEndLimit, setTrainingEndLimit] = useState<any>(null);
+
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
+
+  const [selectedBipardLocation, setSelectedBipardLocation] = useState<any>({});
+  const [trainingNameList, setTrainingNameList] = useState<any>({});
+  const [bacthNameList, setBacthNameList] = useState<any>({});
+  const [selectedTrainingName, setSelectedTrainingName] = useState<any>({});
+  const [selectedBacthName, setSelectedBacthName] = useState<any>({});
+  const [selectedTrainingDuration, setSelectedTrainingDuration] =
+    useState<any>('');
 
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'Faculty Class Approve');
@@ -535,8 +551,148 @@ const FacultyClassApprove = (props: Props) => {
       />
     );
   };
+
+  const getTrainingNameList = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      listType: 'classroom_management_select_training_name',
+      bipardCentre: [id],
+      replacements: ['%%'],
+    };
+    dropDownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        setTrainingNameList(res.data);
+        setInitialCall(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+        });
+      });
+  };
+  const getBatchList = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      listType: 'classroom_management_select_batch_name',
+      bipardCentre: [selectedBipardLocation.name],
+      replacements: ['%%', id],
+    };
+    dropDownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        setBacthNameList(res.data);
+        setInitialCall(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+        });
+      });
+  };
+
+  const getTrainingDuration = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      listType: 'classroom_management_select_training_duration',
+      bipardCentre: ['Gaya'],
+      replacements: [id],
+    };
+    dropDownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        const startMoment = moment(res.data[0].courseStartDate, 'YYYY-MM-DD');
+        const endMoment = moment(res.data[0].courseEndDate, 'YYYY-MM-DD');
+
+        const startStr = startMoment.format('DD-MM-YYYY');
+        const endStr = endMoment.format('DD-MM-YYYY');
+
+        const data = `${startStr} - ${endStr}`;
+        setSelectedTrainingDuration(data);
+
+        setTrainingStartLimit(startMoment.toDate());
+        setTrainingEndLimit(endMoment.toDate());
+
+        setInitialCall(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+        });
+      });
+  };
   const FilterForm = () => (
     <View style={styles.filterContainer}>
+      <DropDownOrganism
+        label={'Bipard Location'}
+        placeholder={'Bipard Location'}
+        onPress={() => {
+          navigation.navigate('DropDownModal', {
+            name: 'Bipard Location',
+            Data: [
+              { id: 'Gaya', name: 'Gaya' },
+              { id: 'Patna', name: 'Patna' },
+            ],
+            selectedData: selectedBipardLocation,
+            setSelectedData: (data: any) => {
+              setSelectedBipardLocation(data);
+              getTrainingNameList(data.name);
+              setSelectedTrainingName({});
+              setSelectedBacthName({});
+              setStartDate('');
+              setSelectedTrainingDuration('');
+            },
+            typeName: 'name',
+            typeId: 'id',
+          });
+        }}
+        inputText={selectedBipardLocation?.name}
+      />
+      <DropDownOrganism
+        label={'Training Name'}
+        placeholder={'Training Name'}
+        onPress={() => {
+          navigation.navigate('DropDownModal', {
+            name: 'Training Name',
+            Data: trainingNameList,
+            selectedData: selectedTrainingName,
+            setSelectedData: (data: any) => {
+              setSelectedTrainingName(data);
+              getBatchList(data.id);
+              getTrainingDuration(data.id);
+              setSelectedBacthName({});
+              setStartDate('');
+              setSelectedTrainingDuration('');
+            },
+            typeName: 'name',
+            typeId: 'id',
+          });
+        }}
+        inputText={selectedTrainingName?.name}
+      />
+      <DropDownOrganism
+        label={'Batch Name'}
+        placeholder={'Batch Name'}
+        onPress={() => {
+          navigation.navigate('DropDownModal', {
+            name: 'Batch Name',
+            Data: bacthNameList,
+            selectedData: selectedBacthName,
+            setSelectedData: (data: any) => {
+              setSelectedBacthName(data);
+            },
+            typeName: 'name',
+            typeId: 'id',
+          });
+        }}
+        inputText={selectedBacthName?.name}
+      />
       <DateInputOrganism
         label={'Start Date'}
         placeholder={'Start Date'}
@@ -546,16 +702,20 @@ const FacultyClassApprove = (props: Props) => {
         }}
         fieldName={'date'}
         dateFormat="DD-MM-YYYY"
+        minDate={trainingStartLimit}
+        maxDate={trainingEndLimit}
       />
-      <DateInputOrganism
-        label={'End Date'}
-        placeholder={'End Date'}
-        value={endDate}
-        onChangeText={(val: any) => {
-          setEndDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
+      <TextInputOrganisms
+        label={'Duration'}
+        placeholder={'Duration'}
+        ref={input1_ref}
+        onSubmitEditing={() => Keyboard.dismiss()}
+        value={selectedTrainingDuration}
+        autoCapitalize={'none'}
+        returnKeyType={'next'}
+        onChangeText={(val: string) => {}}
+        disabled
+        editable={false}
       />
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
@@ -573,24 +733,29 @@ const FacultyClassApprove = (props: Props) => {
     </View>
   );
   const clearFilter = () => {
+    setSelectedBipardLocation({});
+    setSelectedTrainingName({});
+    setSelectedBacthName({});
     setStartDate('');
-    setEndDate('');
+    setSelectedTrainingDuration('');
     listTrainingDetais(1, true, search, []);
   };
 
   const applyFilter = (isExport = false) => {
     const filters = [];
 
+    if (selectedTrainingName?.id) {
+      filters.push(['trainingNameId', '=', selectedTrainingName?.id]);
+    }
+    if (selectedBacthName?.id) {
+      filters.push(['batchNoId', '=', selectedBacthName?.id]);
+    }
     if (startDate) {
       const formatted = moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
-      filters.push(['courseStartDate', '>=', formatted]);
-    }
-
-    if (endDate) {
-      const formatted = moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
-      filters.push(['courseEndDate', '<=', formatted]);
+      filters.push(['date', '=', formatted]);
     }
     listTrainingDetais(1, true, search, filters);
+    setShowFilter(false);
   };
 
   const DateExtendModal = () => {
@@ -765,6 +930,11 @@ const FacultyClassApprove = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
+      <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
+        <TextAtom style={styles.filterText}>
+          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+        </TextAtom>
+      </TouchableAtom>
       {/* 
       <View style={{ height: vh(130) }}>
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -849,6 +1019,7 @@ const FacultyClassApprove = (props: Props) => {
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
           ) : null
         }
+        ListHeaderComponent={showFilter ? <FilterForm /> : null}
         ListFooterComponent={
           <ActivityIndicator
             size={'small'}
