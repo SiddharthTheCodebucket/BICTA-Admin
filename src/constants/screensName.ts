@@ -82,4 +82,13 @@ export default {
   TimeTable: 'TimeTable',
   FacultyClassApprove: 'FacultyClassApprove',
   FacultyClassApproveDetails: 'FacultyClassApproveDetails',
+  Assignment: 'Assignment',
+  Question: 'Question',
+  QuestionBankDetails: 'QuestionBankDetails',
+  AssignQuestion: 'AssignQuestion',
+  AssignmentsDetails: 'AssignmentsDetails',
+  AssignmentDetailsList: 'AssignmentDetailsList',
+  AssignmentResponse: 'AssignmentResponse',
+  AssignmentRessponseDetails: 'AssignmentRessponseDetails',
+  AssessmentDetails: 'AssessmentDetails',
 };

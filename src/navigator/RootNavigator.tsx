@@ -87,6 +87,15 @@ import ClassRoomManagement from '../screens/Menu/LMS/ClassRoomManagement';
 import TimeTable from '../screens/Menu/LMS/ClassRoomManagement/TimeTable';
 import FacultyClassApprove from '../screens/Menu/LMS/ClassRoomManagement/FacultyClassApprove';
 import FacultyClassApproveDetails from '../screens/Menu/LMS/ClassRoomManagement/FacultyClassApprove/FacultyClassApproveDetails';
+import Assignment from '../screens/Menu/LMS/Assignment';
+import Question from '../screens/Menu/LMS/Assignment/Question';
+import QuestionBankDetails from '../screens/Menu/LMS/Assignment/Question/QuestionBankDetails';
+import AssignQuestion from '../screens/Menu/LMS/Assignment/AssignQuestion';
+import AssignmentsDetails from '../screens/Menu/LMS/Assignment/AssignmentsDetails';
+import AssignmentDetailsList from '../screens/Menu/LMS/Assignment/AssignmentsDetails/AssignmentDetailsList';
+import AssignmentResponse from '../screens/Menu/LMS/Assignment/AssignmentResponse';
+import AssignmentRessponseDetails from '../screens/Menu/LMS/Assignment/AssignmentResponse/AssignmentRessponseDetails';
+import AssessmentDetails from '../screens/Menu/LMS/Assignment/AssignmentsDetails/AssessmentDetails';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -404,6 +413,36 @@ const RootNavigator = () => {
           <RootStackScreen.Screen
             name="FacultyClassApproveDetails"
             component={FacultyClassApproveDetails}
+          />
+          <RootStackScreen.Screen name="Assignment" component={Assignment} />
+          <RootStackScreen.Screen name="Question" component={Question} />
+          <RootStackScreen.Screen
+            name="QuestionBankDetails"
+            component={QuestionBankDetails}
+          />
+          <RootStackScreen.Screen
+            name="AssignQuestion"
+            component={AssignQuestion}
+          />
+          <RootStackScreen.Screen
+            name="AssignmentsDetails"
+            component={AssignmentsDetails}
+          />
+          <RootStackScreen.Screen
+            name="AssignmentDetailsList"
+            component={AssignmentDetailsList}
+          />
+          <RootStackScreen.Screen
+            name="AssignmentResponse"
+            component={AssignmentResponse}
+          />
+          <RootStackScreen.Screen
+            name="AssignmentRessponseDetails"
+            component={AssignmentRessponseDetails}
+          />
+          <RootStackScreen.Screen
+            name="AssessmentDetails"
+            component={AssessmentDetails}
           />
         </RootStackScreen.Group>
         <RootStackScreen.Group

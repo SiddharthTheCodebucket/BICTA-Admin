@@ -1,22 +1,22 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../constants';
+import { colors, screensName, vh, vw } from '../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../components/atoms/TextAtom';
+} from '../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../components/atoms/TextAtom';
 
 interface Props {
   navigation: NavigationType;
 }
 
-const LMS = (props: Props) => {
+const Assignment = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'LMS');
+    Header.setNavigation(navigation, 'Assignment');
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,57 +25,31 @@ const LMS = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Training Management',
+      name: 'Question',
       onPress: () => {
-        navigation.navigate(screensName.TrainingManagement);
+        navigation.navigate(screensName.Question);
       },
     },
     {
       id: 2,
-      name: 'Trainee Management',
+      name: 'Assignments Details',
       onPress: () => {
-        navigation.navigate(screensName.TraineeManagement);
+        navigation.navigate(screensName.AssignmentsDetails);
       },
     },
     {
       id: 3,
-      name: 'Faculty Management',
+      name: 'Assign Question',
       onPress: () => {
-        navigation.navigate(screensName.FacultyManagement);
+        navigation.navigate(screensName.AssignQuestion);
       },
     },
     {
       id: 4,
-      name: 'Curriculum/Knowledge Management',
+      name: 'Assignments Response',
       onPress: () => {
-        navigation.navigate(screensName.CurriculumManagemnet);
+        navigation.navigate(screensName.AssignmentResponse);
       },
-    },
-    {
-      id: 5,
-      name: 'Class Location Management',
-      onPress: () => {
-        navigation.navigate(screensName.ClassLocationManagement);
-      },
-    },
-    {
-      id: 6,
-      name: 'Class Room Management',
-      onPress: () => {
-        navigation.navigate(screensName.ClassRoomManagement);
-      },
-    },
-    {
-      id: 7,
-      name: 'Assignment',
-      onPress: () => {
-        navigation.navigate(screensName.Assignment);
-      },
-    },
-    {
-      id: 8,
-      name: 'Examination',
-      onPress: () => {},
     },
   ];
 
@@ -98,7 +72,7 @@ const LMS = (props: Props) => {
   );
 };
 
-export default LMS;
+export default Assignment;
 
 const styles = StyleSheet.create({
   container: {

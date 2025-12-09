@@ -116,4 +116,11 @@ export default {
   list_class_sub_location_details: 'lms/list-class-sub-locations-details',
   update_class_sub_location_details: 'lms/update-class-sub-locations-details',
   list_classroom_time_table_manage: 'lms/list-classroom-management-time-table',
+  list_assignment_question_bank: 'lms/list-assignment-question-bank',
+  list_assessment_assignment_assign_que:
+    'lms/list-assessment-assignment-assign-question',
+  list_assessment_assignment: 'lms/list-assessment-assignment',
+  update_assessment_assignment: 'lms/update-assessment-assignment',
+  list_assignment_response_report: 'lms/list-assignment-response-report',
+  list_assignment_response: 'lms/list-assignment-response',
 };

@@ -304,6 +304,48 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listAssignmentQuestionBank: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_assignment_question_bank,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listAssessmentAssignmentAssignQue: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_assessment_assignment_assign_que,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listAssessmentAssignment: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_assessment_assignment,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateAssessmentAssignment: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_assessment_assignment,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listAssignmentResponseReport: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_assignment_response_report,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    listAssignmentResponse: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_assignment_response,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -351,4 +393,10 @@ export const {
   useListClassSubLocationDetailsMutation,
   useUpdateClassSubLocationDetailsMutation,
   useListClassroomTimeTableManageMutation,
+  useListAssignmentQuestionBankMutation,
+  useListAssessmentAssignmentAssignQueMutation,
+  useListAssessmentAssignmentMutation,
+  useUpdateAssessmentAssignmentMutation,
+  useListAssignmentResponseReportMutation,
+  useListAssignmentResponseMutation,
 } = apiEndpoints;
