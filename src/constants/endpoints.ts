@@ -141,4 +141,5 @@ export default {
   list_medicine_batch: 'phc/list-medicine-batch',
   list_pharmacy_report: 'phc/pharmacy-report',
   list_trainee_bmi: 'phc/list-trainee-bmi',
+  list_patient_symptoms_details: 'phc/list-patient-symptoms-details',
 };

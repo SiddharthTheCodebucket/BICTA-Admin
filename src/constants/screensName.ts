@@ -113,4 +113,6 @@ export default {
   StockReport: 'StockReport',
   BMI: 'BMI',
   BMIDetails: 'BMIDetails',
+  BasicPatientDetails: 'BasicPatientDetails',
+  PatientDetailDetails: 'PatientDetailDetails',
 };

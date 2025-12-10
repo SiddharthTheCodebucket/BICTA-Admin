@@ -27,7 +27,7 @@ const PHCManagemnetMain = (props: Props) => {
       id: 1,
       name: 'Basic Patient Details',
       onPress: () => {
-        // navigation.navigate(screensName.Hostel);
+        navigation.navigate(screensName.BasicPatientDetails);
       },
     },
   ];
