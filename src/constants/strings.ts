@@ -41,6 +41,7 @@ export default {
   close: 'Close',
   username: 'Username',
   password: 'Password',
+  role_required: 'Role is required',
   username_required: 'Username is required',
   password_required: 'Password is required',
   sign_in_button: 'Sign In',

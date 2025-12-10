@@ -1,5 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { StyleSheet, View, FlatList, LayoutAnimation } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  LayoutAnimation,
+  RefreshControl,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, vw, vh, images, screensName } from '../../../constants';
 import TextAtom from '../../../components/atoms/TextAtom';
@@ -22,6 +28,7 @@ const AllHostel = (props: any) => {
   const { navigation } = props;
   const selectedCenter = props.route?.params?.selectedCenter;
   const [loader, setLoader] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [reportData, setReportData] = useState<any[]>([]);
   const [exportUrlPdf, setExportUrlPdf] = useState('');
   const [showFilter, setShowFilter] = useState(false);
@@ -71,8 +78,10 @@ const AllHostel = (props: any) => {
     });
   };
 
-  const fetchHostelData = () => {
-    setLoader(true);
+  const fetchHostelData = (isRefreshing = false) => {
+    if (!isRefreshing) {
+      setLoader(true);
+    }
 
     let params: any = {
       trainingCentre: 'all',
@@ -91,10 +100,12 @@ const AllHostel = (props: any) => {
         setReportData(list);
         calculateSummary(list);
         setExportUrlPdf(res?.data?.exportUrlPdf || []);
-        setLoader(false);
+        if (isRefreshing) setRefreshing(false);
+        else setLoader(false);
       })
       .catch(() => {
-        setLoader(false);
+        if (isRefreshing) setRefreshing(false);
+        else setLoader(false);
         Toast.show({ type: 'error', text2: 'Something went wrong' });
       });
   };
@@ -286,6 +297,14 @@ const AllHostel = (props: any) => {
       });
   };
 
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchHostelData(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  };
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
@@ -328,6 +347,14 @@ const AllHostel = (props: any) => {
         }
         ListEmptyComponent={
           <TextAtom style={styles.emptyText}>No Data Found</TextAtom>
+        }
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
         }
       />
     </SafeAreaView>

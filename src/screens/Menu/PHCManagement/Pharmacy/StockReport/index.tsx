@@ -230,14 +230,7 @@ const StockReport = (props: Props) => {
         : null;
 
     return (
-      <TouchableAtom
-        style={styles.card}
-        onPress={() => {
-          navigation.navigate(screensName.PatientDetails, {
-            data: item,
-          });
-        }}
-      >
+      <ViewAtom style={styles.card}>
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
             Sr. No: {index + 1}
@@ -278,7 +271,7 @@ const StockReport = (props: Props) => {
             </TextAtom>
           </View>
         </View>
-      </TouchableAtom>
+      </ViewAtom>
     );
   };
 

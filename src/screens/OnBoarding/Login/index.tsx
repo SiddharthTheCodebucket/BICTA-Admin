@@ -32,11 +32,12 @@ import ViewAtom from '../../../components/atoms/ViewAtom';
 import { useUserLoginMutation } from '../../../injectEndpoints/onboardingEndpoints';
 import { saveCrediantial, saveToken } from '../../../features/Auth/authSlice';
 import Router from '../../../navigator/routes';
-import { BASE_URL } from '../../../config';
+import DropDownOrganism from '../../../components/organisms/DropDownOrganism';
 
 const errorInitialData = {
   username: '',
   password: '',
+  'role.id': '',
 };
 
 interface Props {
@@ -52,6 +53,10 @@ const Login = (props: Props) => {
 
   const [userLoginApi] = useUserLoginMutation();
 
+  const [role, setRole] = useState<any>({
+    id: 'NON-TRAINEE',
+    name: 'BIPARD Officials',
+  });
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(errorInitialData);
@@ -60,9 +65,11 @@ const Login = (props: Props) => {
 
   useEffect(() => {
     const loadRememberedCredentials = async () => {
+      const storedUserRole = await AsyncStorage.getItem('rememberedUserRole');
       const storedUsername = await AsyncStorage.getItem('rememberedUsername');
       const storedPassword = await AsyncStorage.getItem('rememberedPassword');
-      if (storedUsername && storedPassword) {
+      if (storedUserRole && storedUsername && storedPassword) {
+        setRole(storedUserRole);
         setUsername(storedUsername);
         setPassword(storedPassword);
         setIsRemembered(true);
@@ -76,8 +83,12 @@ const Login = (props: Props) => {
       const accountInfoSchema = Yup.object().shape({
         password: Yup.string().required(strings.password_required),
         username: Yup.string().required(strings.username_required),
+        role: Yup.object({
+          id: Yup.string().required(strings.role_required),
+        }),
       });
       accountInfoSchema.validateSync({
+        role: role,
         username: username,
         password: password,
       });
@@ -94,7 +105,7 @@ const Login = (props: Props) => {
 
   const login = () => {
     setLoader(true);
-    const params = { login: username, password };
+    const params = { login: username, password, loginType: role.id };
     userLoginApi(params)
       .unwrap()
       .then((res: any) => {
@@ -112,8 +123,6 @@ const Login = (props: Props) => {
         });
       });
   };
-
-  console.log('BASE URL==>', BASE_URL);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -144,7 +153,30 @@ const Login = (props: Props) => {
             {strings.welcome_to_bipard_erp}
           </TextAtom>
           <TextAtom style={styles.signInText}>{strings.sign_in}</TextAtom>
-
+          <DropDownOrganism
+            label="Role"
+            placeholder="Role"
+            onPress={() => {
+              navigation.navigate('DropDownModal', {
+                name: 'Role',
+                Data: [
+                  { id: 'TRAINEE', name: 'Trainee' },
+                  { id: 'NON-TRAINEE', name: 'BIPARD Officials' },
+                ],
+                selectedData: role,
+                setSelectedData: (data: any) => {
+                  setRole(data);
+                  setError({ ...error, 'role.id': '' });
+                },
+                typeName: 'name',
+                typeId: 'id',
+              });
+            }}
+            inputText={role?.name}
+            isMandatory
+            errorMessage={error['role.id']}
+            isDisabled={true}
+          />
           <TextInputOrganisms
             label={strings.username}
             placeholder={strings.username}

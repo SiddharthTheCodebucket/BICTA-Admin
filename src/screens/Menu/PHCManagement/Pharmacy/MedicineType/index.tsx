@@ -40,6 +40,7 @@ import {
 } from '../../../../../injectEndpoints/phcEndpoints';
 import ImageAtom from '../../../../../components/atoms/ImageAtom';
 import { isNullUndefined } from '../../../../../utils/CommonFunction';
+import ViewAtom from '../../../../../components/atoms/ViewAtom';
 
 interface Props {
   route: any;
@@ -183,14 +184,7 @@ const MedicineType = (props: Props) => {
 
   const BedCard = ({ item, index, navigation }: any) => {
     return (
-      <TouchableAtom
-        style={styles.card}
-        onPress={() => {
-          navigation.navigate(screensName.TraineeResponseList, {
-            data: item,
-          });
-        }}
-      >
+      <ViewAtom style={styles.card}>
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
             Sr. No: {index + 1}
@@ -203,7 +197,7 @@ const MedicineType = (props: Props) => {
           <TextAtom style={styles.label}>Medicine Type</TextAtom>
           <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
         </View>
-      </TouchableAtom>
+      </ViewAtom>
     );
   };
 

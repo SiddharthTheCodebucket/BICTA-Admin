@@ -579,6 +579,7 @@ const TrainingDetails = (props: Props) => {
                 onChangeText={setFileNo}
                 placeholder="Enter File No"
                 style={styles.fileInput}
+                placeholderTextColor={colors.grey}
               />
 
               <TouchableAtom

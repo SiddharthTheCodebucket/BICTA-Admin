@@ -29,12 +29,14 @@ import {
   useForgotPasswordSetNewPassMutation,
 } from '../../../injectEndpoints/onboardingEndpoints';
 import ViewAtom from '../../../components/atoms/ViewAtom';
+import DropDownOrganism from '../../../components/organisms/DropDownOrganism';
 
 interface Props {
   navigation: NavigationType;
 }
 
 const errorInitialData = {
+  'role.id': '',
   username: '',
   otp: '',
   newPassword: '',
@@ -55,6 +57,10 @@ const ForgotPassword = (props: Props) => {
     };
   });
 
+  const [role, setRole] = useState<any>({
+    id: 'NON-TRAINEE',
+    name: 'BIPARD Officials',
+  });
   const [username, setUsername] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -111,6 +117,7 @@ const ForgotPassword = (props: Props) => {
     const params = {
       userName: username,
       apiFor: 'SEND_OTP',
+      loginType: role.id,
     };
     forgotPasswordOtpApi(params)
       .unwrap()
@@ -139,6 +146,7 @@ const ForgotPassword = (props: Props) => {
       userName: username,
       apiFor: 'VERIFY_OTP',
       otp: Number(otp),
+      loginType: role.id,
     };
     forgotPasswordOtpVerifyApi(params)
       .unwrap()
@@ -169,6 +177,7 @@ const ForgotPassword = (props: Props) => {
       apiFor: 'RESET_PASSWORD',
       newPassword: newPassword,
       confirmNewPassword: confirmPassword,
+      loginType: role.id,
     };
     forgotPasswordSetNewApi(params)
       .unwrap()
@@ -228,7 +237,30 @@ const ForgotPassword = (props: Props) => {
           <TextAtom style={styles.signInText}>
             {strings.forgot_password_title}
           </TextAtom>
-
+          <DropDownOrganism
+            label="Role"
+            placeholder="Role"
+            onPress={() => {
+              navigation.navigate('DropDownModal', {
+                name: 'Role',
+                Data: [
+                  { id: 'TRAINEE', name: 'Trainee' },
+                  { id: 'NON-TRAINEE', name: 'BIPARD Officials' },
+                ],
+                selectedData: role,
+                setSelectedData: (data: any) => {
+                  setRole(data);
+                  setError({ ...error, 'role.id': '' });
+                },
+                typeName: 'name',
+                typeId: 'id',
+              });
+            }}
+            inputText={role?.name}
+            isMandatory
+            errorMessage={error['role.id']}
+            isDisabled
+          />
           <TextInputOrganisms
             label={strings.username}
             placeholder={strings.username}

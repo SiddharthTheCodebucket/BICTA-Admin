@@ -37,6 +37,7 @@ import DropDownOrganism from '../../../../../components/organisms/DropDownOrgani
 import { useListMedicineMutation } from '../../../../../injectEndpoints/phcEndpoints';
 import ImageAtom from '../../../../../components/atoms/ImageAtom';
 import { isNullUndefined } from '../../../../../utils/CommonFunction';
+import ViewAtom from '../../../../../components/atoms/ViewAtom';
 
 interface Props {
   route: any;
@@ -180,14 +181,7 @@ const PharmacyMaster = (props: Props) => {
 
   const BedCard = ({ item, index, navigation }: any) => {
     return (
-      <TouchableAtom
-        style={styles.card}
-        onPress={() => {
-          navigation.navigate(screensName.TraineeResponseList, {
-            data: item,
-          });
-        }}
-      >
+      <ViewAtom style={styles.card}>
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
             Sr. No: {index + 1}
@@ -249,7 +243,7 @@ const PharmacyMaster = (props: Props) => {
             <TextAtom style={styles.label}>-</TextAtom>
           )}
         </View>
-      </TouchableAtom>
+      </ViewAtom>
     );
   };
 

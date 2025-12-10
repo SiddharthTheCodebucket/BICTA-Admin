@@ -54,16 +54,16 @@ const Profile = (props: Props) => {
       id: 2,
       name: strings.deactivate_account,
       onPress: () => {
-        navigation.navigate(screensName.AlertOrganism, {
-          message: strings.deactivate_message,
-          okText: strings.ok,
-          double: true,
-          cancelText: strings.cancel,
-          okFunction: () => {
-            deleteTraineeRegistration();
-          },
-          cancelFunction: () => {},
-        });
+        // navigation.navigate(screensName.AlertOrganism, {
+        //   message: strings.deactivate_message,
+        //   okText: strings.ok,
+        //   double: true,
+        //   cancelText: strings.cancel,
+        //   okFunction: () => {
+        //     deleteTraineeRegistration();
+        //   },
+        //   cancelFunction: () => {},
+        // });
       },
     },
   ];

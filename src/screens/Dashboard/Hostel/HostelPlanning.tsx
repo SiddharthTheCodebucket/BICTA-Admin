@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   FlatList,
+  RefreshControl,
 } from 'react-native';
 import { colors, fonts, vw, vh, screensName } from '../../../constants';
 import moment from 'moment';
@@ -23,6 +24,7 @@ const HostelPlanning = (props: any) => {
   const selectedCenter = props.route?.params?.selectedCenter;
   const [currentDate, setCurrentDate] = useState(new Date());
   const [loader, setLoader] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [monthDays, setMonthDays] = useState([]);
   const [hostelDetails, setHostelDetails] = useState([]);
@@ -65,8 +67,18 @@ const HostelPlanning = (props: any) => {
     }, [currentDate, selectedCenter]),
   );
 
-  const fetchHostelPlanningData = () => {
-    setLoader(true);
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchHostelPlanningData(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  };
+
+  const fetchHostelPlanningData = (isRefreshing = false) => {
+    if (!isRefreshing) {
+      setLoader(true);
+    }
 
     const monthYear = moment(currentDate).format('YYYY-MM');
 
@@ -122,10 +134,12 @@ const HostelPlanning = (props: any) => {
         });
 
         setMonthDays(finalMapped);
-        setLoader(false);
+        if (isRefreshing) setRefreshing(false);
+        else setLoader(false);
       })
       .catch((err: any) => {
-        setLoader(false);
+        if (isRefreshing) setRefreshing(false);
+        else setLoader(false);
         Toast.show({
           type: 'error',
           text2: err?.data?.message || 'Something went wrong',
@@ -231,6 +245,14 @@ const HostelPlanning = (props: any) => {
         columnWrapperStyle={styles.row}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ marginTop: vh(5), paddingBottom: vh(10) }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
       />
     </SafeAreaView>
   );

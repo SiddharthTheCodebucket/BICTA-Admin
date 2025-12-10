@@ -1,5 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { StyleSheet, View, FlatList, LayoutAnimation } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  LayoutAnimation,
+  RefreshControl,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, vw, vh } from '../../../constants';
 import TextAtom from '../../../components/atoms/TextAtom';
@@ -20,6 +26,7 @@ const HostelReport = (props: any) => {
   const { navigation } = props;
   const selectedCenter = props.route?.params?.selectedCenter;
   const [loader, setLoader] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [reportData, setReportData] = useState<any[]>([]);
   const [showFilter, setShowFilter] = useState(false);
   const [hostelReportDataApi] = useHostelReportDataMutation();
@@ -32,6 +39,14 @@ const HostelReport = (props: any) => {
       getTrainingDesignation();
     }, [selectedCenter]),
   );
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchHostelReportData(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  };
 
   const toggleFilter = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -50,8 +65,10 @@ const HostelReport = (props: any) => {
   const [startDate, setStartDate] = useState<any>('');
   const [endDate, setEndDate] = useState<any>('');
 
-  const fetchHostelReportData = () => {
-    setLoader(true);
+  const fetchHostelReportData = (isRefreshing = false) => {
+    if (!isRefreshing) {
+      setLoader(true);
+    }
 
     let params: any = {
       bipardCentre: [],
@@ -70,10 +87,12 @@ const HostelReport = (props: any) => {
       .unwrap()
       .then((res: any) => {
         setReportData(res?.data?.data || []);
-        setLoader(false);
+        if (isRefreshing) setRefreshing(false);
+        else setLoader(false);
       })
       .catch(() => {
-        setLoader(false);
+        if (isRefreshing) setRefreshing(false);
+        else setLoader(false);
         Toast.show({ type: 'error', text2: 'Something went wrong' });
       });
   };
@@ -375,6 +394,14 @@ const HostelReport = (props: any) => {
         ListHeaderComponent={showFilter ? <FilterForm /> : null}
         ListEmptyComponent={
           <TextAtom style={styles.emptyText}>No Data Found</TextAtom>
+        }
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
         }
       />
     </SafeAreaView>
