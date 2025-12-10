@@ -9,7 +9,7 @@
     "start": "react-native start",
     "test": "jest",
     "clean:android": "cd android && ./gradlew clean",
-    "clean:ios": "xcodebuild -workspace ios/BIPARDERP.xcworkspace -scheme BIPARDERP-Staging clean",
+    "clean:ios": "xcodebuild -workspace ios/BIPARDADMIN.xcworkspace -scheme BIPARDADMIN-Staging clean",
     "pods": "npx pod-install ios",
     "xcode": "xed -b ios",
     "ios:prod": "ENVFILE=.env.production react-native run-ios",
