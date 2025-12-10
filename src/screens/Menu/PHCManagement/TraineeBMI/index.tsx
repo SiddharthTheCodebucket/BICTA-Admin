@@ -26,7 +26,9 @@ const TraineeBMI = (props: Props) => {
     {
       id: 1,
       name: 'BMI',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.BMI);
+      },
     },
   ];
 

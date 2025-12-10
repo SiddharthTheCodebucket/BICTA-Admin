@@ -116,6 +116,8 @@ import PharmacyMaster from '../screens/Menu/PHCManagement/Pharmacy/PharmacyMaste
 import MedicineType from '../screens/Menu/PHCManagement/Pharmacy/MedicineType';
 import UpdateStock from '../screens/Menu/PHCManagement/Pharmacy/UpdateStock';
 import StockReport from '../screens/Menu/PHCManagement/Pharmacy/StockReport';
+import BMI from '../screens/Menu/PHCManagement/TraineeBMI/BMI';
+import BMIDetails from '../screens/Menu/PHCManagement/TraineeBMI/BMI/BMIDetails';
 
 const OnBoardingStack = createNativeStackNavigator();
 
@@ -523,6 +525,8 @@ const RootNavigator = () => {
           />
           <RootStackScreen.Screen name="UpdateStock" component={UpdateStock} />
           <RootStackScreen.Screen name="StockReport" component={StockReport} />
+          <RootStackScreen.Screen name="BMI" component={BMI} />
+          <RootStackScreen.Screen name="BMIDetails" component={BMIDetails} />
         </RootStackScreen.Group>
         <RootStackScreen.Group
           screenOptions={{

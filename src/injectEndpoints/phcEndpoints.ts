@@ -38,6 +38,13 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listTraineeBmi: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_trainee_bmi,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -47,4 +54,5 @@ export const {
   useListMedicineTypeMutation,
   useListMedicineBatchMutation,
   useListPharmacyReportMutation,
+  useListTraineeBmiMutation,
 } = apiEndpoints;

@@ -111,4 +111,6 @@ export default {
   MedicineType: 'MedicineType',
   UpdateStock: 'UpdateStock',
   StockReport: 'StockReport',
+  BMI: 'BMI',
+  BMIDetails: 'BMIDetails',
 };
