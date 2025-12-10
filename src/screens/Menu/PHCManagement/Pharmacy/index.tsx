@@ -26,27 +26,37 @@ const Pharmacy = (props: Props) => {
     {
       id: 1,
       name: 'Patients',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.Patients);
+      },
     },
     {
       id: 2,
       name: 'Pharmacy Master',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.PharmacyMaster);
+      },
     },
     {
       id: 3,
       name: 'Medicine Type',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.MedicineType);
+      },
     },
     {
       id: 4,
-      name: 'Updates Stock',
-      onPress: () => {},
+      name: 'Update Stock',
+      onPress: () => {
+        navigation.navigate(screensName.UpdateStock);
+      },
     },
     {
       id: 5,
       name: 'Stock Report',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.StockReport);
+      },
     },
   ];
 

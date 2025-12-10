@@ -133,4 +133,11 @@ export default {
     'lms/list-examination-submission-test-list',
   list_examination_submission_report: 'lms/list-examination-submission-report',
   list_examination_submission_answer: 'lms/list-examination-submission-answer',
+
+  //PHC
+  list_patient_prescriptions: 'phc/list-patient-prescriptions',
+  list_medicine: 'phc/list-medicine',
+  list_medicine_type: 'phc/list-medicine-type',
+  list_medicine_batch: 'phc/list-medicine-batch',
+  list_pharmacy_report: 'phc/pharmacy-report',
 };

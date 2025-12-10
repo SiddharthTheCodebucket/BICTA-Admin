@@ -105,4 +105,10 @@ export default {
   PHCManagemnetMain: 'PHCManagemnetMain',
   Pharmacy: 'Pharmacy',
   TraineeBMI: 'TraineeBMI',
+  Patients: 'Patients',
+  PatientDetails: 'PatientDetails',
+  PharmacyMaster: 'PharmacyMaster',
+  MedicineType: 'MedicineType',
+  UpdateStock: 'UpdateStock',
+  StockReport: 'StockReport',
 };
