@@ -2,6 +2,8 @@ import { combineReducers } from '@reduxjs/toolkit';
 import authReducer from '../features/Auth/authSlice';
 import trainingManagementReducer from '../features/TrainingManagement/trainingManagementSlice';
 import otherRegistrationReducer from '../features/OtherRegistration/otherRegistrationSlice';
+import profileReducer from '../featuresTrainee/Profile/profileSlice';
+import registrationReducer from '../featuresTrainee/Registration/registrationSlice';
 import { apiSlice } from '../api/apiSlice';
 
 export const reducers = combineReducers({
@@ -9,6 +11,8 @@ export const reducers = combineReducers({
   Auth: authReducer,
   TrainingManagement: trainingManagementReducer,
   otherRegistration: otherRegistrationReducer,
+  Profile: profileReducer,
+  Registration: registrationReducer,
 });
 
 const resetAction = { type: 'RESET' };

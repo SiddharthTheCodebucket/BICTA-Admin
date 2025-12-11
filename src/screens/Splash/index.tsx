@@ -12,13 +12,17 @@ interface Props {
 }
 const Splash = (props: Props) => {
   const { navigation } = props;
-  const { token } = useAppSelector(state => state.Auth);
+  const { token, crediantialData } = useAppSelector(state => state.Auth);
 
   useEffect(() => {
     if (isNullUndefined(token)) {
       Router.resetNew(navigation, 'OnBoardingNavigator');
     } else {
-      Router.resetNew(navigation, 'BottomTabNavigator');
+      if (crediantialData.user[0].userType === 'TRAINEE') {
+        Router.resetNew(navigation, 'TraineeRootNavigator');
+      } else {
+        Router.resetNew(navigation, 'RootNavigatorAdmin');
+      }
     }
   }, [navigation]);
 

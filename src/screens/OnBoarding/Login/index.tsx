@@ -53,27 +53,28 @@ const Login = (props: Props) => {
 
   const [userLoginApi] = useUserLoginMutation();
 
-  const [role, setRole] = useState<any>({
-    id: 'NON-TRAINEE',
-    name: 'BIPARD Officials',
-  });
+  const [role, setRole] = useState<any>({});
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(errorInitialData);
   const [isRemembered, setIsRemembered] = useState(false);
   const [loader, setLoader] = useState(false);
-
   useEffect(() => {
     const loadRememberedCredentials = async () => {
-      const storedUserRole = await AsyncStorage.getItem('rememberedUserRole');
-      const storedUsername = await AsyncStorage.getItem('rememberedUsername');
-      const storedPassword = await AsyncStorage.getItem('rememberedPassword');
-      if (storedUserRole && storedUsername && storedPassword) {
-        setRole(storedUserRole);
-        setUsername(storedUsername);
-        setPassword(storedPassword);
-        setIsRemembered(true);
-      }
+      try {
+        const storedUserRole = await AsyncStorage.getItem('rememberedUserRole');
+        const storedUsername = await AsyncStorage.getItem('rememberedUsername');
+        const storedPassword = await AsyncStorage.getItem('rememberedPassword');
+
+        const parsedRole = storedUserRole ? JSON.parse(storedUserRole) : {};
+
+        if (parsedRole || (storedUsername && storedPassword)) {
+          if (parsedRole) setRole(parsedRole);
+          if (storedUsername) setUsername(storedUsername);
+          if (storedPassword) setPassword(storedPassword);
+          setIsRemembered(true);
+        }
+      } catch (e) {}
     };
     loadRememberedCredentials();
   }, []);
@@ -108,11 +109,29 @@ const Login = (props: Props) => {
     const params = { login: username, password, loginType: role.id };
     userLoginApi(params)
       .unwrap()
-      .then((res: any) => {
+      .then(async (res: any) => {
         setLoader(false);
         dispatch(saveCrediantial(res.data));
         dispatch(saveToken(res.data.token));
-        Router.resetNew(navigation, 'BottomTabNavigator');
+        try {
+          if (isRemembered) {
+            await AsyncStorage.setItem('rememberedUsername', username);
+            await AsyncStorage.setItem('rememberedPassword', password);
+            await AsyncStorage.setItem(
+              'rememberedUserRole',
+              JSON.stringify(role),
+            );
+          } else {
+            await AsyncStorage.removeItem('rememberedUsername');
+            await AsyncStorage.removeItem('rememberedPassword');
+            await AsyncStorage.removeItem('rememberedUserRole');
+          }
+        } catch (e) {}
+        if (res.data.user[0].userType?.toUpperCase() === 'TRAINEE') {
+          Router.resetNew(navigation, 'TraineeRootNavigator');
+        } else {
+          Router.resetNew(navigation, 'RootNavigatorAdmin');
+        }
       })
       .catch((err: any) => {
         setLoader(false);
@@ -175,7 +194,6 @@ const Login = (props: Props) => {
             inputText={role?.name}
             isMandatory
             errorMessage={error['role.id']}
-            isDisabled={true}
           />
           <TextInputOrganisms
             label={strings.username}
@@ -216,10 +234,15 @@ const Login = (props: Props) => {
               onPress={async () => {
                 const newState = !isRemembered;
                 setIsRemembered(newState);
-                if (newState && username && password) {
+                if (newState && role && username && password) {
+                  await AsyncStorage.setItem(
+                    'rememberedUserRole',
+                    JSON.stringify(role),
+                  );
                   await AsyncStorage.setItem('rememberedUsername', username);
                   await AsyncStorage.setItem('rememberedPassword', password);
                 } else {
+                  await AsyncStorage.removeItem('rememberedUserRole');
                   await AsyncStorage.removeItem('rememberedUsername');
                   await AsyncStorage.removeItem('rememberedPassword');
                 }
@@ -250,7 +273,18 @@ const Login = (props: Props) => {
             }}
             bttnText={strings.sign_in_button}
           />
-
+          <ButtonOrganism
+            onPress={() => {
+              navigation.navigate(screensName.QRCodeScan);
+            }}
+            bttnText={strings.register_button}
+            bttnTextStyle={{ color: colors.primary }}
+            containerStyle={{
+              borderWidth: vw(1),
+              borderColor: colors.primary,
+              backgroundColor: colors.backgroundColor,
+            }}
+          />
           <TouchableOpacity style={styles.manualBtn} activeOpacity={0.8}>
             <TextAtom numberOfLines={2} style={styles.manualText}>
               {strings.download_manual}

@@ -1,5 +1,5 @@
 export default {
-  app_name: 'BIPARD ERP',
+  app_name: 'BIPARD',
   select: 'Select',
   search: 'Search',
   noDataFound: 'No Data Found',
@@ -45,7 +45,7 @@ export default {
   username_required: 'Username is required',
   password_required: 'Password is required',
   sign_in_button: 'Sign In',
-  download_manual: 'Download User Manual for ADMIN',
+  download_manual: 'Download User Manual for TRAINEE',
   forgot_password: 'Forgot Password?',
   copyright: '© 2025 BIPARD',
   designed_by: 'Designed and Developed By',
@@ -275,4 +275,5 @@ export default {
   father_name_required: 'Father Name is required',
   aadhar_required: 'Aadhar is required',
   aadhar_invalid: 'Enter The Correct Aadhaar Number',
+  register_button: 'Register',
 };

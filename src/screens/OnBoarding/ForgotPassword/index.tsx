@@ -57,10 +57,7 @@ const ForgotPassword = (props: Props) => {
     };
   });
 
-  const [role, setRole] = useState<any>({
-    id: 'NON-TRAINEE',
-    name: 'BIPARD Officials',
-  });
+  const [role, setRole] = useState<any>({});
   const [username, setUsername] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -76,6 +73,9 @@ const ForgotPassword = (props: Props) => {
 
   const usernameSchema = Yup.object().shape({
     username: Yup.string().required(strings.username_required),
+    role: Yup.object({
+      id: Yup.string().required(strings.role_required),
+    }),
   });
 
   const otpSchema = Yup.object().shape({
@@ -97,7 +97,7 @@ const ForgotPassword = (props: Props) => {
   const handleSubmit = () => {
     try {
       if (!showOtpField && !showPassField) {
-        usernameSchema.validateSync({ username });
+        usernameSchema.validateSync({ username, role });
 
         sendOtp();
       } else if (showOtpField && !showPassField) {
@@ -259,7 +259,6 @@ const ForgotPassword = (props: Props) => {
             inputText={role?.name}
             isMandatory
             errorMessage={error['role.id']}
-            isDisabled
           />
           <TextInputOrganisms
             label={strings.username}

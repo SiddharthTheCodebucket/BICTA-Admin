@@ -1,6 +1,7 @@
 import React from 'react';
-import RootNavigator from '../../navigator/RootNavigator';
+import MainNavigator from '../../navigator/MainNavigator';
+// import RootNavigator from '../../navigator/RootNavigator';
 const RootScreen = () => {
-  return <RootNavigator />;
+  return <MainNavigator />;
 };
 export default RootScreen;
