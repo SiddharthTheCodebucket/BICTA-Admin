@@ -61,16 +61,16 @@ const Profile = (props: Props) => {
       id: 2,
       name: strings.deactivate_account,
       onPress: () => {
-        // navigation.navigate(screensName.AlertOrganism, {
-        //   message: strings.deactivate_message,
-        //   okText: strings.ok,
-        //   double: true,
-        //   cancelText: strings.cancel,
-        //   okFunction: () => {
-        //     deleteTraineeRegistration();
-        //   },
-        //   cancelFunction: () => {},
-        // });
+        navigation.navigate(screensName.AlertOrganism, {
+          message: strings.deactivate_message,
+          okText: strings.ok,
+          double: true,
+          cancelText: strings.cancel,
+          okFunction: () => {
+            deleteTraineeRegistration();
+          },
+          cancelFunction: () => {},
+        });
       },
     },
   ];
@@ -108,7 +108,7 @@ const Profile = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
       <View style={{ flex: 1 }}>
-        {DATA.map(item => {
+        {/* {DATA.map(item => {
           return (
             <TouchableOpacity
               key={item.id.toString()}
@@ -118,7 +118,7 @@ const Profile = (props: Props) => {
               <TextAtom>{item.name}</TextAtom>
             </TouchableOpacity>
           );
-        })}
+        })} */}
       </View>
 
       <ButtonOrganism

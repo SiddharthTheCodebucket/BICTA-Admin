@@ -30,11 +30,11 @@ const ClassRoomManagement = (props: Props) => {
         navigation.navigate(screensName.TimeTable);
       },
     },
-    {
-      id: 2,
-      name: 'Bulk Scheduling Manager',
-      onPress: () => {},
-    },
+    // {
+    //   id: 2,
+    //   name: 'Bulk Scheduling Manager',
+    //   onPress: () => {},
+    // },
     {
       id: 3,
       name: 'Faculty Class Approve',
@@ -42,11 +42,11 @@ const ClassRoomManagement = (props: Props) => {
         navigation.navigate(screensName.FacultyClassApprove);
       },
     },
-    {
-      id: 4,
-      name: 'Training Bulk Schedule',
-      onPress: () => {},
-    },
+    // {
+    //   id: 4,
+    //   name: 'Training Bulk Schedule',
+    //   onPress: () => {},
+    // },
   ];
 
   return (

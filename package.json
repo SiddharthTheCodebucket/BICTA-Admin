@@ -15,6 +15,7 @@
     "ios:prod": "ENVFILE=.env.production react-native run-ios",
     "ios:staging": "ENVFILE=.env.staging react-native run-ios",
     "apk": "cd ./android/app/build/outputs/apk/release && open . ",
+    "abb": "cd android/app/build/outputs/bundle/release/ && open . ",
     "android:staging": "export ENVFILE=.env.staging && react-native run-android",
     "android:staging-release": "cd android && ENVFILE=.env.staging ./gradlew app:assembleRelease",
     "android:prod": "export ENVFILE=.env.production && react-native run-android",

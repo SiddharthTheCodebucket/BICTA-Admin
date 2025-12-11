@@ -285,11 +285,11 @@ const Login = (props: Props) => {
               backgroundColor: colors.backgroundColor,
             }}
           />
-          <TouchableOpacity style={styles.manualBtn} activeOpacity={0.8}>
+          {/* <TouchableOpacity style={styles.manualBtn} activeOpacity={0.8}>
             <TextAtom numberOfLines={2} style={styles.manualText}>
               {strings.download_manual}
             </TextAtom>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </ViewAtom>
 
         <ViewAtom style={styles.footerWrapper}>
