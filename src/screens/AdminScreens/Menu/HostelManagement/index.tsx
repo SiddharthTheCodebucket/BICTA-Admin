@@ -1,12 +1,13 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, images, screensName, vh, vw } from '../../../../constants';
+import { colors, screensName, vh, vw } from '../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../components/atoms/TextAtom';
+import { usePermission } from '../../../../hooks/usePermission';
 
 interface Props {
   navigation: NavigationType;
@@ -26,16 +27,18 @@ const HostelManagement = (props: Props) => {
     {
       id: 1,
       name: 'Hostel',
-      onPress: () => {
-        navigation.navigate(screensName.Hostel);
+      permission: {
+        permissionName: 'LIST HOSTEL DETAILS',
       },
+      onPress: () => navigation.navigate(screensName.Hostel),
     },
     {
       id: 2,
       name: 'Guest',
-      onPress: () => {
-        navigation.navigate(screensName.Guest);
+      permission: {
+        permissionName: 'LIST GUEST REGISTRATION',
       },
+      onPress: () => navigation.navigate(screensName.Guest),
     },
   ];
 
@@ -43,9 +46,13 @@ const HostelManagement = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <View style={{ flex: 1 }}>
         {DATA.map(item => {
+          const allowed = usePermission(item.permission.permissionName);
+
+          if (!allowed) return null;
+
           return (
             <TouchableOpacity
-              key={item.id.toString()}
+              key={item.id}
               style={styles.touchable}
               onPress={item.onPress}
             >
@@ -64,10 +71,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundColor,
-  },
-  logoutBtn: {
-    alignSelf: 'center',
-    width: '90%',
   },
   touchable: {
     width: vw(328),
