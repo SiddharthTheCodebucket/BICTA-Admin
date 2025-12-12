@@ -31,6 +31,7 @@ import {
   useAddGuestMutation,
   useUpdateGuestMutation,
 } from '../../../../../injectEndpoints/hostelEndpoints';
+import { useAppSelector } from '../../../../../hooks';
 
 interface Props {
   route: any;
@@ -40,6 +41,8 @@ interface Props {
 const AddGuest = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const tenantId = crediantialData.user[0].tenantId;
   const input1_ref: any = createRef();
   const input2_ref: any = createRef();
   const input3_ref: any = createRef();
@@ -72,7 +75,14 @@ const AddGuest = (props: Props) => {
   };
 
   useEffect(() => {
-    if (!item) return;
+    if (!item) {
+      if (tenantId === 1) {
+        setValue('bipardLocation', { id: 'Gaya', name: 'Gaya' });
+      } else if (tenantId === 2) {
+        setValue('bipardLocation', { id: 'Patna', name: 'Patna' });
+      }
+      return;
+    }
 
     const locationMap: any = {
       1: { id: 'Gaya', name: 'Gaya' },
@@ -221,6 +231,7 @@ const AddGuest = (props: Props) => {
           label={'Bipard Location'}
           placeholder={'Bipard Location'}
           onPress={() => {
+            if (tenantId !== 3) return;
             navigation.navigate('DropDownModal', {
               name: 'Bipard Location',
               Data: [
@@ -244,6 +255,7 @@ const AddGuest = (props: Props) => {
           inputText={form.bipardLocation?.name}
           isMandatory
           errorMessage={errors['bipardLocation.name']}
+          isDisabled={tenantId !== 3}
         />
         <TextInputOrganisms
           label={'Name'}

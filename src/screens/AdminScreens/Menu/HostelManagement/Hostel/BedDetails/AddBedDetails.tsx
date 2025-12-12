@@ -12,6 +12,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -49,6 +50,9 @@ const initialForm = {
 const AddBedDetails = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const tenantId = crediantialData.user[0].tenantId;
   const input1_ref: any = createRef();
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
@@ -258,6 +262,16 @@ const AddBedDetails = (props: Props) => {
       .unwrap()
       .then((res: any) => {
         setValue('bipardLocationList', res.data);
+        if (!item) {
+          if (tenantId === 1) {
+            setValue('bipardLocation', { id: 'Gaya', name: 'Gaya' });
+            getHostelName('Gaya');
+          } else if (tenantId === 2) {
+            setValue('bipardLocation', { id: 'Patna', name: 'Patna' });
+            getHostelName('Patna');
+          }
+        }
+
         setLoader(false);
       })
       .catch((err: any) => {
@@ -383,6 +397,7 @@ const AddBedDetails = (props: Props) => {
           inputText={form.bipardLocation?.name}
           isMandatory
           errorMessage={errors['bipardLocation.name']}
+          isDisabled={tenantId !== 3}
         />
 
         <DropDownOrganism

@@ -12,6 +12,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -55,6 +56,9 @@ const initialForm = {
 const AddHostelDetails = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const tenantId = crediantialData.user[0].tenantId;
   const input1_ref: any = createRef();
   const input2_ref: any = createRef();
   const input3_ref: any = createRef();
@@ -255,6 +259,13 @@ const AddHostelDetails = (props: Props) => {
       .unwrap()
       .then((res: any) => {
         setValue('trainingCenterList', res.data);
+        if (!item) {
+          if (tenantId === 1) {
+            setValue('trainingCenter', { id: 'Gaya', name: 'Gaya' });
+          } else if (tenantId === 2) {
+            setValue('trainingCenter', { id: 'Patna', name: 'Patna' });
+          }
+        }
         setLoader(false);
       })
       .catch((err: any) => {
@@ -452,6 +463,7 @@ const AddHostelDetails = (props: Props) => {
           inputText={form.trainingCenter?.name}
           isMandatory
           errorMessage={errors['trainingCenter.name']}
+          isDisabled={tenantId !== 3}
         />
         {isNullUndefined(item) && (
           <RadioSelectableOrganism
