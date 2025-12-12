@@ -40,6 +40,7 @@ import {
   useListAssignmentQuestionBankMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import { useAppSelector } from '../../../../../../hooks';
 
 interface Props {
   route: any;
@@ -58,6 +59,8 @@ const debounce = (func: any, delay: number) => {
 
 const AssignQuestionList = (props: Props) => {
   const { navigation } = props;
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [listAssignmentQuestionBankApi] =
     useListAssessmentTestAssignQuestionMutation();
@@ -306,7 +309,9 @@ const AssignQuestionList = (props: Props) => {
         </TextAtom>
       </TouchableAtom>
       {showFilter && <FilterForm />} */}
-      <DropDownOrganism
+      {crediantialData.user[0].tenantId === 3 && (
+
+        <DropDownOrganism
         label={''}
         placeholder={'Centers'}
         onPress={() => {
@@ -328,6 +333,8 @@ const AssignQuestionList = (props: Props) => {
         inputText={centerSerach?.name}
         containerStyle={{ marginBottom: vh(-10) }}
       />
+
+      )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}

@@ -25,6 +25,7 @@ import {
   vh,
   vw,
 } from '../../../../../constants';
+import { useAppSelector } from '../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -60,6 +61,8 @@ const debounce = (func: any, delay: number) => {
 
 const VehicleRegistration = (props: Props) => {
   const { navigation } = props;
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [listVehicleDetailsApi] = useListVehicleDetailsMutation();
@@ -434,7 +437,9 @@ const VehicleRegistration = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <DropDownOrganism
+      {crediantialData.user[0].tenantId === 3 && (
+
+        <DropDownOrganism
         label={''}
         placeholder={'Centers'}
         onPress={() => {
@@ -456,6 +461,8 @@ const VehicleRegistration = (props: Props) => {
         inputText={centerSerach?.name}
         containerStyle={{ marginBottom: vh(-10) }}
       />
+
+      )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}

@@ -25,6 +25,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -58,6 +59,8 @@ const debounce = (func: any, delay: number) => {
 
 const FacultyConfirmation = (props: Props) => {
   const { navigation } = props;
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [listFacultyDetailsApi] = useListFacultyConfirmationMutation();
   const [updateFacultyDetailsApi] = useUpdateFacultyConfirmationMutation();
@@ -306,7 +309,10 @@ const FacultyConfirmation = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <DropDownOrganism
+      {crediantialData.user[0].tenantId === 3 && (
+
+
+        <DropDownOrganism
         label={''}
         placeholder={'Centers'}
         onPress={() => {
@@ -328,6 +334,9 @@ const FacultyConfirmation = (props: Props) => {
         inputText={centerSerach?.name}
         containerStyle={{ marginBottom: vh(-10) }}
       />
+
+
+      )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}

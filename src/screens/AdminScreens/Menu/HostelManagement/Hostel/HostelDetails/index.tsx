@@ -24,6 +24,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -59,6 +60,7 @@ const debounce = (func: any, delay: number) => {
 const HostelDetails = (props: Props) => {
   const { navigation } = props;
 
+  const { crediantialData } = useAppSelector(state => state.Auth);
   const [hostelDetailsApi] = useHostelDetailsMutation();
   const [updateHostelDetailsApi] = useUpdateHostelDetailsMutation();
   const [deleteHostelDetailsApi] = useDeleteHostelDetailsMutation();
@@ -420,28 +422,30 @@ const HostelDetails = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <DropDownOrganism
-        label={''}
-        placeholder={'Centers'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Center',
-            Data: [
-              { id: 'All Centers', name: 'All Centers' },
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
-            ],
-            selectedData: centerSerach,
-            setSelectedData: (data: any) => {
-              setCenterSerach(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={centerSerach?.name}
-        containerStyle={{ marginBottom: vh(-10) }}
-      />
+      {crediantialData.user[0].tenantId === 3 && (
+        <DropDownOrganism
+          label={''}
+          placeholder={'Centers'}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Center',
+              Data: [
+                { id: 'All Centers', name: 'All Centers' },
+                { id: 'Gaya', name: 'Gaya' },
+                { id: 'Patna', name: 'Patna' },
+              ],
+              selectedData: centerSerach,
+              setSelectedData: (data: any) => {
+                setCenterSerach(data);
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={centerSerach?.name}
+          containerStyle={{ marginBottom: vh(-10) }}
+        />
+      )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}

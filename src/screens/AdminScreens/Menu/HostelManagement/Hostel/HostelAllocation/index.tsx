@@ -27,6 +27,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -72,6 +73,8 @@ const HostelAllocation = (props: Props) => {
   const { navigation } = props;
   const isScreenFocused = useIsFocused();
   const input1_ref: any = createRef();
+  
+  const { crediantialData } = useAppSelector(state => state.Auth);
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [hostelAllocationDetailsApi] = useHostelAllocationDetailsMutation();
   const [hostelAllocationDeleteApi] = useHostelAllocationDeleteMutation();
@@ -795,7 +798,7 @@ const HostelAllocation = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={{ height: vh(170) }}>
+      <View style={{ height: 'auto' }}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View
             style={{
@@ -849,26 +852,28 @@ const HostelAllocation = (props: Props) => {
           </View>
           {showFilter && <FilterForm />}
 
-          <DropDownOrganism
-            label={''}
-            placeholder={'Centers'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Center',
-                Data: [
-                  { id: 'All Centers', name: 'All Centers' },
-                  { id: 'Gaya', name: 'Gaya' },
-                  { id: 'Patna', name: 'Patna' },
-                ],
-                selectedData: centerSerach,
-                setSelectedData: setCenterSerach,
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={centerSerach?.name}
-            containerStyle={{ marginBottom: vh(5) }}
-          />
+          {crediantialData.user[0].tenantId === 3 && (
+            <DropDownOrganism
+              label={''}
+              placeholder={'Centers'}
+              onPress={() => {
+                navigation.navigate('DropDownModal', {
+                  name: 'Center',
+                  Data: [
+                    { id: 'All Centers', name: 'All Centers' },
+                    { id: 'Gaya', name: 'Gaya' },
+                    { id: 'Patna', name: 'Patna' },
+                  ],
+                  selectedData: centerSerach,
+                  setSelectedData: setCenterSerach,
+                  typeName: 'name',
+                  typeId: 'id',
+                });
+              }}
+              inputText={centerSerach?.name}
+              containerStyle={{ marginBottom: vh(5) }}
+            />
+          )}
           <SearchBoxOrganism
             onChangeText={onChangeSearch}
             searchText={search}

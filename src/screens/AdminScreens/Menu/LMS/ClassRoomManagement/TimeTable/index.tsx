@@ -27,6 +27,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -74,6 +75,8 @@ const debounce = (func: any, delay: number) => {
 
 const TimeTable = (props: Props) => {
   const { navigation } = props;
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [downloadApi] = useDownloadTrainingCategoryMutation();
   const [listTrainingDetailsApi] = useCommonDropdownListMutation();
@@ -785,7 +788,7 @@ const TimeTable = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={{ height: vh(130) }}>
+      <View style={{ height: 'auto' }}>
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* <View
             style={{
@@ -829,7 +832,10 @@ const TimeTable = (props: Props) => {
           </View>
           {showFilter && <FilterForm />} */}
 
-          <DropDownOrganism
+          {crediantialData.user[0].tenantId === 3 && (
+
+
+            <DropDownOrganism
             label={''}
             placeholder={'Centers'}
             onPress={() => {
@@ -849,6 +855,9 @@ const TimeTable = (props: Props) => {
             inputText={centerSerach?.name}
             containerStyle={{ marginBottom: vh(5) }}
           />
+
+
+          )}
           <SearchBoxOrganism
             onChangeText={onChangeSearch}
             searchText={search}

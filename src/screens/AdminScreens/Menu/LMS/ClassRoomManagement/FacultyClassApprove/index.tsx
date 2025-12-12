@@ -29,6 +29,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -77,6 +78,8 @@ const debounce = (func: any, delay: number) => {
 
 const FacultyClassApprove = (props: Props) => {
   const { navigation } = props;
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
   const input1_ref: any = createRef();
   const [downloadApi] = useDownloadTrainingCategoryMutation();
   const [listTrainingDetailsApi] = useListClassroomTimeTableManageMutation();
@@ -980,7 +983,10 @@ const FacultyClassApprove = (props: Props) => {
           </View>
           {showFilter && <FilterForm />}
 
-          <DropDownOrganism
+          {crediantialData.user[0].tenantId === 3 && (
+
+
+            <DropDownOrganism
             label={''}
             placeholder={'Centers'}
             onPress={() => {
@@ -1000,6 +1006,9 @@ const FacultyClassApprove = (props: Props) => {
             inputText={centerSerach?.name}
             containerStyle={{ marginBottom: vh(5) }}
           />
+
+
+          )}
           <SearchBoxOrganism
             onChangeText={onChangeSearch}
             searchText={search}

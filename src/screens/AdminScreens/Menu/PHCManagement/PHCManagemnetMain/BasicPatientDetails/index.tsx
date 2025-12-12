@@ -25,6 +25,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -60,6 +61,8 @@ const debounce = (func: any, delay: number) => {
 
 const BasicPatientDetails = (props: Props) => {
   const { navigation } = props;
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listPatientSymptomsDetailsApi] =
@@ -566,7 +569,7 @@ const BasicPatientDetails = (props: Props) => {
         </TouchableAtom>
       </View>
 
-      <DropDownOrganism
+{crediantialData.user[0].tenantId===3 &&      (<DropDownOrganism
         label={''}
         placeholder={'Center'}
         onPress={() => {
@@ -587,7 +590,7 @@ const BasicPatientDetails = (props: Props) => {
         }}
         inputText={centerSerach?.name}
         containerStyle={{ marginBottom: vh(-10) }}
-      />
+      />)}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}

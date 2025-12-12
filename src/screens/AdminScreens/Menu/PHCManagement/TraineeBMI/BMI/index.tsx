@@ -25,6 +25,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -66,6 +67,8 @@ const debounce = (func: any, delay: number) => {
 
 const BMI = (props: Props) => {
   const { navigation } = props;
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listTraineeBmiApi] = useListTraineeBmiMutation();
@@ -419,7 +422,7 @@ const BMI = (props: Props) => {
           />
         </TouchableAtom>
       </View>
-
+{crediantialData.user[0].tenantId===3 && 
       <DropDownOrganism
         label={''}
         placeholder={'Center'}
@@ -441,7 +444,7 @@ const BMI = (props: Props) => {
         }}
         inputText={centerSerach?.name}
         containerStyle={{ marginBottom: vh(-10) }}
-      />
+      />}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}

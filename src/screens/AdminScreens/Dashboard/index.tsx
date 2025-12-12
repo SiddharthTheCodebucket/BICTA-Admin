@@ -16,6 +16,7 @@ import HostelPlanning from './Hostel/HostelPlanning';
 import HostelReport from './Hostel/HostelReport';
 import AllHostel from './Hostel/AllHostel';
 import Vendor from './Vendor';
+import { useAppSelector } from '../../../hooks';
 
 interface Props {
   route: any;
@@ -27,6 +28,7 @@ const HOSTEL_INNER_TABS = ['Hostel Planning', 'Hostel Report', 'All Hostel'];
 const Dashboard = (props: Props) => {
   const { navigation } = props;
 
+  const { crediantialData } = useAppSelector(state => state.Auth);
   const [time, setTime] = useState(new Date());
   const [loader, setLoader] = useState(false);
 
@@ -65,27 +67,29 @@ const Dashboard = (props: Props) => {
       <FullscreenLoading isVisible={loader} />
 
       <View style={styles.tabRow}>
-        {['Hostel', 'Vendor'].map(tab => (
-          <TouchableAtom
-            key={tab}
-            style={[styles.tabButton, activeTab === tab && styles.activeTab]}
-            onPress={() => {
-              setActiveTab(tab as any);
-              setInnerTab('Hostel Planning');
-            }}
-          >
-            <TextAtom
-              style={[
-                styles.tabText,
-                activeTab === tab && styles.activeTabText,
-              ]}
+        {['Hostel', crediantialData.user[0].tenantId === 3 && 'Vendor']
+          .filter(Boolean)
+          .map((tab, index) => (
+            <TouchableAtom
+              key={index.toString() + tab}
+              style={[styles.tabButton, activeTab === tab && styles.activeTab]}
+              onPress={() => {
+                setActiveTab(tab as any);
+                setInnerTab('Hostel Planning');
+              }}
             >
-              {tab}
-            </TextAtom>
-          </TouchableAtom>
-        ))}
+              <TextAtom
+                style={[
+                  styles.tabText,
+                  activeTab === tab && styles.activeTabText,
+                ]}
+              >
+                {tab}
+              </TextAtom>
+            </TouchableAtom>
+          ))}
 
-        {activeTab === 'Hostel' && (
+        {activeTab === 'Hostel' && crediantialData.user[0].tenantId === 3 && (
           <DropDownOrganism
             label={''}
             placeholder={'Centers'}

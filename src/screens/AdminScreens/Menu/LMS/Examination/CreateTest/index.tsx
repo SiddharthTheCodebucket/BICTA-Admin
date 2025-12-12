@@ -25,6 +25,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -58,6 +59,8 @@ const debounce = (func: any, delay: number) => {
 
 const CreateTest = (props: Props) => {
   const { navigation } = props;
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [commonApi] = useCommonDropdownListMutation();
 
@@ -251,7 +254,9 @@ const CreateTest = (props: Props) => {
         </TextAtom>
       </TouchableAtom>
       {showFilter && <FilterForm />} */}
-      <DropDownOrganism
+      {crediantialData.user[0].tenantId === 3 && (
+
+        <DropDownOrganism
         label={''}
         placeholder={'Centers'}
         onPress={() => {
@@ -273,6 +278,8 @@ const CreateTest = (props: Props) => {
         inputText={centerSerach?.name}
         containerStyle={{ marginBottom: vh(-10) }}
       />
+
+      )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}

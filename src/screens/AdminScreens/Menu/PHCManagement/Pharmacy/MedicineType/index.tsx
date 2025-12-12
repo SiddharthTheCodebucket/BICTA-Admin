@@ -25,6 +25,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -59,6 +60,8 @@ const debounce = (func: any, delay: number) => {
 
 const MedicineType = (props: Props) => {
   const { navigation } = props;
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [listMedicineTypeApi] = useListMedicineTypeMutation();
 
@@ -208,7 +211,9 @@ const MedicineType = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <DropDownOrganism
+      {crediantialData.user[0].tenantId === 3 && (
+
+        <DropDownOrganism
         label={''}
         placeholder={'Centers'}
         onPress={() => {
@@ -230,6 +235,8 @@ const MedicineType = (props: Props) => {
         inputText={centerSerach?.name}
         containerStyle={{ marginBottom: vh(-10) }}
       />
+
+      )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}

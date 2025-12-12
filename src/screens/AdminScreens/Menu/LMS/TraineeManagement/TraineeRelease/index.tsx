@@ -27,6 +27,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -71,6 +72,8 @@ const debounce = (func: any, delay: number) => {
 
 const TraineeRelease = (props: Props) => {
   const { navigation } = props;
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [downloadApi] = useDownloadTrainingCategoryMutation();
   const [commonListApi] = useCommonDropdownListMutation();
@@ -767,7 +770,7 @@ const TraineeRelease = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={{ height: vh(170) }}>
+      <View style={{ height:'auto' }}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View
             style={{
@@ -844,7 +847,10 @@ const TraineeRelease = (props: Props) => {
           </View>
           {/* {showFilter && <FilterForm />} */}
 
-          <DropDownOrganism
+          {crediantialData.user[0].tenantId === 3 && (
+
+
+            <DropDownOrganism
             label={''}
             placeholder={'Centers'}
             onPress={() => {
@@ -864,6 +870,9 @@ const TraineeRelease = (props: Props) => {
             inputText={centerSerach?.name}
             containerStyle={{ marginBottom: vh(5) }}
           />
+
+
+          )}
           <SearchBoxOrganism
             onChangeText={onChangeSearch}
             searchText={search}

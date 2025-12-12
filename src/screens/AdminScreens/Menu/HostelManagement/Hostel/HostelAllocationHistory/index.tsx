@@ -44,6 +44,7 @@ import {
   downloadAndOpenFile,
   isNullUndefined,
 } from '../../../../../../utils/CommonFunction';
+import { useAppSelector } from '../../../../../../hooks';
 
 interface Props {
   route: any;
@@ -63,6 +64,7 @@ const debounce = (func: any, delay: number) => {
 const HostelAllocationHistory = (props: Props) => {
   const { navigation } = props;
 
+const {crediantialData}=useAppSelector(state=>state.Auth)
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [hostelAllocationDetailsApi] = useHostelAllocationDetailsMutation();
 
@@ -504,7 +506,7 @@ const HostelAllocationHistory = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={{ height: vh(170) }}>
+      <View style={{ height: 'auto' }}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View
             style={{
@@ -529,7 +531,8 @@ const HostelAllocationHistory = (props: Props) => {
           </View>
           {showFilter && <FilterForm />}
 
-          <DropDownOrganism
+     { crediantialData.user[0].tenantId === 3 && (   
+       <DropDownOrganism
             label={''}
             placeholder={'Centers'}
             onPress={() => {
@@ -548,7 +551,7 @@ const HostelAllocationHistory = (props: Props) => {
             }}
             inputText={centerSerach?.name}
             containerStyle={{ marginBottom: vh(5) }}
-          />
+          />)}
           <SearchBoxOrganism
             onChangeText={onChangeSearch}
             searchText={search}
