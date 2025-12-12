@@ -27,6 +27,7 @@ import {
 import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
 import { downloadAndOpenFile } from '../../../../../utils/CommonFunction';
 import { useAppSelector } from '../../../../../hooks';
+import { canDownloadIndemnity } from '../../../../../constants/permissionNameTrainee';
 
 interface Props {
   route: any;
@@ -140,16 +141,18 @@ const IndemnityBond = (props: Props) => {
         const fileUrl = res?.data?.pdfFileUrl;
 
         if (fileUrl) {
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [
-                {
-                  name: screensName.MyProfile,
-                },
-              ],
-            }),
-          );
+          // navigation.dispatch(
+          //   CommonActions.reset({
+          //     index: 0,
+          //     routes: [
+          //       {
+          //         name: screensName.MyProfile,
+          //       },
+          //     ],
+          //   }),
+          // );
+          // navigation.replace(screensName.MyProfile);
+
           downloadAndOpenFile(fileUrl);
         } else {
           Toast.show({
@@ -336,22 +339,46 @@ const IndemnityBond = (props: Props) => {
           </Text>
         </ViewAtom>
       </ScrollView>
-      <ButtonOrganism
-        onPress={() => {
-          if (
-            profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() === 'yes'
-          ) {
-            downloadDetails();
-          } else {
+
+      {/* {profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() === 'yes' &&
+        canDownloadIndemnity() && (
+          <ButtonOrganism
+            onPress={() => {
+              if (
+                profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() ===
+                'yes'
+              ) {
+                downloadDetails();
+              } else {
+                updateTraineeDetails();
+              }
+            }}
+            bttnText={
+              profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() ===
+              'yes'
+                ? strings.download_and_print
+                : strings.submit
+            }
+          />
+        )} */}
+
+      {profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() === 'yes' &&
+        canDownloadIndemnity() && (
+          <ButtonOrganism
+            onPress={() => {
+              downloadDetails();
+            }}
+            bttnText={strings.download_and_print}
+          />
+        )}
+      {profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() === 'no' && (
+        <ButtonOrganism
+          onPress={() => {
             updateTraineeDetails();
-          }
-        }}
-        bttnText={
-          profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() === 'yes'
-            ? strings.download_and_print
-            : strings.submit
-        }
-      />
+          }}
+          bttnText={strings.submit}
+        />
+      )}
     </SafeAreaView>
   );
 };

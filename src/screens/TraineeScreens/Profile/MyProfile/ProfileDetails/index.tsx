@@ -19,6 +19,8 @@ import { useAppSelector } from '../../../../../hooks';
 import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
 import { downloadAndOpenFile } from '../../../../../utils/CommonFunction';
 import { useDownlaodRegistrationFormMutation } from '../../../../../injectEndpointsTrainee/profileEndpoints';
+import { usePermission } from '../../../../../hooks/usePermission';
+import { canDownloadProfile } from '../../../../../constants/permissionNameTrainee';
 
 interface Props {
   navigation: NavigationType;
@@ -143,7 +145,8 @@ const ProfileDetails = ({ navigation }: Props) => {
       </ScrollView>
 
       {profileData.isSubmitted?.toLowerCase() === 'yes' &&
-      profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() === 'yes' ? (
+      profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() === 'yes' &&
+      canDownloadProfile() ? (
         <ButtonOrganism
           bttnText={strings.download_and_print}
           onPress={() => {
