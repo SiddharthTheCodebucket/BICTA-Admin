@@ -19,6 +19,7 @@ import DateInputOrganism from '../../../../../../components/organisms/DateInputO
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import moment from 'moment';
 import { useUpdateTrainingBatchDetailsMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
+import { useAppSelector } from '../../../../../../hooks';
 
 interface Props {
   route: any;
@@ -38,6 +39,8 @@ const EditBatchDetails = (props: Props) => {
     useUpdateTrainingBatchDetailsMutation();
   const [commonDropdownApi] = useCommonDropdownListMutation();
 
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const tenantId = crediantialData.user[0].tenantId;
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'Edit Batch Details');
     navigation.BackButtonPress = () => navigation.goBack();
@@ -166,8 +169,6 @@ const EditBatchDetails = (props: Props) => {
 
       coordinatorId: item.coordinatorId,
     };
-
-    console.log('FINAL UPDATE PARAMS ====>', params);
 
     updateTrainingBatchDetailsApi(params)
       .unwrap()
@@ -330,6 +331,7 @@ const EditBatchDetails = (props: Props) => {
           inputText={form.bipardLocation?.name}
           isMandatory
           errorMessage={errors['bipardLocation.name']}
+          isDisabled={tenantId !== 3}
         />
         <TextInputOrganisms
           label={'Training Name'}

@@ -46,6 +46,9 @@ const General = (props: Props) => {
   const input3_ref: any = createRef();
   const input4_ref: any = createRef();
   const input5_ref: any = createRef();
+  const { crediantialData } = useAppSelector(state => state.Auth);
+
+  const tenantId = crediantialData.user[0].tenantId;
 
   const [commonListApi] = useCommonDropdownListMutation();
   const dispatch = useDispatch();
@@ -211,6 +214,7 @@ const General = (props: Props) => {
           isMandatory
           inputText={selectedTrainingCenter?.name}
           errorMessage={errors['selectedTrainingCenter.name']}
+          isDisabled={tenantId !== 3}
         />
 
         <DropDownOrganism

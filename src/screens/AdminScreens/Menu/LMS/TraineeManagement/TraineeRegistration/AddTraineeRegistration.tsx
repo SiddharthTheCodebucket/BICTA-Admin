@@ -47,6 +47,7 @@ import {
   useAddTraineeRegistrationMutation,
   useUpdateTraineeRegistrationMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
+import { useAppSelector } from '../../../../../../hooks';
 
 interface Props {
   route: any;
@@ -72,6 +73,9 @@ const AddTraineeRegistration = (props: Props) => {
     useAddTraineeRegistrationBulkMutation();
   const [addTraineeRegistrationApi] = useAddTraineeRegistrationMutation();
   const [updateTraineeRegistrationApi] = useUpdateTraineeRegistrationMutation();
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const tenantId = crediantialData.user[0].tenantId;
 
   useLayoutEffect(() => {
     Header.setNavigation(
@@ -139,6 +143,34 @@ const AddTraineeRegistration = (props: Props) => {
   useEffect(() => {
     getTrainingCenter();
   }, []);
+
+  // Auto-select training center and trigger APIs when list is loaded
+  useEffect(() => {
+    if (item) return; // Skip auto-selection for edit mode
+    if (form.trainingCenterList.length === 0) return;
+    if (form.selectedTrainingCenter?.id) return; // Already selected
+
+    let autoSelectedCenter = null;
+    if (tenantId === 1) {
+      autoSelectedCenter = form.trainingCenterList.find(
+        (x: any) => x.name === 'Gaya',
+      );
+    } else if (tenantId === 2) {
+      autoSelectedCenter = form.trainingCenterList.find(
+        (x: any) => x.name === 'Patna',
+      );
+    }
+
+    if (autoSelectedCenter) {
+      setValue('selectedTrainingCenter', autoSelectedCenter);
+      // Trigger dependent API calls
+      getGender(autoSelectedCenter.name);
+      getDepartment(autoSelectedCenter.name);
+      getTraineeDesignation(autoSelectedCenter.name);
+      getBloodGroup(autoSelectedCenter.name);
+      getTrainingName(autoSelectedCenter.name);
+    }
+  }, [form.trainingCenterList, tenantId]);
 
   useEffect(() => {
     if (!item) return;
@@ -966,6 +998,9 @@ const AddTraineeRegistration = (props: Props) => {
             label={'Training Center'}
             placeholder={'Training Center'}
             onPress={() => {
+              // Only allow superadmin (tenantId === 3) to change
+              if (tenantId !== 3) return;
+
               navigation.navigate('DropDownModal', {
                 name: 'Training Center',
                 Data: form.trainingCenterList,
@@ -990,6 +1025,7 @@ const AddTraineeRegistration = (props: Props) => {
             inputText={form.selectedTrainingCenter?.name}
             isMandatory
             errorMessage={errors['selectedTrainingCenter.name']}
+            isDisabled={tenantId !== 3}
           />
         )}
 

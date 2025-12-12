@@ -395,11 +395,11 @@ const BatchDetailsList = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
-      <FloatingButton
+      {/* <FloatingButton
         onButtonPress={() => {
           navigation.navigate(screensName.AddVehicle);
         }}
-      />
+      /> */}
     </SafeAreaView>
   );
 };

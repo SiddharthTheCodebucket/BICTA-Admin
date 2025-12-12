@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { colors, screensName, vh, vw } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -32,6 +33,9 @@ const AddTrainingCategory = (props: Props) => {
   const input1_ref: any = createRef();
   const input2_ref: any = createRef();
 
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const tenantId = crediantialData.user[0].tenantId;
+
   const [addrainingCategoryApi] = useAddTrainingCategoryMutation();
   const [updateTrainingCategoryApi] = useUpdateTrainingCategoryMutation();
 
@@ -46,8 +50,16 @@ const AddTrainingCategory = (props: Props) => {
   }, []);
 
   const [loader, setLoader] = useState(false);
+
+  // Auto-select location based on tenantId
+  const getInitialLocation = () => {
+    if (tenantId === 1) return { id: 'Gaya', name: 'Gaya' };
+    if (tenantId === 2) return { id: 'Patna', name: 'Patna' };
+    return {}; // tenantId === 3 (superadmin) - no auto-selection
+  };
+
   const [form, setForm] = useState<any>({
-    bipardLocation: {},
+    bipardLocation: getInitialLocation(),
     categoryName: '',
     desc: '',
   });
@@ -188,6 +200,9 @@ const AddTrainingCategory = (props: Props) => {
           label={'Bipard Location'}
           placeholder={'Bipard Location'}
           onPress={() => {
+            // Only allow superadmin (tenantId === 3) to change location
+            if (tenantId !== 3) return;
+
             navigation.navigate('DropDownModal', {
               name: 'Bipard Location',
               Data: [
@@ -211,6 +226,7 @@ const AddTrainingCategory = (props: Props) => {
           inputText={form.bipardLocation?.name}
           isMandatory
           errorMessage={errors['bipardLocation.name']}
+          isDisabled={tenantId !== 3}
         />
         <TextInputOrganisms
           label={'Category Name'}

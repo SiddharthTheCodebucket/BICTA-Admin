@@ -14,6 +14,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import { useAndroidBackButton } from '../../../../../../hooks/behaviour';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import General from './General';
@@ -30,7 +31,9 @@ import {
   saveMaritalStatusList,
   savePostingDistrictList,
   saveRoleList,
+  saveSelectedTrainingCenter,
   saveTrainingCenterList,
+  saveTrainingNameList,
 } from '../../../../../../features/OtherRegistration/otherRegistrationSlice';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import Toast from 'react-native-toast-message';
@@ -43,6 +46,12 @@ interface Props {
 const OthersRegistration = ({ navigation, route }: Props) => {
   const dispatch = useDispatch();
   const [step, setStep] = useState(0);
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const { trainingCenterList, selectedTrainingCenter } = useAppSelector(
+    state => state.otherRegistration,
+  );
+  const tenantId = crediantialData.user[0].tenantId;
 
   const [commonListApi] = useCommonDropdownListMutation();
 
@@ -116,6 +125,52 @@ const OthersRegistration = ({ navigation, route }: Props) => {
       .unwrap()
       .then((res: any) => {
         dispatch(saveTrainingCenterList(res.data || []));
+        setLoader(false);
+      })
+      .catch((err: any) => {
+        setLoader(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+          autoHide: true,
+        });
+      });
+  };
+
+  // Auto-select training center and trigger API when list loads
+  useEffect(() => {
+    if (trainingCenterList.length === 0) return;
+    if (selectedTrainingCenter?.id) return; // Already selected
+
+    let autoSelectedCenter = null;
+    if (tenantId === 1) {
+      autoSelectedCenter = trainingCenterList.find(
+        (x: any) => x.name === 'Gaya',
+      );
+    } else if (tenantId === 2) {
+      autoSelectedCenter = trainingCenterList.find(
+        (x: any) => x.name === 'Patna',
+      );
+    }
+
+    if (autoSelectedCenter) {
+      dispatch(saveSelectedTrainingCenter(autoSelectedCenter));
+      // Trigger dependent API call
+      getAllTraining(autoSelectedCenter.name);
+    }
+  }, [trainingCenterList, tenantId]);
+
+  const getAllTraining = (name: string) => {
+    setLoader(true);
+    const params = {
+      listType: 'list-all-training',
+      bipardCentre: [name],
+      replacements: ['%%'],
+    };
+    commonListApi(params)
+      .unwrap()
+      .then((res: any) => {
+        dispatch(saveTrainingNameList(res.data || []));
         setLoader(false);
       })
       .catch((err: any) => {
