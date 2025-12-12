@@ -55,7 +55,7 @@ const initialForm = {
 
 const EditGuestHostelallocation = (props: Props) => {
   const { navigation } = props;
-  const item = props.route.params?.item;
+  const item = props.route?.params?.item;
   const input1_ref: any = createRef();
   const input2_ref: any = createRef();
 
@@ -85,7 +85,7 @@ const EditGuestHostelallocation = (props: Props) => {
     setValue('emailId', '');
 
     const genderObj =
-      form.genderList.find((g: any) => g.id === item.guestGender) || {};
+      form.genderList.find((g: any) => g?.id === item.guestGender) || {};
     setValue('gender', genderObj);
 
     setValue(
@@ -208,26 +208,6 @@ const EditGuestHostelallocation = (props: Props) => {
         });
         setLoader(false);
       });
-  };
-
-  let params = {
-    id: item.id,
-    hostelName: form.hostel.id,
-    roomNo: form.newRoom.id ?? null,
-    roomNameShow: form.allocatedRoom?.name ?? '',
-    bedName: form.newBed.id ?? null,
-    bedNameShow: form.allocatedBed?.name ?? '',
-    purpose: form.purpose,
-    traineeId: '',
-    guestId: '',
-    guestEmailId: '',
-    keyProvided: item.keyProvided,
-    yogaMatProvided: item.yogaMatProvided,
-    trainingCenter: [],
-    requestType: 'GUEST',
-    checkInDate: moment(form.checkInDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-    checkOutDate: moment(form.checkOutDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-    genderId: form.gender.id,
   };
 
   const updateHostelAllocationDetails = () => {
@@ -457,7 +437,7 @@ const EditGuestHostelallocation = (props: Props) => {
           errorMessage={errors.checkOutDate}
           minDate={
             form.checkInDate
-              ? moment(form.checkInDate, 'DD-MM-YYYY').format('DD-MM-YYYY')
+              ? moment(form.checkInDate, 'DD-MM-YYYY').toDate()
               : undefined
           }
         />

@@ -108,7 +108,7 @@ const BlockedForm = (props: Props) => {
     );
 
     const params =
-      form.blockType.id === 'Trainee'
+      form.blockType?.id === 'Trainee'
         ? {
             listType: 'select_vacant_bed_for_trainee',
             replacements: [
