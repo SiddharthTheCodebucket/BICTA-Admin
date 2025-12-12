@@ -36,6 +36,7 @@ import {
   useCommonFileUploadMutation,
   useUpdateVehicleDetailsMutation,
 } from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import { useAppSelector } from '../../../../../hooks';
 
 interface Props {
   route: any;
@@ -49,6 +50,9 @@ const AddVehicle = (props: Props) => {
   const input2_ref: any = createRef();
   const input3_ref: any = createRef();
   const input4_ref: any = createRef();
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const tenantId = crediantialData.user[0].tenantId;
 
   const [commonDropdownListApi] = useCommonDropdownListMutation();
   const [commonFileUploadApi] = useCommonFileUploadMutation();
@@ -84,6 +88,16 @@ const AddVehicle = (props: Props) => {
   };
 
   useEffect(() => {
+    if (!item) {
+      if (tenantId === 1) {
+        setValue('bipardLocation', { id: 'Gaya', name: 'Gaya' });
+        getColor('Gaya');
+      } else if (tenantId === 2) {
+        setValue('bipardLocation', { id: 'Patna', name: 'Patna' });
+        getColor('Patna');
+      }
+      return;
+    }
     if (item) {
       const locationMap: any = {
         1: { id: 'Gaya', name: 'Gaya' },
@@ -345,6 +359,7 @@ const AddVehicle = (props: Props) => {
           label={'Bipard Location'}
           placeholder={'Bipard Location'}
           onPress={() => {
+            if (tenantId !== 3) return;
             navigation.navigate('DropDownModal', {
               name: 'Bipard Location',
               Data: [
@@ -369,6 +384,7 @@ const AddVehicle = (props: Props) => {
           inputText={form.bipardLocation?.name}
           isMandatory
           errorMessage={errors['bipardLocation.name']}
+          isDisabled={tenantId !== 3}
         />
         <TextInputOrganisms
           label={'Vehicle Name'}
