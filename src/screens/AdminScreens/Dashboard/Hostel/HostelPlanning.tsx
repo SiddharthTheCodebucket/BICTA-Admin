@@ -215,12 +215,12 @@ const HostelPlanning = (props: any) => {
           </TouchableOpacity>
         </View>
         <TouchableOpacity
-          style={[styles.buttonAction, { width: vw(50) }]}
+          style={[styles.buttonAction, { width: vw(100) }]}
           onPress={() => setCurrentDate(new Date())}
         >
           <Text style={styles.calendarArrow}>Today</Text>
         </TouchableOpacity>
-
+        {/* 
         <TouchableOpacity
           style={styles.buttonAction}
           onPress={() => {
@@ -228,16 +228,16 @@ const HostelPlanning = (props: any) => {
           }}
         >
           <Text style={styles.calendarArrow}>Block</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.buttonAction}
           onPress={() => {
             navigation.navigate(screensName.BlockDetails);
           }}
         >
           <Text style={styles.calendarArrow}>Unblock</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       <FlatList
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     padding: vw(4),
     backgroundColor: colors.primary,
     alignItems: 'center',
-    width: vw(150),
+    width: vw(220),
     height: vh(30),
     borderRadius: vw(4),
   },
