@@ -7,7 +7,6 @@ import {
   NavigationType,
 } from '../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../components/atoms/TextAtom';
-import { usePermission } from '../../../../hooks/usePermission';
 
 interface Props {
   navigation: NavigationType;
@@ -27,17 +26,11 @@ const HostelManagement = (props: Props) => {
     {
       id: 1,
       name: 'Hostel',
-      permission: {
-        permissionName: 'LIST HOSTEL DETAILS',
-      },
       onPress: () => navigation.navigate(screensName.Hostel),
     },
     {
       id: 2,
       name: 'Guest',
-      permission: {
-        permissionName: 'LIST GUEST REGISTRATION',
-      },
       onPress: () => navigation.navigate(screensName.Guest),
     },
   ];
@@ -46,10 +39,6 @@ const HostelManagement = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <View style={{ flex: 1 }}>
         {DATA.map(item => {
-          const allowed = usePermission(item.permission.permissionName);
-
-          if (!allowed) return null;
-
           return (
             <TouchableOpacity
               key={item.id}
