@@ -147,46 +147,49 @@ const HostelPlanning = (props: any) => {
       });
   };
 
-  const renderCard = ({ item }: any) => (
-    <TouchableAtom
-      style={styles.card}
-      onPress={() => {
-        const filteredHostels = hostelDetails.filter(
-          (h: any) => h.reportDate === item.fullDate,
-        );
+  const renderCard = ({ item }: any) => {
+    const isToday = item.fullDate === moment().format('YYYY-MM-DD');
+    return (
+      <TouchableAtom
+        style={[styles.card, isToday && styles.todayCard]}
+        onPress={() => {
+          const filteredHostels = hostelDetails.filter(
+            (h: any) => h.reportDate === item.fullDate,
+          );
 
-        navigation.navigate(screensName.HostelPlanningDetails, {
-          selectedDate: item.fullDate,
-          hostels: filteredHostels,
-        });
-      }}
-    >
-      <View style={styles.dateRow}>
-        <Text style={styles.dateLeft}>{item.date}</Text>
-        <Text style={styles.dateRight}>{item.dayName}</Text>
-      </View>
+          navigation.navigate(screensName.HostelPlanningDetails, {
+            selectedDate: item.fullDate,
+            hostels: filteredHostels,
+          });
+        }}
+      >
+        <View style={styles.dateRow}>
+          <Text style={styles.dateLeft}>{item.date}</Text>
+          <Text style={styles.dateRight}>{item.dayName}</Text>
+        </View>
 
-      <View style={styles.infoRow}>
-        <Text style={styles.dataLabel}>Hostel Beds (Total)</Text>
-        <Text style={styles.dataValue}>{item.hostelTotal}</Text>
-      </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.dataLabel}>Hostel Beds (Total)</Text>
+          <Text style={styles.dataValue}>{item.hostelTotal}</Text>
+        </View>
 
-      <View style={styles.infoRow}>
-        <Text style={styles.dataLabel}>Hostel Beds (Occupied)</Text>
-        <Text style={styles.dataValue}>{item.hostelOccupied}</Text>
-      </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.dataLabel}>Hostel Beds (Occupied)</Text>
+          <Text style={styles.dataValue}>{item.hostelOccupied}</Text>
+        </View>
 
-      <View style={styles.infoRow}>
-        <Text style={styles.dataLabel}>Guest Beds (Total)</Text>
-        <Text style={styles.dataValue}>{item.guestTotal}</Text>
-      </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.dataLabel}>Guest Beds (Total)</Text>
+          <Text style={styles.dataValue}>{item.guestTotal}</Text>
+        </View>
 
-      <View style={styles.infoRow}>
-        <Text style={styles.dataLabel}>Guest Beds (Occupied)</Text>
-        <Text style={styles.dataValue}>{item.guestOccupied}</Text>
-      </View>
-    </TouchableAtom>
-  );
+        <View style={styles.infoRow}>
+          <Text style={styles.dataLabel}>Guest Beds (Occupied)</Text>
+          <Text style={styles.dataValue}>{item.guestOccupied}</Text>
+        </View>
+      </TouchableAtom>
+    );
+  };
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
@@ -348,5 +351,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.Roboto_Bold,
     color: colors.primary,
     marginLeft: vw(10),
+  },
+  todayCard: {
+    backgroundColor: colors.sky_blue,
+    borderColor: colors.sky_blue,
+    borderWidth: vw(1),
   },
 });

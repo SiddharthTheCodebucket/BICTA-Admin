@@ -21,4 +21,5 @@ export default {
   grey_1: 'rgba(209, 212, 217, 1)',
   grey_3: 'rgba(80, 84, 89, 1)',
   lightGreen: '#DFF6DD',
+  sky_blue: 'rgba(227,240,255,1)',
 };
