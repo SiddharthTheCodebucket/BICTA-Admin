@@ -134,7 +134,10 @@ const Support = (props: Props) => {
     <TouchableAtom
       style={styles.card}
       onPress={() => {
-        navigation.navigate(screensName.SupportViewAndReply, { item: item });
+        navigation.navigate(screensName.SupportViewAndReply, {
+          item: item,
+          onDone: () => supportList(1, true, search),
+        });
       }}
     >
       <View style={styles.rowBetween}>
@@ -266,7 +269,9 @@ const Support = (props: Props) => {
       />
       <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.AddSupport);
+          navigation.navigate(screensName.AddSupport, {
+            onDone: () => supportList(1, true, search),
+          });
         }}
       />
     </SafeAreaView>

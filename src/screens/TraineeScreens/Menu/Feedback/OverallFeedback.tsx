@@ -17,6 +17,7 @@ import { CommonActions } from '@react-navigation/native';
 import { useAddOverallFeedbackResponseMutation } from '../../../../injectEndpointsTrainee/feedbackEndpoints';
 
 interface Props {
+  route: any;
   navigation: NavigationType;
 }
 
@@ -93,16 +94,7 @@ const OverallFeedback = (props: Props) => {
           text2: res.data.message,
           autoHide: true,
         });
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: screensName.Feedback,
-              },
-            ],
-          }),
-        );
+        navigation.goBack();
         setLoader(false);
       })
       .catch((err: any) => {

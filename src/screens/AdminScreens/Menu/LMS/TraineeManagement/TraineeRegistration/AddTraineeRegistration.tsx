@@ -483,16 +483,8 @@ const AddTraineeRegistration = (props: Props) => {
     addTraineeRegistrationBulkApi(formData)
       .unwrap()
       .then((res: any) => {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: screensName.TraineeRegistration,
-              },
-            ],
-          }),
-        );
+        navigation.goBack();
+        props.route.params?.onDone?.();
         Toast.show({
           type: 'success',
           text2: res.data.message,
@@ -607,12 +599,8 @@ const AddTraineeRegistration = (props: Props) => {
     addTraineeRegistrationApi(payload)
       .unwrap()
       .then(res => {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: screensName.TraineeRegistration }],
-          }),
-        );
+        navigation.goBack();
+        props.route.params?.onDone?.();
         Toast.show({
           type: 'success',
           text2: res.data.message,
@@ -679,12 +667,8 @@ const AddTraineeRegistration = (props: Props) => {
     updateTraineeRegistrationApi(formDataNo)
       .unwrap()
       .then(res => {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: screensName.TraineeRegistration }],
-          }),
-        );
+        navigation.goBack();
+        props.route.params?.onDone?.();
         Toast.show({
           type: 'success',
           text2: res.data.message,

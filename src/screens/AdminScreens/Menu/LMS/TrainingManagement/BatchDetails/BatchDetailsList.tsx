@@ -202,6 +202,7 @@ const BatchDetailsList = (props: Props) => {
               onPress={() => {
                 navigation.navigate(screensName.EditBatchDetails, {
                   item: item,
+                  onDone: () => listVehicleDetails(1, true, search),
                 });
               }}
             >
@@ -227,6 +228,7 @@ const BatchDetailsList = (props: Props) => {
               onPress={() => {
                 navigation.navigate(screensName.MergedBatchForm, {
                   item: item,
+                  onDone: () => listVehicleDetails(1, true, search),
                 });
               }}
             >

@@ -173,13 +173,8 @@ const EditBatchDetails = (props: Props) => {
     updateTrainingBatchDetailsApi(params)
       .unwrap()
       .then((res: any) => {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: screensName.BatchDetailsList }],
-          }),
-        );
-
+        navigation.goBack();
+        props.route.params?.onDone?.();
         Toast.show({
           type: 'success',
           text2: res.data.message,

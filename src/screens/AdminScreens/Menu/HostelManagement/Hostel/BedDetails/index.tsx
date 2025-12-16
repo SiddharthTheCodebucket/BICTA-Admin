@@ -301,6 +301,7 @@ const BedDetails = (props: Props) => {
               onPress={() => {
                 navigation.navigate(screensName.AddBedDetails, {
                   item: item,
+                  onDone: () => bedDetailsList(1, true, search),
                 });
               }}
             >
@@ -665,7 +666,9 @@ const BedDetails = (props: Props) => {
       />
       <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.AddBedDetails);
+          navigation.navigate(screensName.AddBedDetails, {
+            onDone: () => bedDetailsList(1, true, search),
+          });
         }}
       />
     </SafeAreaView>

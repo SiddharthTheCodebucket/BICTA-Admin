@@ -23,6 +23,7 @@ import TouchableAtom from '../../../../components/atoms/TouchableAtom';
 import { useSupportAddComplainMutation } from '../../../../injectEndpointsTrainee/supportEndpoints';
 
 interface Props {
+  route: any;
   navigation: NavigationType;
 }
 
@@ -203,16 +204,8 @@ const AddSupport = (props: Props) => {
     supportAddComplainApi(formData)
       .unwrap()
       .then((res: any) => {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: screensName.Support,
-              },
-            ],
-          }),
-        );
+        navigation.goBack();
+        props.route.params?.onDone?.();
         Toast.show({
           type: 'success',
           text2: res.data.message,

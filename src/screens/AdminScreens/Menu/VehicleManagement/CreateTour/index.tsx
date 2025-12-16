@@ -238,7 +238,10 @@ const CreateTour = (props: Props) => {
                 justifyContent: 'center',
               }}
               onPress={() => {
-                navigation.navigate(screensName.AddCreateTour, { item: item });
+                navigation.navigate(screensName.AddCreateTour, {
+                  item: item,
+                  onDone: () => listTripDetails(1, true, search),
+                });
               }}
             >
               <ImageAtom
@@ -327,30 +330,28 @@ const CreateTour = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
       {crediantialData.user[0].tenantId === 3 && (
-
         <DropDownOrganism
-        label={''}
-        placeholder={'Centers'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Center',
-            Data: [
-              { id: 'All Centers', name: 'All Centers' },
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
-            ],
-            selectedData: centerSerach,
-            setSelectedData: (data: any) => {
-              setCenterSerach(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={centerSerach?.name}
-        containerStyle={{ marginBottom: vh(-10) }}
-      />
-
+          label={''}
+          placeholder={'Centers'}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Center',
+              Data: [
+                { id: 'All Centers', name: 'All Centers' },
+                { id: 'Gaya', name: 'Gaya' },
+                { id: 'Patna', name: 'Patna' },
+              ],
+              selectedData: centerSerach,
+              setSelectedData: (data: any) => {
+                setCenterSerach(data);
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={centerSerach?.name}
+          containerStyle={{ marginBottom: vh(-10) }}
+        />
       )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
@@ -399,7 +400,9 @@ const CreateTour = (props: Props) => {
       />
       <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.AddCreateTour);
+          navigation.navigate(screensName.AddCreateTour, {
+            onDone: () => listTripDetails(1, true, search),
+          });
         }}
       />
     </SafeAreaView>

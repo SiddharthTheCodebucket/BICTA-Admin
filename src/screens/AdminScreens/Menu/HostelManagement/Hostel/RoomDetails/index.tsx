@@ -341,6 +341,7 @@ const RoomDetails = (props: Props) => {
               onPress={() => {
                 navigation.navigate(screensName.AddRoomDetails, {
                   item: item,
+                  onDone: () => roomDetailsList(1, true, search),
                 });
               }}
             >
@@ -697,7 +698,9 @@ const RoomDetails = (props: Props) => {
       />
       <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.AddRoomDetails);
+          navigation.navigate(screensName.AddRoomDetails, {
+            onDone: () => roomDetailsList(1, true, search),
+          });
         }}
       />
     </SafeAreaView>

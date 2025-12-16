@@ -153,16 +153,8 @@ const AddFloorDetails = (props: Props) => {
     addHostelFloorApi(params)
       .unwrap()
       .then((res: any) => {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: screensName.FloorDetails,
-              },
-            ],
-          }),
-        );
+        navigation.goBack();
+        props.route.params?.onDone?.();
         Toast.show({
           type: 'success',
           text2: res.data.message,
@@ -192,16 +184,8 @@ const AddFloorDetails = (props: Props) => {
     updateHostelFloorApi(params)
       .unwrap()
       .then((res: any) => {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: screensName.FloorDetails,
-              },
-            ],
-          }),
-        );
+        navigation.goBack();
+        props.route.params?.onDone?.();
         Toast.show({
           type: 'success',
           text2: res.data.message,

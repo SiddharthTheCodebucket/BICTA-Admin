@@ -73,7 +73,7 @@ const HostelAllocation = (props: Props) => {
   const { navigation } = props;
   const isScreenFocused = useIsFocused();
   const input1_ref: any = createRef();
-  
+
   const { crediantialData } = useAppSelector(state => state.Auth);
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [hostelAllocationDetailsApi] = useHostelAllocationDetailsMutation();
@@ -271,6 +271,7 @@ const HostelAllocation = (props: Props) => {
         onPress={() => {
           navigation.navigate(screensName.HostelAllocationDetails, {
             data: item,
+            onDone: () => hostelAllocationDetails(1, true, search),
           });
         }}
       >
@@ -291,6 +292,7 @@ const HostelAllocation = (props: Props) => {
                 navigation.navigate(screensName.EditTraineeHostelAllocation, {
                   item: item,
                   isAllocated: false,
+                  onDone: () => hostelAllocationDetails(1, true, search),
                 });
               }}
             >
@@ -319,6 +321,7 @@ const HostelAllocation = (props: Props) => {
                   navigation.navigate(screensName.EditTraineeHostelAllocation, {
                     item: item,
                     isAllocated: true,
+                    onDone: () => hostelAllocationDetails(1, true, search),
                   });
                 }}
               >
@@ -434,6 +437,7 @@ const HostelAllocation = (props: Props) => {
             onPress={() => {
               navigation.navigate(screensName.EditGuestHostelallocation, {
                 item: item,
+                onDone: () => hostelAllocationDetails(1, true, search),
               });
             }}
           >

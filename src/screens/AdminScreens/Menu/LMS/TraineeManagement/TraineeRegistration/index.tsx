@@ -334,6 +334,7 @@ const TraineeRegistration = (props: Props) => {
               onPress={() => {
                 navigation.navigate(screensName.AddTraineeRegistration, {
                   item: item,
+                  onDone: () => listTraineeDetais(1, true, search),
                 });
               }}
             >
@@ -752,7 +753,9 @@ const TraineeRegistration = (props: Props) => {
       />
       <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.AddTraineeRegistration);
+          navigation.navigate(screensName.AddTraineeRegistration, {
+            onDone: () => listTraineeDetais(1, true, search),
+          });
         }}
       />
 

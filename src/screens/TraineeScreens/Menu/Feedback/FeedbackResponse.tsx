@@ -21,6 +21,7 @@ import { useCommonDropdownListMutation } from '../../../../injectEndpointsTraine
 import { useAddFeedbackResponseMutation } from '../../../../injectEndpointsTrainee/feedbackEndpoints';
 
 interface Props {
+  route: any;
   navigation: NavigationType;
 }
 
@@ -140,16 +141,8 @@ const FeedbackResponse = (props: Props) => {
           text2: res.data.message,
           autoHide: true,
         });
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: screensName.FeedbackResponseList,
-              },
-            ],
-          }),
-        );
+        navigation.goBack();
+        props.route.params?.onDone?.();
         setLoader(false);
       })
       .catch((err: any) => {

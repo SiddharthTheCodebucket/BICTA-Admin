@@ -281,6 +281,7 @@ const HostelDetails = (props: Props) => {
               onPress={() => {
                 navigation.navigate(screensName.AddHostelDetails, {
                   item: item,
+                  onDone: () => hostelDetailsList(1, true, search),
                 });
               }}
             >
@@ -493,7 +494,9 @@ const HostelDetails = (props: Props) => {
       />
       <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.AddHostelDetails);
+          navigation.navigate(screensName.AddHostelDetails, {
+            onDone: () => hostelDetailsList(1, true, search),
+          });
         }}
       />
     </SafeAreaView>

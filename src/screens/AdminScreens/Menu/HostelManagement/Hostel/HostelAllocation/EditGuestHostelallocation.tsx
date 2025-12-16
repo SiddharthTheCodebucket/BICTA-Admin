@@ -187,17 +187,8 @@ const EditGuestHostelallocation = (props: Props) => {
     hostelAllocationApi(params)
       .unwrap()
       .then((res: any) => {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: screensName.HostelAllocation,
-              },
-            ],
-          }),
-        );
-
+        navigation.goBack();
+        props.route.params?.onDone?.();
         Toast.show({ type: 'success', text2: res.data.message });
         setLoader(false);
       })
@@ -237,16 +228,8 @@ const EditGuestHostelallocation = (props: Props) => {
     updateHostelAllocationApi(params)
       .unwrap()
       .then((res: any) => {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: screensName.HostelAllocation,
-              },
-            ],
-          }),
-        );
+        navigation.goBack();
+        props.route.params?.onDone?.();
         Toast.show({
           type: 'success',
           text2: res.data.message,

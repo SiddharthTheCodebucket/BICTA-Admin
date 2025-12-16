@@ -150,16 +150,18 @@ const AddGuest = (props: Props) => {
     addGuestApi(params)
       .unwrap()
       .then((res: any) => {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: screensName.Guest,
-              },
-            ],
-          }),
-        );
+        // navigation.dispatch(
+        //   CommonActions.reset({
+        //     index: 0,
+        //     routes: [
+        //       {
+        //         name: screensName.Guest,
+        //       },
+        //     ],
+        //   }),
+        // );
+        navigation.goBack();
+        props.route.params?.onDone?.();
         Toast.show({
           type: 'success',
           text2: res.data.message,
@@ -190,16 +192,18 @@ const AddGuest = (props: Props) => {
     updateGuestApi(params)
       .unwrap()
       .then((res: any) => {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: screensName.Guest,
-              },
-            ],
-          }),
-        );
+        // navigation.dispatch(
+        //   CommonActions.reset({
+        //     index: 0,
+        //     routes: [
+        //       {
+        //         name: screensName.Guest,
+        //       },
+        //     ],
+        //   }),
+        // );
+        navigation.goBack();
+        props.route.params?.onDone?.();
         Toast.show({
           type: 'success',
           text2: res.data.message,

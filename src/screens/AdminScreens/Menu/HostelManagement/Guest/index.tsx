@@ -59,7 +59,7 @@ const debounce = (func: any, delay: number) => {
 const Guest = (props: Props) => {
   const { navigation } = props;
 
-  const {crediantialData}=useAppSelector(state=>state.Auth)
+  const { crediantialData } = useAppSelector(state => state.Auth);
   const [guestListDetailsApi] = useGuestListMutation();
   const [deleteGuestApi] = useDeleteGuestMutation();
 
@@ -237,7 +237,10 @@ const Guest = (props: Props) => {
                 justifyContent: 'center',
               }}
               onPress={() => {
-                navigation.navigate(screensName.AddGuest, { item: item });
+                navigation.navigate(screensName.AddGuest, {
+                  item: item,
+                  onDone: () => guestListDetails(1, true, search),
+                });
               }}
             >
               <ImageAtom
@@ -308,28 +311,30 @@ const Guest = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-    {crediantialData.user[0].tenantId === 3 && (  <DropDownOrganism
-        label={''}
-        placeholder={'Centers'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Center',
-            Data: [
-              { id: 'All Centers', name: 'All Centers' },
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
-            ],
-            selectedData: centerSerach,
-            setSelectedData: (data: any) => {
-              setCenterSerach(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={centerSerach?.name}
-        containerStyle={{ marginBottom: vh(-10) }}
-      />)}
+      {crediantialData.user[0].tenantId === 3 && (
+        <DropDownOrganism
+          label={''}
+          placeholder={'Centers'}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Center',
+              Data: [
+                { id: 'All Centers', name: 'All Centers' },
+                { id: 'Gaya', name: 'Gaya' },
+                { id: 'Patna', name: 'Patna' },
+              ],
+              selectedData: centerSerach,
+              setSelectedData: (data: any) => {
+                setCenterSerach(data);
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={centerSerach?.name}
+          containerStyle={{ marginBottom: vh(-10) }}
+        />
+      )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}
@@ -377,7 +382,9 @@ const Guest = (props: Props) => {
       />
       <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.AddGuest);
+          navigation.navigate(screensName.AddGuest, {
+            onDone: () => guestListDetails(1, true, search),
+          });
         }}
       />
     </SafeAreaView>

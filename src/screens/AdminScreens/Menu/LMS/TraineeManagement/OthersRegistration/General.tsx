@@ -1,5 +1,5 @@
 import { Keyboard, StyleSheet, Text, View } from 'react-native';
-import React, { createRef, useState } from 'react';
+import React, { createRef, useRef, useState } from 'react';
 import { NavigationType } from '../../../../../../components/organisms/HeaderOrganism';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
@@ -41,11 +41,11 @@ interface Props {
 
 const General = (props: Props) => {
   const { navigation, goNext } = props;
-  const input1_ref: any = createRef();
-  const input2_ref: any = createRef();
-  const input3_ref: any = createRef();
-  const input4_ref: any = createRef();
-  const input5_ref: any = createRef();
+  const input1_ref = useRef<any>(null);
+  const input2_ref = useRef<any>(null);
+  const input3_ref = useRef<any>(null);
+  const input4_ref = useRef<any>(null);
+  const input5_ref = useRef<any>(null);
   const { crediantialData } = useAppSelector(state => state.Auth);
 
   const tenantId = crediantialData.user[0].tenantId;

@@ -296,6 +296,7 @@ const AssignVehicle = (props: Props) => {
               onPress={() => {
                 navigation.navigate(screensName.AddAssignVehicle, {
                   item: item,
+                  onDone: () => listVehicleDetails(1, true, search),
                 });
               }}
             >
@@ -469,30 +470,28 @@ const AssignVehicle = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
       {crediantialData.user[0].tenantId === 3 && (
-
         <DropDownOrganism
-        label={''}
-        placeholder={'Centers'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Center',
-            Data: [
-              { id: 'All Centers', name: 'All Centers' },
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
-            ],
-            selectedData: centerSerach,
-            setSelectedData: (data: any) => {
-              setCenterSerach(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={centerSerach?.name}
-        containerStyle={{ marginBottom: vh(-10) }}
-      />
-
+          label={''}
+          placeholder={'Centers'}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Center',
+              Data: [
+                { id: 'All Centers', name: 'All Centers' },
+                { id: 'Gaya', name: 'Gaya' },
+                { id: 'Patna', name: 'Patna' },
+              ],
+              selectedData: centerSerach,
+              setSelectedData: (data: any) => {
+                setCenterSerach(data);
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={centerSerach?.name}
+          containerStyle={{ marginBottom: vh(-10) }}
+        />
       )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
@@ -541,7 +540,9 @@ const AssignVehicle = (props: Props) => {
       />
       <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.AddAssignVehicle);
+          navigation.navigate(screensName.AddAssignVehicle, {
+            onDone: () => listVehicleDetails(1, true, search),
+          });
         }}
       />
       {showAssignModal && (

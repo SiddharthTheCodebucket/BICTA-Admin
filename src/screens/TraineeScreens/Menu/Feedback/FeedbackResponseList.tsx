@@ -269,7 +269,9 @@ const FeedbackResponseList = (props: Props) => {
       />
       <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.FeedbackResponse);
+          navigation.navigate(screensName.FeedbackResponse, {
+            onDone: () => ListfeedbackResponse(1, true, search),
+          });
         }}
       />
     </SafeAreaView>
