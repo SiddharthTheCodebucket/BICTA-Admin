@@ -427,8 +427,8 @@ const EditBatchDetails = (props: Props) => {
           }}
           isMandatory
           errorMessage={errors.batchName}
-          disabled
-          editable={false}
+          // disabled
+          // editable={false}
         />
         <DropDownOrganism
           label={'Batch Location'}
