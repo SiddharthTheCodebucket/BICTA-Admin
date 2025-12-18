@@ -115,23 +115,23 @@ export const formatDate = (isoString: string): string => {
 
 export const downloadAndOpenFile = async (fileUrl: string) => {
   try {
-    if (Platform.OS === 'android') {
-      const permission =
-        Platform.Version >= 33
-          ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
-          : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+    // if (Platform.OS === 'android') {
+    //   const permission =
+    //     Platform.Version >= 33
+    //       ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
+    //       : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
 
-      const granted = await PermissionsAndroid.request(permission, {
-        title: 'Storage Permission Required',
-        message: 'We need access to save the file',
-        buttonPositive: 'OK',
-        buttonNegative: 'Cancel',
-      });
+    //   const granted = await PermissionsAndroid.request(permission, {
+    //     title: 'Storage Permission Required',
+    //     message: 'We need access to save the file',
+    //     buttonPositive: 'OK',
+    //     buttonNegative: 'Cancel',
+    //   });
 
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-        return;
-      }
-    }
+    //   if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+    //     return;
+    //   }
+    // }
 
     const fileName = fileUrl.split('/').pop();
     const downloadDir =
