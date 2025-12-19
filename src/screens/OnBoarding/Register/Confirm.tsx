@@ -183,6 +183,8 @@ const Confirm = (props: Props) => {
     formData.append('selectRole', 22);
     formData.append('bloodGroup', selectedBloodGroup.id);
     formData.append('otp', otp?.join(''));
+    formData.append('designation', selecteddepartment.id);
+    formData.append('placeOfPosting', placeOfPosting);
 
     if (selectedGender.id === 'Female' && selectedMaritalStatus.id === 'M') {
       formData.append('pregnancyStatus', pregnancyStatus.id);
