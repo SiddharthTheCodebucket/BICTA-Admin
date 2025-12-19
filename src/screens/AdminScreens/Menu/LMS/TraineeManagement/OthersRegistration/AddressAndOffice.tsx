@@ -52,6 +52,17 @@ const AddressAndOffice = (props: Props) => {
   const [errors, setErrors] = React.useState<any>({});
   const [loader, setLoader] = useState(false);
 
+  const [localForm, setLocalForm] = useState({
+    residentialAddress: residentialAddress,
+    officeAddress: officeAddress,
+    postingDistrictList: postingDistrictList,
+    selectedPostingDistrict: selectedPostingDistrict,
+    postingBlockList: postingBlockList,
+    selectedPostingBlock: selectedPostingBlock,
+    postingPanchyatList: postingPanchyatList,
+    selectedPostingPanchyat: selectedPostingPanchyat,
+  });
+
   const generalSchema = Yup.object().shape({
     selectedPostingPanchyat: Yup.object({
       eName: Yup.string().required('Posting panchyat is required'),
@@ -73,18 +84,31 @@ const AddressAndOffice = (props: Props) => {
   const handleNext = async () => {
     try {
       await generalSchema.validate({
-        residentialAddress,
-        officeAddress,
-        selectedPostingDistrict,
-        selectedPostingBlock,
-        selectedPostingPanchyat,
+        residentialAddress: localForm.residentialAddress,
+        officeAddress: localForm.officeAddress,
+        selectedPostingDistrict: localForm.selectedPostingDistrict,
+        selectedPostingBlock: localForm.selectedPostingBlock,
+        selectedPostingPanchyat: localForm.selectedPostingPanchyat,
       });
+      dispatch(saveOfficeAddress(localForm.officeAddress));
+      dispatch(savePostingBlockList(localForm.postingBlockList));
+      dispatch(savePostingPanchyatList(localForm.postingPanchyatList));
+      dispatch(saveResidentialAddress(localForm.residentialAddress));
+      dispatch(saveSelectedPostingBlock(localForm.selectedPostingBlock));
+      dispatch(saveSelectedPostingDistrict(localForm.selectedPostingDistrict));
+      dispatch(saveSelectedPostingPanchyat(localForm.selectedPostingPanchyat));
+
       setErrors({});
       goNext();
     } catch (err: any) {
       setErrors({ [err.path]: err.message });
     }
   };
+
+  const setValue = (key: any, value: any) => {
+    setLocalForm((prev: any) => ({ ...prev, [key]: value }));
+  };
+
   const getAllBlock = (id: string) => {
     setLoader(true);
     const params = {
@@ -94,7 +118,7 @@ const AddressAndOffice = (props: Props) => {
     commonListApi(params)
       .unwrap()
       .then((res: any) => {
-        dispatch(savePostingBlockList(res.data || []));
+        setValue('postingBlockList', res.data || []);
         setLoader(false);
       })
       .catch((err: any) => {
@@ -115,7 +139,7 @@ const AddressAndOffice = (props: Props) => {
     commonListApi(params)
       .unwrap()
       .then((res: any) => {
-        dispatch(savePostingPanchyatList(res.data || []));
+        setValue('postingPanchyatList', res.data || []);
         setLoader(false);
       })
       .catch((err: any) => {
@@ -145,9 +169,9 @@ const AddressAndOffice = (props: Props) => {
           placeholder={'Residental Address'}
           ref={input1_ref}
           onSubmitEditing={() => input2_ref.current.focus()}
-          value={residentialAddress}
+          value={localForm.residentialAddress}
           onChangeText={(val: any) => {
-            dispatch(saveResidentialAddress(val));
+            setValue('residentialAddress', val);
             setErrors({ ...errors, residentialAddress: '' });
           }}
           autoCapitalize={'none'}
@@ -161,9 +185,9 @@ const AddressAndOffice = (props: Props) => {
           placeholder={'Office Address'}
           ref={input2_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
-          value={officeAddress}
+          value={localForm.officeAddress}
           onChangeText={(val: any) => {
-            dispatch(saveOfficeAddress(val));
+            setValue('officeAddress', val);
             setErrors({ ...errors, officeAddress: '' });
           }}
           autoCapitalize={'none'}
@@ -178,13 +202,13 @@ const AddressAndOffice = (props: Props) => {
           onPress={() => {
             navigation.navigate('DropDownModal', {
               name: 'Posting District List',
-              Data: postingDistrictList,
-              selectedData: selectedPostingDistrict,
+              Data: localForm.postingDistrictList,
+              selectedData: localForm.selectedPostingDistrict,
               setSelectedData: (data: any) => {
-                dispatch(saveSelectedPostingDistrict(data));
+                setValue('selectedPostingDistrict', data);
                 getAllBlock(data.id);
-                dispatch(saveSelectedPostingBlock({}));
-                dispatch(saveSelectedPostingPanchyat({}));
+                setValue('selectedPostingBlock', {});
+                setValue('selectedPostingPanchyat', {});
                 setErrors({ ...errors, 'selectedPostingDistrict.eName': '' });
               },
               typeName: 'eName',
@@ -192,7 +216,7 @@ const AddressAndOffice = (props: Props) => {
             });
           }}
           isMandatory
-          inputText={selectedPostingDistrict?.eName}
+          inputText={localForm.selectedPostingDistrict?.eName}
           errorMessage={errors['selectedPostingDistrict.eName']}
         />
         <DropDownOrganism
@@ -201,12 +225,12 @@ const AddressAndOffice = (props: Props) => {
           onPress={() => {
             navigation.navigate('DropDownModal', {
               name: 'Posting Block List',
-              Data: postingBlockList,
-              selectedData: selectedPostingBlock,
+              Data: localForm.postingBlockList,
+              selectedData: localForm.selectedPostingBlock,
               setSelectedData: (data: any) => {
-                dispatch(saveSelectedPostingBlock(data));
+                setValue('selectedPostingBlock', data);
                 getAllPanchyat(data.id);
-                dispatch(saveSelectedPostingPanchyat({}));
+                setValue('selectedPostingPanchyat', {});
                 setErrors({ ...errors, 'selectedPostingBlock.eName': '' });
               },
               typeName: 'eName',
@@ -214,7 +238,7 @@ const AddressAndOffice = (props: Props) => {
             });
           }}
           isMandatory
-          inputText={selectedPostingBlock?.eName}
+          inputText={localForm.selectedPostingBlock?.eName}
           errorMessage={errors['selectedPostingBlock.eName']}
         />
         <DropDownOrganism
@@ -223,10 +247,10 @@ const AddressAndOffice = (props: Props) => {
           onPress={() => {
             navigation.navigate('DropDownModal', {
               name: 'Posting Panchyat List',
-              Data: postingPanchyatList,
-              selectedData: selectedPostingPanchyat,
+              Data: localForm.postingPanchyatList,
+              selectedData: localForm.selectedPostingPanchyat,
               setSelectedData: (data: any) => {
-                dispatch(saveSelectedPostingPanchyat(data));
+                setValue('selectedPostingPanchyat', data);
                 setErrors({ ...errors, 'selectedPostingPanchyat.eName': '' });
               },
               typeName: 'eName',
@@ -234,7 +258,7 @@ const AddressAndOffice = (props: Props) => {
             });
           }}
           isMandatory
-          inputText={selectedPostingPanchyat?.eName}
+          inputText={localForm.selectedPostingPanchyat?.eName}
           errorMessage={errors['selectedPostingPanchyat.eName']}
         />
       </KeyboardAwareScrollView>

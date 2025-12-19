@@ -1,5 +1,5 @@
 import { Keyboard, StyleSheet, Text, View } from 'react-native';
-import React, { createRef, useRef, useState } from 'react';
+import React, { createRef, useEffect, useRef, useState } from 'react';
 import { NavigationType } from '../../../../../../components/organisms/HeaderOrganism';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
@@ -80,6 +80,24 @@ const General = (props: Props) => {
 
   const [errors, setErrors] = React.useState<any>({});
 
+  const [localForm, setLocalForm] = useState({
+    selectedTrainingCenter: selectedTrainingCenter,
+    selectedTrainingName: selectedTrainingName,
+    name: name,
+    selectedGender: selectedGender,
+    selectedMaritalStatus: selectedMaritalStatus,
+    selectedPregnancyStatus: selectedPregnancyStatus,
+    fatherName: fatherName,
+    dob: dob,
+    selectedEducationalQualification: selectedEducationalQualification,
+    selectedDepartment: selectedDepartment,
+    selectedDesignation: selectedDesignation,
+    aadharNumber: aadharNumber,
+    mobileNumber: mobileNumber,
+    placeOfPosting: placeOfPosting,
+    trainingNameList: trainingNameList,
+  });
+
   const generalSchema = Yup.object().shape({
     placeOfPosting: Yup.string().required('Place of posting is required'),
 
@@ -92,17 +110,15 @@ const General = (props: Props) => {
     }),
 
     selectedEducationalQualification: Yup.object({
-      name: Yup.string().required('Qualification is required'),
+      name: Yup.string().required('Educational Qualification is required'),
     }),
 
     mobileNumber: Yup.string()
-      .length(10, 'Mobile number must be 10 digits')
-      .required('Mobile number is required'),
-
+      .required('Mobile number is required')
+      .length(10, 'Mobile number must be 10 digits'),
     aadharNumber: Yup.string()
-      .length(12, 'Aadhar must be 12 digits')
-      .required('Aadhar Number is required'),
-
+      .required('Aadhar Number is required')
+      .length(12, 'Aadhar must be 12 digits'),
     dob: Yup.string().required('DOB is required'),
 
     fatherName: Yup.string().required('Father name is required'),
@@ -134,27 +150,49 @@ const General = (props: Props) => {
   const handleNext = async () => {
     try {
       await generalSchema.validate({
-        selectedTrainingCenter,
-        selectedTrainingName,
-        name,
-        selectedGender,
-        selectedMaritalStatus,
-        selectedPregnancyStatus,
-        fatherName,
-        dob,
-        aadharNumber,
-        mobileNumber,
-        selectedEducationalQualification,
-        selectedDepartment,
-        selectedDesignation,
-        placeOfPosting,
+        selectedTrainingCenter: localForm.selectedTrainingCenter,
+        selectedTrainingName: localForm.selectedTrainingName,
+        name: localForm.name,
+        selectedGender: localForm.selectedGender,
+        selectedMaritalStatus: localForm.selectedMaritalStatus,
+        selectedPregnancyStatus: localForm.selectedPregnancyStatus,
+        fatherName: localForm.fatherName,
+        dob: localForm.dob,
+        aadharNumber: localForm.aadharNumber,
+        mobileNumber: localForm.mobileNumber,
+        selectedEducationalQualification:
+          localForm.selectedEducationalQualification,
+        selectedDepartment: localForm.selectedDepartment,
+        selectedDesignation: localForm.selectedDesignation,
+        placeOfPosting: localForm.placeOfPosting,
       });
       setErrors({});
+      dispatch(saveName(localForm.name));
+      dispatch(saveFatherName(localForm.fatherName));
+      dispatch(saveAadharNumber(localForm.aadharNumber));
+      dispatch(saveMobileNumber(localForm.mobileNumber));
+      dispatch(savePlaceOfPosting(localForm.placeOfPosting));
+      dispatch(saveDob(localForm.dob));
+
+      dispatch(saveSelectedDepartment(localForm.selectedDepartment));
+      dispatch(saveSelectedDesignation(localForm.selectedDesignation));
+      dispatch(
+        saveSelectedEducationalQualification(
+          localForm.selectedEducationalQualification,
+        ),
+      );
+      dispatch(saveSelectedGender(localForm.selectedGender));
+      dispatch(saveSelectedMaritalStatus(localForm.selectedMaritalStatus));
+      dispatch(saveSelectedPregnancyStatus(localForm.selectedPregnancyStatus));
+      dispatch(saveSelectedTrainingCenter(localForm.selectedTrainingCenter));
+      dispatch(saveSelectedTrainingName(localForm.selectedTrainingName));
+      dispatch(saveTrainingNameList(localForm.trainingNameList));
       goNext();
     } catch (err: any) {
       setErrors({ [err.path]: err.message });
     }
   };
+
   const getAllTraining = (name: string) => {
     setLoader(true);
     const params = {
@@ -165,7 +203,7 @@ const General = (props: Props) => {
     commonListApi(params)
       .unwrap()
       .then((res: any) => {
-        dispatch(saveTrainingNameList(res.data || []));
+        setValue('trainingNameList', res.data || []);
         setLoader(false);
       })
       .catch((err: any) => {
@@ -180,6 +218,10 @@ const General = (props: Props) => {
 
   const eighteenYearsAgo = new Date();
   eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+
+  const setValue = (key: any, value: any) => {
+    setLocalForm((prev: any) => ({ ...prev, [key]: value }));
+  };
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
@@ -200,10 +242,10 @@ const General = (props: Props) => {
             navigation.navigate('DropDownModal', {
               name: 'Training Center',
               Data: trainingCenterList,
-              selectedData: selectedTrainingCenter,
+              selectedData: localForm.selectedTrainingCenter,
               setSelectedData: (data: any) => {
-                dispatch(saveSelectedTrainingCenter(data));
-                dispatch(saveSelectedTrainingName({}));
+                setValue('selectedTrainingCenter', data);
+                setValue('selectedTrainingName', {});
                 getAllTraining(data.name);
                 setErrors({ ...errors, 'selectedTrainingCenter.name': '' });
               },
@@ -212,7 +254,7 @@ const General = (props: Props) => {
             });
           }}
           isMandatory
-          inputText={selectedTrainingCenter?.name}
+          inputText={localForm.selectedTrainingCenter?.name}
           errorMessage={errors['selectedTrainingCenter.name']}
           isDisabled={tenantId !== 3}
         />
@@ -223,10 +265,10 @@ const General = (props: Props) => {
           onPress={() => {
             navigation.navigate('DropDownModal', {
               name: 'Training Name',
-              Data: trainingNameList,
-              selectedData: selectedTrainingName,
+              Data: localForm.trainingNameList,
+              selectedData: localForm.selectedTrainingName,
               setSelectedData: (data: any) => {
-                dispatch(saveSelectedTrainingName(data));
+                setValue('selectedTrainingName', data);
                 setErrors({ ...errors, 'selectedTrainingName.name': '' });
               },
               typeName: 'name',
@@ -234,7 +276,7 @@ const General = (props: Props) => {
             });
           }}
           isMandatory
-          inputText={selectedTrainingName?.name}
+          inputText={localForm.selectedTrainingName?.name}
           errorMessage={errors['selectedTrainingName.name']}
         />
         <TextInputOrganisms
@@ -242,9 +284,9 @@ const General = (props: Props) => {
           placeholder={'Name'}
           ref={input1_ref}
           onSubmitEditing={() => input2_ref.current.focus()}
-          value={name}
+          value={localForm.name}
           onChangeText={(val: any) => {
-            dispatch(saveName(val));
+            setValue('name', val);
             setErrors({ ...errors, name: '' });
           }}
           autoCapitalize={'none'}
@@ -259,17 +301,17 @@ const General = (props: Props) => {
             navigation.navigate('DropDownModal', {
               name: 'Gender',
               Data: genderList,
-              selectedData: selectedGender,
+              selectedData: localForm.selectedGender,
               setSelectedData: (data: any) => {
-                dispatch(saveSelectedGender(data));
-                dispatch(saveSelectedMaritalStatus({}));
+                setValue('selectedGender', data);
+                setValue('selectedMaritalStatus', {});
                 setErrors({ ...errors, 'selectedGender.name': '' });
               },
               typeName: 'name',
               typeId: 'id',
             });
           }}
-          inputText={selectedGender?.name}
+          inputText={localForm.selectedGender?.name}
           isMandatory
           errorMessage={errors['selectedGender.name']}
         />
@@ -280,11 +322,11 @@ const General = (props: Props) => {
             navigation.navigate('DropDownModal', {
               name: 'Marital Status',
               Data: maritalStatusList,
-              selectedData: selectedMaritalStatus,
+              selectedData: localForm.selectedMaritalStatus,
               setSelectedData: (data: any) => {
-                dispatch(saveSelectedMaritalStatus(data));
-                if (selectedMaritalStatus.id === 'U') {
-                  dispatch(saveSelectedPregnancyStatus({}));
+                setValue('selectedMaritalStatus', data);
+                if (localForm.selectedMaritalStatus?.id === 'U') {
+                  setValue('selectedPregnancyStatus', {});
                 }
                 setErrors({ ...errors, 'selectedMaritalStatus.name': '' });
               },
@@ -292,13 +334,13 @@ const General = (props: Props) => {
               typeId: 'id',
             });
           }}
-          inputText={selectedMaritalStatus?.name}
+          inputText={localForm.selectedMaritalStatus?.name}
           isMandatory
           errorMessage={errors['selectedMaritalStatus.name']}
         />
 
-        {selectedGender?.name === 'Female' &&
-          selectedMaritalStatus.id === 'M' && (
+        {localForm.selectedGender?.name === 'Female' &&
+          localForm.selectedMaritalStatus?.id === 'M' && (
             <DropDownOrganism
               label={'Pregnancy Status'}
               placeholder={'Pregnancy Status'}
@@ -306,9 +348,9 @@ const General = (props: Props) => {
                 navigation.navigate('DropDownModal', {
                   name: 'Pregnancy Status',
                   Data: pregnancyStatusList,
-                  selectedData: selectedPregnancyStatus,
+                  selectedData: localForm.selectedPregnancyStatus,
                   setSelectedData: (data: any) => {
-                    dispatch(saveSelectedPregnancyStatus(data));
+                    setValue('selectedPregnancyStatus', data);
                     setErrors({
                       ...errors,
                       'selectedPregnancyStatus.name': '',
@@ -318,7 +360,7 @@ const General = (props: Props) => {
                   typeId: 'id',
                 });
               }}
-              inputText={selectedPregnancyStatus?.name}
+              inputText={localForm.selectedPregnancyStatus?.name}
               isMandatory
               errorMessage={errors['selectedPregnancyStatus.name']}
             />
@@ -328,9 +370,9 @@ const General = (props: Props) => {
           placeholder={'Father Name'}
           ref={input2_ref}
           onSubmitEditing={() => input3_ref.current.focus()}
-          value={fatherName}
+          value={localForm.fatherName}
           onChangeText={(val: any) => {
-            dispatch(saveFatherName(val));
+            setValue('fatherName', val);
             setErrors({ ...errors, fatherName: '' });
           }}
           autoCapitalize={'none'}
@@ -342,9 +384,9 @@ const General = (props: Props) => {
         <DateInputOrganism
           label={'DOB'}
           placeholder={'DOB'}
-          value={dob}
+          value={localForm.dob}
           onChangeText={(val: any) => {
-            dispatch(saveDob(val));
+            setValue('dob', val);
             setErrors({ ...errors, dob: '' });
           }}
           fieldName={'date'}
@@ -359,9 +401,9 @@ const General = (props: Props) => {
           placeholder={'Aadhar Number'}
           ref={input3_ref}
           onSubmitEditing={() => input4_ref.current.focus()}
-          value={aadharNumber}
+          value={localForm.aadharNumber}
           onChangeText={(val: any) => {
-            dispatch(saveAadharNumber(normalizeNumber(val)));
+            setValue('aadharNumber', normalizeNumber(val));
             setErrors({ ...errors, aadharNumber: '' });
           }}
           autoCapitalize={'none'}
@@ -376,9 +418,9 @@ const General = (props: Props) => {
           placeholder={'Mobile Number'}
           ref={input4_ref}
           onSubmitEditing={() => input5_ref.current.focus()}
-          value={mobileNumber}
+          value={localForm.mobileNumber}
           onChangeText={(val: any) => {
-            dispatch(saveMobileNumber(normalizeNumber(val)));
+            setValue('mobileNumber', normalizeNumber(val));
             setErrors({ ...errors, mobileNumber: '' });
           }}
           autoCapitalize={'none'}
@@ -395,9 +437,9 @@ const General = (props: Props) => {
             navigation.navigate('DropDownModal', {
               name: 'Educational Qualification',
               Data: educationalQualificationList,
-              selectedData: selectedEducationalQualification,
+              selectedData: localForm.selectedEducationalQualification,
               setSelectedData: (data: any) => {
-                dispatch(saveSelectedEducationalQualification(data));
+                setValue('selectedEducationalQualification', data);
                 setErrors({
                   ...errors,
                   'selectedEducationalQualification.name': '',
@@ -407,7 +449,7 @@ const General = (props: Props) => {
               typeId: 'id',
             });
           }}
-          inputText={selectedEducationalQualification?.name}
+          inputText={localForm.selectedEducationalQualification?.name}
           isMandatory
           errorMessage={errors['selectedEducationalQualification.name']}
         />
@@ -419,16 +461,16 @@ const General = (props: Props) => {
             navigation.navigate('DropDownModal', {
               name: 'Department',
               Data: departmentList,
-              selectedData: selectedDepartment,
+              selectedData: localForm.selectedDepartment,
               setSelectedData: (data: any) => {
-                dispatch(saveSelectedDepartment(data));
+                setValue('selectedDepartment', data);
                 setErrors({ ...errors, 'selectedDepartment.name': '' });
               },
               typeName: 'name',
               typeId: 'id',
             });
           }}
-          inputText={selectedDepartment?.name}
+          inputText={localForm.selectedDepartment?.name}
           isMandatory
           errorMessage={errors['selectedDepartment.name']}
         />
@@ -439,16 +481,16 @@ const General = (props: Props) => {
             navigation.navigate('DropDownModal', {
               name: 'Designation',
               Data: designationList,
-              selectedData: selectedDesignation,
+              selectedData: localForm.selectedDesignation,
               setSelectedData: (data: any) => {
-                dispatch(saveSelectedDesignation(data));
+                setValue('selectedDesignation', data);
                 setErrors({ ...errors, 'selectedDesignation.name': '' });
               },
               typeName: 'name',
               typeId: 'id',
             });
           }}
-          inputText={selectedDesignation?.name}
+          inputText={localForm.selectedDesignation?.name}
           isMandatory
           errorMessage={errors['selectedDesignation.name']}
         />
@@ -458,9 +500,9 @@ const General = (props: Props) => {
           placeholder={'Place of Posting'}
           ref={input5_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
-          value={placeOfPosting}
+          value={localForm.placeOfPosting}
           onChangeText={(val: any) => {
-            dispatch(savePlaceOfPosting(val));
+            setValue('placeOfPosting', val);
             setErrors({ ...errors, placeOfPosting: '' });
           }}
           autoCapitalize={'none'}

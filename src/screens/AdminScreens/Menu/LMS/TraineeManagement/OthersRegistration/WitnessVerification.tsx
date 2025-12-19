@@ -52,6 +52,24 @@ const WitnessVerification = (props: Props) => {
 
   const [errors, setErrors] = React.useState<any>({});
 
+  const [localForm, setLocalForm] = React.useState({
+    firstWitnessName: firstWitnessName,
+    firstWitnessDesignation: firstWitnessDesignation,
+    firstWitnessSignature: firstWitnessSignature,
+
+    secondWitnessName: secondWitnessName,
+    secondWitnessDesignation: secondWitnessDesignation,
+    secondWitnessSignature: secondWitnessSignature,
+
+    photo: photo,
+    signature: signature,
+    aadharCard: aadharCard,
+  });
+
+  const setValue = (key: string, value: any) => {
+    setLocalForm(prev => ({ ...prev, [key]: value }));
+  };
+
   const generalSchema = Yup.object().shape({
     aadharCard: Yup.object({
       uri: Yup.string().required('Aadhar card is required'),
@@ -83,17 +101,30 @@ const WitnessVerification = (props: Props) => {
   const handleNext = async () => {
     try {
       await generalSchema.validate({
-        firstWitnessName,
-        firstWitnessDesignation,
-        firstWitnessSignature,
-        secondWitnessName,
-        secondWitnessDesignation,
-        secondWitnessSignature,
-        photo,
-        signature,
-        aadharCard,
+        firstWitnessName: localForm.firstWitnessName,
+        firstWitnessDesignation: localForm.firstWitnessDesignation,
+        firstWitnessSignature: localForm.firstWitnessSignature,
+        secondWitnessName: localForm.secondWitnessName,
+        secondWitnessDesignation: localForm.secondWitnessDesignation,
+        secondWitnessSignature: localForm.secondWitnessSignature,
+        photo: localForm.photo,
+        signature: localForm.signature,
+        aadharCard: localForm.aadharCard,
       });
       setErrors({});
+      dispatch(saveFirstWitnessName(localForm.firstWitnessName));
+      dispatch(saveFirstWitnessDesignation(localForm.firstWitnessDesignation));
+      dispatch(saveFirstWitnessSignature(localForm.firstWitnessSignature));
+
+      dispatch(saveSecondWitnessName(localForm.secondWitnessName));
+      dispatch(
+        saveSecondWitnessDesignation(localForm.secondWitnessDesignation),
+      );
+      dispatch(saveSecondWitnessSignature(localForm.secondWitnessSignature));
+
+      dispatch(savePhoto(localForm.photo));
+      dispatch(saveSignature(localForm.signature));
+      dispatch(saveAadharCard(localForm.aadharCard));
       goNext();
     } catch (err: any) {
       setErrors({ [err.path]: err.message });
@@ -116,9 +147,9 @@ const WitnessVerification = (props: Props) => {
           placeholder={'First Witness Name'}
           ref={input1_ref}
           onSubmitEditing={() => input2_ref.current.focus()}
-          value={firstWitnessName}
+          value={localForm.firstWitnessName}
           onChangeText={(val: any) => {
-            dispatch(saveFirstWitnessName(val));
+            setValue('firstWitnessName', val);
             setErrors({ ...errors, firstWitnessName: '' });
           }}
           autoCapitalize={'none'}
@@ -132,9 +163,9 @@ const WitnessVerification = (props: Props) => {
           placeholder={'First Witness Designation'}
           ref={input2_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
-          value={firstWitnessDesignation}
+          value={localForm.firstWitnessDesignation}
           onChangeText={(val: any) => {
-            dispatch(saveFirstWitnessDesignation(val));
+            setValue('firstWitnessDesignation', val);
             setErrors({ ...errors, firstWitnessDesignation: '' });
           }}
           autoCapitalize={'none'}
@@ -147,10 +178,10 @@ const WitnessVerification = (props: Props) => {
           label={'First Witness Signature'}
           buttonText={strings.choose_file}
           onSelectImage={(file: any) => {
-            dispatch(saveFirstWitnessSignature(file));
+            setValue('firstWitnessSignature', file);
             setErrors({ ...errors, 'firstWitnessSignature.uri': '' });
           }}
-          defaultImage={firstWitnessSignature?.uri}
+          defaultImage={localForm.firstWitnessSignature?.uri}
           isMandatory
           errorMessage={errors['firstWitnessSignature.uri']}
         />
@@ -160,9 +191,9 @@ const WitnessVerification = (props: Props) => {
           placeholder={'Second Witness Name'}
           ref={input3_ref}
           onSubmitEditing={() => input4_ref.current.focus()}
-          value={secondWitnessName}
+          value={localForm.secondWitnessName}
           onChangeText={(val: any) => {
-            dispatch(saveSecondWitnessName(val));
+            setValue('secondWitnessName', val);
             setErrors({ ...errors, secondWitnessName: '' });
           }}
           autoCapitalize={'none'}
@@ -176,9 +207,9 @@ const WitnessVerification = (props: Props) => {
           placeholder={'Second Witness Designation'}
           ref={input4_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
-          value={secondWitnessDesignation}
+          value={localForm.secondWitnessDesignation}
           onChangeText={(val: any) => {
-            dispatch(saveSecondWitnessDesignation(val));
+            setValue('secondWitnessDesignation', val);
             setErrors({ ...errors, secondWitnessDesignation: '' });
           }}
           autoCapitalize={'none'}
@@ -191,10 +222,10 @@ const WitnessVerification = (props: Props) => {
           label={'Second Witness Signature'}
           buttonText={strings.choose_file}
           onSelectImage={(file: any) => {
-            dispatch(saveSecondWitnessSignature(file));
+            setValue('secondWitnessSignature', file);
             setErrors({ ...errors, 'secondWitnessSignature.uri': '' });
           }}
-          defaultImage={secondWitnessSignature?.uri}
+          defaultImage={localForm.secondWitnessSignature?.uri}
           isMandatory
           errorMessage={errors['secondWitnessSignature.uri']}
         />
@@ -203,10 +234,10 @@ const WitnessVerification = (props: Props) => {
           label={'Photo'}
           buttonText={strings.choose_file}
           onSelectImage={(file: any) => {
-            dispatch(savePhoto(file));
+            setValue('photo', file);
             setErrors({ ...errors, 'photo.uri': '' });
           }}
-          defaultImage={photo?.uri}
+          defaultImage={localForm.photo?.uri}
           isMandatory
           errorMessage={errors['photo.uri']}
         />
@@ -215,10 +246,10 @@ const WitnessVerification = (props: Props) => {
           label={'Signature'}
           buttonText={strings.choose_file}
           onSelectImage={(file: any) => {
-            dispatch(saveSignature(file));
+            setValue('signature', file);
             setErrors({ ...errors, 'signature.uri': '' });
           }}
-          defaultImage={signature?.uri}
+          defaultImage={localForm.signature?.uri}
           isMandatory
           errorMessage={errors['signature.uri']}
         />
@@ -227,10 +258,10 @@ const WitnessVerification = (props: Props) => {
           label={'Aadhar Card'}
           buttonText={strings.choose_file}
           onSelectImage={(file: any) => {
-            dispatch(saveAadharCard(file));
+            setValue('aadharCard', file);
             setErrors({ ...errors, 'aadharCard.uri': '' });
           }}
-          defaultImage={aadharCard?.uri}
+          defaultImage={localForm.aadharCard?.uri}
           isMandatory
           errorMessage={errors['aadharCard.uri']}
         />

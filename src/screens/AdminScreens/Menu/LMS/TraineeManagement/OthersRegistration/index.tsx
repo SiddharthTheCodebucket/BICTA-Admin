@@ -45,6 +45,7 @@ interface Props {
 
 const OthersRegistration = ({ navigation, route }: Props) => {
   const dispatch = useDispatch();
+  const onDone = route?.params?.onDone;
   const [step, setStep] = useState(0);
 
   const { crediantialData } = useAppSelector(state => state.Auth);
@@ -362,6 +363,7 @@ const OthersRegistration = ({ navigation, route }: Props) => {
           route={route}
           goNext={goNext}
           goBack={goBack}
+          onDone={onDone}
         />
       </View>
     </SafeAreaView>

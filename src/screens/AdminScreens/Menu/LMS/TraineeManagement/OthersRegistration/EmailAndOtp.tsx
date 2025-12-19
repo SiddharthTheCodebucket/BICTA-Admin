@@ -17,6 +17,7 @@ import DropDownOrganism from '../../../../../../components/organisms/DropDownOrg
 import { useAppSelector } from '../../../../../../hooks';
 import { useDispatch } from 'react-redux';
 import {
+  resetOtherRegistrationState,
   saveEmail,
   saveOtp,
 } from '../../../../../../features/OtherRegistration/otherRegistrationSlice';
@@ -37,10 +38,11 @@ interface Props {
   navigation: NavigationType;
   goNext: any;
   goBack: any;
+  onDone?: any;
 }
 
 const EmailAndOtp = (props: Props) => {
-  const { navigation, goNext, goBack } = props;
+  const { navigation, goNext, goBack, onDone } = props;
   const input1_ref: any = createRef();
   const input2_ref: any = createRef();
 
@@ -94,6 +96,11 @@ const EmailAndOtp = (props: Props) => {
     return () => clearInterval(interval);
   }, [otpTimer]);
 
+  const [localForm, setLocalForm] = useState({
+    email: email,
+    otp: otp,
+  });
+
   const generalSchema = Yup.object().shape({
     otp: Yup.string().required('OTP is required'),
     email: Yup.string().required('Email is required'),
@@ -102,14 +109,22 @@ const EmailAndOtp = (props: Props) => {
   const handleNext = async () => {
     try {
       await generalSchema.validate({
-        email,
-        otp,
+        email: localForm.email,
+        otp: localForm.otp,
       });
       setErrors({});
       addData();
     } catch (err: any) {
       setErrors({ [err.path]: err.message });
     }
+  };
+
+  const handleBack = async () => {
+    try {
+      dispatch(saveEmail(localForm.email));
+      dispatch(saveOtp(localForm.otp));
+      goBack();
+    } catch (err: any) {}
   };
 
   const startOtpTimer = () => {
@@ -126,7 +141,7 @@ const EmailAndOtp = (props: Props) => {
     setLoader(true);
     const formData = new FormData();
     formData.append('name', name);
-    formData.append('officeEmail', email);
+    formData.append('officeEmail', localForm.email);
     formData.append('aadhaarNo', aadharNumber);
     formData.append('apiFor', 'SEND_OTP');
     addMukhiyaRegistrationApi(formData)
@@ -156,7 +171,7 @@ const EmailAndOtp = (props: Props) => {
     formData.append('name', name);
     formData.append('dob', moment(dob, 'DD-MM-YYYY').format('YYYY-MM-DD'));
     formData.append('aadhaarNo', aadharNumber);
-    formData.append('officeEmail', email);
+    formData.append('officeEmail', localForm.email);
     formData.append('mobileNo', mobileNumber);
     formData.append('gender', selectedGender.id);
     formData.append('maritalStatus', selectedMaritalStatus.id);
@@ -211,7 +226,7 @@ const EmailAndOtp = (props: Props) => {
       name: secondWitnessSignature.fileName,
       type: secondWitnessSignature.type,
     } as any);
-    formData.append('otp', otp);
+    formData.append('otp', localForm.otp);
 
     addMukhiyaRegistrationApi(formData)
       .unwrap()
@@ -222,16 +237,10 @@ const EmailAndOtp = (props: Props) => {
           text2: res.data.message,
           autoHide: true,
         });
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: screensName.TraineeManagement,
-              },
-            ],
-          }),
-        );
+        onDone?.();
+        // navigation.navigate(screensName.TraineeManagement);
+        navigation.pop();
+        dispatch(resetOtherRegistrationState());
       })
       .catch((err: any) => {
         setLoader(false);
@@ -242,6 +251,11 @@ const EmailAndOtp = (props: Props) => {
         });
       });
   };
+
+  const setValue = (key: any, value: any) => {
+    setLocalForm((prev: any) => ({ ...prev, [key]: value }));
+  };
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
@@ -259,9 +273,9 @@ const EmailAndOtp = (props: Props) => {
           placeholder={'Email'}
           ref={input1_ref}
           onSubmitEditing={() => input2_ref.current.focus()}
-          value={email}
+          value={localForm.email}
           onChangeText={(val: any) => {
-            dispatch(saveEmail(val));
+            setValue('email', val);
             setErrors({ ...errors, email: '' });
           }}
           autoCapitalize={'none'}
@@ -291,9 +305,9 @@ const EmailAndOtp = (props: Props) => {
           placeholder={'OTP'}
           ref={input2_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
-          value={otp}
+          value={localForm.otp}
           onChangeText={(val: any) => {
-            dispatch(saveOtp(val));
+            setValue('otp', normalizeNumber(val));
             setErrors({ ...errors, otp: '' });
           }}
           autoCapitalize={'none'}
@@ -308,7 +322,7 @@ const EmailAndOtp = (props: Props) => {
         <ButtonOrganism
           containerStyle={{ width: vw(155) }}
           bttnText="Back"
-          onPress={goBack}
+          onPress={handleBack}
         />
 
         <ButtonOrganism
