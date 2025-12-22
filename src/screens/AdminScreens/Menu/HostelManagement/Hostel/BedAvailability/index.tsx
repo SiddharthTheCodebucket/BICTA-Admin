@@ -20,6 +20,7 @@ import {
   colors,
   fonts,
   screensName,
+  strings,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -96,7 +97,10 @@ const BedAvailability = (props: Props) => {
   >('Vacant');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Bed Availability Details');
+    Header.setNavigation(
+      navigation,
+      strings.hostelManagement.bedAvailability.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -121,8 +125,8 @@ const BedAvailability = (props: Props) => {
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
     return [centerSerach.name];
   };
@@ -191,7 +195,7 @@ const BedAvailability = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -217,33 +221,41 @@ const BedAvailability = (props: Props) => {
     return (
       <View style={styles.card}>
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.hostelManagement.srNo} {index + 1}
           </TextAtom>
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Hostel</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.bedAvailability.hostel}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {item.selectHostelName ?? '-'}
             </TextAtom>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Room</TextAtom>
+          <View style={styles.flex1End}>
+            <TextAtom style={styles.labelRight}>
+              {strings.hostelManagement.bedAvailability.room}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {item.selectRoomNo ?? '-'}
             </TextAtom>
           </View>
         </View>
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Bed</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.bedAvailability.bed}
+            </TextAtom>
             <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Status</TextAtom>
+          <View style={styles.flex1End}>
+            <TextAtom style={styles.labelRight}>
+              {strings.hostelManagement.bedAvailability.bedStatus}
+            </TextAtom>
             <TextAtom numberOfLines={0} style={styles.valueRight}>
               {item.bedStatus ?? '-'}
             </TextAtom>
@@ -260,11 +272,11 @@ const BedAvailability = (props: Props) => {
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Hostel'}
-        placeholder={'Hostel'}
+        label={strings.hostelManagement.bedAvailability.hostel}
+        placeholder={strings.hostelManagement.bedAvailability.hostel}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Hostel',
+            name: strings.hostelManagement.bedAvailability.hostel,
             Data: hostelList,
             selectedData: selectedHostel,
             setSelectedData: (data: any) => {
@@ -279,11 +291,11 @@ const BedAvailability = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Floor'}
-        placeholder={'Floor'}
+        label={strings.hostelManagement.bedAvailability.floor}
+        placeholder={strings.hostelManagement.bedAvailability.floor}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Floor',
+            name: strings.hostelManagement.bedAvailability.floor,
             Data: floorList,
             selectedData: selectedFloor,
             setSelectedData: (data: any) => {
@@ -298,11 +310,11 @@ const BedAvailability = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Room'}
-        placeholder={'Room'}
+        label={strings.hostelManagement.bedAvailability.room}
+        placeholder={strings.hostelManagement.bedAvailability.room}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Room',
+            name: strings.hostelManagement.bedAvailability.room,
             Data: roomList,
             selectedData: selectedRoom,
             setSelectedData: (data: any) => {
@@ -315,8 +327,8 @@ const BedAvailability = (props: Props) => {
         inputText={selectedRoom?.name}
       />
       <DateInputOrganism
-        label={'Start Date'}
-        placeholder={'Start Date'}
+        label={strings.hostelManagement.bedAvailability.startDate}
+        placeholder={strings.hostelManagement.bedAvailability.startDate}
         value={startDate}
         onChangeText={(val: any) => {
           setStartDate(val);
@@ -325,8 +337,8 @@ const BedAvailability = (props: Props) => {
         dateFormat="DD-MM-YYYY"
       />
       <DateInputOrganism
-        label={'End Date'}
-        placeholder={'End Date'}
+        label={strings.hostelManagement.bedAvailability.endDate}
+        placeholder={strings.hostelManagement.bedAvailability.endDate}
         value={endDate}
         onChangeText={(val: any) => {
           setEndDate(val);
@@ -337,12 +349,12 @@ const BedAvailability = (props: Props) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.hostelManagement.bedAvailability.applyFilter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.hostelManagement.bedAvailability.clearFilter}
           containerStyle={styles.clearBtn}
           bttnTextStyle={{ color: colors.primary }}
         />
@@ -447,11 +459,13 @@ const BedAvailability = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <View style={{ height: 'auto' }}>
+      <View style={styles.heightAuto}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
             <TextAtom style={styles.filterText}>
-              {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+              {showFilter
+                ? strings.hostelManagement.bedAvailability.hideFilter
+                : strings.hostelManagement.bedAvailability.showFilter}
             </TextAtom>
           </TouchableAtom>
 
@@ -460,14 +474,23 @@ const BedAvailability = (props: Props) => {
           {crediantialData.user[0].tenantId === 3 && (
             <DropDownOrganism
               label={''}
-              placeholder={'Centers'}
+              placeholder={strings.dashboardIndex.centers}
               onPress={() => {
                 navigation.navigate('DropDownModal', {
-                  name: 'Center',
+                  name: strings.dashboardIndex.center,
                   Data: [
-                    { id: 'All Centers', name: 'All Centers' },
-                    { id: 'Gaya', name: 'Gaya' },
-                    { id: 'Patna', name: 'Patna' },
+                    {
+                      id: strings.dashboardIndex.allCenters,
+                      name: strings.dashboardIndex.allCenters,
+                    },
+                    {
+                      id: strings.dashboardIndex.gaya,
+                      name: strings.dashboardIndex.gaya,
+                    },
+                    {
+                      id: strings.dashboardIndex.patna,
+                      name: strings.dashboardIndex.patna,
+                    },
                   ],
                   selectedData: centerSerach,
                   setSelectedData: setCenterSerach,
@@ -513,7 +536,9 @@ const BedAvailability = (props: Props) => {
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.hostelManagement.noDataFound}
+            </TextAtom>
           ) : null
         }
         ListFooterComponent={
@@ -521,7 +546,7 @@ const BedAvailability = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(10) }}
+            style={styles.loadingContainer}
           />
         }
         refreshControl={
@@ -542,7 +567,7 @@ const BedAvailability = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
     </SafeAreaView>
   );
@@ -565,7 +590,7 @@ const styles = StyleSheet.create({
   tabButton: {
     paddingVertical: vh(8),
     paddingHorizontal: vw(25),
-    backgroundColor: '#EAEAEA',
+    backgroundColor: colors.lightGray2,
     borderRadius: vw(6),
   },
   activeTab: {
@@ -658,5 +683,21 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  flex1: {
+    flex: 1,
+  },
+  flex1End: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  heightAuto: {
+    height: 'auto',
+  },
+  loadingContainer: {
+    marginTop: vh(10),
+  },
+  itemSeparator: {
+    height: vh(10),
   },
 });

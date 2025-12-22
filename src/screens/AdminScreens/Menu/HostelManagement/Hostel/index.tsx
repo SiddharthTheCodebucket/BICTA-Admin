@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../../constants';
+import { colors, screensName, strings, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -16,7 +16,7 @@ const Hostel = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Hostel Management');
+    Header.setNavigation(navigation, strings.hostelManagement.hostelMenu.title);
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,49 +25,49 @@ const Hostel = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Hostel Details',
+      name: strings.hostelManagement.hostelMenu.hostelDetails,
       onPress: () => {
         navigation.navigate(screensName.HostelDetails);
       },
     },
     {
       id: 2,
-      name: 'Floor Details',
+      name: strings.hostelManagement.hostelMenu.floorDetails,
       onPress: () => {
         navigation.navigate(screensName.FloorDetails);
       },
     },
     {
       id: 3,
-      name: 'Room Details',
+      name: strings.hostelManagement.hostelMenu.roomDetails,
       onPress: () => {
         navigation.navigate(screensName.RoomDetails);
       },
     },
     {
       id: 4,
-      name: 'Bed Details',
+      name: strings.hostelManagement.hostelMenu.bedDetails,
       onPress: () => {
         navigation.navigate(screensName.BedDetails);
       },
     },
     {
       id: 5,
-      name: 'Hostel Allocation',
+      name: strings.hostelManagement.hostelMenu.hostelAllocation,
       onPress: () => {
         navigation.navigate(screensName.HostelAllocation);
       },
     },
     {
       id: 6,
-      name: 'Hostel Allocation History',
+      name: strings.hostelManagement.hostelMenu.hostelAllocationHistory,
       onPress: () => {
         navigation.navigate(screensName.HostelAllocationHistory);
       },
     },
     {
       id: 7,
-      name: 'Bed Availability',
+      name: strings.hostelManagement.hostelMenu.bedAvailability,
       onPress: () => {
         navigation.navigate(screensName.BedAvailability);
       },
@@ -76,7 +76,7 @@ const Hostel = (props: Props) => {
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <View style={{ flex: 1 }}>
+      <View style={styles.flex1}>
         {DATA.map(item => {
           return (
             <TouchableOpacity
@@ -113,5 +113,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: vh(15),
+  },
+  flex1: {
+    flex: 1,
   },
 });

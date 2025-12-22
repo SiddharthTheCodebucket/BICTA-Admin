@@ -9,6 +9,7 @@ import {
   colors,
   fonts,
   screensName,
+  strings,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -65,7 +66,9 @@ const AddRoomDetails = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item) ? 'Edit Room Details' : 'Add Room Details',
+      !isNullUndefined(item)
+        ? strings.hostelManagement.addRoomDetails.editTitle
+        : strings.hostelManagement.addRoomDetails.addTitle,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -131,19 +134,31 @@ const AddRoomDetails = (props: Props) => {
   const schema = Yup.object().shape({
     status: isNullUndefined(item)
       ? Yup.object({
-          id: Yup.string().required('Status is required'),
+          id: Yup.string().required(
+            strings.hostelManagement.addRoomDetails.required.status,
+          ),
         })
       : Yup.mixed().notRequired(),
-    noOfBed: Yup.string().required('Number of bed is required'),
-    roomNo: Yup.string().required('Room no is required'),
+    noOfBed: Yup.string().required(
+      strings.hostelManagement.addRoomDetails.required.noOfBed,
+    ),
+    roomNo: Yup.string().required(
+      strings.hostelManagement.addRoomDetails.required.roomNo,
+    ),
     floorName: Yup.object({
-      id: Yup.string().required('Floor name is required'),
+      id: Yup.string().required(
+        strings.hostelManagement.addRoomDetails.required.floorName,
+      ),
     }),
     hostel: Yup.object({
-      id: Yup.string().required('Hostel name is required'),
+      id: Yup.string().required(
+        strings.hostelManagement.addRoomDetails.required.hostelName,
+      ),
     }),
     bipardLocation: Yup.object({
-      name: Yup.string().required('Bipard location is required'),
+      name: Yup.string().required(
+        strings.hostelManagement.addRoomDetails.required.bipardLocation,
+      ),
     }),
   });
 
@@ -310,7 +325,7 @@ const AddRoomDetails = (props: Props) => {
       <FullscreenLoading isVisible={loader} />
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
+        style={styles.flex1}
         contentContainerStyle={styles.contentScroll}
         enableOnAndroid={true}
         enableAutomaticScroll={true}
@@ -318,11 +333,11 @@ const AddRoomDetails = (props: Props) => {
         extraScrollHeight={vh(120)}
       >
         <DropDownOrganism
-          label={'Bipard Location'}
-          placeholder={'Bipard Location'}
+          label={strings.hostelManagement.addRoomDetails.bipardLocation}
+          placeholder={strings.hostelManagement.addRoomDetails.bipardLocation}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Bipard Location',
+              name: strings.hostelManagement.addRoomDetails.bipardLocation,
               Data: [
                 { id: 'Gaya', name: 'Gaya' },
                 { id: 'Patna', name: 'Patna' },
@@ -350,11 +365,11 @@ const AddRoomDetails = (props: Props) => {
         />
 
         <DropDownOrganism
-          label={'Hostel Name'}
-          placeholder={'Hostel Name'}
+          label={strings.hostelManagement.addRoomDetails.hostelName}
+          placeholder={strings.hostelManagement.addRoomDetails.hostelName}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Hostel Name',
+              name: strings.hostelManagement.addRoomDetails.hostelName,
               Data: form.hostelList,
               selectedData: form.hostel,
               setSelectedData: (data: any) => {
@@ -375,11 +390,11 @@ const AddRoomDetails = (props: Props) => {
           errorMessage={errors['hostel.id']}
         />
         <DropDownOrganism
-          label={'Floor Name'}
-          placeholder={'Floor Name'}
+          label={strings.hostelManagement.addRoomDetails.floorName}
+          placeholder={strings.hostelManagement.addRoomDetails.floorName}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Floor Name',
+              name: strings.hostelManagement.addRoomDetails.floorName,
               Data: form.floorNameList,
               selectedData: form.floorName,
               setSelectedData: (data: any) => {
@@ -399,8 +414,8 @@ const AddRoomDetails = (props: Props) => {
           errorMessage={errors['floorName.id']}
         />
         <TextInputOrganisms
-          label={'Room Number'}
-          placeholder={'Room Number'}
+          label={strings.hostelManagement.addRoomDetails.roomNumber}
+          placeholder={strings.hostelManagement.addRoomDetails.roomNumber}
           ref={input1_ref}
           onSubmitEditing={() => input2_ref.current.focus()}
           value={form.roomNo}
@@ -417,8 +432,8 @@ const AddRoomDetails = (props: Props) => {
         />
 
         <TextInputOrganisms
-          label={'No Of Bed'}
-          placeholder={'No Of Bed'}
+          label={strings.hostelManagement.addRoomDetails.noOfBed}
+          placeholder={strings.hostelManagement.addRoomDetails.noOfBed}
           ref={input2_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
           value={form.noOfBed}
@@ -436,14 +451,20 @@ const AddRoomDetails = (props: Props) => {
         {isNullUndefined(item) && (
           <RadioSelectableOrganism
             data={[
-              { id: 'Active', value: 'Active' },
-              { id: 'Inactive', value: 'Inactive' },
+              {
+                id: strings.hostelManagement.addRoomDetails.active,
+                value: strings.hostelManagement.addRoomDetails.active,
+              },
+              {
+                id: strings.hostelManagement.addRoomDetails.inactive,
+                value: strings.hostelManagement.addRoomDetails.inactive,
+              },
             ]}
             onSelect={(item: any) => {
               setValue('status', item);
               setErrors({ ...errors, 'status.id': '' });
             }}
-            label={'Status'}
+            label={strings.hostelManagement.addRoomDetails.status}
             selectedType={form.status}
             typeName={'value'}
             typeId={'id'}
@@ -453,7 +474,14 @@ const AddRoomDetails = (props: Props) => {
         )}
       </KeyboardAwareScrollView>
 
-      <ButtonOrganism onPress={onSubmit} bttnText={item ? 'Update' : 'Add'} />
+      <ButtonOrganism
+        onPress={onSubmit}
+        bttnText={
+          item
+            ? strings.hostelManagement.addRoomDetails.update
+            : strings.hostelManagement.addRoomDetails.add
+        }
+      />
     </SafeAreaView>
   );
 };
@@ -500,5 +528,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     color: colors.black,
     marginBottom: vh(8),
+  },
+  flex1: {
+    flex: 1,
   },
 });

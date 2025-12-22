@@ -21,6 +21,7 @@ import {
   fonts,
   images,
   screensName,
+  strings,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -64,7 +65,7 @@ const debounce = (func: any, delay: number) => {
 const HostelAllocationHistory = (props: Props) => {
   const { navigation } = props;
 
-const {crediantialData}=useAppSelector(state=>state.Auth)
+  const { crediantialData } = useAppSelector(state => state.Auth);
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [hostelAllocationDetailsApi] = useHostelAllocationDetailsMutation();
 
@@ -98,7 +99,10 @@ const {crediantialData}=useAppSelector(state=>state.Auth)
   const [activeTab, setActiveTab] = useState<'Trainee' | 'Guest'>('Trainee');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Hostel Allocation History');
+    Header.setNavigation(
+      navigation,
+      strings.hostelManagement.hostelAllocationHistory.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -124,7 +128,7 @@ const {crediantialData}=useAppSelector(state=>state.Auth)
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
-    if (centerSerach.name === 'All Centers') {
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
       return ['Gaya', 'Patna'];
     }
     return [centerSerach.name];
@@ -234,12 +238,14 @@ const {crediantialData}=useAppSelector(state=>state.Auth)
         }}
       >
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
           </TextAtom>
         </View>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Training Programme</TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocationHistory.trainingProgramme}
+          </TextAtom>
           <TextAtom style={styles.value}>
             {item.nameOfTrainingProgramme || '-'}
             {item.nameOfTrainingProgrammeId
@@ -249,32 +255,42 @@ const {crediantialData}=useAppSelector(state=>state.Auth)
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Course Start Date</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.hostelAllocationHistory.courseStartDate}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {moment(item.courseStartDate).format('DD-MM-YYYY')}
             </TextAtom>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Course End Date</TextAtom>
+          <View style={styles.flexEnd}>
+            <TextAtom style={styles.labelRight}>
+              {strings.hostelManagement.hostelAllocationHistory.courseEndDate}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {moment(item.courseEndDate).format('DD-MM-YYYY')}
             </TextAtom>
           </View>
         </View>
         <View style={[styles.rowBetween]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Hostel</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.hostelAllocationHistory.hostel}
+            </TextAtom>
             <TextAtom style={styles.value}>{item.hostelName ?? '-'}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'center' }}>
-            <TextAtom style={styles.label}>Room</TextAtom>
+          <View style={styles.centerAlign}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.hostelAllocationHistory.room}
+            </TextAtom>
             <TextAtom style={styles.value}>{item.roomNo ?? '-'}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.label}>Bed</TextAtom>
+          <View style={styles.flexEnd}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.hostelAllocationHistory.bed}
+            </TextAtom>
             <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
           </View>
         </View>
@@ -285,38 +301,50 @@ const {crediantialData}=useAppSelector(state=>state.Auth)
   const GuestCard = ({ item, index }: any) => {
     return (
       <View style={styles.card}>
-        <TextAtom style={[styles.label, { marginBottom: vh(5) }]}>
-          Sr. No: {index + 1}
+        <TextAtom style={[styles.label, styles.marginBottom5]}>
+          {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
         </TextAtom>
 
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>name</TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocationHistory.name}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.name || '-'}</TextAtom>
         </View>
 
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Email</TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocationHistory.email}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.officeEmail || '-'}</TextAtom>
         </View>
 
         <View style={styles.rowBetween}>
-          <TextAtom style={styles.label}>Mobile Number</TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocationHistory.mobileNumber}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.mobileNo ?? '-'}</TextAtom>
         </View>
 
-        <View style={[styles.rowBetween, { marginTop: vh(8) }]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Hostel</TextAtom>
+        <View style={[styles.rowBetween, styles.marginTop8]}>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.hostelAllocationHistory.hostel}
+            </TextAtom>
             <TextAtom style={styles.value}>{item.hostelName ?? '-'}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'center' }}>
-            <TextAtom style={styles.label}>Room</TextAtom>
+          <View style={styles.centerAlign}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.hostelAllocationHistory.room}
+            </TextAtom>
             <TextAtom style={styles.value}>{item.roomNo ?? '-'}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.label}>Bed</TextAtom>
+          <View style={styles.flexEnd}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.hostelAllocationHistory.bed}
+            </TextAtom>
             <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
           </View>
         </View>
@@ -334,11 +362,14 @@ const {crediantialData}=useAppSelector(state=>state.Auth)
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Training Detail'}
-        placeholder={'Training Detail'}
+        label={strings.hostelManagement.hostelAllocationHistory.trainingDetail}
+        placeholder={
+          strings.hostelManagement.hostelAllocationHistory.trainingDetail
+        }
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Training Detail',
+            name: strings.hostelManagement.hostelAllocationHistory
+              .trainingDetail,
             Data: trainindDetailList,
             selectedData: trainindDetail,
             setSelectedData: (data: any) => {
@@ -352,11 +383,11 @@ const {crediantialData}=useAppSelector(state=>state.Auth)
       />
 
       <DropDownOrganism
-        label={'Gender'}
-        placeholder={'Gender'}
+        label={strings.hostelManagement.hostelAllocationHistory.gender}
+        placeholder={strings.hostelManagement.hostelAllocationHistory.gender}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Gender',
+            name: strings.hostelManagement.hostelAllocationHistory.gender,
             Data: genderList,
             selectedData: gender,
             setSelectedData: (data: any) => {
@@ -370,11 +401,11 @@ const {crediantialData}=useAppSelector(state=>state.Auth)
       />
 
       <DropDownOrganism
-        label={'Hostel'}
-        placeholder={'Hostel'}
+        label={strings.hostelManagement.hostelAllocationHistory.hostel}
+        placeholder={strings.hostelManagement.hostelAllocationHistory.hostel}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Hostel',
+            name: strings.hostelManagement.hostelAllocationHistory.hostel,
             Data: hostelList,
             selectedData: hostel,
             setSelectedData: (data: any) => {
@@ -387,8 +418,8 @@ const {crediantialData}=useAppSelector(state=>state.Auth)
         inputText={hostel?.name}
       />
       <DateInputOrganism
-        label={'Start Date'}
-        placeholder={'Start Date'}
+        label={strings.hostelManagement.hostelAllocationHistory.startDate}
+        placeholder={strings.hostelManagement.hostelAllocationHistory.startDate}
         value={startDate}
         onChangeText={(val: any) => {
           setStartDate(val);
@@ -397,8 +428,8 @@ const {crediantialData}=useAppSelector(state=>state.Auth)
         dateFormat="DD-MM-YYYY"
       />
       <DateInputOrganism
-        label={'End Date'}
-        placeholder={'End Date'}
+        label={strings.hostelManagement.hostelAllocationHistory.endDate}
+        placeholder={strings.hostelManagement.hostelAllocationHistory.endDate}
         value={endDate}
         onChangeText={(val: any) => {
           setEndDate(val);
@@ -409,14 +440,18 @@ const {crediantialData}=useAppSelector(state=>state.Auth)
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={
+            strings.hostelManagement.hostelAllocationHistory.applyFilter
+          }
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={
+            strings.hostelManagement.hostelAllocationHistory.clearFilter
+          }
           containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
+          bttnTextStyle={styles.colorPrimary}
         />
       </ViewAtom>
     </View>
@@ -506,17 +541,14 @@ const {crediantialData}=useAppSelector(state=>state.Auth)
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={{ height: 'auto' }}>
+      <View style={styles.heightAuto}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'flex-end',
-            }}
-          >
+          <View style={styles.filterRow}>
             <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
               <TextAtom style={styles.filterText}>
-                {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+                {showFilter
+                  ? strings.hostelManagement.hostelAllocationHistory.hideFilter
+                  : strings.hostelManagement.hostelAllocationHistory.showFilter}
               </TextAtom>
             </TouchableAtom>
             <TouchableAtom
@@ -525,38 +557,48 @@ const {crediantialData}=useAppSelector(state=>state.Auth)
             >
               <ImageAtom
                 source={images.download}
-                style={{ tintColor: colors.black }}
+                style={styles.tintColorBlack}
               />
             </TouchableAtom>
           </View>
           {showFilter && <FilterForm />}
 
-     { crediantialData.user[0].tenantId === 3 && (   
-       <DropDownOrganism
-            label={''}
-            placeholder={'Centers'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Center',
-                Data: [
-                  { id: 'All Centers', name: 'All Centers' },
-                  { id: 'Gaya', name: 'Gaya' },
-                  { id: 'Patna', name: 'Patna' },
-                ],
-                selectedData: centerSerach,
-                setSelectedData: setCenterSerach,
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={centerSerach?.name}
-            containerStyle={{ marginBottom: vh(5) }}
-          />)}
+          {crediantialData.user[0].tenantId === 3 && (
+            <DropDownOrganism
+              label={''}
+              placeholder={'Centers'}
+              onPress={() => {
+                navigation.navigate('DropDownModal', {
+                  name: 'Center',
+                  Data: [
+                    {
+                      id: strings.dashboardIndex.allCenters,
+                      name: strings.dashboardIndex.allCenters,
+                    },
+                    {
+                      id: strings.dashboardIndex.gaya,
+                      name: strings.dashboardIndex.gaya,
+                    },
+                    {
+                      id: strings.dashboardIndex.patna,
+                      name: strings.dashboardIndex.patna,
+                    },
+                  ],
+                  selectedData: centerSerach,
+                  setSelectedData: setCenterSerach,
+                  typeName: 'name',
+                  typeId: 'id',
+                });
+              }}
+              inputText={centerSerach?.name}
+              containerStyle={styles.centerDropdown}
+            />
+          )}
           <SearchBoxOrganism
             onChangeText={onChangeSearch}
             searchText={search}
             onPressCross={onClearSearch}
-            searchBox={{ marginTop: vh(10) }}
+            searchBox={styles.marginTop10}
           />
         </ScrollView>
       </View>
@@ -731,5 +773,41 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  heightAuto: {
+    height: 'auto',
+  },
+  filterRow: {
+    flexDirection: 'row',
+    alignSelf: 'flex-end',
+  },
+  tintColorBlack: {
+    tintColor: colors.black,
+  },
+  centerDropdown: {
+    marginBottom: vh(5),
+  },
+  marginTop10: {
+    marginTop: vh(10),
+  },
+  flex1: {
+    flex: 1,
+  },
+  flexEnd: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  centerAlign: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  marginBottom5: {
+    marginBottom: vh(5),
+  },
+  marginTop8: {
+    marginTop: vh(8),
+  },
+  colorPrimary: {
+    color: colors.primary,
   },
 });

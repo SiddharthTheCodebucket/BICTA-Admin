@@ -9,6 +9,7 @@ import {
   colors,
   fonts,
   screensName,
+  strings,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -63,7 +64,9 @@ const AddFloorDetails = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item) ? 'Edit Floor Details' : 'Add Floor Details',
+      !isNullUndefined(item)
+        ? strings.hostelManagement.addFloorDetails.editTitle
+        : strings.hostelManagement.addFloorDetails.addTitle,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -112,16 +115,26 @@ const AddFloorDetails = (props: Props) => {
   }, [item]);
 
   const schema = Yup.object().shape({
-    noOfRooms: Yup.string().required('Number of room is required'),
-    nameOfFloor: Yup.string().required('Name of floor is required'),
+    noOfRooms: Yup.string().required(
+      strings.hostelManagement.addFloorDetails.required.noOfRooms,
+    ),
+    nameOfFloor: Yup.string().required(
+      strings.hostelManagement.addFloorDetails.required.nameOfFloor,
+    ),
     genderType: Yup.object({
-      id: Yup.string().required('Floor gender type is required'),
+      id: Yup.string().required(
+        strings.hostelManagement.addFloorDetails.required.genderType,
+      ),
     }),
     hostel: Yup.object({
-      id: Yup.string().required('Hostel name is required'),
+      id: Yup.string().required(
+        strings.hostelManagement.addBedDetails.required.hostel,
+      ),
     }),
     bipardLocation: Yup.object({
-      name: Yup.string().required('Bipard location is required'),
+      name: Yup.string().required(
+        strings.hostelManagement.addBedDetails.required.location,
+      ),
     }),
   });
 
@@ -164,7 +177,7 @@ const AddFloorDetails = (props: Props) => {
       .catch((err: any) => {
         Toast.show({
           type: 'error',
-          text2: err?.data?.message || 'Something went wrong',
+          text2: err?.data?.message || strings.something_went_wrong,
         });
         setLoader(false);
       });
@@ -195,7 +208,7 @@ const AddFloorDetails = (props: Props) => {
       .catch((err: any) => {
         Toast.show({
           type: 'error',
-          text2: err?.data?.message || 'Something went wrong',
+          text2: err?.data?.message || strings.something_went_wrong,
         });
         setLoader(false);
       });
@@ -284,7 +297,7 @@ const AddFloorDetails = (props: Props) => {
       <FullscreenLoading isVisible={loader} />
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
+        style={styles.flex1}
         contentContainerStyle={styles.contentScroll}
         enableOnAndroid={true}
         enableAutomaticScroll={true}
@@ -292,11 +305,11 @@ const AddFloorDetails = (props: Props) => {
         extraScrollHeight={vh(120)}
       >
         <DropDownOrganism
-          label={'Bipard Location'}
-          placeholder={'Bipard Location'}
+          label={strings.hostelManagement.addBedDetails.bipardLocation}
+          placeholder={strings.hostelManagement.addBedDetails.bipardLocation}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Bipard Location',
+              name: strings.hostelManagement.addBedDetails.bipardLocation,
               Data: [
                 { id: 'Gaya', name: 'Gaya' },
                 { id: 'Patna', name: 'Patna' },
@@ -325,11 +338,11 @@ const AddFloorDetails = (props: Props) => {
         />
 
         <DropDownOrganism
-          label={'Hostel Name'}
-          placeholder={'Hostel Name'}
+          label={strings.hostelManagement.addBedDetails.hostelName}
+          placeholder={strings.hostelManagement.addBedDetails.hostelName}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Hostel Name',
+              name: strings.hostelManagement.addBedDetails.hostelName,
               Data: form.hostelList,
               selectedData: form.hostel,
               setSelectedData: (data: any) => {
@@ -349,11 +362,11 @@ const AddFloorDetails = (props: Props) => {
           errorMessage={errors['hostel.id']}
         />
         <DropDownOrganism
-          label={'Floor Gender Type'}
-          placeholder={'Floor Gender Type'}
+          label={strings.hostelManagement.addFloorDetails.floorGenderType}
+          placeholder={strings.hostelManagement.addFloorDetails.floorGenderType}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Floor Gender Type',
+              name: strings.hostelManagement.addFloorDetails.floorGenderType,
               Data: form.genderTypeList,
               selectedData: form.genderType,
               setSelectedData: (data: any) => {
@@ -373,8 +386,8 @@ const AddFloorDetails = (props: Props) => {
           errorMessage={errors['genderType.id']}
         />
         <TextInputOrganisms
-          label={'Name Of Floor'}
-          placeholder={'Name of floor'}
+          label={strings.hostelManagement.addFloorDetails.nameOfFloor}
+          placeholder={strings.hostelManagement.addFloorDetails.nameOfFloor}
           ref={input1_ref}
           onSubmitEditing={() => input2_ref.current.focus()}
           value={form.nameOfFloor}
@@ -389,8 +402,8 @@ const AddFloorDetails = (props: Props) => {
         />
 
         <TextInputOrganisms
-          label={'No Of Rooms'}
-          placeholder={'No Of Rooms'}
+          label={strings.hostelManagement.addFloorDetails.noOfRooms}
+          placeholder={strings.hostelManagement.addFloorDetails.noOfRooms}
           ref={input2_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
           value={form.noOfRooms}
@@ -406,7 +419,14 @@ const AddFloorDetails = (props: Props) => {
         />
       </KeyboardAwareScrollView>
 
-      <ButtonOrganism onPress={onSubmit} bttnText={item ? 'Update' : 'Add'} />
+      <ButtonOrganism
+        onPress={onSubmit}
+        bttnText={
+          item
+            ? strings.hostelManagement.addBedDetails.update
+            : strings.hostelManagement.addBedDetails.add
+        }
+      />
     </SafeAreaView>
   );
 };
@@ -453,5 +473,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     color: colors.black,
     marginBottom: vh(8),
+  },
+  flex1: {
+    flex: 1,
   },
 });

@@ -42,4 +42,12 @@ export default {
   infoBlue: '#007bff',
   successGreen2: '#28a745',
   dangerRed: '#dc3545',
+
+  // Status Background Colors (for Active/Inactive indicators)
+  lightGreenBg: '#ddffdd',
+  darkGreen: '#22aa22',
+  lightRedBg: '#ffdddd',
+  darkRed: '#cc2222',
+  greenText: '#008800',
+  redText: '#bb0000',
 };

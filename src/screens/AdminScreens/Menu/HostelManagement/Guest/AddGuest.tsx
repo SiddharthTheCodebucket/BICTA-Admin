@@ -54,7 +54,9 @@ const AddGuest = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item) ? 'Edit Guest' : 'Add Guest',
+      !isNullUndefined(item)
+        ? strings.addGuest.editGuest
+        : strings.addGuest.addGuest,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -77,16 +79,25 @@ const AddGuest = (props: Props) => {
   useEffect(() => {
     if (!item) {
       if (tenantId === 1) {
-        setValue('bipardLocation', { id: 'Gaya', name: 'Gaya' });
+        setValue('bipardLocation', {
+          id: strings.dashboardIndex.gaya,
+          name: strings.dashboardIndex.gaya,
+        });
       } else if (tenantId === 2) {
-        setValue('bipardLocation', { id: 'Patna', name: 'Patna' });
+        setValue('bipardLocation', {
+          id: strings.dashboardIndex.patna,
+          name: strings.dashboardIndex.patna,
+        });
       }
       return;
     }
 
     const locationMap: any = {
-      1: { id: 'Gaya', name: 'Gaya' },
-      2: { id: 'Patna', name: 'Patna' },
+      1: { id: strings.dashboardIndex.gaya, name: strings.dashboardIndex.gaya },
+      2: {
+        id: strings.dashboardIndex.patna,
+        name: strings.dashboardIndex.patna,
+      },
     };
 
     const selectedLocation = locationMap[item.tenantId] || {};
@@ -105,20 +116,20 @@ const AddGuest = (props: Props) => {
 
   const schema = Yup.object().shape({
     gender: Yup.object({
-      name: Yup.string().required('Gender is required'),
+      name: Yup.string().required(strings.addGuest.genderRequired),
     }),
     // designation: Yup.string().required('Designation is required'),
     mobileNo: Yup.string()
-      .required('Mobile number is required')
+      .required(strings.addGuest.mobileNumberRequired)
       .max(10, strings.enter_valid_mobile)
       .min(10, strings.enter_valid_mobile)
       .matches(mobileRegex, strings.enter_valid_mobile),
     officeEmail: Yup.string()
-      .required('Office email is required')
-      .matches(emailRegex, 'Enter valid office email'),
-    name: Yup.string().required('Name is required'),
+      .required(strings.addGuest.officeEmailRequired)
+      .matches(emailRegex, strings.addGuest.enterValidOfficeEmail),
+    name: Yup.string().required(strings.addGuest.nameRequired),
     bipardLocation: Yup.object({
-      name: Yup.string().required('Bipard location is required'),
+      name: Yup.string().required(strings.addGuest.bipardLocationRequired),
     }),
   });
 
@@ -126,7 +137,7 @@ const AddGuest = (props: Props) => {
     try {
       schema.validateSync(form);
       if (item) {
-        updateVehicleDetails();
+        updateGuestDetails();
       } else {
         addGuestDetails();
       }
@@ -171,13 +182,13 @@ const AddGuest = (props: Props) => {
       .catch((err: any) => {
         Toast.show({
           type: 'error',
-          text2: err?.data?.message || 'Something went wrong',
+          text2: err?.data?.message || strings.something_went_wrong,
         });
         setLoader(false);
       });
   };
 
-  const updateVehicleDetails = () => {
+  const updateGuestDetails = () => {
     setLoader(true);
     let params = {
       guestId: item.guestId,
@@ -213,7 +224,7 @@ const AddGuest = (props: Props) => {
       .catch((err: any) => {
         Toast.show({
           type: 'error',
-          text2: err?.data?.message || 'Something went wrong',
+          text2: err?.data?.message || strings.something_went_wrong,
         });
         setLoader(false);
       });
@@ -224,7 +235,7 @@ const AddGuest = (props: Props) => {
       <FullscreenLoading isVisible={loader} />
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
+        style={styles.flex1}
         contentContainerStyle={styles.contentScroll}
         enableOnAndroid={true}
         enableAutomaticScroll={true}
@@ -232,15 +243,21 @@ const AddGuest = (props: Props) => {
         extraScrollHeight={vh(80)}
       >
         <DropDownOrganism
-          label={'Bipard Location'}
-          placeholder={'Bipard Location'}
+          label={strings.addGuest.bipardLocation}
+          placeholder={strings.addGuest.bipardLocation}
           onPress={() => {
             if (tenantId !== 3) return;
             navigation.navigate('DropDownModal', {
-              name: 'Bipard Location',
+              name: strings.addGuest.bipardLocation,
               Data: [
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
               ],
               selectedData: form.bipardLocation,
               setSelectedData: (data: any) => {
@@ -262,8 +279,8 @@ const AddGuest = (props: Props) => {
           isDisabled={tenantId !== 3}
         />
         <TextInputOrganisms
-          label={'Name'}
-          placeholder={'Name'}
+          label={strings.addGuest.name}
+          placeholder={strings.addGuest.name}
           ref={input1_ref}
           onSubmitEditing={() => input2_ref.current.focus()}
           value={form.name}
@@ -277,8 +294,8 @@ const AddGuest = (props: Props) => {
           errorMessage={errors.name}
         />
         <TextInputOrganisms
-          label={'Office Email'}
-          placeholder={'Office Email'}
+          label={strings.addGuest.officeEmail}
+          placeholder={strings.addGuest.officeEmail}
           ref={input2_ref}
           onSubmitEditing={() => input3_ref.current.focus()}
           value={form.officeEmail}
@@ -292,8 +309,8 @@ const AddGuest = (props: Props) => {
           errorMessage={errors.officeEmail}
         />
         <TextInputOrganisms
-          label={'Mobile Number'}
-          placeholder={'Mobile Number'}
+          label={strings.addGuest.mobileNumber}
+          placeholder={strings.addGuest.mobileNumber}
           ref={input3_ref}
           onSubmitEditing={() => input4_ref.current.focus()}
           value={form.mobileNo}
@@ -310,8 +327,8 @@ const AddGuest = (props: Props) => {
           keyboardType="numeric"
         />
         <TextInputOrganisms
-          label={'Designation'}
-          placeholder={'Designation'}
+          label={strings.addGuest.designation}
+          placeholder={strings.addGuest.designation}
           ref={input4_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
           value={form.designation}
@@ -325,14 +342,14 @@ const AddGuest = (props: Props) => {
           //   errorMessage={errors.designation}
         />
         <DropDownOrganism
-          label={'Gender'}
-          placeholder={'Gender'}
+          label={strings.addGuest.gender}
+          placeholder={strings.addGuest.gender}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Gender',
+              name: strings.addGuest.gender,
               Data: [
-                { id: 'Male', name: 'Male' },
-                { id: 'Female', name: 'Female' },
+                { id: strings.addGuest.male, name: strings.addGuest.male },
+                { id: strings.addGuest.female, name: strings.addGuest.female },
               ],
               selectedData: form.gender,
               setSelectedData: (data: any) => {
@@ -352,7 +369,10 @@ const AddGuest = (props: Props) => {
           errorMessage={errors['gender.name']}
         />
       </KeyboardAwareScrollView>
-      <ButtonOrganism onPress={onSubmit} bttnText={item ? 'Update' : 'Add'} />
+      <ButtonOrganism
+        onPress={onSubmit}
+        bttnText={item ? strings.addGuest.update : strings.addGuest.add}
+      />
     </SafeAreaView>
   );
 };
@@ -368,5 +388,8 @@ const styles = StyleSheet.create({
   },
   contentScroll: {
     paddingBottom: vh(10),
+  },
+  flex1: {
+    flex: 1,
   },
 });

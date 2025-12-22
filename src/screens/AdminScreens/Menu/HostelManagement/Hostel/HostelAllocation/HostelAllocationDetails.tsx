@@ -1,7 +1,7 @@
 import React, { useLayoutEffect } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vh, vw } from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { Header } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
@@ -31,11 +31,7 @@ const ImageField = ({ label, uri, onPress }: any) => (
 
     {uri ? (
       <TouchableOpacity onPress={onPress}>
-        <Image
-          source={{ uri }}
-          style={{ width: '100%', height: vh(120), borderRadius: vw(8) }}
-          resizeMode="contain"
-        />
+        <Image source={{ uri }} style={styles.image} resizeMode="contain" />
       </TouchableOpacity>
     ) : (
       <TextAtom style={styles.fullValue}>-</TextAtom>
@@ -47,7 +43,10 @@ const HostelAllocationDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Allocation Details');
+    Header.setNavigation(
+      navigation,
+      strings.hostelManagement.hostelAllocation.allocationDetails,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -59,7 +58,7 @@ const HostelAllocationDetails = ({ route, navigation }: any) => {
       >
         <ViewAtom style={styles.card}>
           <FullWidthField
-            label="Training Programme"
+            label={strings.hostelManagement.hostelAllocation.trainingProgramme}
             value={
               data?.nameOfTrainingProgramme
                 ? `${data.nameOfTrainingProgramme}${
@@ -72,7 +71,7 @@ const HostelAllocationDetails = ({ route, navigation }: any) => {
           />
 
           <FieldRow
-            label="Course Start Date"
+            label={strings.hostelManagement.hostelAllocation.courseStartDate}
             value={
               data?.courseStartDate
                 ? moment(data.courseStartDate).format('DD-MM-YYYY')
@@ -81,7 +80,7 @@ const HostelAllocationDetails = ({ route, navigation }: any) => {
           />
 
           <FieldRow
-            label="Course End Date"
+            label={strings.hostelManagement.hostelAllocation.courseEndDate}
             value={
               data?.courseEndDate
                 ? moment(data.courseEndDate).format('DD-MM-YYYY')
@@ -89,31 +88,78 @@ const HostelAllocationDetails = ({ route, navigation }: any) => {
             }
           />
 
-          <FullWidthField label="Name" value={data?.name} />
+          <FullWidthField
+            label={strings.hostelManagement.hostelAllocation.name}
+            value={data?.name}
+          />
 
-          <FieldRow label="Aadhaar Number" value={data?.aadhaarNo} />
-          <FieldRow label="PAN Number" value={data?.panNo} />
-          <FieldRow label="Gender" value={data?.gender} />
+          <FieldRow
+            label={strings.hostelManagement.hostelAllocation.aadhaarNumber}
+            value={data?.aadhaarNo}
+          />
+          <FieldRow
+            label={strings.hostelManagement.hostelAllocation.panNumber}
+            value={data?.panNo}
+          />
+          <FieldRow
+            label={strings.hostelManagement.hostelAllocation.gender}
+            value={data?.gender}
+          />
 
-          <FullWidthField label="Email" value={data?.officeEmail} />
+          <FullWidthField
+            label={strings.hostelManagement.hostelAllocation.email}
+            value={data?.officeEmail}
+          />
 
-          <FieldRow label="Mobile Number" value={data?.mobileNo} />
+          <FieldRow
+            label={strings.hostelManagement.hostelAllocation.mobileNumber}
+            value={data?.mobileNo}
+          />
 
-          <FullWidthField label="Department" value={data?.department} />
+          <FullWidthField
+            label={strings.hostelManagement.hostelAllocation.department}
+            value={data?.department}
+          />
 
-          <FieldRow label="Hostel" value={data?.hostelName} />
-          <FieldRow label="Room" value={data?.roomNo} />
-          <FieldRow label="Bed" value={data?.bedName} />
+          <FieldRow
+            label={strings.hostelManagement.hostelAllocation.hostel}
+            value={data?.hostelName}
+          />
+          <FieldRow
+            label={strings.hostelManagement.hostelAllocation.room}
+            value={data?.roomNo}
+          />
+          <FieldRow
+            label={strings.hostelManagement.hostelAllocation.bed}
+            value={data?.bedName}
+          />
 
-          <FieldRow label="No Of Days" value={data?.noOfDays} />
+          <FieldRow
+            label={strings.hostelManagement.hostelAllocation.noOfDays}
+            value={data?.noOfDays}
+          />
 
-          <FieldRow label="Key" value={data?.keyProvided} />
+          <FieldRow
+            label={strings.hostelManagement.hostelAllocation.key}
+            value={data?.keyProvided}
+          />
 
-          <FieldRow label="Yoga Mat" value={data?.yogaMatProvided} />
+          <FieldRow
+            label={strings.hostelManagement.hostelAllocation.yogaMat}
+            value={data?.yogaMatProvided}
+          />
 
-          <ImageField label="Photo" uri={data?.photo} onPress={() => {}} />
+          <ImageField
+            label={strings.hostelManagement.hostelAllocation.photo}
+            uri={data?.photo}
+            onPress={() => {}}
+          />
 
-          <ImageField label="Signature" uri={data?.sign} onPress={() => {}} />
+          <ImageField
+            label={strings.hostelManagement.hostelAllocation.signature}
+            uri={data?.sign}
+            onPress={() => {}}
+          />
         </ViewAtom>
       </ScrollView>
     </SafeAreaView>
@@ -174,5 +220,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.Roboto_Regular,
     fontSize: vw(14),
     color: colors.grey,
+  },
+  image: {
+    width: '100%',
+    height: vh(120),
+    borderRadius: vw(8),
   },
 });

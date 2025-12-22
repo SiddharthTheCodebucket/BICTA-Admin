@@ -9,6 +9,7 @@ import {
   colors,
   fonts,
   screensName,
+  strings,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -54,7 +55,10 @@ const EditTraineeHostelAllocation = (props: Props) => {
   const [updateHostelAllocationApi] = useUpdateHostelAllocationMutation();
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Hostel Allocation Request');
+    Header.setNavigation(
+      navigation,
+      strings.hostelManagement.hostelAllocation.hostelAllocationRequest,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
 
@@ -99,21 +103,33 @@ const EditTraineeHostelAllocation = (props: Props) => {
   }, [item]);
 
   const schema = Yup.object().shape({
-    purpose: Yup.string().required('Purpose is required'),
+    purpose: Yup.string().required(
+      strings.hostelManagement.hostelAllocation.required.purpose,
+    ),
     newBed: Yup.object({
-      id: Yup.string().required('New bed is required'),
+      id: Yup.string().required(
+        strings.hostelManagement.hostelAllocation.required.newBed,
+      ),
     }),
     newRoom: Yup.object({
-      id: Yup.string().required('New room is required'),
+      id: Yup.string().required(
+        strings.hostelManagement.hostelAllocation.required.newRoom,
+      ),
     }),
     hostel: Yup.object({
-      id: Yup.string().required('Hostel is required'),
+      id: Yup.string().required(
+        strings.hostelManagement.hostelAllocation.required.hostel,
+      ),
     }),
     yogaMatProvided: Yup.object({
-      id: Yup.string().required('Yoga Mat Provided is required'),
+      id: Yup.string().required(
+        strings.hostelManagement.hostelAllocation.required.yogaMatProvided,
+      ),
     }),
     keyProvided: Yup.object({
-      name: Yup.string().required('Key Provided is required'),
+      name: Yup.string().required(
+        strings.hostelManagement.hostelAllocation.required.keyProvided,
+      ),
     }),
   });
 
@@ -248,7 +264,7 @@ const EditTraineeHostelAllocation = (props: Props) => {
       <FullscreenLoading isVisible={loader} />
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
+        style={styles.flex1}
         contentContainerStyle={styles.contentScroll}
         enableOnAndroid={true}
         enableAutomaticScroll={true}
@@ -256,14 +272,20 @@ const EditTraineeHostelAllocation = (props: Props) => {
         extraScrollHeight={vh(120)}
       >
         <DropDownOrganism
-          label={'Key Provided'}
-          placeholder={'Key Provided'}
+          label={strings.hostelManagement.hostelAllocation.keyProvided}
+          placeholder={strings.hostelManagement.hostelAllocation.keyProvided}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Key Provided',
+              name: strings.hostelManagement.hostelAllocation.keyProvided,
               Data: [
-                { id: 'Yes', name: 'Yes' },
-                { id: 'No', name: 'No' },
+                {
+                  id: 'Yes',
+                  name: strings.hostelManagement.hostelAllocation.yes,
+                },
+                {
+                  id: 'No',
+                  name: strings.hostelManagement.hostelAllocation.no,
+                },
               ],
               selectedData: form.keyProvided,
               setSelectedData: (data: any) => {
@@ -284,14 +306,22 @@ const EditTraineeHostelAllocation = (props: Props) => {
         />
 
         <DropDownOrganism
-          label={'Yoga Mat Provided'}
-          placeholder={'Yoga Mat Provided'}
+          label={strings.hostelManagement.hostelAllocation.yogaMatProvided}
+          placeholder={
+            strings.hostelManagement.hostelAllocation.yogaMatProvided
+          }
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Yoga Mat Provided',
+              name: strings.hostelManagement.hostelAllocation.yogaMatProvided,
               Data: [
-                { id: 'Yes', name: 'Yes' },
-                { id: 'No', name: 'No' },
+                {
+                  id: 'Yes',
+                  name: strings.hostelManagement.hostelAllocation.yes,
+                },
+                {
+                  id: 'No',
+                  name: strings.hostelManagement.hostelAllocation.no,
+                },
               ],
               selectedData: form.yogaMatProvided,
               setSelectedData: (data: any) => {
@@ -311,11 +341,11 @@ const EditTraineeHostelAllocation = (props: Props) => {
         />
 
         <DropDownOrganism
-          label={'Hostel'}
-          placeholder={'Hostel'}
+          label={strings.hostelManagement.hostelAllocation.hostel}
+          placeholder={strings.hostelManagement.hostelAllocation.hostel}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Hostel',
+              name: strings.hostelManagement.hostelAllocation.hostel,
               Data: form.hostelList,
               selectedData: form.hostel,
               setSelectedData: (data: any) => {
@@ -338,19 +368,21 @@ const EditTraineeHostelAllocation = (props: Props) => {
         />
         {isAllocated && (
           <TextInputOrganisms
-            label={'Allocated Room'}
-            placeholder={'Allocated Room'}
+            label={strings.hostelManagement.hostelAllocation.allocatedRoom}
+            placeholder={
+              strings.hostelManagement.hostelAllocation.allocatedRoom
+            }
             value={form.allocatedRoom?.name}
             disabled
             editable={false}
           />
         )}
         <DropDownOrganism
-          label={'New Room'}
-          placeholder={'New Room'}
+          label={strings.hostelManagement.hostelAllocation.newRoom}
+          placeholder={strings.hostelManagement.hostelAllocation.newRoom}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'New Room',
+              name: strings.hostelManagement.hostelAllocation.newRoom,
               Data: form.newRoomList,
               selectedData: form.newRoom,
               setSelectedData: (data: any) => {
@@ -372,8 +404,8 @@ const EditTraineeHostelAllocation = (props: Props) => {
         />
         {isAllocated && (
           <TextInputOrganisms
-            label={'Allocated Bed'}
-            placeholder={'Allocated Bed'}
+            label={strings.hostelManagement.hostelAllocation.allocatedBed}
+            placeholder={strings.hostelManagement.hostelAllocation.allocatedBed}
             value={form.allocatedBed?.name}
             disabled
             editable={false}
@@ -381,11 +413,11 @@ const EditTraineeHostelAllocation = (props: Props) => {
         )}
 
         <DropDownOrganism
-          label={'New Bed'}
-          placeholder={'New Bed'}
+          label={strings.hostelManagement.hostelAllocation.newBed}
+          placeholder={strings.hostelManagement.hostelAllocation.newBed}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'New Bed',
+              name: strings.hostelManagement.hostelAllocation.newBed,
               Data: form.newBedList,
               selectedData: form.newBed,
               setSelectedData: (data: any) => {
@@ -405,8 +437,8 @@ const EditTraineeHostelAllocation = (props: Props) => {
           errorMessage={errors['newBed.id']}
         />
         <TextInputOrganisms
-          label={'Purpose'}
-          placeholder={'Purpose'}
+          label={strings.hostelManagement.hostelAllocation.purpose}
+          placeholder={strings.hostelManagement.hostelAllocation.purpose}
           ref={input1_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
           value={form.purpose}
@@ -421,7 +453,10 @@ const EditTraineeHostelAllocation = (props: Props) => {
         />
       </KeyboardAwareScrollView>
 
-      <ButtonOrganism onPress={onSubmit} bttnText={'Submit'} />
+      <ButtonOrganism
+        onPress={onSubmit}
+        bttnText={strings.hostelManagement.hostelAllocation.submit}
+      />
     </SafeAreaView>
   );
 };
@@ -434,6 +469,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundColor,
     alignItems: 'center',
     paddingTop: vw(20),
+  },
+  flex1: {
+    flex: 1,
   },
   contentScroll: {
     paddingBottom: vh(10),

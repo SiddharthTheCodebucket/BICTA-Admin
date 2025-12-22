@@ -9,6 +9,7 @@ import {
   colors,
   fonts,
   screensName,
+  strings,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -64,7 +65,10 @@ const EditGuestHostelallocation = (props: Props) => {
   const [updateHostelAllocationApi] = useUpdateHostelAllocationMutation();
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Hostel Allocation Request');
+    Header.setNavigation(
+      navigation,
+      strings.hostelManagement.hostelAllocation.hostelAllocationRequest,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
 
@@ -126,28 +130,46 @@ const EditGuestHostelallocation = (props: Props) => {
   const isNumeric = (val: string) => /^[0-9]+$/.test(val);
 
   const schema = Yup.object().shape({
-    purpose: Yup.string().required('Purpose is required'),
+    purpose: Yup.string().required(
+      strings.hostelManagement.hostelAllocation.required.purpose,
+    ),
     newBed: Yup.object({
-      id: Yup.string().required('New bed is required'),
+      id: Yup.string().required(
+        strings.hostelManagement.hostelAllocation.required.newBed,
+      ),
     }),
     newRoom: Yup.object({
-      id: Yup.string().required('New room is required'),
+      id: Yup.string().required(
+        strings.hostelManagement.hostelAllocation.required.newRoom,
+      ),
     }),
     hostel: Yup.object({
-      id: Yup.string().required('Hostel is required'),
+      id: Yup.string().required(
+        strings.hostelManagement.hostelAllocation.required.hostel,
+      ),
     }),
-    checkOutDate: Yup.string().required('Check out date is required'),
-    checkInDate: Yup.string().required('Check in date is required'),
+    checkOutDate: Yup.string().required(
+      strings.hostelManagement.hostelAllocation.required.checkOutDate,
+    ),
+    checkInDate: Yup.string().required(
+      strings.hostelManagement.hostelAllocation.required.checkInDate,
+    ),
     gender: Yup.object({
-      id: Yup.string().required('Gender is required'),
+      id: Yup.string().required(
+        strings.hostelManagement.hostelAllocation.required.gender,
+      ),
     }),
     emailId: Yup.string()
-      .required('Guest Id / Email Id is required')
-      .test('valid-id', 'Enter valid Email or Guest Id', (value: any) => {
-        if (!value) return false;
+      .required(strings.hostelManagement.hostelAllocation.required.guestId)
+      .test(
+        'valid-id',
+        strings.hostelManagement.hostelAllocation.validIdError,
+        (value: any) => {
+          if (!value) return false;
 
-        return isEmail(value) || isNumeric(value);
-      }),
+          return isEmail(value) || isNumeric(value);
+        },
+      ),
   });
 
   const onSubmit = () => {
@@ -340,7 +362,7 @@ const EditGuestHostelallocation = (props: Props) => {
       <FullscreenLoading isVisible={loader} />
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
+        style={styles.flex1}
         contentContainerStyle={styles.contentScroll}
         enableOnAndroid={true}
         enableAutomaticScroll={true}
@@ -348,8 +370,8 @@ const EditGuestHostelallocation = (props: Props) => {
         extraScrollHeight={vh(120)}
       >
         <TextInputOrganisms
-          label={'Guest Id / Email Id'}
-          placeholder={'Guest Id / Email Id'}
+          label={strings.hostelManagement.hostelAllocation.guestIdOrEmail}
+          placeholder={strings.hostelManagement.hostelAllocation.guestIdOrEmail}
           ref={input1_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
           value={form.emailId}
@@ -364,11 +386,11 @@ const EditGuestHostelallocation = (props: Props) => {
         />
 
         <DropDownOrganism
-          label={'Gender'}
-          placeholder={'Gender'}
+          label={strings.hostelManagement.hostelAllocation.gender}
+          placeholder={strings.hostelManagement.hostelAllocation.gender}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Gender',
+              name: strings.hostelManagement.hostelAllocation.gender,
               Data: form.genderList,
               selectedData: form.gender,
               setSelectedData: (data: any) => {
@@ -388,8 +410,8 @@ const EditGuestHostelallocation = (props: Props) => {
           errorMessage={errors['gender.id']}
         />
         <DateInputOrganism
-          label={'Check In Date'}
-          placeholder={'Check In Date'}
+          label={strings.hostelManagement.hostelAllocation.checkInDate}
+          placeholder={strings.hostelManagement.hostelAllocation.checkInDate}
           value={form.checkInDate}
           onChangeText={(val: any) => {
             setForm((prev: any) => ({
@@ -404,8 +426,8 @@ const EditGuestHostelallocation = (props: Props) => {
           errorMessage={errors.checkInDate}
         />
         <DateInputOrganism
-          label={'Check Out Date'}
-          placeholder={'Check Out Date'}
+          label={strings.hostelManagement.hostelAllocation.checkOutDate}
+          placeholder={strings.hostelManagement.hostelAllocation.checkOutDate}
           value={form.checkOutDate}
           onChangeText={(val: any) => {
             setForm((prev: any) => ({
@@ -426,11 +448,11 @@ const EditGuestHostelallocation = (props: Props) => {
         />
 
         <DropDownOrganism
-          label={'Hostel'}
-          placeholder={'Hostel'}
+          label={strings.hostelManagement.hostelAllocation.hostel}
+          placeholder={strings.hostelManagement.hostelAllocation.hostel}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Hostel',
+              name: strings.hostelManagement.hostelAllocation.hostel,
               Data: form.hostelList,
               selectedData: form.hostel,
               setSelectedData: (data: any) => {
@@ -453,19 +475,21 @@ const EditGuestHostelallocation = (props: Props) => {
         />
         {!isNullUndefined(item) && (
           <TextInputOrganisms
-            label={'Allocated Room'}
-            placeholder={'Allocated Room'}
+            label={strings.hostelManagement.hostelAllocation.allocatedRoom}
+            placeholder={
+              strings.hostelManagement.hostelAllocation.allocatedRoom
+            }
             value={form.allocatedRoom?.name}
             disabled
             editable={false}
           />
         )}
         <DropDownOrganism
-          label={'New Room'}
-          placeholder={'New Room'}
+          label={strings.hostelManagement.hostelAllocation.newRoom}
+          placeholder={strings.hostelManagement.hostelAllocation.newRoom}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'New Room',
+              name: strings.hostelManagement.hostelAllocation.newRoom,
               Data: form.newRoomList,
               selectedData: form.newRoom,
               setSelectedData: (data: any) => {
@@ -487,8 +511,8 @@ const EditGuestHostelallocation = (props: Props) => {
         />
         {!isNullUndefined(item) && (
           <TextInputOrganisms
-            label={'Allocated Bed'}
-            placeholder={'Allocated Bed'}
+            label={strings.hostelManagement.hostelAllocation.allocatedBed}
+            placeholder={strings.hostelManagement.hostelAllocation.allocatedBed}
             value={form.allocatedBed?.name}
             disabled
             editable={false}
@@ -496,11 +520,11 @@ const EditGuestHostelallocation = (props: Props) => {
         )}
 
         <DropDownOrganism
-          label={'New Bed'}
-          placeholder={'New Bed'}
+          label={strings.hostelManagement.hostelAllocation.newBed}
+          placeholder={strings.hostelManagement.hostelAllocation.newBed}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'New Bed',
+              name: strings.hostelManagement.hostelAllocation.newBed,
               Data: form.newBedList,
               selectedData: form.newBed,
               setSelectedData: (data: any) => {
@@ -520,8 +544,8 @@ const EditGuestHostelallocation = (props: Props) => {
           errorMessage={errors['newBed.id']}
         />
         <TextInputOrganisms
-          label={'Purpose'}
-          placeholder={'Purpose'}
+          label={strings.hostelManagement.hostelAllocation.purpose}
+          placeholder={strings.hostelManagement.hostelAllocation.purpose}
           ref={input2_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
           value={form.purpose}
@@ -536,7 +560,10 @@ const EditGuestHostelallocation = (props: Props) => {
         />
       </KeyboardAwareScrollView>
 
-      <ButtonOrganism onPress={onSubmit} bttnText={'Submit'} />
+      <ButtonOrganism
+        onPress={onSubmit}
+        bttnText={strings.hostelManagement.hostelAllocation.submit}
+      />
     </SafeAreaView>
   );
 };
@@ -549,6 +576,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundColor,
     alignItems: 'center',
     paddingTop: vw(20),
+  },
+  flex1: {
+    flex: 1,
   },
   contentScroll: {
     paddingBottom: vh(10),

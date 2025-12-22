@@ -93,7 +93,7 @@ const BedDetails = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Bed Details');
+    Header.setNavigation(navigation, strings.hostelManagement.bedDetails.title);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -115,8 +115,8 @@ const BedDetails = (props: Props) => {
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
 
     return [centerSerach.name];
@@ -175,7 +175,7 @@ const BedDetails = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -198,7 +198,9 @@ const BedDetails = (props: Props) => {
   };
 
   const BedCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
+    const [statusValue, setStatusValue] = useState(
+      item.status ?? strings.hostelManagement.active,
+    );
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
     const onSelectStatus = (newStatus: string) => {
@@ -207,9 +209,9 @@ const BedDetails = (props: Props) => {
       if (newStatus === statusValue) return;
 
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: 'Are you sure you want to change this item?',
-        okText: 'Confirm',
+        title: strings.hostelManagement.bedDetails.statusChangeConfirmation,
+        message: strings.hostelManagement.bedDetails.statusChangeMessage,
+        okText: strings.hostelManagement.confirm,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
@@ -238,16 +240,16 @@ const BedDetails = (props: Props) => {
           setInitialCall(false);
           Toast.show({
             type: 'error',
-            text2: err.data?.message || 'Something went wrong',
+            text2: err.data?.message || strings.something_went_wrong,
           });
         });
     };
 
     const handleDelete = () => {
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Delete Confirmation',
-        message: 'Are you sure you want to delete this item?',
-        okText: 'Confirm',
+        title: strings.hostelManagement.bedDetails.deleteConfirmation,
+        message: strings.hostelManagement.bedDetails.deleteMessage,
+        okText: strings.hostelManagement.confirm,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
@@ -276,7 +278,7 @@ const BedDetails = (props: Props) => {
           setInitialCall(false);
           Toast.show({
             type: 'error',
-            text2: err.data?.message || 'Something went wrong',
+            text2: err.data?.message || strings.something_went_wrong,
           });
         });
     };
@@ -284,20 +286,13 @@ const BedDetails = (props: Props) => {
     return (
       <View style={styles.card}>
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.hostelManagement.srNo} {index + 1}
           </TextAtom>
 
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
+          <View style={styles.actionRow}>
             <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              style={styles.editButton}
               onPress={() => {
                 navigation.navigate(screensName.AddBedDetails, {
                   item: item,
@@ -305,57 +300,48 @@ const BedDetails = (props: Props) => {
                 });
               }}
             >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
+              <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
             </TouchableAtom>
 
             <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              style={styles.deleteButton}
               onPress={() => handleDelete()}
             >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
+              <ImageAtom source={images.delete} style={styles.iconSmall} />
             </TouchableAtom>
           </View>
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Hostel Name</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.bedDetails.hostelName}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {item.selectHostelName ?? '-'}
             </TextAtom>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Floor Name</TextAtom>
+          <View style={styles.flex1End}>
+            <TextAtom style={styles.labelRight}>
+              {strings.hostelManagement.bedDetails.floorName}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {item.selectFloorName ?? '-'}
             </TextAtom>
           </View>
         </View>
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Room No</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.bedDetails.roomNo}
+            </TextAtom>
             <TextAtom style={styles.value}>{item.selectRoomNo ?? '-'}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Bed Name</TextAtom>
+          <View style={styles.flex1End}>
+            <TextAtom style={styles.labelRight}>
+              {strings.hostelManagement.bedDetails.bedName}
+            </TextAtom>
             <TextAtom numberOfLines={0} style={styles.valueRight}>
               {item.bedName ?? '-'}
             </TextAtom>
@@ -369,20 +355,24 @@ const BedDetails = (props: Props) => {
           />
         )}
 
-        <View style={{ marginTop: vh(0), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Status</TextAtom>
+        <View style={styles.statusContainer}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.bedDetails.status}
+          </TextAtom>
 
           <TouchableAtom
             onPress={() => setShowStatusMenu(!showStatusMenu)}
             style={[
               styles.statusBox,
-              statusValue === 'Active' ? styles.activeBox : styles.inActiveBox,
+              statusValue === strings.hostelManagement.active
+                ? styles.activeBox
+                : styles.inActiveBox,
             ]}
           >
             <TextAtom
               style={[
                 styles.statusText,
-                statusValue === 'Active'
+                statusValue === strings.hostelManagement.active
                   ? styles.activeText
                   : styles.inActiveText,
               ]}
@@ -396,16 +386,22 @@ const BedDetails = (props: Props) => {
             <View style={styles.dropMenu}>
               <TouchableAtom
                 style={styles.dropItem}
-                onPress={() => onSelectStatus('Active')}
+                onPress={() => onSelectStatus(strings.hostelManagement.active)}
               >
-                <TextAtom style={{ color: colors.black }}>Active</TextAtom>
+                <TextAtom style={styles.statusTextBlack}>
+                  {strings.hostelManagement.active}
+                </TextAtom>
               </TouchableAtom>
 
               <TouchableAtom
                 style={styles.dropItem}
-                onPress={() => onSelectStatus('In-Active')}
+                onPress={() =>
+                  onSelectStatus(strings.hostelManagement.inActive)
+                }
               >
-                <TextAtom style={{ color: colors.black }}>In-Active</TextAtom>
+                <TextAtom style={styles.statusTextBlack}>
+                  {strings.hostelManagement.inActive}
+                </TextAtom>
               </TouchableAtom>
             </View>
           )}
@@ -421,11 +417,11 @@ const BedDetails = (props: Props) => {
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Hostel'}
-        placeholder={'Hostel'}
+        label={strings.hostelManagement.bedAvailability.hostel}
+        placeholder={strings.hostelManagement.bedAvailability.hostel}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Hostel',
+            name: strings.hostelManagement.bedAvailability.hostel,
             Data: hostelList,
             selectedData: selectedHostel,
             setSelectedData: (data: any) => {
@@ -440,11 +436,11 @@ const BedDetails = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Floor'}
-        placeholder={'Floor'}
+        label={strings.hostelManagement.bedAvailability.floor}
+        placeholder={strings.hostelManagement.bedAvailability.floor}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Floor',
+            name: strings.hostelManagement.bedAvailability.floor,
             Data: floorList,
             selectedData: selectedFloor,
             setSelectedData: (data: any) => {
@@ -459,11 +455,11 @@ const BedDetails = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Room'}
-        placeholder={'Room'}
+        label={strings.hostelManagement.bedAvailability.room}
+        placeholder={strings.hostelManagement.bedAvailability.room}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Room',
+            name: strings.hostelManagement.bedAvailability.room,
             Data: roomList,
             selectedData: selectedRoom,
             setSelectedData: (data: any) => {
@@ -479,12 +475,12 @@ const BedDetails = (props: Props) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.hostelManagement.bedAvailability.applyFilter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.hostelManagement.bedAvailability.clearFilter}
           containerStyle={styles.clearBtn}
           bttnTextStyle={{ color: colors.primary }}
         />
@@ -591,21 +587,32 @@ const BedDetails = (props: Props) => {
       <FullscreenLoading isVisible={initialCall} />
       <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
         <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+          {showFilter
+            ? strings.hostelManagement.bedAvailability.hideFilter
+            : strings.hostelManagement.bedAvailability.showFilter}
         </TextAtom>
       </TouchableAtom>
       {showFilter && <FilterForm />}
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
-          placeholder={'Centers'}
+          placeholder={strings.dashboardIndex.centers}
           onPress={() => {
             navigation.navigate('DropDownModal', {
               name: 'Center',
               Data: [
-                { id: 'All Centers', name: 'All Centers' },
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
+                {
+                  id: strings.dashboardIndex.allCenters,
+                  name: strings.dashboardIndex.allCenters,
+                },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
               ],
               selectedData: centerSerach,
               setSelectedData: (data: any) => {
@@ -616,7 +623,7 @@ const BedDetails = (props: Props) => {
             });
           }}
           inputText={centerSerach?.name}
-          containerStyle={{ marginBottom: vh(-10) }}
+          containerStyle={styles.marginBottomNegative}
         />
       )}
       <SearchBoxOrganism
@@ -633,7 +640,9 @@ const BedDetails = (props: Props) => {
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.hostelManagement.noDataFound}
+            </TextAtom>
           ) : null
         }
         ListFooterComponent={
@@ -641,7 +650,7 @@ const BedDetails = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(15) }}
+            style={styles.loadingContainer}
           />
         }
         refreshControl={
@@ -662,7 +671,7 @@ const BedDetails = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
       <FloatingButton
         onButtonPress={() => {
@@ -736,7 +745,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.lightGray2,
     borderRadius: 8,
     marginTop: 6,
   },
@@ -752,13 +761,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -766,8 +775,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -812,8 +821,40 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: vh(5),
+    marginTop: vh(10),
   },
+
+  // New StyleSheet Entries
+  flex1: { flex: 1 },
+  flex1End: { flex: 1, alignItems: 'flex-end' },
+  actionRow: { flexDirection: 'row', gap: vw(15) },
+  editButton: {
+    borderWidth: vw(1),
+    borderColor: colors.green,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editIcon: {
+    tintColor: colors.green,
+    width: vw(15),
+    height: vw(15),
+  },
+  deleteButton: {
+    borderWidth: vw(1),
+    borderColor: colors.red_2,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSmall: { width: vw(15), height: vw(15) },
+  statusContainer: { marginTop: vh(0), zIndex: 999 },
+  statusTextBlack: { color: colors.black },
+  loadingContainer: { marginTop: vh(15) },
+  itemSeparator: { height: vh(10) },
+  marginBottomNegative: { marginBottom: vh(-10) },
   applyBtn: { width: vw(150), height: vh(35) },
   clearBtn: {
     width: vw(150),
