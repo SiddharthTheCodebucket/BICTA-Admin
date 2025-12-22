@@ -76,9 +76,10 @@ const SubLocationDetails = (props: Props) => {
   const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [listFacultyDetailsApi] = useListClassSubLocationDetailsMutation();
-  const [updateFacultyDetailsApi] = useUpdateClassSubLocationDetailsMutation();
-  const [deletebedDetailsRoomApi] = useDeleteFacultyDetailsMutation();
+  const [listSubLocationDetailsApi] = useListClassSubLocationDetailsMutation();
+  const [updateSubLocationDetailsApi] =
+    useUpdateClassSubLocationDetailsMutation();
+  const [deleteSubLocationDetailsApi] = useDeleteFacultyDetailsMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -103,7 +104,10 @@ const SubLocationDetails = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Sub Location Details');
+    Header.setNavigation(
+      navigation,
+      strings.lms.locationDetails.subLocationDetailsTitle,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -111,7 +115,7 @@ const SubLocationDetails = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listFacultyDetails(1, true, '');
+        listSubLocationDetails(1, true, '');
         getFacultyType();
         getDepartment();
         getOrganization();
@@ -121,14 +125,14 @@ const SubLocationDetails = (props: Props) => {
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listFacultyDetails(1, true, '');
+    listSubLocationDetails(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
 
     return [centerSerach.name];
@@ -139,7 +143,7 @@ const SubLocationDetails = (props: Props) => {
     setShowFilter(!showFilter);
   };
 
-  const listFacultyDetails = (
+  const listSubLocationDetails = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -163,7 +167,7 @@ const SubLocationDetails = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    listFacultyDetailsApi(params)
+    listSubLocationDetailsApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -187,14 +191,14 @@ const SubLocationDetails = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listFacultyDetails(1, true, text);
+      listSubLocationDetails(1, true, text);
     }, 500),
     [],
   );
@@ -206,10 +210,10 @@ const SubLocationDetails = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listFacultyDetails(1, true, '');
+    listSubLocationDetails(1, true, '');
   };
 
-  const BedCard = ({ item, index, navigation }: any) => {
+  const SubLocationDetailsCard = ({ item, index, navigation }: any) => {
     const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
@@ -219,9 +223,9 @@ const SubLocationDetails = (props: Props) => {
       if (newStatus === statusValue) return;
 
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: 'Are you sure you want to change this item?',
-        okText: 'Confirm',
+        title: strings.lms.assignmentDetailsList.statusChangeConf,
+        message: strings.lms.assignmentDetailsList.statusChangeMsg,
+        okText: strings.lms.assignmentDetailsList.confirm,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
@@ -236,7 +240,7 @@ const SubLocationDetails = (props: Props) => {
       const params = {
         id_for_change_sub_location_status: id,
       };
-      updateFacultyDetailsApi(params)
+      updateSubLocationDetailsApi(params)
         .unwrap()
         .then((res: any) => {
           Toast.show({
@@ -244,37 +248,37 @@ const SubLocationDetails = (props: Props) => {
             text2: res.data?.message.message,
           });
           setInitialCall(false);
-          listFacultyDetails(1, true, search);
+          listSubLocationDetails(1, true, search);
         })
         .catch((err: any) => {
           setInitialCall(false);
           Toast.show({
             type: 'error',
-            text2: err.data?.message || 'Something went wrong',
+            text2: err.data?.message || strings.something_went_wrong_,
           });
         });
     };
 
     const handleDelete = () => {
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Delete Confirmation',
-        message: 'Are you sure you want to delete this item?',
-        okText: 'Confirm',
+        title: strings.lms.locationDetails.deleteConfirmation,
+        message: strings.lms.locationDetails.deleteMsg,
+        okText: strings.lms.locationDetails.confirm,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
-          deleteBedHostelRoom(item.facultyId);
+          deleteSubLocationDetails(item.facultyId);
         },
         cancelFunction: () => {},
       });
     };
 
-    const deleteBedHostelRoom = (id: any) => {
+    const deleteSubLocationDetails = (id: any) => {
       setInitialCall(true);
       const params = {
         faculty_id: id,
       };
-      deletebedDetailsRoomApi(params)
+      deleteSubLocationDetailsApi(params)
         .unwrap()
         .then((res: any) => {
           Toast.show({
@@ -282,13 +286,13 @@ const SubLocationDetails = (props: Props) => {
             text2: res.data.message,
           });
           setInitialCall(false);
-          listFacultyDetails(1, true, search);
+          listSubLocationDetails(1, true, search);
         })
         .catch((err: any) => {
           setInitialCall(false);
           Toast.show({
             type: 'error',
-            text2: err.data?.message || 'Something went wrong',
+            text2: err.data?.message || strings.something_went_wrong_,
           });
         });
     };
@@ -304,7 +308,7 @@ const SubLocationDetails = (props: Props) => {
       >
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+            {strings.lms.locationDetails.srNo} {index + 1}
           </TextAtom>
 
           <View style={{ flexDirection: 'row', gap: vw(15) }}>
@@ -352,13 +356,17 @@ const SubLocationDetails = (props: Props) => {
           </View>
         </View>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Location Name</TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.lms.locationDetails.locationName}
+          </TextAtom>
           <TextAtom style={styles.value}>
             {item.selectLocationName ?? '-'}
           </TextAtom>
         </View>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Sub Location Name</TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.lms.locationDetails.subLocationName}
+          </TextAtom>
           <TextAtom style={styles.value}>
             {item.subLocationName ?? '-'}
           </TextAtom>
@@ -371,7 +379,9 @@ const SubLocationDetails = (props: Props) => {
         )}
 
         <View style={{ marginTop: vh(0), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Status</TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.lms.locationDetails.status}
+          </TextAtom>
 
           <TouchableAtom
             onPress={() => setShowStatusMenu(!showStatusMenu)}
@@ -415,18 +425,24 @@ const SubLocationDetails = (props: Props) => {
     );
   };
 
-  const renderListBedDetails = ({ item, index }: any) => {
-    return <BedCard item={item} index={index} navigation={navigation} />;
+  const renderSubLocationDetailsItem = ({ item, index }: any) => {
+    return (
+      <SubLocationDetailsCard
+        item={item}
+        index={index}
+        navigation={navigation}
+      />
+    );
   };
 
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Faculty Type'}
-        placeholder={'Faculty Type'}
+        label={strings.lms.locationDetails.facultyType}
+        placeholder={strings.lms.locationDetails.facultyType}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Faculty Type',
+            name: strings.lms.locationDetails.facultyType,
             Data: facultyTypeList,
             selectedData: selectedFacultyType,
             setSelectedData: (data: any) => {
@@ -440,11 +456,11 @@ const SubLocationDetails = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Department'}
-        placeholder={'Department'}
+        label={strings.lms.locationDetails.department}
+        placeholder={strings.lms.locationDetails.department}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Department',
+            name: strings.lms.locationDetails.department,
             Data: departmentList,
             selectedData: selectedDepartment,
             setSelectedData: (data: any) => {
@@ -458,11 +474,11 @@ const SubLocationDetails = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Organisation'}
-        placeholder={'Organisation'}
+        label={strings.lms.locationDetails.organisation}
+        placeholder={strings.lms.locationDetails.organisation}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Organisation',
+            name: strings.lms.locationDetails.organisation,
             Data: organisationList,
             selectedData: selectedOrganisation,
             setSelectedData: (data: any) => {
@@ -478,12 +494,12 @@ const SubLocationDetails = (props: Props) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.lms.locationDetails.applyFilter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.lms.locationDetails.clearFilter}
           containerStyle={styles.clearBtn}
           bttnTextStyle={{ color: colors.primary }}
         />
@@ -495,7 +511,7 @@ const SubLocationDetails = (props: Props) => {
     setSelectedFacultyType({});
     setSelectedDepartment({});
     setSelectedOrganisation({});
-    listFacultyDetails(1, true, search, []);
+    listSubLocationDetails(1, true, search, []);
   };
 
   const applyFilter = () => {
@@ -513,7 +529,7 @@ const SubLocationDetails = (props: Props) => {
       filters.push(['facultyOrganisation', '=', selectedOrganisation.id]);
     }
 
-    listFacultyDetails(1, true, search, filters);
+    listSubLocationDetails(1, true, search, filters);
   };
 
   const getFacultyType = () => {
@@ -593,30 +609,37 @@ const SubLocationDetails = (props: Props) => {
       </TouchableAtom>
       {showFilter && <FilterForm />} */}
       {crediantialData.user[0].tenantId === 3 && (
-
         <DropDownOrganism
-        label={''}
-        placeholder={'Centers'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Center',
-            Data: [
-              { id: 'All Centers', name: 'All Centers' },
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
-            ],
-            selectedData: centerSerach,
-            setSelectedData: (data: any) => {
-              setCenterSerach(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={centerSerach?.name}
-        containerStyle={{ marginBottom: vh(-10) }}
-      />
-
+          label={''}
+          placeholder={strings.dashboardIndex.centers}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: strings.dashboardIndex.center,
+              Data: [
+                {
+                  id: strings.dashboardIndex.allCenters,
+                  name: strings.dashboardIndex.allCenters,
+                },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
+              ],
+              selectedData: centerSerach,
+              setSelectedData: (data: any) => {
+                setCenterSerach(data);
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={centerSerach?.name}
+          containerStyle={{ marginBottom: vh(-10) }}
+        />
       )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
@@ -628,11 +651,13 @@ const SubLocationDetails = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListBedDetails}
+        renderItem={renderSubLocationDetailsItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.lms.assignmentResponse.noDataFound}
+            </TextAtom>
           ) : null
         }
         ListFooterComponent={
@@ -650,18 +675,18 @@ const SubLocationDetails = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listFacultyDetails(1, false, '');
+              listSubLocationDetails(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listFacultyDetails(page + 1, false, search)
+            ? listSubLocationDetails(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
       {/* <FloatingButton
         onButtonPress={() => {
@@ -733,7 +758,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.lightGray2,
     borderRadius: 8,
     marginTop: 6,
   },
@@ -749,13 +774,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -763,8 +788,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -818,5 +843,8 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  separator: {
+    height: vh(10),
   },
 });

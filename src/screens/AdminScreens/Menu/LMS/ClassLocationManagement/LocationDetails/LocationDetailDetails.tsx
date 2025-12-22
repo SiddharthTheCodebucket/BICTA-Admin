@@ -1,7 +1,7 @@
 import React, { useLayoutEffect } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vh, vw } from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { Header } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
@@ -45,7 +45,7 @@ const LocationDetailDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Location Details');
+    Header.setNavigation(navigation, strings.lms.locationDetails.title);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -65,21 +65,48 @@ const LocationDetailDetails = ({ route, navigation }: any) => {
       >
         <ViewAtom style={styles.card}>
           {/* LOCATION DETAILS */}
-          <FieldRow label="Location Name" value={data?.locationName} />
-
-          <FullWidthField label="Address" value={data?.address} />
-
-          <FieldRow label="Street" value={data?.street} />
-          <FieldRow label="Select City" value={data?.selectCity} />
-          <FieldRow label="PIN Code" value={data?.pinCode} />
-          <FieldRow label="Contact Person" value={data?.contactPerson} />
-          <FieldRow label="Contact No" value={data?.contactNo} />
           <FieldRow
-            label="Alternate Contact No"
+            label={strings.lms.locationDetails.locationName}
+            value={data?.locationName}
+          />
+
+          <FullWidthField
+            label={strings.lms.locationDetails.address}
+            value={data?.address}
+          />
+
+          <FieldRow
+            label={strings.lms.locationDetails.street}
+            value={data?.street}
+          />
+          <FieldRow
+            label={strings.lms.locationDetails.selectCity}
+            value={data?.selectCity}
+          />
+          <FieldRow
+            label={strings.lms.locationDetails.pinCode}
+            value={data?.pinCode}
+          />
+          <FieldRow
+            label={strings.lms.locationDetails.contactPerson}
+            value={data?.contactPerson}
+          />
+          <FieldRow
+            label={strings.lms.locationDetails.contactNo}
+            value={data?.contactNo}
+          />
+          <FieldRow
+            label={strings.lms.locationDetails.alternateContactNo}
             value={data?.alternateContactNo}
           />
-          <FieldRow label="Email ID" value={data?.emailId} />
-          <FieldRow label="Status" value={data?.status} />
+          <FieldRow
+            label={strings.lms.locationDetails.emailId}
+            value={data?.emailId}
+          />
+          <FieldRow
+            label={strings.lms.locationDetails.status}
+            value={data?.status}
+          />
         </ViewAtom>
       </ScrollView>
     </SafeAreaView>

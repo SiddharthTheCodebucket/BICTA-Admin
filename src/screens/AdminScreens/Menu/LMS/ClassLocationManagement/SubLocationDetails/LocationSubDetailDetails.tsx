@@ -1,7 +1,7 @@
 import React, { useLayoutEffect } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vh, vw } from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { Header } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
@@ -45,7 +45,10 @@ const LocationSubDetailDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Sub Location Details');
+    Header.setNavigation(
+      navigation,
+      strings.lms.locationDetails.subLocationDetailsTitle,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -64,17 +67,20 @@ const LocationSubDetailDetails = ({ route, navigation }: any) => {
         contentContainerStyle={styles.scrollContainer}
       >
         <ViewAtom style={styles.card}>
-          <FieldRow label="Sr. No." value={data?.id} />
+          <FieldRow label={strings.lms.locationDetails.srNo} value={data?.id} />
 
           <FieldRow
-            label="Select Location Name"
+            label={strings.lms.locationDetails.selectLocationName}
             value={data?.selectLocationName}
           />
 
-          <FieldRow label="Sub Location Name" value={data?.subLocationName} />
+          <FieldRow
+            label={strings.lms.locationDetails.subLocationName}
+            value={data?.subLocationName}
+          />
 
           <FieldRow
-            label="Contact Person"
+            label={strings.lms.locationDetails.contactPerson}
             value={
               data?.subLocationContactPerson
                 ? data?.subLocationContactPerson
@@ -83,7 +89,7 @@ const LocationSubDetailDetails = ({ route, navigation }: any) => {
           />
 
           <FieldRow
-            label="Contact No"
+            label={strings.lms.locationDetails.contactNo}
             value={
               data?.subLocationContactNo
                 ? data?.subLocationContactNo
@@ -91,9 +97,15 @@ const LocationSubDetailDetails = ({ route, navigation }: any) => {
             }
           />
 
-          <FieldRow label="Total Capacity" value={data?.totalCapacity} />
+          <FieldRow
+            label={strings.lms.locationDetails.totalCapacity}
+            value={data?.totalCapacity}
+          />
 
-          <FieldRow label="Status" value={data?.status} />
+          <FieldRow
+            label={strings.lms.locationDetails.status}
+            value={data?.status}
+          />
         </ViewAtom>
       </ScrollView>
     </SafeAreaView>
