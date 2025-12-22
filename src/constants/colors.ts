@@ -22,6 +22,7 @@ export default {
   grey_3: 'rgba(80, 84, 89, 1)',
   lightGreen: '#DFF6DD',
   sky_blue: 'rgba(227,240,255,1)',
+  selectedCardBg: '#F3F8FF',
 
   // UI Background Colors
   lightGray2: '#EAEAEA',

@@ -73,7 +73,7 @@ const AssignmentDetailsList = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Assignments Details List');
+    Header.setNavigation(navigation, strings.lms.assignmentDetailsList.title);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -81,17 +81,17 @@ const AssignmentDetailsList = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listVehicleDetails(1, true, '');
+        listAssessmentAssignment(1, true, '');
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listVehicleDetails(1, true, '');
+    listAssessmentAssignment(1, true, '');
   }, [centerSerach]);
 
-  const listVehicleDetails = (
+  const listAssessmentAssignment = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -137,8 +137,10 @@ const AssignmentDetailsList = (props: Props) => {
       });
   };
 
-  const VehicleCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.visibility ?? 'Show');
+  const AssessmentAssignmentCard = ({ item, index, navigation }: any) => {
+    const [statusValue, setStatusValue] = useState(
+      item.visibility ?? strings.lms.assignmentDetails.show,
+    );
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
     const onSelectStatus = (newStatus: string) => {
@@ -147,19 +149,19 @@ const AssignmentDetailsList = (props: Props) => {
       if (newStatus === statusValue) return;
 
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: 'Are you sure you want to change this item?',
-        okText: 'Confirm',
+        title: strings.lms.assignmentDetailsList.statusChangeConf,
+        message: strings.lms.assignmentDetailsList.statusChangeMsg,
+        okText: strings.lms.assignmentDetailsList.confirm,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
-          updateVehicleStatus(item.id);
+          updateAssignmentStatus(item.id);
         },
         cancelFunction: () => {},
       });
     };
 
-    const updateVehicleStatus = (id: any) => {
+    const updateAssignmentStatus = (id: any) => {
       setInitialCall(true);
       const params = {
         id_for_change_visibility: id,
@@ -178,33 +180,39 @@ const AssignmentDetailsList = (props: Props) => {
           setInitialCall(false);
           Toast.show({
             type: 'error',
-            text2: err.data?.message || 'Something went wrong',
+            text2: err.data?.message || strings.something_went_wrong_,
           });
         });
     };
 
     return (
       <View style={styles.card}>
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+        <View style={styles.cardHeader}>
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.lms.assignmentResponse.srNo} {index + 1}
           </TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Assignment Name</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.assignmentDetailsList.assignmentName}
+          </TextAtom>
           <TextAtom numberOfLines={0} style={styles.value}>
             {item.assignmentName ?? '-'}
           </TextAtom>
         </View>
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>No Of Questions</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.lms.assignmentDetailsList.noOfQuestions}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {item.noOfQuestions ?? '-'}
             </TextAtom>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Submission Type</TextAtom>
+          <View style={styles.alignEnd}>
+            <TextAtom style={styles.labelRight}>
+              {strings.lms.assignmentDetailsList.submissionType}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {item.submissionType ?? '-'}
             </TextAtom>
@@ -212,8 +220,10 @@ const AssignmentDetailsList = (props: Props) => {
         </View>
 
         <View style={[styles.rowBetween]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Start Date</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.lms.assignmentDetailsList.startDate}
+            </TextAtom>
 
             <TextAtom style={styles.value}>
               {moment(item.availabilityStartDate, 'YYYY-MM-DD').format(
@@ -221,8 +231,10 @@ const AssignmentDetailsList = (props: Props) => {
               ) ?? '-'}
             </TextAtom>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>End Date</TextAtom>
+          <View style={styles.alignEnd}>
+            <TextAtom style={styles.labelRight}>
+              {strings.lms.assignmentDetailsList.endDate}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {moment(item.availabilityEndDate, 'YYYY-MM-DD').format(
                 'DD-MM-YYYY',
@@ -238,20 +250,24 @@ const AssignmentDetailsList = (props: Props) => {
           />
         )}
 
-        <View style={{ marginTop: vh(0), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Status</TextAtom>
+        <View style={styles.statusContainer}>
+          <TextAtom style={styles.label}>
+            {strings.lms.assignmentDetailsList.status}
+          </TextAtom>
 
           <TouchableAtom
             onPress={() => setShowStatusMenu(!showStatusMenu)}
             style={[
               styles.statusBox,
-              statusValue === 'Show' ? styles.activeBox : styles.inActiveBox,
+              statusValue === strings.lms.assignmentDetails.show
+                ? styles.activeBox
+                : styles.inActiveBox,
             ]}
           >
             <TextAtom
               style={[
                 styles.statusText,
-                statusValue === 'Show'
+                statusValue === strings.lms.assignmentDetails.show
                   ? styles.activeText
                   : styles.inActiveText,
               ]}
@@ -265,16 +281,24 @@ const AssignmentDetailsList = (props: Props) => {
             <View style={styles.dropMenu}>
               <TouchableAtom
                 style={styles.dropItem}
-                onPress={() => onSelectStatus('Show')}
+                onPress={() =>
+                  onSelectStatus(strings.lms.assignmentDetails.show)
+                }
               >
-                <TextAtom style={{ color: colors.black }}>Show</TextAtom>
+                <TextAtom style={styles.blackText}>
+                  {strings.lms.assignmentDetails.show}
+                </TextAtom>
               </TouchableAtom>
 
               <TouchableAtom
                 style={styles.dropItem}
-                onPress={() => onSelectStatus('Hide')}
+                onPress={() =>
+                  onSelectStatus(strings.lms.assignmentDetails.hide)
+                }
               >
-                <TextAtom style={{ color: colors.black }}>Hide</TextAtom>
+                <TextAtom style={styles.blackText}>
+                  {strings.lms.assignmentDetails.hide}
+                </TextAtom>
               </TouchableAtom>
             </View>
           )}
@@ -283,8 +307,14 @@ const AssignmentDetailsList = (props: Props) => {
     );
   };
 
-  const renderListVehicleDetails = ({ item, index }: any) => {
-    return <VehicleCard item={item} index={index} navigation={navigation} />;
+  const renderAssessmentAssignmentItem = ({ item, index }: any) => {
+    return (
+      <AssessmentAssignmentCard
+        item={item}
+        index={index}
+        navigation={navigation}
+      />
+    );
   };
 
   return (
@@ -294,11 +324,13 @@ const AssignmentDetailsList = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListVehicleDetails}
+        renderItem={renderAssessmentAssignmentItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.lms.assignmentResponse.noDataFound}
+            </TextAtom>
           ) : null
         }
         ListFooterComponent={
@@ -306,7 +338,7 @@ const AssignmentDetailsList = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(15) }}
+            style={styles.marginTop15}
           />
         }
         refreshControl={
@@ -316,18 +348,18 @@ const AssignmentDetailsList = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listVehicleDetails(1, false, '');
+              listAssessmentAssignment(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listVehicleDetails(page + 1, false, search)
+            ? listAssessmentAssignment(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
     </SafeAreaView>
   );
@@ -394,7 +426,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.lightGray2,
     borderRadius: 8,
     marginTop: 6,
   },
@@ -410,13 +442,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -424,8 +456,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -450,5 +482,20 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: 'transparent',
     zIndex: 998,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: vh(10),
+  },
+  flex1: { flex: 1 },
+  alignEnd: { flex: 1, alignItems: 'flex-end' },
+  statusContainer: { marginTop: vh(0), zIndex: 999 },
+  blackText: { color: colors.black },
+  marginTop15: {
+    marginTop: vh(15),
+  },
+  separator: {
+    height: vh(10),
   },
 });

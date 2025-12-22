@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../../constants';
+import { colors, screensName, strings, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -16,7 +16,7 @@ const Assignment = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Assignment');
+    Header.setNavigation(navigation, strings.assignment.assignment);
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,28 +25,28 @@ const Assignment = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Question',
+      name: strings.assignment.question,
       onPress: () => {
         navigation.navigate(screensName.Question);
       },
     },
     {
       id: 2,
-      name: 'Assignments Details',
+      name: strings.assignment.assignmentsDetails,
       onPress: () => {
         navigation.navigate(screensName.AssignmentsDetails);
       },
     },
     {
       id: 3,
-      name: 'Assign Question',
+      name: strings.assignment.assignQuestion,
       onPress: () => {
         navigation.navigate(screensName.AssignQuestion);
       },
     },
     {
       id: 4,
-      name: 'Assignments Response',
+      name: strings.assignment.assignmentsResponse,
       onPress: () => {
         navigation.navigate(screensName.AssignmentResponse);
       },

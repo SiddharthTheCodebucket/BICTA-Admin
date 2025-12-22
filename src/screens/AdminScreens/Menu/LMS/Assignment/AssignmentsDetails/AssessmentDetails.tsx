@@ -58,12 +58,12 @@ const AssessmentDetails = (props: Props) => {
   const [refreshing, setRefreshing] = useState(false);
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Assignment Details');
+    Header.setNavigation(navigation, strings.lms.assessmentDetails.title);
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
 
   useEffect(() => {
-    listAssignmentQuestionBank(1, true);
+    listAssignmentResponse(1, true);
   }, []);
 
   const stripHtml = (s?: string) => {
@@ -74,7 +74,7 @@ const AssessmentDetails = (props: Props) => {
       .trim();
   };
 
-  const listAssignmentQuestionBank = (pageNumber: number, initial: boolean) => {
+  const listAssignmentResponse = (pageNumber: number, initial: boolean) => {
     initial ? setInitialCall(true) : setInitialCall(false);
 
     const params: any = {
@@ -143,7 +143,7 @@ const AssessmentDetails = (props: Props) => {
 
   const onRefresh = () => {
     setRefreshing(true);
-    listAssignmentQuestionBank(1, false);
+    listAssignmentResponse(1, false);
     setTimeout(() => setRefreshing(false), 600);
   };
 
@@ -159,7 +159,7 @@ const AssessmentDetails = (props: Props) => {
     };
 
     return (
-      <View style={[styles.card, { marginBottom: vh(12) }]}>
+      <View style={[styles.card, styles.marginBottom12]}>
         <View style={styles.rowBetween}>
           <TextAtom
             numberOfLines={0}
@@ -167,10 +167,12 @@ const AssessmentDetails = (props: Props) => {
           >
             {index + 1}. {item._question || stripHtml(item.question)}
           </TextAtom>
-          <TextAtom style={styles.labelRight}>{item.marks} Marks</TextAtom>
+          <TextAtom style={styles.labelRight}>
+            {item.marks} {strings.lms.assessmentDetails.marks}
+          </TextAtom>
         </View>
 
-        <View style={{ marginTop: vh(8) }}>
+        <View style={styles.marginTop8}>
           {['option_1', 'option_2', 'option_3', 'option_4'].map(
             (optKey: string, idx: number) => {
               const optText = optionMap[optKey] ?? '';
@@ -212,23 +214,18 @@ const AssessmentDetails = (props: Props) => {
         <View style={styles.rowBetween}>
           <TextAtom
             numberOfLines={0}
-            style={[styles.label, { width: vw(240) }]}
+            style={[styles.label, styles.questionWidth]}
           >
             {index + 1}. {stripHtml(questionText)}
           </TextAtom>
-          <TextAtom style={styles.labelRight}>{item.marks} Marks</TextAtom>
+          <TextAtom style={styles.labelRight}>
+            {item.marks} {strings.lms.assessmentDetails.marks}
+          </TextAtom>
         </View>
 
         {/* ANSWER Heading */}
-        <TextAtom
-          style={{
-            marginTop: vh(10),
-            fontFamily: fonts.Roboto_Medium,
-            fontSize: vw(14),
-            color: colors.black,
-          }}
-        >
-          Ans:
+        <TextAtom style={styles.answerHeading}>
+          {strings.lms.assessmentDetails.ans}
         </TextAtom>
 
         {/* Render HTML Answer */}
@@ -248,19 +245,10 @@ const AssessmentDetails = (props: Props) => {
         {fileUrl ? (
           <TouchableOpacity
             onPress={() => Linking.openURL(fileUrl)}
-            style={{
-              marginTop: vh(10),
-              backgroundColor: colors.primary,
-              paddingVertical: vh(8),
-              paddingHorizontal: vw(12),
-              borderRadius: vw(6),
-              alignSelf: 'flex-start',
-            }}
+            style={styles.fileButton}
           >
-            <TextAtom
-              style={{ color: colors.white, fontFamily: fonts.Roboto_Medium }}
-            >
-              OPEN FILE
+            <TextAtom style={styles.fileButtonText}>
+              {strings.lms.assessmentDetails.openFile}
             </TextAtom>
           </TouchableOpacity>
         ) : null}
@@ -271,22 +259,23 @@ const AssessmentDetails = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <View style={[styles.card, { marginBottom: vh(0), marginTop: vh(10) }]}>
+      <View style={[styles.card, styles.detailsCard]}>
         <TextAtom style={styles.value}>
-          Assignment Name: {data?.assignmentName ?? '-'}
+          {strings.lms.assessmentDetails.assignmentName}{' '}
+          {data?.assignmentName ?? '-'}
         </TextAtom>
         <TextAtom style={styles.value}>
-          Trainee Name / Group Name: {data?.traineeName ?? '-'}
+          {strings.lms.assessmentDetails.traineeName} {data?.traineeName ?? '-'}
         </TextAtom>
         <TextAtom style={styles.value}>
-          Availability:
+          {strings.lms.assessmentDetails.availability}
           {moment(data?.submissionLastDate, 'YYYY-MM-DD')
             ? moment(data.submissionLastDate).format('DD-MM-YYYY')
             : '-'}
         </TextAtom>
 
         <TextAtom style={styles.value}>
-          Submitted On:
+          {strings.lms.assessmentDetails.submittedOn}
           {moment(data?.submitOn, 'YYYY-MM-DD')
             ? moment(data.submitOn).format('DD-MM-YYYY')
             : '-'}
@@ -294,7 +283,7 @@ const AssessmentDetails = (props: Props) => {
       </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
+        style={styles.flex1}
         contentContainerStyle={styles.flatListContainer}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -304,8 +293,8 @@ const AssessmentDetails = (props: Props) => {
 
         {mcqQuestions.length >= 1 && (
           <>
-            <TextAtom style={[styles.sectionHeading, { marginLeft: vw(15) }]}>
-              MCQ
+            <TextAtom style={[styles.sectionHeading, styles.marginLeft15]}>
+              {strings.lms.assessmentDetails.mcq}
             </TextAtom>
             <FlatList
               showsVerticalScrollIndicator={false}
@@ -313,19 +302,14 @@ const AssessmentDetails = (props: Props) => {
               keyExtractor={(_, i) => `mcq_${i}`}
               renderItem={renderMCQItem}
               scrollEnabled={false}
-              contentContainerStyle={{ paddingBottom: vh(8) }}
+              contentContainerStyle={styles.paddingBottom8}
             />
           </>
         )}
         {subjectiveQuestions.length >= 1 && (
           <>
-            <TextAtom
-              style={[
-                styles.sectionHeading,
-                { marginLeft: vw(15), marginTop: vh(10) },
-              ]}
-            >
-              Subjective
+            <TextAtom style={[styles.sectionHeading, styles.subjectiveHeading]}>
+              {strings.lms.assessmentDetails.subjective}
             </TextAtom>
             <FlatList
               showsVerticalScrollIndicator={false}
@@ -333,7 +317,7 @@ const AssessmentDetails = (props: Props) => {
               keyExtractor={(_, i) => `subj_${i}`}
               renderItem={renderSubjectiveItem}
               scrollEnabled={false}
-              contentContainerStyle={{ paddingBottom: vh(24) }}
+              contentContainerStyle={styles.paddingBottom24}
             />
           </>
         )}
@@ -432,4 +416,31 @@ const styles = StyleSheet.create({
     borderRadius: vw(5),
     backgroundColor: colors.primary,
   },
+  marginBottom12: { marginBottom: vh(12) },
+  questionWidth: { width: vw(240) },
+  marginTop8: { marginTop: vh(8) },
+  answerHeading: {
+    marginTop: vh(10),
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+    color: colors.black,
+  },
+  fileButton: {
+    marginTop: vh(10),
+    backgroundColor: colors.primary,
+    paddingVertical: vh(8),
+    paddingHorizontal: vw(12),
+    borderRadius: vw(6),
+    alignSelf: 'flex-start',
+  },
+  fileButtonText: {
+    color: colors.white,
+    fontFamily: fonts.Roboto_Medium,
+  },
+  detailsCard: { marginBottom: vh(0), marginTop: vh(10) },
+  marginLeft15: { marginLeft: vw(15) },
+  subjectiveHeading: { marginLeft: vw(15), marginTop: vh(10) },
+  paddingBottom8: { paddingBottom: vh(8) },
+  paddingBottom24: { paddingBottom: vh(24) },
+  flex1: { flex: 1 },
 });
