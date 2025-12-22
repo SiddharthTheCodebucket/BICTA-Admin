@@ -1,7 +1,7 @@
 import React, { useLayoutEffect } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vh, vw } from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { Header } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
@@ -30,11 +30,7 @@ const ImageField = ({ label, uri }: any) => (
     <TextAtom style={styles.fullLabel}>{label}</TextAtom>
 
     {uri ? (
-      <Image
-        source={{ uri }}
-        style={{ width: '100%', height: vh(160), borderRadius: vw(8) }}
-        resizeMode="contain"
-      />
+      <Image source={{ uri }} style={styles.image} resizeMode="contain" />
     ) : (
       <TextAtom style={styles.fullValue}>-</TextAtom>
     )}
@@ -45,7 +41,10 @@ const FacultyClassApproveDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Class Approve');
+    Header.setNavigation(
+      navigation,
+      strings.lms.classRoomManagement.facultyClassApprove,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -64,10 +63,13 @@ const FacultyClassApproveDetails = ({ route, navigation }: any) => {
         contentContainerStyle={styles.scrollContainer}
       >
         <ViewAtom style={styles.card}>
-          <FullWidthField label="Training Name" value={data?.trainingName} />
+          <FullWidthField
+            label={strings.lms.classRoomManagement.trainingName}
+            value={data?.trainingName}
+          />
 
           <FullWidthField
-            label="Days"
+            label={strings.lms.classRoomManagement.days}
             value={
               data?.courseStartDate && data?.courseEndDate
                 ? `${moment(data?.courseStartDate).format(
@@ -77,40 +79,55 @@ const FacultyClassApproveDetails = ({ route, navigation }: any) => {
             }
           />
 
-          <FieldRow label="Session" value={data?.selectASession} />
-
-          <FullWidthField label="Subject" value={data?.selectSubject} />
-
-          <FullWidthField label="Topic" value={data?.selectTopic} />
+          <FieldRow
+            label={strings.lms.classRoomManagement.session}
+            value={data?.selectASession}
+          />
 
           <FullWidthField
-            label="Faculty"
+            label={strings.lms.classRoomManagement.subject}
+            value={data?.selectSubject}
+          />
+
+          <FullWidthField
+            label={strings.lms.classRoomManagement.topic}
+            value={data?.selectTopic}
+          />
+
+          <FullWidthField
+            label={strings.lms.classRoomManagement.faculty}
             value={data?.selectFaculty ? data?.selectFaculty : '-'}
           />
 
           <FieldRow
-            label="F ID"
+            label={strings.lms.classRoomManagement.fId}
             value={data?.selectFacultyId ? data?.selectFacultyId : '-'}
           />
 
-          <FieldRow label="Status" value={data?.maker} />
-
-          <FieldRow label="Batch No" value={data?.batchNo} />
+          <FieldRow
+            label={strings.lms.locationDetails.status}
+            value={data?.maker}
+          />
 
           <FieldRow
-            label="VC"
+            label={strings.lms.classRoomManagement.batchNo}
+            value={data?.batchNo}
+          />
+
+          <FieldRow
+            label={strings.lms.classRoomManagement.vc}
             value={data?.vehicleType ? data?.vehicleType : 'No'}
           />
 
           <FullWidthField
-            label="Is Class Photo Uploaded"
+            label={strings.lms.classRoomManagement.isClassPhotoUploaded}
             value={
               data?.isClassPhotoUploaded ? data?.isClassPhotoUploaded : '-'
             }
           />
 
           <FieldRow
-            label="Vehicle"
+            label={strings.lms.classRoomManagement.vehicle}
             value={
               data?.vehicleAmount
                 ? `${data?.vehicleType || ''} - ₹${data?.vehicleAmount}`
@@ -118,7 +135,10 @@ const FacultyClassApproveDetails = ({ route, navigation }: any) => {
             }
           />
 
-          <ImageField label="Upload / View Photo" uri={data?.classPhotoUrl} />
+          <ImageField
+            label={strings.lms.classRoomManagement.uploadViewPhoto}
+            uri={data?.classPhotoUrl}
+          />
         </ViewAtom>
       </ScrollView>
     </SafeAreaView>
@@ -175,4 +195,5 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
     color: colors.grey,
   },
+  image: { width: '100%', height: vh(160), borderRadius: vw(8) },
 });

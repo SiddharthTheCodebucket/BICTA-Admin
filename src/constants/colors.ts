@@ -51,4 +51,6 @@ export default {
   darkRed: '#cc2222',
   greenText: '#008800',
   redText: '#bb0000',
+  transparentBlack: 'rgba(0, 0, 0, 0.4)',
+  transparent: 'transparent',
 };
