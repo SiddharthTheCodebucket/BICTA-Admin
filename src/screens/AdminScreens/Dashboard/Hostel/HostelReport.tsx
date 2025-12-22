@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, vw, vh } from '../../../../constants';
+import strings from '../../../../constants/strings';
 import TextAtom from '../../../../components/atoms/TextAtom';
 import { useHostelReportDataMutation } from '../../../../injectEndpoints/dashboardEndpoints';
 import Toast from 'react-native-toast-message';
@@ -93,7 +94,7 @@ const HostelReport = (props: any) => {
       .catch(() => {
         if (isRefreshing) setRefreshing(false);
         else setLoader(false);
-        Toast.show({ type: 'error', text2: 'Something went wrong' });
+        Toast.show({ type: 'error', text2: strings.something_went_wrong });
       });
   };
 
@@ -158,39 +159,51 @@ const HostelReport = (props: any) => {
     return (
       <View style={styles.card}>
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Sr. No</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelReport.srNo}
+            </TextAtom>
             <TextAtom style={styles.value}>{index + 1}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.label}>Total Bed</TextAtom>
+          <View style={[styles.flex1, styles.alignEnd]}>
+            <TextAtom style={styles.label}>
+              {strings.hostelReport.totalBed}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>{item.totalBeds}</TextAtom>
           </View>
         </View>
 
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>{'Hostel/Guest House Name'}</TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.hostelReport.hostelGuestHouseName}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.hostelName}</TextAtom>
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Trainee Allocated Bed</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelReport.traineeAllocatedBed}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {item.allocatedTraineeBeds}
             </TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.label}>Guest Allocated Bed</TextAtom>
+          <View style={[styles.flex1, styles.alignEnd]}>
+            <TextAtom style={styles.label}>
+              {strings.hostelReport.guestAllocatedBed}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {item.allocatedGuestBeds}
             </TextAtom>
           </View>
         </View>
         <View style={styles.rowBetween}>
-          <TextAtom style={styles.label}>Total Allocated Bed</TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.hostelReport.totalAllocatedBed}
+          </TextAtom>
           <TextAtom style={styles.valueRight}>
             {item.totalAllocatedBeds}
           </TextAtom>
@@ -200,26 +213,34 @@ const HostelReport = (props: any) => {
   };
 
   const renderTotalCard = () => (
-    <View style={[styles.card, { backgroundColor: '#E8F0FE' }]}>
+    <View style={[styles.card, styles.summaryCardBg]}>
       <View style={styles.rowBetween}>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Total Bed</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelReport.totalBed}
+          </TextAtom>
           <TextAtom style={styles.value}>{totals.totalBeds}</TextAtom>
         </View>
 
-        <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.label}>Total Allocated Bed</TextAtom>
+        <View style={[styles.flex1, styles.alignEnd]}>
+          <TextAtom style={styles.label}>
+            {strings.hostelReport.totalAllocatedBed}
+          </TextAtom>
           <TextAtom style={styles.valueRight}>{totals.totalAllocated}</TextAtom>
         </View>
       </View>
       <View style={styles.rowBetween}>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Trainee Allocated Bed</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelReport.traineeAllocatedBed}
+          </TextAtom>
           <TextAtom style={styles.value}>{totals.totalTrainee}</TextAtom>
         </View>
 
-        <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.label}>Guest Allocated Bed</TextAtom>
+        <View style={[styles.flex1, styles.alignEnd]}>
+          <TextAtom style={styles.label}>
+            {strings.hostelReport.guestAllocatedBed}
+          </TextAtom>
           <TextAtom style={styles.valueRight}>{totals.totalGuest}</TextAtom>
         </View>
       </View>
@@ -233,7 +254,7 @@ const HostelReport = (props: any) => {
         placeholder={'User Type'}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'User Type',
+            name: strings.hostelReport.userType,
             Data: userTypeList,
             selectedData: selectedUserType,
             setSelectedData: (data: any) => {
@@ -248,11 +269,11 @@ const HostelReport = (props: any) => {
       {selectedUserType?.id === 'Trainee' && (
         <>
           <DropDownOrganism
-            label={'Training'}
-            placeholder={'Training'}
+            label={strings.hostelReport.training}
+            placeholder={strings.hostelReport.training}
             onPress={() => {
               navigation.navigate('DropDownModal', {
-                name: 'Training',
+                name: strings.hostelReport.training,
                 Data: trainingList,
                 selectedData: selectedTraining,
                 setSelectedData: (data: any) => {
@@ -266,11 +287,11 @@ const HostelReport = (props: any) => {
           />
 
           <DropDownOrganism
-            label={'Designation'}
-            placeholder={'Designation'}
+            label={strings.hostelReport.designation}
+            placeholder={strings.hostelReport.designation}
             onPress={() => {
               navigation.navigate('DropDownModal', {
-                name: 'Designation',
+                name: strings.hostelReport.designation,
                 Data: designationList,
                 selectedData: selectedDesignation,
                 setSelectedData: (data: any) => {
@@ -287,8 +308,8 @@ const HostelReport = (props: any) => {
       {!isNullUndefined(selectedUserType) && (
         <>
           <DateInputOrganism
-            label={'Start Date'}
-            placeholder={'Start Date'}
+            label={strings.hostelReport.startDate}
+            placeholder={strings.hostelReport.startDate}
             value={startDate}
             onChangeText={(val: any) => {
               setStartDate(val);
@@ -297,8 +318,8 @@ const HostelReport = (props: any) => {
             dateFormat="DD-MM-YYYY"
           />
           <DateInputOrganism
-            label={'End Date'}
-            placeholder={'End Date'}
+            label={strings.hostelReport.endDate}
+            placeholder={strings.hostelReport.endDate}
             value={endDate}
             onChangeText={(val: any) => {
               setEndDate(val);
@@ -312,14 +333,14 @@ const HostelReport = (props: any) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.hostelReport.applyFilter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.hostelReport.clearFilter}
           containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
+          bttnTextStyle={styles.clearBtnText}
         />
       </ViewAtom>
     </View>
@@ -373,7 +394,7 @@ const HostelReport = (props: any) => {
       })
       .catch(() => {
         setLoader(false);
-        Toast.show({ type: 'error', text2: 'Something went wrong' });
+        Toast.show({ type: 'error', text2: strings.something_went_wrong });
       });
   };
 
@@ -382,7 +403,9 @@ const HostelReport = (props: any) => {
       <FullscreenLoading isVisible={loader} />
       <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
         <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+          {showFilter
+            ? strings.hostelReport.hideFilter
+            : strings.hostelReport.showFilter}
         </TextAtom>
       </TouchableAtom>
       <FlatList
@@ -393,7 +416,9 @@ const HostelReport = (props: any) => {
         ListFooterComponent={renderTotalCard()}
         ListHeaderComponent={showFilter ? <FilterForm /> : null}
         ListEmptyComponent={
-          <TextAtom style={styles.emptyText}>No Data Found</TextAtom>
+          <TextAtom style={styles.emptyText}>
+            {strings.hostelReport.noDataFound}
+          </TextAtom>
         }
         refreshControl={
           <RefreshControl
@@ -450,7 +475,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: vh(10),
-    backgroundColor: '#F5F5F5',
+    backgroundColor: colors.veryLightGray,
     borderRadius: vw(6),
   },
 
@@ -516,5 +541,17 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  flex1: {
+    flex: 1,
+  },
+  alignEnd: {
+    alignItems: 'flex-end',
+  },
+  clearBtnText: {
+    color: colors.primary,
+  },
+  summaryCardBg: {
+    backgroundColor: colors.lightBlue,
   },
 });

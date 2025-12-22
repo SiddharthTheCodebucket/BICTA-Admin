@@ -22,4 +22,24 @@ export default {
   grey_3: 'rgba(80, 84, 89, 1)',
   lightGreen: '#DFF6DD',
   sky_blue: 'rgba(227,240,255,1)',
+
+  // UI Background Colors
+  lightGray2: '#EAEAEA',
+  veryLightGray: '#F5F5F5',
+  lightBlue: '#E8F0FE',
+  paleBlue: '#DDE8FF',
+  mediumGray: '#E0E0E0',
+  offWhite: '#F3F4F6',
+  borderGrayLight: '#E5E7EB',
+
+  // Status Colors
+  successGreen: '#4CAF50',
+  errorRed: '#FF5252',
+  warningOrange: '#FFB74D',
+
+  // Border/Accent Colors
+  slateGray: '#6C7A89',
+  infoBlue: '#007bff',
+  successGreen2: '#28a745',
+  dangerRed: '#dc3545',
 };

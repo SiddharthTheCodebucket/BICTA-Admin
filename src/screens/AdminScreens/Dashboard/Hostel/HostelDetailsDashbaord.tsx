@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, View, FlatList, Modal, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, vw, vh } from '../../../../constants';
+import strings from '../../../../constants/strings';
 import TextAtom from '../../../../components/atoms/TextAtom';
 import {
   useHostelBedDetailsDataMutation,
@@ -77,7 +78,7 @@ const HostelDetailsDashbaord = (props: any) => {
       })
       .catch(() => {
         setLoader(false);
-        Toast.show({ type: 'error', text2: 'Something went wrong' });
+        Toast.show({ type: 'error', text2: strings.something_went_wrong });
       });
   };
 
@@ -103,14 +104,14 @@ const HostelDetailsDashbaord = (props: any) => {
       })
       .catch(() => {
         setLoader(false);
-        Toast.show({ type: 'error', text2: 'Something went wrong' });
+        Toast.show({ type: 'error', text2: strings.something_went_wrong });
       });
   };
 
   const getRoomColor = (vacantBeds: any, totalBeds: any) => {
-    if (vacantBeds === totalBeds) return '#4CAF50';
-    if (vacantBeds === 0) return '#FF5252';
-    return '#FFB74D';
+    if (vacantBeds === totalBeds) return colors.successGreen;
+    if (vacantBeds === 0) return colors.errorRed;
+    return colors.warningOrange;
   };
 
   const FloorCard = ({ floor }: any) => {
@@ -137,7 +138,10 @@ const HostelDetailsDashbaord = (props: any) => {
                 ]}
                 onPress={() => {
                   if (isVacant) {
-                    Toast.show({ type: 'info', text2: 'No Room Allocated' });
+                    Toast.show({
+                      type: 'info',
+                      text2: strings.hostelDetailsDashboard.noRoomAllocated,
+                    });
                   } else {
                     fetchBedData(room.roomId);
                   }
@@ -154,37 +158,43 @@ const HostelDetailsDashbaord = (props: any) => {
 
   const renderTotalCard = () => {
     return (
-      <View style={[styles.card, { backgroundColor: '#E8F0FE' }]}>
+      <View style={[styles.card, styles.summaryCardBg]}>
         <View style={[styles.rowBetween, { alignItems: 'flex-start' }]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>No of floors</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelDetailsDashboard.noOfFloors}
+            </TextAtom>
             <TextAtom style={styles.value}>{summary.totalFloorCount}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'center' }}>
-            <TextAtom style={styles.label}>No of Rooms</TextAtom>
+          <View style={[styles.flex1, styles.alignCenter]}>
+            <TextAtom style={styles.label}>
+              {strings.hostelDetailsDashboard.noOfRooms}
+            </TextAtom>
             <TextAtom style={styles.value}>{summary.totalRoomCount}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.label}>No of Beds</TextAtom>
+          <View style={[styles.flex1, styles.alignEnd]}>
+            <TextAtom style={styles.label}>
+              {strings.hostelDetailsDashboard.noOfBeds}
+            </TextAtom>
             <TextAtom style={styles.value}>{summary.totalBeds}</TextAtom>
           </View>
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
+          <View style={styles.flex1}>
             <TextAtom style={styles.label}>
-              Vacant Beds:{' '}
+              {strings.hostelDetailsDashboard.vacantBeds}{' '}
               <TextAtom style={styles.value}>
                 {summary.totalVacantBeds}
               </TextAtom>
             </TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+          <View style={[styles.flex1, styles.alignEnd]}>
             <TextAtom style={styles.label}>
-              Occupied Beds:{' '}
+              {strings.hostelDetailsDashboard.occupiedBeds}{' '}
               <TextAtom style={styles.valueRight}>
                 {summary.totalOccupiedBeds}
               </TextAtom>
@@ -209,14 +219,14 @@ const HostelDetailsDashbaord = (props: any) => {
               style={styles.closeBtn}
               onPress={() => setModalVisible(false)}
             >
-              <TextAtom style={{ fontSize: vw(18), color: colors.primary }}>
-                ✕
+              <TextAtom style={styles.closeButtonText}>
+                {strings.hostelDetailsDashboard.closeSymbol}
               </TextAtom>
             </TouchableAtom>
 
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: vh(20) }}
+              contentContainerStyle={styles.modalScrollContent}
             >
               {bedReportData.map((bed: any, index: number) => {
                 const detail = bed.allocatedDetails[0];
@@ -226,7 +236,7 @@ const HostelDetailsDashbaord = (props: any) => {
                     <View style={styles.rowBetween}>
                       <View style={styles.tag}>
                         <TextAtom numberOfLines={0} style={styles.tagText}>
-                          Floor Name
+                          {strings.hostelDetailsDashboard.floorName}
                         </TextAtom>
                         <TextAtom numberOfLines={0} style={styles.tagText}>
                           {bed?.floorNumber}
@@ -234,7 +244,9 @@ const HostelDetailsDashbaord = (props: any) => {
                       </View>
 
                       <View style={styles.tag}>
-                        <TextAtom style={styles.tagText}>Room Number</TextAtom>
+                        <TextAtom style={styles.tagText}>
+                          {strings.hostelDetailsDashboard.roomNumber}
+                        </TextAtom>
                         <TextAtom style={styles.tagText}>
                           {bed?.roomNo}
                         </TextAtom>
@@ -243,7 +255,8 @@ const HostelDetailsDashbaord = (props: any) => {
 
                     <View style={styles.bedTag}>
                       <TextAtom style={styles.bedTagText}>
-                        Bed Number: {bed?.bedNumber}
+                        {strings.hostelDetailsDashboard.bedNumber}{' '}
+                        {bed?.bedNumber}
                       </TextAtom>
                     </View>
                     <View style={styles.rowBetween}>
@@ -257,16 +270,19 @@ const HostelDetailsDashbaord = (props: any) => {
                     </View>
                     <View style={styles.rowBetween}>
                       <TextAtom style={styles.dateText}>
-                        From: {detail?.trainingStartDate}
+                        {strings.hostelDetailsDashboard.from}{' '}
+                        {detail?.trainingStartDate}
                       </TextAtom>
 
                       <TextAtom style={styles.dateText}>
-                        To: {detail?.trainingEndDate}
+                        {strings.hostelDetailsDashboard.to}{' '}
+                        {detail?.trainingEndDate}
                       </TextAtom>
                     </View>
 
                     <TextAtom style={styles.trainingText}>
-                      Training: {detail?.trainingName}
+                      {strings.hostelDetailsDashboard.training}{' '}
+                      {detail?.trainingName}
                     </TextAtom>
 
                     {index !== bedReportData.length - 1 && (
@@ -287,7 +303,7 @@ const HostelDetailsDashbaord = (props: any) => {
       <SafeAreaView edges={['bottom']} style={styles.container}>
         <FullscreenLoading isVisible={loader} />
 
-        <View style={{ paddingHorizontal: vw(15) }}>{renderTotalCard()}</View>
+        <View style={styles.paddingHorizontal}>{renderTotalCard()}</View>
 
         <FlatList
           showsVerticalScrollIndicator={false}
@@ -295,12 +311,11 @@ const HostelDetailsDashbaord = (props: any) => {
           keyExtractor={item => item.floorId.toString()}
           renderItem={({ item }) => <FloorCard floor={item} />}
           ListEmptyComponent={
-            <TextAtom style={styles.emptyText}>No Data Found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.hostelDetailsDashboard.noDataFound}
+            </TextAtom>
           }
-          contentContainerStyle={{
-            paddingHorizontal: vw(15),
-            paddingBottom: vh(30),
-          }}
+          contentContainerStyle={styles.listContentPadding}
         />
       </SafeAreaView>
 
@@ -359,7 +374,7 @@ const styles = StyleSheet.create({
   },
 
   floorCard: {
-    backgroundColor: '#E8F0FE',
+    backgroundColor: colors.lightBlue,
     marginTop: vh(15),
     padding: vw(15),
     borderRadius: vw(10),
@@ -415,7 +430,7 @@ const styles = StyleSheet.create({
     // marginBottom: vh(20),
   },
   tag: {
-    backgroundColor: '#E8F0FE',
+    backgroundColor: colors.lightBlue,
     paddingVertical: vh(6),
     paddingHorizontal: vw(10),
     borderRadius: vw(6),
@@ -428,7 +443,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   bedTag: {
-    backgroundColor: '#DDE8FF',
+    backgroundColor: colors.paleBlue,
     paddingVertical: vh(6),
     marginTop: vh(10),
     borderRadius: vw(6),
@@ -466,7 +481,33 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: colors.mediumGray,
     marginVertical: vh(12),
+  },
+  flex1: {
+    flex: 1,
+  },
+  alignCenter: {
+    alignItems: 'center',
+  },
+  alignEnd: {
+    alignItems: 'flex-end',
+  },
+  closeButtonText: {
+    fontSize: vw(18),
+    color: colors.primary,
+  },
+  modalScrollContent: {
+    paddingBottom: vh(20),
+  },
+  paddingHorizontal: {
+    paddingHorizontal: vw(15),
+  },
+  listContentPadding: {
+    paddingHorizontal: vw(15),
+    paddingBottom: vh(30),
+  },
+  summaryCardBg: {
+    backgroundColor: colors.lightBlue,
   },
 });

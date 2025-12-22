@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, images, vw, vh } from '../../../constants';
+import strings from '../../../constants/strings';
 import {
   Header,
   NavigationType,
@@ -23,7 +24,11 @@ interface Props {
   navigation: NavigationType;
 }
 
-const HOSTEL_INNER_TABS = ['Hostel Planning', 'Hostel Report', 'All Hostel'];
+const HOSTEL_INNER_TABS = [
+  strings.dashboardIndex.hostelPlanning,
+  strings.dashboardIndex.hostelReport,
+  strings.dashboardIndex.allHostel,
+];
 
 const Dashboard = (props: Props) => {
   const { navigation } = props;
@@ -37,9 +42,9 @@ const Dashboard = (props: Props) => {
   const [centerSerach, setCenterSerach] = useState<any>({});
 
   const HostelTabs: any = {
-    'Hostel Planning': HostelPlanning,
-    'Hostel Report': HostelReport,
-    'All Hostel': AllHostel,
+    [strings.dashboardIndex.hostelPlanning]: HostelPlanning,
+    [strings.dashboardIndex.hostelReport]: HostelReport,
+    [strings.dashboardIndex.allHostel]: AllHostel,
   };
 
   const VendorTabs: any = {
@@ -59,7 +64,7 @@ const Dashboard = (props: Props) => {
   useEffect(() => {
     if (props.route?.params?.goToHostelPlanning) {
       setActiveTab('Hostel');
-      setInnerTab('Hostel Planning');
+      setInnerTab(strings.dashboardIndex.hostelPlanning);
     }
   }, [props.route?.params]);
   return (
@@ -67,7 +72,11 @@ const Dashboard = (props: Props) => {
       <FullscreenLoading isVisible={loader} />
 
       <View style={styles.tabRow}>
-        {['Hostel', crediantialData.user[0].tenantId === 3 && 'Vendor']
+        {[
+          strings.dashboardIndex.hostel,
+          crediantialData.user[0].tenantId === 3 &&
+            strings.dashboardIndex.vendor,
+        ]
           .filter(Boolean)
           .map((tab, index) => (
             <TouchableAtom
@@ -92,15 +101,24 @@ const Dashboard = (props: Props) => {
         {activeTab === 'Hostel' && crediantialData.user[0].tenantId === 3 && (
           <DropDownOrganism
             label={''}
-            placeholder={'Centers'}
+            placeholder={strings.dashboardIndex.centers}
             inputText={centerSerach?.name}
             onPress={() => {
               navigation.navigate('DropDownModal', {
-                name: 'Center',
+                name: strings.dashboardIndex.center,
                 Data: [
-                  { id: 'All Centers', name: 'All Centers' },
-                  { id: 'Gaya', name: 'Gaya' },
-                  { id: 'Patna', name: 'Patna' },
+                  {
+                    id: strings.dashboardIndex.allCenters,
+                    name: strings.dashboardIndex.allCenters,
+                  },
+                  {
+                    id: strings.dashboardIndex.gaya,
+                    name: strings.dashboardIndex.gaya,
+                  },
+                  {
+                    id: strings.dashboardIndex.patna,
+                    name: strings.dashboardIndex.patna,
+                  },
                 ],
                 selectedData: centerSerach,
                 setSelectedData: setCenterSerach,
@@ -173,7 +191,7 @@ const styles = StyleSheet.create({
   tabButton: {
     width: vw(90),
     height: vh(35),
-    backgroundColor: '#EAEAEA',
+    backgroundColor: colors.lightGray2,
     borderRadius: vw(6),
     alignItems: 'center',
     justifyContent: 'center',
@@ -215,7 +233,7 @@ const styles = StyleSheet.create({
   innerButton: {
     paddingVertical: vh(8),
     paddingHorizontal: vw(12),
-    backgroundColor: '#EAEAEA',
+    backgroundColor: colors.lightGray2,
     borderRadius: vw(6),
   },
   innerActive: {

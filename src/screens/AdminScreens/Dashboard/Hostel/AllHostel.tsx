@@ -15,6 +15,7 @@ import {
   images,
   screensName,
 } from '../../../../constants';
+import strings from '../../../../constants/strings';
 import TextAtom from '../../../../components/atoms/TextAtom';
 import { useHostelDataMutation } from '../../../../injectEndpoints/dashboardEndpoints';
 import Toast from 'react-native-toast-message';
@@ -127,47 +128,40 @@ const AllHostel = (props: any) => {
           });
         }}
       >
-        <View style={{ flex: 1 }}>
+        <View style={styles.flex1}>
           <TextAtom style={styles.label}>
-            Hostel Name :{' '}
+            {strings.allHostel.hostelName}{' '}
             <TextAtom style={styles.valueRight}>{item.hostelName}</TextAtom>
           </TextAtom>
         </View>
-        <ViewAtom
-          style={{
-            width: '100%',
-            height: vh(1),
-            backgroundColor: colors.chinese_silver,
-            marginTop: vh(6),
-          }}
-        />
+        <ViewAtom style={styles.separator} />
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
+          <View style={styles.flex1}>
             <TextAtom style={styles.label}>
-              No. of Floors :{' '}
+              {strings.allHostel.noOfFloors}{' '}
               <TextAtom style={styles.value}>{item.noOfFloors}</TextAtom>
             </TextAtom>
           </View>
 
-          <View style={{ flex: 1 }}>
+          <View style={styles.flex1}>
             <TextAtom style={styles.label}>
-              No. of Beds :{' '}
+              {strings.allHostel.noOfBeds}{' '}
               <TextAtom style={styles.valueRight}>{item.noOfBeds}</TextAtom>
             </TextAtom>
           </View>
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
+          <View style={styles.flex1}>
             <TextAtom style={styles.label}>
-              No. of Rooms :{' '}
+              {strings.allHostel.noOfRooms}{' '}
               <TextAtom style={styles.value}>{item.noOfRooms}</TextAtom>
             </TextAtom>
           </View>
 
-          <View style={{ flex: 1 }}>
+          <View style={styles.flex1}>
             <TextAtom style={styles.label}>
-              No. of Vacant :{' '}
+              {strings.allHostel.noOfVacant}{' '}
               <TextAtom style={styles.valueRight}>
                 {item.noOfVacantBeds}
               </TextAtom>
@@ -180,32 +174,38 @@ const AllHostel = (props: any) => {
 
   const renderTotalCard = () => {
     return (
-      <View style={[styles.card, { backgroundColor: '#E8F0FE' }]}>
-        <View style={[styles.rowBetween, { alignItems: 'flex-start' }]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Total Hostel</TextAtom>
+      <View style={[styles.card, styles.summaryCard]}>
+        <View style={[styles.rowBetween, styles.alignStart]}>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.allHostel.totalHostel}
+            </TextAtom>
             <TextAtom
-              style={[styles.value, { flexShrink: 1 }]}
+              style={[styles.value, styles.flexShrink]}
               numberOfLines={3}
             >
               {summary.totalHostel ?? '-'}
             </TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'center' }}>
-            <TextAtom style={styles.label}>Total Rooms</TextAtom>
+          <View style={[styles.flex1, styles.alignCenter]}>
+            <TextAtom style={styles.label}>
+              {strings.allHostel.totalRooms}
+            </TextAtom>
             <TextAtom
-              style={[styles.value, { flexShrink: 1 }]}
+              style={[styles.value, styles.flexShrink]}
               numberOfLines={3}
             >
               {summary.totalRooms ?? '-'}
             </TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.label}>Total Beds</TextAtom>
+          <View style={[styles.flex1, styles.alignEnd]}>
+            <TextAtom style={styles.label}>
+              {strings.allHostel.totalBeds}
+            </TextAtom>
             <TextAtom
-              style={[styles.value, { flexShrink: 1, textAlign: 'right' }]}
+              style={[styles.value, styles.flexShrinkRight]}
               numberOfLines={3}
             >
               {summary.totalBeds ?? '-'}
@@ -214,21 +214,21 @@ const AllHostel = (props: any) => {
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
+          <View style={styles.flex1}>
             <TextAtom
               numberOfLines={0}
-              style={[styles.label, { width: vw(160) }]}
+              style={[styles.label, styles.labelWidth]}
             >
-              Total Vacant Beds:{' '}
+              {strings.allHostel.totalVacantBeds}{' '}
               <TextAtom style={styles.value}>
                 {summary.totalVacantBeds}
               </TextAtom>
             </TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+          <View style={[styles.flex1, styles.alignEnd]}>
             <TextAtom style={[styles.label]}>
-              Occupied Beds:{' '}
+              {strings.allHostel.occupiedBeds}{' '}
               <TextAtom style={styles.valueRight}>
                 {summary.totalOccupiedBeds}
               </TextAtom>
@@ -242,8 +242,8 @@ const AllHostel = (props: any) => {
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DateInputOrganism
-        label={'Date'}
-        placeholder={'Date'}
+        label={strings.allHostel.date}
+        placeholder={strings.allHostel.date}
         value={startDate}
         onChangeText={(val: any) => {
           setStartDate(val);
@@ -254,14 +254,14 @@ const AllHostel = (props: any) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.allHostel.applyFilter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.allHostel.clearFilter}
           containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
+          bttnTextStyle={styles.clearBtnText}
         />
       </ViewAtom>
     </View>
@@ -316,15 +316,12 @@ const AllHostel = (props: any) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignSelf: 'flex-end',
-        }}
-      >
+      <View style={styles.headerContainer}>
         <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
           <TextAtom style={styles.filterText}>
-            {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+            {showFilter
+              ? strings.allHostel.hideFilter
+              : strings.allHostel.showFilter}
           </TextAtom>
         </TouchableAtom>
         <TouchableAtom
@@ -335,10 +332,7 @@ const AllHostel = (props: any) => {
             }
           }}
         >
-          <ImageAtom
-            source={images.download}
-            style={{ tintColor: colors.black }}
-          />
+          <ImageAtom source={images.download} style={styles.downloadIcon} />
         </TouchableAtom>
       </View>
       <FlatList
@@ -353,7 +347,9 @@ const AllHostel = (props: any) => {
           </View>
         }
         ListEmptyComponent={
-          <TextAtom style={styles.emptyText}>No Data Found</TextAtom>
+          <TextAtom style={styles.emptyText}>
+            {strings.allHostel.noDataFound}
+          </TextAtom>
         }
         refreshControl={
           <RefreshControl
@@ -410,7 +406,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: vh(10),
-    backgroundColor: '#F5F5F5',
+    backgroundColor: colors.veryLightGray,
     borderRadius: vw(6),
   },
 
@@ -445,6 +441,44 @@ const styles = StyleSheet.create({
     color: colors.grey,
     fontFamily: fonts.Roboto_Medium,
   },
+  flex1: {
+    flex: 1,
+  },
+  separator: {
+    width: '100%',
+    height: vh(1),
+    backgroundColor: colors.chinese_silver,
+    marginTop: vh(6),
+  },
+  summaryCard: {
+    backgroundColor: colors.lightBlue,
+  },
+  alignStart: {
+    alignItems: 'flex-start',
+  },
+  alignCenter: {
+    alignItems: 'center',
+  },
+  alignEnd: {
+    alignItems: 'flex-end',
+  },
+  flexShrink: {
+    flexShrink: 1,
+  },
+  flexShrinkRight: {
+    flexShrink: 1,
+    textAlign: 'right',
+  },
+  labelWidth: {
+    width: vw(160),
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignSelf: 'flex-end',
+  },
+  downloadIcon: {
+    tintColor: colors.black,
+  },
 
   filterButton: {
     borderWidth: vw(1),
@@ -474,5 +508,8 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  clearBtnText: {
+    color: colors.primary,
   },
 });
