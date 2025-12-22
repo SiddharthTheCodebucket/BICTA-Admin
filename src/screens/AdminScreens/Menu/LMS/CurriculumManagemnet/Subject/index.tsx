@@ -73,9 +73,9 @@ const Subject = (props: Props) => {
   const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [listFacultyDetailsApi] = useListKnowledgeManagementMutation();
+  const [listSubjectsApi] = useListKnowledgeManagementMutation();
   const [updateFacultyDetailsApi] = useUpdateFacultyDetailsMutation();
-  const [deletebedDetailsRoomApi] = useDeleteFacultyDetailsMutation();
+  const [deleteSubjectApi] = useDeleteFacultyDetailsMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -100,7 +100,10 @@ const Subject = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Subject Details');
+    Header.setNavigation(
+      navigation,
+      strings.lms.curriculumManagement.subjectDetails,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -108,7 +111,7 @@ const Subject = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listFacultyDetails(1, true, '');
+        listSubjects(1, true, '');
         getFacultyType();
         getDepartment();
         getOrganization();
@@ -118,14 +121,14 @@ const Subject = (props: Props) => {
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listFacultyDetails(1, true, '');
+    listSubjects(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
 
     return [centerSerach.name];
@@ -136,7 +139,7 @@ const Subject = (props: Props) => {
     setShowFilter(!showFilter);
   };
 
-  const listFacultyDetails = (
+  const listSubjects = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -161,7 +164,7 @@ const Subject = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    listFacultyDetailsApi(params)
+    listSubjectsApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -185,14 +188,14 @@ const Subject = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listFacultyDetails(1, true, text);
+      listSubjects(1, true, text);
     }, 500),
     [],
   );
@@ -204,9 +207,9 @@ const Subject = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listFacultyDetails(1, true, '');
+    listSubjects(1, true, '');
   };
-  const BedCard = ({ item, index, navigation }: any) => {
+  const SubjectCard = ({ item, index, navigation }: any) => {
     const thumbnail =
       item?.thumbnail && item.thumbnail !== null && item.thumbnail !== ''
         ? { uri: item.thumbnail }
@@ -221,33 +224,34 @@ const Subject = (props: Props) => {
           // });
         }}
       >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+        <View style={styles.cardHeader}>
+          <TextAtom style={styles.flex1Label}>
+            {strings.lms.curriculumManagement.srNo} {index + 1}
           </TextAtom>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Subject</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.curriculumManagement.subject}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Description</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.curriculumManagement.description}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.description ?? '-'}</TextAtom>
         </View>
 
-        <TextAtom style={styles.label}>Thumbnail</TextAtom>
-        <View style={{ marginTop: vh(10) }}>
+        <TextAtom style={styles.label}>
+          {strings.lms.curriculumManagement.thumbnail}
+        </TextAtom>
+        <View style={styles.thumbnailContainer}>
           {thumbnail ? (
             <ImageAtom
               source={thumbnail}
-              style={{
-                width: vw(60),
-                height: vw(60),
-                borderRadius: vw(6),
-                backgroundColor: colors.grey,
-              }}
+              style={styles.thumbnailImage}
               resizeMode="cover"
             />
           ) : (
@@ -258,18 +262,18 @@ const Subject = (props: Props) => {
     );
   };
 
-  const renderListBedDetails = ({ item, index }: any) => {
-    return <BedCard item={item} index={index} navigation={navigation} />;
+  const renderSubjectItem = ({ item, index }: any) => {
+    return <SubjectCard item={item} index={index} navigation={navigation} />;
   };
 
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Faculty Type'}
-        placeholder={'Faculty Type'}
+        label={strings.lms.curriculumManagement.facultyType}
+        placeholder={strings.lms.curriculumManagement.facultyType}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Faculty Type',
+            name: strings.lms.curriculumManagement.facultyType,
             Data: facultyTypeList,
             selectedData: selectedFacultyType,
             setSelectedData: (data: any) => {
@@ -283,11 +287,11 @@ const Subject = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Department'}
-        placeholder={'Department'}
+        label={strings.lms.curriculumManagement.department}
+        placeholder={strings.lms.curriculumManagement.department}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Department',
+            name: strings.lms.curriculumManagement.department,
             Data: departmentList,
             selectedData: selectedDepartment,
             setSelectedData: (data: any) => {
@@ -301,11 +305,11 @@ const Subject = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Organisation'}
-        placeholder={'Organisation'}
+        label={strings.lms.curriculumManagement.organisation}
+        placeholder={strings.lms.curriculumManagement.organisation}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Organisation',
+            name: strings.lms.curriculumManagement.organisation,
             Data: organisationList,
             selectedData: selectedOrganisation,
             setSelectedData: (data: any) => {
@@ -321,14 +325,14 @@ const Subject = (props: Props) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.lms.curriculumManagement.applyFilter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.lms.curriculumManagement.clearFilter}
           containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
+          bttnTextStyle={styles.clearBtnText}
         />
       </ViewAtom>
     </View>
@@ -338,7 +342,7 @@ const Subject = (props: Props) => {
     setSelectedFacultyType({});
     setSelectedDepartment({});
     setSelectedOrganisation({});
-    listFacultyDetails(1, true, search, []);
+    listSubjects(1, true, search, []);
   };
 
   const applyFilter = () => {
@@ -356,7 +360,7 @@ const Subject = (props: Props) => {
       filters.push(['facultyOrganisation', '=', selectedOrganisation.id]);
     }
 
-    listFacultyDetails(1, true, search, filters);
+    listSubjects(1, true, search, filters);
   };
 
   const getFacultyType = () => {
@@ -436,46 +440,55 @@ const Subject = (props: Props) => {
       </TouchableAtom>
       {showFilter && <FilterForm />} */}
       {crediantialData.user[0].tenantId === 3 && (
-
         <DropDownOrganism
-        label={''}
-        placeholder={'Centers'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Center',
-            Data: [
-              { id: 'All Centers', name: 'All Centers' },
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
-            ],
-            selectedData: centerSerach,
-            setSelectedData: (data: any) => {
-              setCenterSerach(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={centerSerach?.name}
-        containerStyle={{ marginBottom: vh(-10) }}
-      />
-
+          label={''}
+          placeholder={strings.lms.locationDetails.centers}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Center',
+              Data: [
+                {
+                  id: strings.dashboardIndex.allCenters,
+                  name: strings.dashboardIndex.allCenters,
+                },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
+              ],
+              selectedData: centerSerach,
+              setSelectedData: (data: any) => {
+                setCenterSerach(data);
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={centerSerach?.name}
+          containerStyle={styles.centerDropdown}
+        />
       )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}
         onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
+        searchBox={styles.searchBox}
       />
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListBedDetails}
+        renderItem={renderSubjectItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.lms.curriculumManagement.noDataFound}
+            </TextAtom>
           ) : null
         }
         ListFooterComponent={
@@ -483,7 +496,7 @@ const Subject = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(15) }}
+            style={styles.paginationLoader}
           />
         }
         refreshControl={
@@ -493,18 +506,18 @@ const Subject = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listFacultyDetails(1, false, '');
+              listSubjects(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listFacultyDetails(page + 1, false, search)
+            ? listSubjects(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
       {/* <FloatingButton
         onButtonPress={() => {
@@ -576,7 +589,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.lightGray2,
     borderRadius: 8,
     marginTop: 6,
   },
@@ -592,13 +605,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -606,8 +619,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -662,4 +675,29 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: colors.white,
   },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: vh(10),
+  },
+  flex1Label: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+    color: colors.black,
+    flex: 1,
+  },
+  flex1: { flex: 1 },
+  thumbnailContainer: { marginTop: vh(10) },
+  thumbnailImage: {
+    width: vw(60),
+    height: vw(60),
+    borderRadius: vw(6),
+    backgroundColor: colors.grey,
+  },
+  paginationLoader: { marginTop: vh(15) },
+  itemSeparator: { height: vh(10) },
+  clearBtnText: { color: colors.primary },
+  centerDropdown: { marginBottom: vh(-10) },
+  searchBox: { marginTop: vh(15) },
 });

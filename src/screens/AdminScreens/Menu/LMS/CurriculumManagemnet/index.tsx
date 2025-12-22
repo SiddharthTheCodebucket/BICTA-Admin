@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../../constants';
+import { colors, screensName, vh, vw, strings } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -16,7 +16,7 @@ const CurriculumManagemnet = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Curriculum Management');
+    Header.setNavigation(navigation, strings.lms.curriculumManagement.title);
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,14 +25,14 @@ const CurriculumManagemnet = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Subject',
+      name: strings.lms.curriculumManagement.subject,
       onPress: () => {
         navigation.navigate(screensName.Subject);
       },
     },
     {
       id: 2,
-      name: 'Subject Topic',
+      name: strings.lms.curriculumManagement.subjectTopicDetails,
       onPress: () => {
         navigation.navigate(screensName.SubjectTopic);
       },
@@ -41,7 +41,7 @@ const CurriculumManagemnet = (props: Props) => {
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <View style={{ flex: 1 }}>
+      <View style={styles.flex1}>
         {DATA.map(item => {
           return (
             <TouchableOpacity
@@ -79,4 +79,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: vh(15),
   },
+  flex1: { flex: 1 },
 });
