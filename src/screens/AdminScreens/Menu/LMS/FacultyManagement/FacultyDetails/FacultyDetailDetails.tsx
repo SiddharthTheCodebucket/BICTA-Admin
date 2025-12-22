@@ -1,7 +1,7 @@
 import React, { useLayoutEffect } from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vh, vw } from '../../../../../../constants';
+import { colors, fonts, vh, vw, strings } from '../../../../../../constants';
 import { Header } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
@@ -25,37 +25,18 @@ const FullWidthField = ({ label, value }: any) => (
   </ViewAtom>
 );
 
-const ImageField = ({ label, uri }: any) => (
-  <ViewAtom style={styles.fullWidthBox}>
-    <TextAtom style={styles.fullLabel}>{label}</TextAtom>
-
-    {uri ? (
-      <Image
-        source={{ uri }}
-        style={{ width: '100%', height: vh(160), borderRadius: vw(8) }}
-        resizeMode="contain"
-      />
-    ) : (
-      <TextAtom style={styles.fullValue}>-</TextAtom>
-    )}
-  </ViewAtom>
-);
-
 const FacultyDetailDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Details');
+    Header.setNavigation(
+      navigation,
+      strings.lms.facultyManagement.details.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
-  const maskAadhaar = (aadhaar: string) => {
-    if (!aadhaar) return '-';
-    const last4 = aadhaar.slice(-4);
-    return `XXXX XXXX ${last4}`;
-  };
-
-  const formatDate = (d: any) => (d ? moment(d).format('DD-MM-YYYY') : '-');
+  const facultyStrings = strings.lms.facultyManagement.details;
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
@@ -65,57 +46,90 @@ const FacultyDetailDetails = ({ route, navigation }: any) => {
       >
         <ViewAtom style={styles.card}>
           {/* BASIC DETAILS */}
-          <FieldRow label="Faculty U.ID" value={data?.facultyUniqueId} />
-          <FieldRow label="Faculty Id" value={data?.facultyId} />
-          <FieldRow label="Faculty Type" value={data?.facultyType} />
           <FieldRow
-            label="Faculty Organisation"
+            label={facultyStrings.facultyUID}
+            value={data?.facultyUniqueId}
+          />
+          <FieldRow label={facultyStrings.facultyId} value={data?.facultyId} />
+          <FieldRow
+            label={facultyStrings.facultyType}
+            value={data?.facultyType}
+          />
+          <FieldRow
+            label={facultyStrings.facultyOrganisation}
             value={data?.facultyOrganisation}
           />
 
           {/* PERSONAL */}
           <FieldRow
-            label="Name"
+            label={facultyStrings.name}
             value={`${data?.salutationName || ''} ${data?.facultyName || ''}`}
           />
-          <FieldRow label="Designation" value={data?.designation} />
-          <FieldRow label="Department" value={data?.department} />
-          <FieldRow label="Email ID" value={data?.emailId} />
-          <FieldRow label="Mobile Number" value={data?.mobileNo} />
+          <FieldRow
+            label={facultyStrings.designation}
+            value={data?.designation}
+          />
+          <FieldRow
+            label={facultyStrings.department}
+            value={data?.department}
+          />
+          <FieldRow label={facultyStrings.email} value={data?.emailId} />
+          <FieldRow
+            label={facultyStrings.mobileNumber}
+            value={data?.mobileNo}
+          />
 
           {/* LOCATION */}
-          <FieldRow label="State" value={data?.state} />
-          {data?.state === 'Outside Bihar' && (
+          <FieldRow label={facultyStrings.state} value={data?.state} />
+          {data?.state === facultyStrings.outsideBihar && (
             <FieldRow
-              label="Outside Bihar State"
+              label={facultyStrings.outsideBiharState}
               value={data?.outsideBiharState}
             />
           )}
 
           {/* PAY DETAILS */}
-          <FieldRow label="BIPARD Pay Level" value={data?.payLevel} />
-          <FieldRow label="Remuneration" value={data?.remuneration} />
-          <FieldRow label="Category" value={data?.category} />
+          <FieldRow label={facultyStrings.payLevel} value={data?.payLevel} />
+          <FieldRow
+            label={facultyStrings.remuneration}
+            value={data?.remuneration}
+          />
+          <FieldRow label={facultyStrings.category} value={data?.category} />
 
           {/* STATUS & BLOCK */}
-          <FieldRow label="Status" value={data?.status} />
-          <FieldRow label="Block / Unblock" value={data?.isBlacklisted} />
+          <FieldRow label={facultyStrings.status} value={data?.status} />
+          <FieldRow
+            label={facultyStrings.blockUnblock}
+            value={data?.isBlacklisted}
+          />
 
           {/* BANK & PAN DETAILS */}
-          <FieldRow label="PAN" value={data?.pan} />
-          <FieldRow label="Bank Name" value={data?.bankName} />
-          <FieldRow label="Branch Name" value={data?.branchName} />
-          <FieldRow label="Account Holder" value={data?.accountHolderName} />
-          <FieldRow label="Account No" value={data?.accountNo} />
-          <FieldRow label="IFSC Code" value={data?.ifscCode} />
+          <FieldRow label={facultyStrings.pan} value={data?.pan} />
+          <FieldRow label={facultyStrings.bankName} value={data?.bankName} />
+          <FieldRow
+            label={facultyStrings.branchName}
+            value={data?.branchName}
+          />
+          <FieldRow
+            label={facultyStrings.accountHolder}
+            value={data?.accountHolderName}
+          />
+          <FieldRow label={facultyStrings.accountNo} value={data?.accountNo} />
+          <FieldRow label={facultyStrings.ifscCode} value={data?.ifscCode} />
 
           <FullWidthField
-            label="Faculty Subject / Expertise"
+            label={facultyStrings.expertise}
             value={data?.expertise}
           />
 
-          <FieldRow label="Created By" value={data?.createdBy?.name} />
-          <FieldRow label="Updated By" value={data?.updatedBy?.name} />
+          <FieldRow
+            label={facultyStrings.createdBy}
+            value={data?.createdBy?.name}
+          />
+          <FieldRow
+            label={facultyStrings.updatedBy}
+            value={data?.updatedBy?.name}
+          />
         </ViewAtom>
       </ScrollView>
     </SafeAreaView>
@@ -135,6 +149,10 @@ const styles = StyleSheet.create({
     padding: vw(15),
     marginTop: vh(15),
     elevation: 2,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
 
   row: {

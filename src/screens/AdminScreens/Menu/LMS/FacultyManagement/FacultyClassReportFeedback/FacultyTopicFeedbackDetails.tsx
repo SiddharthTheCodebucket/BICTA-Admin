@@ -71,7 +71,7 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
   const { crediantialData } = useAppSelector(state => state.Auth);
   const item = props.route?.params?.item;
 
-  const [reportListFacultyFeedbackReportApi] =
+  const [reportListFacultyTopicFeedbackApi] =
     useReportListFacultyTopicFeedbackReportMutation();
   const [commonDropdownApi] = useCommonDropdownListMutation();
 
@@ -92,7 +92,7 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const [centerSearch, setCenterSearch] = React.useState<any>({});
 
   const toggleFilter = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -100,36 +100,39 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
   };
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Topic Feedback');
+    Header.setNavigation(
+      navigation,
+      strings.lms.facultyManagement.facultyClassReportFeedback.topic.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
-  });
+  }, [navigation]);
 
   useFocusEffect(
     useCallback(() => {
       getFaculty();
-      if (firstTimeLoad && !centerSerach?.name && search === '') {
+      if (firstTimeLoad && !centerSearch?.name && search === '') {
         setFirstTimeLoad(false);
-        listFacultyDetails(1, true, '');
+        listTopicFeedbackDetails(1, true, '');
       }
-    }, [firstTimeLoad, centerSerach, search]),
+    }, [firstTimeLoad, centerSearch, search]),
   );
 
   useEffect(() => {
-    if (!centerSerach?.name) return;
-    listFacultyDetails(1, true, '');
-  }, [centerSerach]);
+    if (!centerSearch?.name) return;
+    listTopicFeedbackDetails(1, true, '');
+  }, [centerSearch]);
 
   const getCentreFilter = () => {
-    if (!centerSerach?.name) return null;
+    if (!centerSearch?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSearch.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
 
-    return [centerSerach.name];
+    return [centerSearch.name];
   };
 
-  const listFacultyDetails = (
+  const listTopicFeedbackDetails = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -156,7 +159,7 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    reportListFacultyFeedbackReportApi(params)
+    reportListFacultyTopicFeedbackApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -181,14 +184,14 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listFacultyDetails(1, true, text);
+      listTopicFeedbackDetails(1, true, text);
     }, 500),
     [],
   );
@@ -200,33 +203,24 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listFacultyDetails(1, true, '');
+    listTopicFeedbackDetails(1, true, '');
   };
 
   const StarRating = ({ rating }: any) => {
-    // if (!rating) return <TextAtom style={styles.value}>-</TextAtom>;
-
-    const rounded = Math.round(rating); // 4.7 → 5
+    const rounded = Math.round(rating);
 
     const stars = Array(5)
       .fill(0)
       .map((_, i) => (
-        <TextAtom
-          key={i}
-          style={{
-            fontSize: vw(16),
-            color: colors.primary, // ⭐ primary color
-            marginRight: vw(2),
-          }}
-        >
+        <TextAtom key={i} style={styles.starText}>
           {i < rounded ? '★' : '☆'}
         </TextAtom>
       ));
 
-    return <ViewAtom style={{ flexDirection: 'row' }}>{stars}</ViewAtom>;
+    return <ViewAtom style={styles.starContainer}>{stars}</ViewAtom>;
   };
 
-  const BedCard = ({ item, index, navigation }: any) => {
+  const TopicFeedbackCard = ({ item, index, navigation }: any) => {
     return (
       <TouchableAtom
         style={styles.card}
@@ -236,24 +230,43 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
           });
         }}
       >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+        <View style={styles.cardHeader}>
+          <TextAtom style={styles.srNoLabel}>
+            {
+              strings.lms.facultyManagement.facultyClassReportFeedback.topic
+                .srNo
+            }{' '}
+            {index + 1}
           </TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Subject Name</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {
+              strings.lms.facultyManagement.facultyClassReportFeedback.topic
+                .subjectName
+            }
+          </TextAtom>
           <TextAtom style={styles.value}>{item.subject ?? '-'}</TextAtom>
         </View>
-        <ViewAtom style={[styles.rowBetween]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Class Count</TextAtom>
+        <ViewAtom style={styles.rowBetween}>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {
+                strings.lms.facultyManagement.facultyClassReportFeedback.topic
+                  .classCount
+              }
+            </TextAtom>
             <TextAtom style={styles.value}>
               {item.totalClassCount ?? '-'}
             </TextAtom>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.label}>Average Rating</TextAtom>
+          <View style={styles.ratingBox}>
+            <TextAtom style={styles.label}>
+              {
+                strings.lms.facultyManagement.facultyClassReportFeedback.topic
+                  .averageRating
+              }
+            </TextAtom>
             <StarRating rating={item.averageRating} />
           </View>
         </ViewAtom>
@@ -261,18 +274,32 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
     );
   };
 
-  const renderListBedDetails = ({ item, index }: any) => {
-    return <BedCard item={item} index={index} navigation={navigation} />;
+  const renderTopicFeedbackItem = ({ item, index }: any) => {
+    return (
+      <TopicFeedbackCard item={item} index={index} navigation={navigation} />
+    );
+  };
+
+  const listTopicFeedbackReports = (
+    searchKeyword: string,
+    filters: any[] = [],
+  ) => {
+    listTopicFeedbackDetails(1, true, searchKeyword, filters);
   };
 
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Faculty'}
-        placeholder={'Faculty'}
+        label={
+          strings.lms.facultyManagement.facultyClassReportFeedback.main.faculty
+        }
+        placeholder={
+          strings.lms.facultyManagement.facultyClassReportFeedback.main.faculty
+        }
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Faculty',
+            name: strings.lms.facultyManagement.facultyClassReportFeedback.main
+              .faculty,
             Data: facultyNameList,
             selectedData: selectedFaculty,
             setSelectedData: (data: any) => {
@@ -288,14 +315,20 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={
+            strings.lms.facultyManagement.facultyClassReportFeedback.main
+              .applyFilter
+          }
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={
+            strings.lms.facultyManagement.facultyClassReportFeedback.main
+              .clearFilter
+          }
           containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
+          bttnTextStyle={styles.primaryText}
         />
       </ViewAtom>
     </View>
@@ -303,7 +336,7 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
 
   const clearFilter = () => {
     setSelectedFaculty({});
-    listFacultyDetails(1, true, search, []);
+    listTopicFeedbackReports(search, []);
   };
 
   const applyFilter = () => {
@@ -313,7 +346,7 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
       filters.push(['facultyId', '=', selectedFaculty.id]);
     }
 
-    listFacultyDetails(1, true, search, filters);
+    listTopicFeedbackReports(search, filters);
   };
 
   const getFaculty = () => {
@@ -349,71 +382,38 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <View
-        style={{
-          flexDirection: 'row',
-          alignSelf: 'flex-end',
-        }}
-      >
-        {/* <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-          <TextAtom style={styles.filterText}>
-            {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-          </TextAtom>
-        </TouchableAtom> */}
+      <View style={styles.topActionRow}>
         <TouchableAtom
-          style={styles.filterButton}
+          style={styles.downloadButton}
           onPress={() => {
             if (!isNullUndefined(url)) {
               downloadAndOpenFile(url);
             }
           }}
         >
-          <ImageAtom
-            source={images.download}
-            style={{ tintColor: colors.black }}
-          />
+          <ImageAtom source={images.download} style={styles.downloadIcon} />
         </TouchableAtom>
       </View>
-      {/* {showFilter && <FilterForm />} */}
-      {/* {crediantialData.user[0].tenantId === 3 && (
-   <DropDownOrganism
-        label={''}
-        placeholder={'Centers'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Center',
-            Data: [
-              { id: 'All Centers', name: 'All Centers' },
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
-            ],
-            selectedData: centerSerach,
-            setSelectedData: (data: any) => {
-              setCenterSerach(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={centerSerach?.name}
-        containerStyle={{ marginBottom: vh(-10) }}
-      />
- )} */}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}
         onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
+        searchBox={styles.searchBox}
       />
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListBedDetails}
+        renderItem={renderTopicFeedbackItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {
+                strings.lms.facultyManagement.facultyClassReportFeedback.main
+                  .noDataFound
+              }
+            </TextAtom>
           ) : null
         }
         ListFooterComponent={
@@ -421,7 +421,7 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(15) }}
+            style={styles.paginationLoader}
           />
         }
         refreshControl={
@@ -431,18 +431,18 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listFacultyDetails(1, false, '');
+              listTopicFeedbackDetails(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listFacultyDetails(page + 1, false, search)
+            ? listTopicFeedbackDetails(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
     </SafeAreaView>
   );
@@ -471,29 +471,11 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
     color: colors.black,
   },
-  labelRight: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    textAlign: 'right',
-  },
   value: {
     fontFamily: fonts.Roboto_Regular,
     fontSize: vw(14),
     color: colors.grey,
     marginBottom: vh(5),
-  },
-  valueRight: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
-    textAlign: 'right',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.chinese_silver,
-    marginVertical: vh(5),
   },
   emptyText: {
     textAlign: 'center',
@@ -506,81 +488,38 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  thumbnail: {
-    width: 70,
-    height: 70,
-    backgroundColor: '#eaeaea',
-    borderRadius: 8,
-    marginTop: 6,
-  },
-  statusBox: {
-    marginTop: vh(8),
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(12),
-    borderRadius: vw(6),
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
-  },
-
-  inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
-  },
-
-  statusText: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-  },
-
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
-
-  dropMenu: {
-    marginTop: vh(6),
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.grey,
-    borderRadius: vw(6),
-    overflow: 'hidden',
-  },
-
-  dropItem: {
-    paddingVertical: vh(10),
-    paddingHorizontal: vw(12),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.chinese_silver,
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'transparent',
-    zIndex: 998,
-  },
-  filterButton: {
+  downloadButton: {
     borderWidth: vw(1),
     borderColor: colors.primary,
     borderRadius: vw(4),
     marginTop: vh(10),
-    alignSelf: 'flex-end',
     marginRight: vh(15),
     paddingHorizontal: vw(10),
     paddingVertical: vh(5),
   },
-  filterText: {
-    color: colors.black,
+  downloadIcon: { tintColor: colors.black },
+  topActionRow: {
+    flexDirection: 'row',
+    alignSelf: 'flex-end',
+  },
+  starText: {
+    fontSize: vw(16),
+    color: colors.primary,
+    marginRight: vw(2),
+  },
+  starContainer: { flexDirection: 'row' },
+  cardHeader: { marginBottom: vh(10), flexDirection: 'row' },
+  srNoLabel: {
     fontFamily: fonts.Roboto_Medium,
     fontSize: vw(14),
+    color: colors.black,
+    flex: 1,
   },
+  flex1: { flex: 1 },
+  ratingBox: { flex: 1, alignItems: 'flex-end' },
+  searchBox: { marginTop: vh(15) },
+  paginationLoader: { marginTop: vh(15) },
+  itemSeparator: { height: vh(10) },
   filterContainer: { paddingHorizontal: vw(15) },
   buttonRow: {
     flexDirection: 'row',
@@ -595,4 +534,5 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: colors.white,
   },
+  primaryText: { color: colors.primary },
 });

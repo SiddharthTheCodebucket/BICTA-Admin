@@ -99,7 +99,10 @@ const FacultyDetails = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Details');
+    Header.setNavigation(
+      navigation,
+      strings.lms.facultyManagement.details.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -107,7 +110,7 @@ const FacultyDetails = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listFacultyDetails(1, true, '');
+        fetchFacultyDetails(1, true, '');
         getFacultyType();
         getDepartment();
         getOrganization();
@@ -117,14 +120,14 @@ const FacultyDetails = (props: Props) => {
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listFacultyDetails(1, true, '');
+    fetchFacultyDetails(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
 
     return [centerSerach.name];
@@ -135,7 +138,7 @@ const FacultyDetails = (props: Props) => {
     setShowFilter(!showFilter);
   };
 
-  const listFacultyDetails = (
+  const fetchFacultyDetails = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -182,14 +185,14 @@ const FacultyDetails = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong,
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listFacultyDetails(1, true, text);
+      fetchFacultyDetails(1, true, text);
     }, 500),
     [],
   );
@@ -201,11 +204,13 @@ const FacultyDetails = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listFacultyDetails(1, true, '');
+    fetchFacultyDetails(1, true, '');
   };
 
-  const BedCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
+  const FacultyDetailCard = ({ item, index, navigation }: any) => {
+    const [statusValue, setStatusValue] = useState(
+      item.status ?? strings.lms.facultyManagement.details.active,
+    );
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
     const onSelectStatus = (newStatus: string) => {
@@ -214,9 +219,9 @@ const FacultyDetails = (props: Props) => {
       if (newStatus === statusValue) return;
 
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: 'Are you sure you want to change this item?',
-        okText: 'Confirm',
+        title: strings.lms.facultyManagement.details.statusChangeConf,
+        message: strings.lms.facultyManagement.details.statusChangeMsg,
+        okText: strings.lms.facultyManagement.details.confirm,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
@@ -239,32 +244,32 @@ const FacultyDetails = (props: Props) => {
             text2: res.data?.message,
           });
           setInitialCall(false);
-          listFacultyDetails(1, true, search);
+          fetchFacultyDetails(1, true, search);
         })
         .catch((err: any) => {
           setInitialCall(false);
           Toast.show({
             type: 'error',
-            text2: err.data?.message || 'Something went wrong',
+            text2: err.data?.message || strings.something_went_wrong,
           });
         });
     };
 
     const handleDelete = () => {
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Delete Confirmation',
-        message: 'Are you sure you want to delete this item?',
-        okText: 'Confirm',
+        title: strings.lms.facultyManagement.details.deleteConf,
+        message: strings.lms.facultyManagement.details.deleteMsg,
+        okText: strings.lms.facultyManagement.details.confirm,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
-          deleteBedHostelRoom(item.facultyId);
+          deleteFacultyRecord(item.facultyId);
         },
         cancelFunction: () => {},
       });
     };
 
-    const deleteBedHostelRoom = (id: any) => {
+    const deleteFacultyRecord = (id: any) => {
       setInitialCall(true);
       const params = {
         faculty_id: id,
@@ -277,13 +282,13 @@ const FacultyDetails = (props: Props) => {
             text2: res.data.message,
           });
           setInitialCall(false);
-          listFacultyDetails(1, true, search);
+          fetchFacultyDetails(1, true, search);
         })
         .catch((err: any) => {
           setInitialCall(false);
           Toast.show({
             type: 'error',
-            text2: err.data?.message || 'Something went wrong',
+            text2: err.data?.message || strings.something_went_wrong,
           });
         });
     };
@@ -295,78 +300,51 @@ const FacultyDetails = (props: Props) => {
           navigation.navigate(screensName.FacultyDetailDetails, { data: item });
         }}
       >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+        <View style={styles.cardHeader}>
+          <TextAtom style={styles.flex1Label}>
+            {strings.lms.facultyManagement.details.srNo} {index + 1}
           </TextAtom>
 
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                // navigation.navigate(screensName.AddFacultyDetails, {
-                //   item: item,
-                // });
-              }}
-            >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-
+          <View style={styles.actionRow}>
             <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              style={styles.deleteButton}
               onPress={() => handleDelete()}
             >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
+              <ImageAtom source={images.delete} style={styles.icon15} />
             </TouchableAtom>
           </View>
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Faculty U.ID</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.lms.facultyManagement.details.facultyUID}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {item.facultyUniqueId ?? '-'}
             </TextAtom>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Faculty Id</TextAtom>
+          <View style={styles.labelValueAlignEnd}>
+            <TextAtom style={styles.labelRight}>
+              {strings.lms.facultyManagement.details.facultyId}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {item.facultyId ?? '-'}
             </TextAtom>
           </View>
         </View>
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Name</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.lms.facultyManagement.details.name}
+            </TextAtom>
             <TextAtom style={styles.value}>{item.facultyName ?? '-'}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Designation</TextAtom>
+          <View style={styles.labelValueAlignEnd}>
+            <TextAtom style={styles.labelRight}>
+              {strings.lms.facultyManagement.details.designation}
+            </TextAtom>
             <TextAtom numberOfLines={0} style={styles.valueRight}>
               {item.designation ?? '-'}
             </TextAtom>
@@ -380,20 +358,24 @@ const FacultyDetails = (props: Props) => {
           />
         )}
 
-        <View style={{ marginTop: vh(0), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Status</TextAtom>
+        <View style={styles.statusSection}>
+          <TextAtom style={styles.label}>
+            {strings.lms.facultyManagement.details.status}
+          </TextAtom>
 
           <TouchableAtom
             onPress={() => setShowStatusMenu(!showStatusMenu)}
             style={[
               styles.statusBox,
-              statusValue === 'Active' ? styles.activeBox : styles.inActiveBox,
+              statusValue === strings.lms.facultyManagement.details.active
+                ? styles.activeBox
+                : styles.inActiveBox,
             ]}
           >
             <TextAtom
               style={[
                 styles.statusText,
-                statusValue === 'Active'
+                statusValue === strings.lms.facultyManagement.details.active
                   ? styles.activeText
                   : styles.inActiveText,
               ]}
@@ -407,16 +389,24 @@ const FacultyDetails = (props: Props) => {
             <View style={styles.dropMenu}>
               <TouchableAtom
                 style={styles.dropItem}
-                onPress={() => onSelectStatus('Active')}
+                onPress={() =>
+                  onSelectStatus(strings.lms.facultyManagement.details.active)
+                }
               >
-                <TextAtom style={{ color: colors.black }}>Active</TextAtom>
+                <TextAtom style={styles.blackText}>
+                  {strings.lms.facultyManagement.details.active}
+                </TextAtom>
               </TouchableAtom>
 
               <TouchableAtom
                 style={styles.dropItem}
-                onPress={() => onSelectStatus('Inactive')}
+                onPress={() =>
+                  onSelectStatus(strings.lms.facultyManagement.details.inactive)
+                }
               >
-                <TextAtom style={{ color: colors.black }}>In-Active</TextAtom>
+                <TextAtom style={styles.blackText}>
+                  {strings.lms.facultyManagement.details.inActive}
+                </TextAtom>
               </TouchableAtom>
             </View>
           )}
@@ -425,18 +415,20 @@ const FacultyDetails = (props: Props) => {
     );
   };
 
-  const renderListBedDetails = ({ item, index }: any) => {
-    return <BedCard item={item} index={index} navigation={navigation} />;
+  const renderFacultyItem = ({ item, index }: any) => {
+    return (
+      <FacultyDetailCard item={item} index={index} navigation={navigation} />
+    );
   };
 
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Faculty Type'}
-        placeholder={'Faculty Type'}
+        label={strings.lms.facultyManagement.details.facultyType}
+        placeholder={strings.lms.facultyManagement.details.facultyType}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Faculty Type',
+            name: strings.lms.facultyManagement.details.facultyType,
             Data: facultyTypeList,
             selectedData: selectedFacultyType,
             setSelectedData: (data: any) => {
@@ -450,11 +442,11 @@ const FacultyDetails = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Department'}
-        placeholder={'Department'}
+        label={strings.lms.facultyManagement.details.department}
+        placeholder={strings.lms.facultyManagement.details.department}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Department',
+            name: strings.lms.facultyManagement.details.department,
             Data: departmentList,
             selectedData: selectedDepartment,
             setSelectedData: (data: any) => {
@@ -468,11 +460,11 @@ const FacultyDetails = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Organisation'}
-        placeholder={'Organisation'}
+        label={strings.lms.facultyManagement.details.facultyOrganisation}
+        placeholder={strings.lms.facultyManagement.details.facultyOrganisation}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Organisation',
+            name: strings.lms.facultyManagement.details.facultyOrganisation,
             Data: organisationList,
             selectedData: selectedOrganisation,
             setSelectedData: (data: any) => {
@@ -488,14 +480,14 @@ const FacultyDetails = (props: Props) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.lms.facultyManagement.details.applyFilter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.lms.facultyManagement.details.clearFilter}
           containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
+          bttnTextStyle={styles.primaryText}
         />
       </ViewAtom>
     </View>
@@ -505,7 +497,7 @@ const FacultyDetails = (props: Props) => {
     setSelectedFacultyType({});
     setSelectedDepartment({});
     setSelectedOrganisation({});
-    listFacultyDetails(1, true, search, []);
+    fetchFacultyDetails(1, true, search, []);
   };
 
   const applyFilter = () => {
@@ -523,7 +515,7 @@ const FacultyDetails = (props: Props) => {
       filters.push(['facultyOrganisation', '=', selectedOrganisation.id]);
     }
 
-    listFacultyDetails(1, true, search, filters);
+    fetchFacultyDetails(1, true, search, filters);
   };
 
   const getFacultyType = () => {
@@ -543,7 +535,7 @@ const FacultyDetails = (props: Props) => {
         setInitialCall(false);
         Toast.show({
           type: 'error',
-          text2: err.data.message,
+          text2: err.data?.message || strings.something_went_wrong,
           autoHide: true,
         });
       });
@@ -553,7 +545,7 @@ const FacultyDetails = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'filter_by_faculty_department',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: [strings.dashboardIndex.gaya, strings.dashboardIndex.patna],
       replacements: ['%%'],
     };
     commonDropdownApi(params)
@@ -566,7 +558,7 @@ const FacultyDetails = (props: Props) => {
         setInitialCall(false);
         Toast.show({
           type: 'error',
-          text2: err.data.message,
+          text2: err.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -575,7 +567,7 @@ const FacultyDetails = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'filter_by_faculty_organisation',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: [strings.dashboardIndex.gaya, strings.dashboardIndex.patna],
       replacements: ['%%'],
     };
     commonDropdownApi(params)
@@ -588,7 +580,7 @@ const FacultyDetails = (props: Props) => {
         setInitialCall(false);
         Toast.show({
           type: 'error',
-          text2: err.data.message,
+          text2: err.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -598,21 +590,32 @@ const FacultyDetails = (props: Props) => {
       <FullscreenLoading isVisible={initialCall} />
       <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
         <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+          {showFilter
+            ? strings.lms.facultyManagement.details.hideFilter
+            : strings.lms.facultyManagement.details.showFilter}
         </TextAtom>
       </TouchableAtom>
       {showFilter && <FilterForm />}
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
-          placeholder={'Centers'}
+          placeholder={strings.lms.locationDetails.centers}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Center',
+              name: strings.dashboardIndex.center,
               Data: [
-                { id: 'All Centers', name: 'All Centers' },
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
+                {
+                  id: strings.dashboardIndex.allCenters,
+                  name: strings.dashboardIndex.allCenters,
+                },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
               ],
               selectedData: centerSerach,
               setSelectedData: (data: any) => {
@@ -623,24 +626,26 @@ const FacultyDetails = (props: Props) => {
             });
           }}
           inputText={centerSerach?.name}
-          containerStyle={{ marginBottom: vh(-10) }}
+          containerStyle={styles.centerDropdown}
         />
       )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}
         onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
+        searchBox={styles.searchBox}
       />
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListBedDetails}
+        renderItem={renderFacultyItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.lms.facultyManagement.details.noDataFound}
+            </TextAtom>
           ) : null
         }
         ListFooterComponent={
@@ -648,7 +653,7 @@ const FacultyDetails = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(15) }}
+            style={styles.paginationLoader}
           />
         }
         refreshControl={
@@ -658,24 +663,19 @@ const FacultyDetails = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listFacultyDetails(1, false, '');
+              fetchFacultyDetails(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listFacultyDetails(page + 1, false, search)
+            ? fetchFacultyDetails(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };
@@ -697,6 +697,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 1,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: vh(10),
+  },
+  flex1Label: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+    color: colors.black,
+    flex: 1,
   },
   label: {
     fontFamily: fonts.Roboto_Medium,
@@ -741,10 +753,11 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.lightGray2,
     borderRadius: 8,
     marginTop: 6,
   },
+  statusSection: { marginTop: vh(0), zIndex: 999 },
   statusBox: {
     marginTop: vh(8),
     paddingVertical: vh(8),
@@ -757,13 +770,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -771,8 +784,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -789,13 +802,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.chinese_silver,
   },
+  blackText: { color: colors.black },
   overlay: {
     position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'transparent',
+    backgroundColor: colors.transparent,
     zIndex: 998,
   },
   filterButton: {
@@ -827,4 +841,21 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: colors.white,
   },
+  flex1: { flex: 1 },
+  actionRow: { flexDirection: 'row', gap: vw(15) },
+  deleteButton: {
+    borderWidth: vw(1),
+    borderColor: colors.red_2,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon15: { width: vw(15), height: vw(15) },
+  labelValueAlignEnd: { flex: 1, alignItems: 'flex-end' },
+  primaryText: { color: colors.primary },
+  centerDropdown: { marginBottom: vh(-10) },
+  searchBox: { marginTop: vh(15) },
+  paginationLoader: { marginTop: vh(15) },
+  itemSeparator: { height: vh(10) },
 });

@@ -1,7 +1,7 @@
 import React, { useLayoutEffect } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vh, vw } from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { Header } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
@@ -45,7 +45,10 @@ const FacultyConfirmationDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Details');
+    Header.setNavigation(
+      navigation,
+      strings.lms.facultyManagement.confirmation.detailsTitle,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -58,16 +61,28 @@ const FacultyConfirmationDetails = ({ route, navigation }: any) => {
         contentContainerStyle={styles.scrollContainer}
       >
         <ViewAtom style={styles.card}>
-          <FullWidthField label="Faculty Name" value={data?.facultyName} />
+          <FullWidthField
+            label={strings.lms.facultyManagement.confirmation.facultyName}
+            value={data?.facultyName}
+          />
 
-          <FullWidthField label="Training Name" value={data?.trainingName} />
+          <FullWidthField
+            label={strings.lms.facultyManagement.confirmation.trainingName}
+            value={data?.trainingName}
+          />
 
-          <FullWidthField label="Subject" value={data?.subject} />
+          <FullWidthField
+            label={strings.lms.facultyManagement.confirmation.subject}
+            value={data?.subject}
+          />
 
-          <FullWidthField label="Topic" value={data?.topic} />
+          <FullWidthField
+            label={strings.lms.facultyManagement.confirmation.topic}
+            value={data?.topic}
+          />
 
           <FieldRow
-            label="Class Date"
+            label={strings.lms.facultyManagement.confirmation.classDate}
             value={
               data?.classDate
                 ? moment(data?.classDate).format('DD-MM-YYYY')
@@ -75,27 +90,40 @@ const FacultyConfirmationDetails = ({ route, navigation }: any) => {
             }
           />
 
-          <FieldRow label="Session Time" value={data?.sessionTime} />
+          <FieldRow
+            label={strings.lms.facultyManagement.confirmation.sessionTime}
+            value={data?.sessionTime}
+          />
 
-          <FullWidthField label="E-Mail" value={data?.email || '-'} />
-
-          <FieldRow label="Mobile Number" value={data?.mobileNumber || '-'} />
+          <FullWidthField
+            label={strings.lms.facultyManagement.confirmation.email}
+            value={data?.email || '-'}
+          />
 
           <FieldRow
-            label="Class Approved"
+            label={strings.lms.facultyManagement.confirmation.mobileNumber}
+            value={data?.mobileNumber || '-'}
+          />
+
+          <FieldRow
+            label={strings.lms.facultyManagement.confirmation.classApproved}
             value={
-              data?.isApproved === null ? '-' : data?.isApproved ? 'Yes' : 'No'
+              data?.isApproved === null
+                ? '-'
+                : data?.isApproved
+                ? strings.yes
+                : strings.no
             }
           />
 
           <FieldRow
-            label="Class Confirmation"
+            label={strings.lms.facultyManagement.confirmation.classConfirmation}
             value={
               data?.classConfirmation === null
-                ? 'No'
+                ? strings.no
                 : data?.classConfirmation
-                ? 'Yes'
-                : 'No'
+                ? strings.yes
+                : strings.no
             }
           />
         </ViewAtom>

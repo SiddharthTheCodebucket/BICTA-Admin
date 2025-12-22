@@ -92,7 +92,7 @@ const TopicFeedbackCountDetails = (props: Props) => {
   const { navigation } = props;
   const item = props.route?.params?.item;
 
-  const [reportListFacultyFeedbackReportApi] =
+  const [reportListFeedbackTraineeDetailsApi] =
     useReportListFeedbackTrainneDetailsMutation();
   const [commonDropdownApi] = useCommonDropdownListMutation();
 
@@ -105,7 +105,6 @@ const TopicFeedbackCountDetails = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
 
   const [facultyNameList, setFacultyNameList] = useState<any>([]);
   const [selectedFaculty, setSelectedFaculty] = useState<any>({});
@@ -113,38 +112,37 @@ const TopicFeedbackCountDetails = (props: Props) => {
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
-  };
+  const [centerSearch, setCenterSearch] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Topic Rating Details');
+    Header.setNavigation(
+      navigation,
+      strings.lms.facultyManagement.facultyClassReportFeedback.traineeDetail
+        .title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
-  });
+  }, [navigation]);
 
   useFocusEffect(
     useCallback(() => {
       getFaculty();
-      if (firstTimeLoad && !centerSerach?.name && search === '') {
+      if (firstTimeLoad && !centerSearch?.name && search === '') {
         setFirstTimeLoad(false);
       }
-    }, [firstTimeLoad, centerSerach, search]),
+    }, [firstTimeLoad, centerSearch, search]),
   );
 
   const getCentreFilter = () => {
-    if (!centerSerach?.name) return null;
+    if (!centerSearch?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSearch.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
 
-    return [centerSerach.name];
+    return [centerSearch.name];
   };
 
-  const listFacultyDetails = (
+  const listTopicRatingDetails = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -170,7 +168,7 @@ const TopicFeedbackCountDetails = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    reportListFacultyFeedbackReportApi(params)
+    reportListFeedbackTraineeDetailsApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -195,37 +193,56 @@ const TopicFeedbackCountDetails = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
-  const BedCard = ({ item, index, navigation }: any) => {
+  const TraineeDetailCard = ({ item, index }: any) => {
     return (
       <ViewAtom style={styles.card}>
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+        <View style={styles.cardHeader}>
+          <TextAtom style={styles.srNoLabel}>
+            {
+              strings.lms.facultyManagement.facultyClassReportFeedback
+                .traineeDetail.srNo
+            }
+            : {index + 1}
           </TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Trainee Name</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {
+              strings.lms.facultyManagement.facultyClassReportFeedback
+                .traineeDetail.traineeName
+            }
+          </TextAtom>
           <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Training Name</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {
+              strings.lms.facultyManagement.facultyClassReportFeedback
+                .traineeDetail.trainingName
+            }
+          </TextAtom>
           <TextAtom style={styles.value}>{item.trainingName ?? '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Batch No</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {
+              strings.lms.facultyManagement.facultyClassReportFeedback
+                .traineeDetail.batchNo
+            }
+          </TextAtom>
           <TextAtom style={styles.value}>{item.batchNo ?? '-'}</TextAtom>
         </View>
       </ViewAtom>
     );
   };
 
-  const renderListBedDetails = ({ item, index }: any) => {
-    return <BedCard item={item} index={index} navigation={navigation} />;
+  const renderTraineeItem = ({ item, index }: any) => {
+    return <TraineeDetailCard item={item} index={index} />;
   };
 
   const getFaculty = () => {
@@ -259,15 +276,17 @@ const TopicFeedbackCountDetails = (props: Props) => {
   };
 
   const RatingRow = ({ row, index }: any) => {
-    const count = item[row.countKey]; // e.g. item.oneRating
-    const traineeIds = item[row.idListKey]; // e.g. item.oneRatingIds
+    const count = item[row.countKey];
+    const traineeIds = item[row.idListKey];
 
     return (
       <TouchableOpacity
         style={styles.row}
         disabled={count === 0}
         onPress={() => {
-          listFacultyDetails(1, true, '', [['traineeId', 'IN', traineeIds]]);
+          listTopicRatingDetails(1, true, '', [
+            ['traineeId', 'IN', traineeIds],
+          ]);
         }}
       >
         <TextAtom style={styles.cell}>{index + 1}</TextAtom>
@@ -290,11 +309,26 @@ const TopicFeedbackCountDetails = (props: Props) => {
       <FullscreenLoading isVisible={initialCall} />
 
       <View style={styles.tableHeader}>
-        <TextAtom style={styles.headerText}>Sr. No</TextAtom>
-        <TextAtom style={styles.headerText}>Rating</TextAtom>
-        <TextAtom style={styles.headerText}>Trainee Count</TextAtom>
+        <TextAtom style={styles.headerText}>
+          {
+            strings.lms.facultyManagement.facultyClassReportFeedback
+              .traineeDetail.srNo
+          }
+        </TextAtom>
+        <TextAtom style={styles.headerText}>
+          {
+            strings.lms.facultyManagement.facultyClassReportFeedback
+              .traineeDetail.rating
+          }
+        </TextAtom>
+        <TextAtom style={styles.headerText}>
+          {
+            strings.lms.facultyManagement.facultyClassReportFeedback
+              .traineeDetail.traineeCount
+          }
+        </TextAtom>
       </View>
-      <View style={{ marginHorizontal: vw(15), marginTop: vh(5) }}>
+      <View style={styles.ratingTableContainer}>
         {ratingRows.map((row, index) => (
           <RatingRow key={index} row={row} index={index} />
         ))}
@@ -302,26 +336,25 @@ const TopicFeedbackCountDetails = (props: Props) => {
 
       {data.length >= 1 && (
         <>
-          <TextAtom
-            style={{
-              width: vw(328),
-              alignSelf: 'center',
-              color: colors.primary,
-              fontFamily: fonts.Roboto_Medium,
-              fontSize: vw(14),
-              marginTop: vh(20),
-            }}
-          >
-            Feedback given by following Trainee
+          <TextAtom style={styles.feedbackHeading}>
+            {
+              strings.lms.facultyManagement.facultyClassReportFeedback
+                .traineeDetail.feedbackHeading
+            }
           </TextAtom>
           <FlatList
             showsVerticalScrollIndicator={false}
             data={data}
-            renderItem={renderListBedDetails}
+            renderItem={renderTraineeItem}
             keyExtractor={(item, index) => index.toString()}
             ListEmptyComponent={
               !initialCall && data.length >= 1 ? (
-                <TextAtom style={styles.emptyText}>No data found</TextAtom>
+                <TextAtom style={styles.emptyText}>
+                  {
+                    strings.lms.facultyManagement.facultyClassReportFeedback
+                      .traineeDetail.noDataFound
+                  }
+                </TextAtom>
               ) : null
             }
             ListFooterComponent={
@@ -329,7 +362,7 @@ const TopicFeedbackCountDetails = (props: Props) => {
                 size={'small'}
                 color={colors.primary}
                 animating={pagination}
-                style={{ marginTop: vh(15) }}
+                style={styles.paginationLoader}
               />
             }
             refreshControl={
@@ -339,18 +372,18 @@ const TopicFeedbackCountDetails = (props: Props) => {
                 refreshing={refreshing}
                 onRefresh={() => {
                   setRefreshing(true);
-                  listFacultyDetails(1, false, '');
+                  listTopicRatingDetails(1, false, '');
                 }}
               />
             }
             onEndReached={() => {
               setPagination(true);
               nextPageAvailable
-                ? listFacultyDetails(page + 1, false, search)
+                ? listTopicRatingDetails(page + 1, false, search)
                 : setPagination(false);
             }}
             contentContainerStyle={styles.flatListContainer}
-            ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+            ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
           />
         </>
       )}
@@ -381,31 +414,12 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
     color: colors.black,
   },
-  labelRight: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    textAlign: 'right',
-  },
   value: {
     fontFamily: fonts.Roboto_Regular,
     fontSize: vw(14),
     color: colors.grey,
     marginBottom: vh(5),
   },
-  valueRight: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
-    textAlign: 'right',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.chinese_silver,
-    marginVertical: vh(5),
-  },
-
   tableHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -434,7 +448,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: colors.black,
   },
-
   emptyText: {
     textAlign: 'center',
     marginTop: vh(50),
@@ -446,93 +459,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  thumbnail: {
-    width: 70,
-    height: 70,
-    backgroundColor: '#eaeaea',
-    borderRadius: 8,
-    marginTop: 6,
-  },
-  statusBox: {
-    marginTop: vh(8),
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(12),
-    borderRadius: vw(6),
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
-  },
-
-  inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
-  },
-
-  statusText: {
+  feedbackHeading: {
+    width: vw(328),
+    alignSelf: 'center',
+    color: colors.primary,
     fontFamily: fonts.Roboto_Medium,
     fontSize: vw(14),
+    marginTop: vh(20),
   },
-
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
-
-  dropMenu: {
-    marginTop: vh(6),
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.grey,
-    borderRadius: vw(6),
-    overflow: 'hidden',
-  },
-
-  dropItem: {
-    paddingVertical: vh(10),
-    paddingHorizontal: vw(12),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.chinese_silver,
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'transparent',
-    zIndex: 998,
-  },
-  filterButton: {
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    borderRadius: vw(4),
-    marginTop: vh(10),
-    alignSelf: 'flex-end',
-    marginRight: vh(15),
-    paddingHorizontal: vw(10),
-    paddingVertical: vh(5),
-  },
-  filterText: {
+  cardHeader: { marginBottom: vh(10), flexDirection: 'row' },
+  srNoLabel: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
     color: colors.black,
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
+    flex: 1,
   },
-  filterContainer: { paddingHorizontal: vw(15) },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: vh(5),
-  },
-  applyBtn: { width: vw(150), height: vh(35) },
-  clearBtn: {
-    width: vw(150),
-    height: vh(35),
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    backgroundColor: colors.white,
-  },
+  flex1: { flex: 1 },
+  paginationLoader: { marginTop: vh(15) },
+  itemSeparator: { height: vh(10) },
+  ratingTableContainer: { marginHorizontal: vw(15), marginTop: vh(5) },
 });

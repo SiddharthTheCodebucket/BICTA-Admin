@@ -80,7 +80,10 @@ const FacultyConfirmation = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Confirmation');
+    Header.setNavigation(
+      navigation,
+      strings.lms.facultyManagement.confirmation.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -88,27 +91,27 @@ const FacultyConfirmation = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listFacultyDetails(1, true, '');
+        listFacultyConfirmations(1, true, '');
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listFacultyDetails(1, true, '');
+    listFacultyConfirmations(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
 
     return [centerSerach.name];
   };
 
-  const listFacultyDetails = (
+  const listFacultyConfirmations = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -152,14 +155,14 @@ const FacultyConfirmation = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong,
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listFacultyDetails(1, true, text);
+      listFacultyConfirmations(1, true, text);
     }, 500),
     [],
   );
@@ -171,12 +174,12 @@ const FacultyConfirmation = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listFacultyDetails(1, true, '');
+    listFacultyConfirmations(1, true, '');
   };
 
-  const BedCard = ({ item, index, navigation }: any) => {
+  const FacultyConfirmationCard = ({ item, index, navigation }: any) => {
     const [statusValue, setStatusValue] = useState(
-      item.classConfirmation ?? 'No',
+      item.classConfirmation ?? strings.no,
     );
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
@@ -186,11 +189,11 @@ const FacultyConfirmation = (props: Props) => {
       if (newStatus === statusValue) return;
 
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Class Confirmation',
-        message: 'Are you sure you want to change the confirmation?',
-        okText: 'Confirm',
+        title: strings.lms.facultyManagement.confirmation.statusChangeConf,
+        message: strings.lms.facultyManagement.confirmation.statusChangeMsg,
+        okText: strings.lms.facultyManagement.confirmation.confirm,
         double: true,
-        cancelText: strings.cancel,
+        cancelText: strings.lms.facultyManagement.confirmation.cancel,
         okFunction: () => {
           updateStatus(item.id, newStatus);
         },
@@ -212,13 +215,13 @@ const FacultyConfirmation = (props: Props) => {
             text2: res.data?.message,
           });
           setInitialCall(false);
-          listFacultyDetails(1, true, search);
+          listFacultyConfirmations(1, true, search);
         })
         .catch((err: any) => {
           setInitialCall(false);
           Toast.show({
             type: 'error',
-            text2: err.data?.message || 'Something went wrong',
+            text2: err.data?.message || strings.something_went_wrong,
           });
         });
     };
@@ -232,23 +235,29 @@ const FacultyConfirmation = (props: Props) => {
           });
         }}
       >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+        <View style={styles.cardHeader}>
+          <TextAtom style={styles.flex1Label}>
+            {strings.lms.facultyManagement.confirmation.srNo} {index + 1}
           </TextAtom>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Faculty Name</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.facultyManagement.confirmation.facultyName}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.facultyName ?? '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Training Name</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.facultyManagement.confirmation.trainingName}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.trainingName ?? '-'}</TextAtom>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Subject</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.facultyManagement.confirmation.subject}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.subject ?? '-'}</TextAtom>
         </View>
         {showStatusMenu && (
@@ -258,20 +267,26 @@ const FacultyConfirmation = (props: Props) => {
           />
         )}
 
-        <View style={{ marginTop: vh(0), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Class Confirmation</TextAtom>
+        <View style={styles.statusSection}>
+          <TextAtom style={styles.label}>
+            {strings.lms.facultyManagement.confirmation.classConfirmation}
+          </TextAtom>
 
           <TouchableAtom
             onPress={() => setShowStatusMenu(!showStatusMenu)}
             style={[
               styles.statusBox,
-              statusValue === 'Yes' ? styles.activeBox : styles.inActiveBox,
+              statusValue === strings.yes
+                ? styles.activeBox
+                : styles.inActiveBox,
             ]}
           >
             <TextAtom
               style={[
                 styles.statusText,
-                statusValue === 'Yes' ? styles.activeText : styles.inActiveText,
+                statusValue === strings.yes
+                  ? styles.activeText
+                  : styles.inActiveText,
               ]}
             >
               {statusValue}
@@ -283,16 +298,16 @@ const FacultyConfirmation = (props: Props) => {
             <View style={styles.dropMenu}>
               <TouchableAtom
                 style={styles.dropItem}
-                onPress={() => onSelectStatus('Yes')}
+                onPress={() => onSelectStatus(strings.yes)}
               >
-                <TextAtom style={{ color: colors.black }}>Yes</TextAtom>
+                <TextAtom style={styles.blackText}>{strings.yes}</TextAtom>
               </TouchableAtom>
 
               <TouchableAtom
                 style={styles.dropItem}
-                onPress={() => onSelectStatus('No')}
+                onPress={() => onSelectStatus(strings.no)}
               >
-                <TextAtom style={{ color: colors.black }}>No</TextAtom>
+                <TextAtom style={styles.blackText}>{strings.no}</TextAtom>
               </TouchableAtom>
             </View>
           )}
@@ -301,8 +316,14 @@ const FacultyConfirmation = (props: Props) => {
     );
   };
 
-  const renderListBedDetails = ({ item, index }: any) => {
-    return <BedCard item={item} index={index} navigation={navigation} />;
+  const renderConfirmationItem = ({ item, index }: any) => {
+    return (
+      <FacultyConfirmationCard
+        item={item}
+        index={index}
+        navigation={navigation}
+      />
+    );
   };
 
   return (
@@ -310,48 +331,55 @@ const FacultyConfirmation = (props: Props) => {
       <FullscreenLoading isVisible={initialCall} />
 
       {crediantialData.user[0].tenantId === 3 && (
-
-
         <DropDownOrganism
-        label={''}
-        placeholder={'Centers'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Center',
-            Data: [
-              { id: 'All Centers', name: 'All Centers' },
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
-            ],
-            selectedData: centerSerach,
-            setSelectedData: (data: any) => {
-              setCenterSerach(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={centerSerach?.name}
-        containerStyle={{ marginBottom: vh(-10) }}
-      />
-
-
+          label={''}
+          placeholder={strings.lms.locationDetails.centers}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: strings.dashboardIndex.center,
+              Data: [
+                {
+                  id: strings.dashboardIndex.allCenters,
+                  name: strings.dashboardIndex.allCenters,
+                },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
+              ],
+              selectedData: centerSerach,
+              setSelectedData: (data: any) => {
+                setCenterSerach(data);
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={centerSerach?.name}
+          containerStyle={styles.centerDropdown}
+        />
       )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}
         onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
+        searchBox={styles.searchBox}
       />
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListBedDetails}
+        renderItem={renderConfirmationItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.lms.facultyManagement.confirmation.noDataFound}
+            </TextAtom>
           ) : null
         }
         ListFooterComponent={
@@ -359,7 +387,7 @@ const FacultyConfirmation = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(15) }}
+            style={styles.paginationLoader}
           />
         }
         refreshControl={
@@ -369,18 +397,18 @@ const FacultyConfirmation = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listFacultyDetails(1, false, '');
+              listFacultyConfirmations(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listFacultyDetails(page + 1, false, search)
+            ? listFacultyConfirmations(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
     </SafeAreaView>
   );
@@ -403,6 +431,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 1,
+  },
+  cardHeader: { marginBottom: vh(10) },
+  flex1Label: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+    color: colors.black,
+    flex: 1,
   },
   label: {
     fontFamily: fonts.Roboto_Medium,
@@ -447,10 +482,11 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.lightGray2,
     borderRadius: 8,
     marginTop: 6,
   },
+  statusSection: { marginTop: vh(0), zIndex: 999 },
   statusBox: {
     marginTop: vh(8),
     paddingVertical: vh(8),
@@ -463,13 +499,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -477,8 +513,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -495,13 +531,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.chinese_silver,
   },
+  blackText: { color: colors.black },
   overlay: {
     position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'transparent',
+    backgroundColor: colors.transparent,
     zIndex: 998,
   },
   filterButton: {
@@ -533,4 +570,9 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: colors.white,
   },
+  flex1: { flex: 1 },
+  centerDropdown: { marginBottom: vh(-10) },
+  searchBox: { marginTop: vh(15) },
+  paginationLoader: { marginTop: vh(15) },
+  itemSeparator: { height: vh(10) },
 });
