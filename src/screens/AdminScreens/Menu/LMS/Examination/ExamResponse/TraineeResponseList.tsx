@@ -82,7 +82,7 @@ const TraineeResponseList = (props: Props) => {
   const { navigation } = props;
   const item = props.route?.params?.data;
 
-  const [listAssignmentResponseReportApi] =
+  const [listTraineeResponsesApi] =
     useListExaminationSubmissionReportMutation();
 
   const [dropDownApi] = useCommonDropdownListMutation();
@@ -111,7 +111,10 @@ const TraineeResponseList = (props: Props) => {
   const [selectedResult, setSelectedResult] = useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Exam Response Details');
+    Header.setNavigation(
+      navigation,
+      strings.lms.examination.traineeResponseList.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -119,7 +122,7 @@ const TraineeResponseList = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listTrainingDetais(1, true, '');
+        listTraineeResponses(1, true, '');
         getBatchList();
       }
     }, [firstTimeLoad, centerSerach, search]),
@@ -127,13 +130,13 @@ const TraineeResponseList = (props: Props) => {
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listTrainingDetais(1, true, '');
+    listTraineeResponses(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
     return [centerSerach.name];
   };
@@ -143,7 +146,7 @@ const TraineeResponseList = (props: Props) => {
     setShowFilter(!showFilter);
   };
 
-  const listTrainingDetais = (
+  const listTraineeResponses = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -174,7 +177,7 @@ const TraineeResponseList = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    listAssignmentResponseReportApi(params)
+    listTraineeResponsesApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.user ?? [];
@@ -201,14 +204,14 @@ const TraineeResponseList = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listTrainingDetais(1, true, text);
+      listTraineeResponses(1, true, text);
     }, 500),
     [],
   );
@@ -220,7 +223,7 @@ const TraineeResponseList = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listTrainingDetais(1, true, '');
+    listTraineeResponses(1, true, '');
   };
 
   const TraineeCard = ({ item, index, isSelected }: any) => {
@@ -233,9 +236,9 @@ const TraineeResponseList = (props: Props) => {
         }}
         style={[styles.card, isSelected && styles.selectedCard]}
       >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+        <View style={styles.cardHeader}>
+          <TextAtom style={styles.flex1Label}>
+            {strings.lms.examination.traineeResponseList.srNo} {index + 1}
           </TextAtom>
 
           <TouchableAtom
@@ -246,36 +249,43 @@ const TraineeResponseList = (props: Props) => {
             }
             style={styles.responseBtn}
           >
-            <TextAtom style={styles.responseBtnText}>View Response</TextAtom>
+            <TextAtom style={styles.responseBtnText}>
+              {strings.lms.examination.traineeResponseList.viewResponse}
+            </TextAtom>
           </TouchableAtom>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Training Name</TextAtom>
-          <TextAtom style={styles.value}>{item.trainingName || '-'}</TextAtom>
-        </View>
+        <DescriptionRow
+          label={strings.lms.examination.traineeResponseList.trainingName}
+          value={item.trainingName || '-'}
+        />
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Trainee Name</TextAtom>
-          <TextAtom style={styles.value}>
-            {item.traineeName || '-'}({item.traineeId})
-          </TextAtom>
-        </View>
+        <DescriptionRow
+          label={strings.lms.examination.traineeResponseList.traineeName}
+          value={`${item.traineeName || '-'} (${item.traineeId})`}
+        />
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Batch No</TextAtom>
-          <TextAtom style={styles.value}>{item.batchName || '-'}</TextAtom>
-        </View>
+        <DescriptionRow
+          label={strings.lms.examination.traineeResponseList.batchNo}
+          value={item.batchName || '-'}
+        />
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Exam Name</TextAtom>
-          <TextAtom style={styles.value}>{item.testName || '-'}</TextAtom>
-        </View>
+        <DescriptionRow
+          label={strings.lms.examination.traineeResponseList.examName}
+          value={item.testName || '-'}
+        />
       </TouchableAtom>
     );
   };
 
-  const renderListRoomDetails = ({ item, index }: any) => {
+  const DescriptionRow = ({ label, value }: any) => (
+    <View style={styles.flex1}>
+      <TextAtom style={styles.label}>{label}</TextAtom>
+      <TextAtom style={styles.value}>{value}</TextAtom>
+    </View>
+  );
+
+  const renderTraineeResponseItem = ({ item, index }: any) => {
     return (
       <TraineeCard
         item={item}
@@ -289,11 +299,11 @@ const TraineeResponseList = (props: Props) => {
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Batch'}
-        placeholder={'Batch'}
+        label={strings.lms.examination.traineeResponseList.batch}
+        placeholder={strings.lms.examination.traineeResponseList.batch}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Batch',
+            name: strings.lms.examination.traineeResponseList.batch,
             Data: bacthList,
             selectedData: selectedBacth,
             setSelectedData: (data: any) => {
@@ -306,14 +316,20 @@ const TraineeResponseList = (props: Props) => {
         inputText={selectedBacth?.name}
       />
       <DropDownOrganism
-        label={'Result'}
-        placeholder={'Result'}
+        label={strings.lms.examination.traineeResponseList.result}
+        placeholder={strings.lms.examination.traineeResponseList.result}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Result',
+            name: strings.lms.examination.traineeResponseList.result,
             Data: [
-              { id: 'Fail', name: 'Fail' },
-              { id: 'Pass', name: 'Pass' },
+              {
+                id: strings.lms.examination.traineeResponseList.fail,
+                name: strings.lms.examination.traineeResponseList.fail,
+              },
+              {
+                id: strings.lms.examination.traineeResponseList.pass,
+                name: strings.lms.examination.traineeResponseList.pass,
+              },
             ],
             selectedData: selectedResult,
             setSelectedData: (data: any) => {
@@ -329,14 +345,14 @@ const TraineeResponseList = (props: Props) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.lms.examination.traineeResponseList.applyFilter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.lms.examination.traineeResponseList.clearFilter}
           containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
+          bttnTextStyle={styles.primaryText}
         />
       </ViewAtom>
     </View>
@@ -367,7 +383,7 @@ const TraineeResponseList = (props: Props) => {
   const clearFilter = () => {
     setSelectedBacth({});
     setSelectedResult({});
-    listTrainingDetais(1, true, search, []);
+    listTraineeResponses(1, true, search, []);
   };
 
   const applyFilter = (isExport = false) => {
@@ -385,7 +401,7 @@ const TraineeResponseList = (props: Props) => {
       filters.push(['batchId', '=', selectedBacth.id]);
     }
 
-    listTrainingDetais(1, true, search, filters, extraParams);
+    listTraineeResponses(1, true, search, filters, extraParams);
     setShowFilter(false);
   };
 
@@ -393,17 +409,14 @@ const TraineeResponseList = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={{ height: vh(100) }}>
+      <View style={styles.headerWrapper}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'flex-end',
-            }}
-          >
+          <View style={styles.rowWrapper}>
             <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
               <TextAtom style={styles.filterText}>
-                {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+                {showFilter
+                  ? strings.lms.examination.traineeResponseList.hideFilter
+                  : strings.lms.examination.traineeResponseList.showFilter}
               </TextAtom>
             </TouchableAtom>
             <TouchableAtom
@@ -424,7 +437,7 @@ const TraineeResponseList = (props: Props) => {
             onChangeText={onChangeSearch}
             searchText={search}
             onPressCross={onClearSearch}
-            searchBox={{ marginTop: vh(10) }}
+            searchBox={styles.searchBoxMargin}
           />
         </ScrollView>
       </View>
@@ -432,11 +445,13 @@ const TraineeResponseList = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListRoomDetails}
+        renderItem={renderTraineeResponseItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.lms.examination.traineeResponseList.noDataFound}
+            </TextAtom>
           ) : null
         }
         ListHeaderComponent={showFilter ? <FilterForm /> : null}
@@ -445,7 +460,7 @@ const TraineeResponseList = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(10) }}
+            style={styles.paginationLoader}
           />
         }
         refreshControl={
@@ -455,18 +470,18 @@ const TraineeResponseList = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listTrainingDetais(1, false, '');
+              listTraineeResponses(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listTrainingDetais(page + 1, false, search)
+            ? listTraineeResponses(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
       {/* <FloatingButton
         onButtonPress={() => {
@@ -494,7 +509,7 @@ const styles = StyleSheet.create({
   tabButton: {
     paddingVertical: vh(8),
     paddingHorizontal: vw(20),
-    backgroundColor: '#EAEAEA',
+    backgroundColor: colors.lightGray2,
     borderRadius: vw(6),
   },
   activeTab: {
@@ -603,7 +618,7 @@ const styles = StyleSheet.create({
   selectedCard: {
     borderWidth: 1,
     borderColor: colors.primary,
-    backgroundColor: '#F3F8FF',
+    backgroundColor: colors.selectedCardBg,
   },
   statusBox: {
     marginTop: vh(8),
@@ -617,13 +632,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -631,8 +646,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -694,7 +709,7 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.grey_3,
     borderRadius: vw(6),
-    backgroundColor: colors.lightGrey,
+    backgroundColor: colors.lightGray2,
     marginTop: vh(6),
   },
 
@@ -703,4 +718,27 @@ const styles = StyleSheet.create({
     color: colors.grey,
     fontFamily: fonts.Roboto_Medium,
   },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: vh(10),
+  },
+  flex1Label: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+    color: colors.black,
+    flex: 1,
+  },
+  actionRow: { flexDirection: 'row', gap: vw(15) },
+  flex1: { flex: 1 },
+  headerWrapper: { height: vh(100) },
+  rowWrapper: {
+    flexDirection: 'row',
+    alignSelf: 'flex-end',
+  },
+  searchBoxMargin: { marginTop: vh(10) },
+  paginationLoader: { marginTop: vh(10) },
+  itemSeparator: { height: vh(10) },
+  primaryText: { color: colors.primary },
 });

@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../../constants';
+import { colors, screensName, strings, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -16,7 +16,10 @@ const Examination = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Examination');
+    Header.setNavigation(
+      navigation,
+      strings.lms.examination.examinationIndex.title,
+    );
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,28 +28,28 @@ const Examination = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Create Test',
+      name: strings.lms.examination.examinationIndex.createTest,
       onPress: () => {
         navigation.navigate(screensName.CreateTest);
       },
     },
     {
       id: 2,
-      name: 'Assign Question',
+      name: strings.lms.examination.examinationIndex.assignQuestion,
       onPress: () => {
         navigation.navigate(screensName.AssignQuestionList);
       },
     },
     {
       id: 3,
-      name: 'Question',
+      name: strings.lms.examination.examinationIndex.question,
       onPress: () => {
         navigation.navigate(screensName.ExaminationQuestionBank);
       },
     },
     {
       id: 4,
-      name: 'Exam Response',
+      name: strings.lms.examination.examinationIndex.examResponse,
       onPress: () => {
         navigation.navigate(screensName.ExamResponse);
       },
@@ -55,7 +58,7 @@ const Examination = (props: Props) => {
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <View style={{ flex: 1 }}>
+      <View style={styles.flex1}>
         {DATA.map(item => {
           return (
             <TouchableOpacity
@@ -93,4 +96,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: vh(15),
   },
+  flex1: { flex: 1 },
 });

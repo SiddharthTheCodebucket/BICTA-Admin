@@ -72,7 +72,10 @@ const TestDetailsList = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Test Details List');
+    Header.setNavigation(
+      navigation,
+      strings.lms.examination.testDetailsList.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -80,17 +83,17 @@ const TestDetailsList = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listVehicleDetails(1, true, '');
+        listTestDetails(1, true, '');
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listVehicleDetails(1, true, '');
+    listTestDetails(1, true, '');
   }, [centerSerach]);
 
-  const listVehicleDetails = (
+  const listTestDetails = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -131,12 +134,12 @@ const TestDetailsList = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
-  const VehicleCard = ({ item, index, navigation }: any) => {
+  const TestDetailCard = ({ item, index, navigation }: any) => {
     const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
@@ -146,19 +149,19 @@ const TestDetailsList = (props: Props) => {
       if (newStatus === statusValue) return;
 
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: 'Are you sure you want to change this item?',
-        okText: 'Confirm',
+        title: strings.lms.examination.testDetailsList.statusChangeConf,
+        message: strings.lms.examination.testDetailsList.statusChangeMsg,
+        okText: strings.lms.examination.testDetailsList.confirm,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
-          updateVehicleStatus(item.id);
+          updateTestStatus(item.id);
         },
         cancelFunction: () => {},
       });
     };
 
-    const updateVehicleStatus = (id: any) => {
+    const updateTestStatus = (id: any) => {
       setInitialCall(true);
       const params = {
         idForChangeStatus: id,
@@ -177,7 +180,7 @@ const TestDetailsList = (props: Props) => {
           setInitialCall(false);
           Toast.show({
             type: 'error',
-            text2: err.data?.message || 'Something went wrong',
+            text2: err.data?.message || strings.something_went_wrong_,
           });
         });
     };
@@ -199,43 +202,53 @@ const TestDetailsList = (props: Props) => {
 
     return (
       <View style={styles.card}>
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+        <View style={styles.cardHeader}>
+          <TextAtom style={styles.flex1Label}>
+            {strings.lms.examination.testDetailsList.srNo} {index + 1}
           </TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Test Name</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.examination.testDetailsList.testName}
+          </TextAtom>
           <TextAtom numberOfLines={0} style={styles.value}>
             {item.testName ?? '-'}
           </TextAtom>
         </View>
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>No Of Questions</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.lms.examination.testDetailsList.noOfQuestions}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {item.noOfQuestions ?? '-'}
             </TextAtom>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Test Type</TextAtom>
+          <View style={styles.flexAlignEnd}>
+            <TextAtom style={styles.labelRight}>
+              {strings.lms.examination.testDetailsList.testType}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {item.typeOfTest ?? '-'}
             </TextAtom>
           </View>
         </View>
 
-        <View style={[styles.rowBetween]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Test Start Date</TextAtom>
+        <View style={styles.rowBetween}>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.lms.examination.testDetailsList.testStartDate}
+            </TextAtom>
 
             <TextAtom style={styles.value}>
               {moment(item.quizStartDate, 'YYYY-MM-DD').format('DD-MM-YYYY') ??
                 '-'}
             </TextAtom>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Test End Date</TextAtom>
+          <View style={styles.flexAlignEnd}>
+            <TextAtom style={styles.labelRight}>
+              {strings.lms.examination.testDetailsList.testEndDate}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {moment(item.quizEndDate, 'YYYY-MM-DD').format('DD-MM-YYYY') ??
                 '-'}
@@ -244,14 +257,18 @@ const TestDetailsList = (props: Props) => {
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Time Limit</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.lms.examination.testDetailsList.timeLimit}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {getTimeDifference(item.testStartTime, item.testEndTime)}
             </TextAtom>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Negative Marking</TextAtom>
+          <View style={styles.flexAlignEnd}>
+            <TextAtom style={styles.labelRight}>
+              {strings.lms.examination.testDetailsList.negativeMarking}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {item.negativeMarking ?? '-'}
             </TextAtom>
@@ -265,8 +282,10 @@ const TestDetailsList = (props: Props) => {
           />
         )}
 
-        <View style={{ marginTop: vh(0), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Status</TextAtom>
+        <View style={styles.statusContainer}>
+          <TextAtom style={styles.label}>
+            {strings.lms.examination.testDetailsList.status}
+          </TextAtom>
 
           <TouchableAtom
             onPress={() => setShowStatusMenu(!showStatusMenu)}
@@ -294,14 +313,14 @@ const TestDetailsList = (props: Props) => {
                 style={styles.dropItem}
                 onPress={() => onSelectStatus('Active')}
               >
-                <TextAtom style={{ color: colors.black }}>Active</TextAtom>
+                <TextAtom style={styles.dropText}>Active</TextAtom>
               </TouchableAtom>
 
               <TouchableAtom
                 style={styles.dropItem}
                 onPress={() => onSelectStatus('InActive')}
               >
-                <TextAtom style={{ color: colors.black }}>InActive</TextAtom>
+                <TextAtom style={styles.dropText}>InActive</TextAtom>
               </TouchableAtom>
             </View>
           )}
@@ -310,8 +329,8 @@ const TestDetailsList = (props: Props) => {
     );
   };
 
-  const renderListVehicleDetails = ({ item, index }: any) => {
-    return <VehicleCard item={item} index={index} navigation={navigation} />;
+  const renderTestDetailItem = ({ item, index }: any) => {
+    return <TestDetailCard item={item} index={index} navigation={navigation} />;
   };
 
   return (
@@ -321,11 +340,13 @@ const TestDetailsList = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListVehicleDetails}
+        renderItem={renderTestDetailItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.lms.examination.testDetailsList.noDataFound}
+            </TextAtom>
           ) : null
         }
         ListFooterComponent={
@@ -333,7 +354,7 @@ const TestDetailsList = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(15) }}
+            style={styles.paginationLoader}
           />
         }
         refreshControl={
@@ -343,18 +364,18 @@ const TestDetailsList = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listVehicleDetails(1, false, '');
+              listTestDetails(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listVehicleDetails(page + 1, false, search)
+            ? listTestDetails(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
     </SafeAreaView>
   );
@@ -421,7 +442,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.lightGray2,
     borderRadius: 8,
     marginTop: 6,
   },
@@ -437,13 +458,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -451,8 +472,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -478,4 +499,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     zIndex: 998,
   },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: vh(10),
+  },
+  flex1Label: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+    color: colors.black,
+    flex: 1,
+  },
+  flex1: { flex: 1 },
+  flexAlignEnd: { flex: 1, alignItems: 'flex-end' },
+  statusContainer: { marginTop: vh(0), zIndex: 999 },
+  dropText: { color: colors.black },
+  paginationLoader: { marginTop: vh(15) },
+  itemSeparator: { height: vh(10) },
 });

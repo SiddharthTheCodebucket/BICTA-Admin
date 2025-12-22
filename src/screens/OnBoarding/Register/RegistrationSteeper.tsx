@@ -315,7 +315,7 @@ const RegistrationSteeper = ({ navigation, route }: Props) => {
           <ButtonOrganism
             containerStyle={{ width: vw(150) }}
             bttnText="Submit"
-            onPress={() => console.log('Submit')}
+            onPress={() => {}}
           />
         )}
       </View> */}

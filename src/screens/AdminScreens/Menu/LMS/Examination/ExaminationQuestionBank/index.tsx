@@ -60,8 +60,7 @@ const ExaminationQuestionBank = (props: Props) => {
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
-  const [listAssignmentQuestionBankApi] =
-    useListAssessmentQuestionBankMutation();
+  const [listQuestionBankApi] = useListAssessmentQuestionBankMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -79,7 +78,10 @@ const ExaminationQuestionBank = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Question Bank Details');
+    Header.setNavigation(
+      navigation,
+      strings.lms.examination.questionBank.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -87,21 +89,21 @@ const ExaminationQuestionBank = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listAssignmentQuestionBank(1, true, '');
+        listQuestionBank(1, true, '');
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listAssignmentQuestionBank(1, true, '');
+    listQuestionBank(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
 
     return [centerSerach.name];
@@ -112,7 +114,7 @@ const ExaminationQuestionBank = (props: Props) => {
     setShowFilter(!showFilter);
   };
 
-  const listAssignmentQuestionBank = (
+  const listQuestionBank = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -137,7 +139,7 @@ const ExaminationQuestionBank = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    listAssignmentQuestionBankApi(params)
+    listQuestionBankApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -161,14 +163,14 @@ const ExaminationQuestionBank = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listAssignmentQuestionBank(1, true, text);
+      listQuestionBank(1, true, text);
     }, 500),
     [],
   );
@@ -180,10 +182,10 @@ const ExaminationQuestionBank = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listAssignmentQuestionBank(1, true, '');
+    listQuestionBank(1, true, '');
   };
 
-  const BedCard = ({ item, index, navigation }: any) => {
+  const QuestionBankCard = ({ item, index, navigation }: any) => {
     return (
       <TouchableAtom
         style={styles.card}
@@ -193,74 +195,45 @@ const ExaminationQuestionBank = (props: Props) => {
           });
         }}
       >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+        <View style={styles.cardHeader}>
+          <TextAtom style={styles.flex1Label}>
+            {strings.lms.examination.questionBank.srNo} {index + 1}
           </TextAtom>
 
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                // navigation.navigate(screensName.AddFacultyDetails, {
-                //   item: item,
-                // });
-              }}
-            >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
-            </TouchableAtom> */}
-          </View>
+          <View style={styles.actionRow}></View>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Subject</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.examination.questionBank.subject}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.selectSubject ?? '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Topic</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.examination.questionBank.topic}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.selectTopic ?? '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>No. of Questions</TextAtom>
-          <TextAtom style={styles.value}>{item.totalQuestions ?? '-'}</TextAtom>
-        </View>
+        <DescriptionRow
+          label={strings.lms.examination.questionBank.noOfQuestions}
+          value={item.totalQuestions ?? '-'}
+        />
       </TouchableAtom>
     );
   };
 
-  const renderListBedDetails = ({ item, index }: any) => {
-    return <BedCard item={item} index={index} navigation={navigation} />;
+  const DescriptionRow = ({ label, value }: any) => (
+    <View style={styles.flex1}>
+      <TextAtom style={styles.label}>{label}</TextAtom>
+      <TextAtom style={styles.value}>{value}</TextAtom>
+    </View>
+  );
+
+  const renderQuestionBankItem = ({ item, index }: any) => {
+    return (
+      <QuestionBankCard item={item} index={index} navigation={navigation} />
+    );
   };
 
   return (
@@ -273,46 +246,55 @@ const ExaminationQuestionBank = (props: Props) => {
       </TouchableAtom>
       {showFilter && <FilterForm />} */}
       {crediantialData.user[0].tenantId === 3 && (
-
         <DropDownOrganism
-        label={''}
-        placeholder={'Centers'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Center',
-            Data: [
-              { id: 'All Centers', name: 'All Centers' },
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
-            ],
-            selectedData: centerSerach,
-            setSelectedData: (data: any) => {
-              setCenterSerach(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={centerSerach?.name}
-        containerStyle={{ marginBottom: vh(-10) }}
-      />
-
+          label={''}
+          placeholder={strings.lms.locationDetails.centers}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: strings.dashboardIndex.center,
+              Data: [
+                {
+                  id: strings.dashboardIndex.allCenters,
+                  name: strings.dashboardIndex.allCenters,
+                },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
+              ],
+              selectedData: centerSerach,
+              setSelectedData: (data: any) => {
+                setCenterSerach(data);
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={centerSerach?.name}
+          containerStyle={styles.centerDropdown}
+        />
       )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}
         onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
+        searchBox={styles.searchBox}
       />
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListBedDetails}
+        renderItem={renderQuestionBankItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.lms.examination.questionBank.noDataFound}
+            </TextAtom>
           ) : null
         }
         ListFooterComponent={
@@ -320,7 +302,7 @@ const ExaminationQuestionBank = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(15) }}
+            style={styles.paginationLoader}
           />
         }
         refreshControl={
@@ -330,18 +312,18 @@ const ExaminationQuestionBank = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listAssignmentQuestionBank(1, false, '');
+              listQuestionBank(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listAssignmentQuestionBank(page + 1, false, search)
+            ? listQuestionBank(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
       {/* <FloatingButton
         onButtonPress={() => {
@@ -413,7 +395,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.lightGray2,
     borderRadius: 8,
     marginTop: 6,
   },
@@ -429,13 +411,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -443,8 +425,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -499,4 +481,22 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: colors.white,
   },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: vh(10),
+  },
+  flex1Label: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+    color: colors.black,
+    flex: 1,
+  },
+  actionRow: { flexDirection: 'row', gap: vw(15) },
+  flex1: { flex: 1 },
+  centerDropdown: { marginBottom: vh(-10) },
+  searchBox: { marginTop: vh(15) },
+  paginationLoader: { marginTop: vh(15) },
+  itemSeparator: { height: vh(10) },
 });

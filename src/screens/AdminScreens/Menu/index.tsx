@@ -19,7 +19,7 @@ const Menu = ({ navigation }: Props) => {
     Header.setDashboardHeader(navigation, {
       time,
       logo: images.logo,
-      onNotificationPress: () => console.log('Notification Clicked'),
+      onNotificationPress: () => {},
     });
   }, [time]);
 

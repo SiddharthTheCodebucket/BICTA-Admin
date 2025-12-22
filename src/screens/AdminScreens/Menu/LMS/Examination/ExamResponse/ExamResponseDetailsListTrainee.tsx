@@ -1,8 +1,7 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import moment from 'moment';
-import { colors, fonts, vh, vw } from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -16,46 +15,79 @@ interface Props {
 
 const ExamResponseDetailsListTrainee = (props: Props) => {
   const { navigation } = props;
-  const data = props.route.params?.data; // <-- single object
+  const data = props.route.params?.data;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Exam Response Details');
+    Header.setNavigation(
+      navigation,
+      strings.lms.examination.examResponseDetails.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
 
   return (
-    <SafeAreaView
-      edges={['bottom']}
-      style={[styles.container, { paddingTop: vh(10) }]}
-    >
+    <SafeAreaView edges={['bottom']} style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingHorizontal: vw(15),
-          paddingBottom: vh(20),
-        }}
+        contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.card}>
-          <Row label="Training Name" value={data.trainingName} />
-          <Row label="Trainee Name" value={data.traineeName} />
-          <Row label="Trainee Email" value={data.traineeEmail} />
-          <Row label="Trainee Batch No" value={data.batchNo} />
-          <Row label="Exam Name" value={data.testName} />
-          <Row label="Attempt" value={data.attempt} />
-          <Row label="Total Questions" value={data.totalQuestions} />
-          <Row label="Total Marks" value={data.totalMarks} />
-          <Row label="Passing Marks" value={data.passingMarks} />
-          <Row label="Obtained Marks" value={data.totalObtainedMarks} />
-          <Row label="Status" value={data.passingStatus} />
-          <Row label="Final Submission" value={data.finalSubmission} />
+          <TraineeDetailRow
+            label={strings.lms.examination.examResponseDetails.trainingName}
+            value={data.trainingName}
+          />
+          <TraineeDetailRow
+            label={strings.lms.examination.examResponseDetails.traineeName}
+            value={data.traineeName}
+          />
+          <TraineeDetailRow
+            label={strings.lms.examination.examResponseDetails.traineeEmail}
+            value={data.traineeEmail}
+          />
+          <TraineeDetailRow
+            label={strings.lms.examination.examResponseDetails.traineeBatchNo}
+            value={data.batchNo}
+          />
+          <TraineeDetailRow
+            label={strings.lms.examination.examResponseDetails.examName}
+            value={data.testName}
+          />
+          <TraineeDetailRow
+            label={strings.lms.examination.examResponseDetails.attempt}
+            value={data.attempt}
+          />
+          <TraineeDetailRow
+            label={strings.lms.examination.examResponseDetails.totalQuestions}
+            value={data.totalQuestions}
+          />
+          <TraineeDetailRow
+            label={strings.lms.examination.examResponseDetails.totalMarks}
+            value={data.totalMarks}
+          />
+          <TraineeDetailRow
+            label={strings.lms.examination.examResponseDetails.passingMarks}
+            value={data.passingMarks}
+          />
+          <TraineeDetailRow
+            label={strings.lms.examination.examResponseDetails.obtainedMarks}
+            value={data.totalObtainedMarks}
+          />
+          <TraineeDetailRow
+            label={strings.lms.examination.examResponseDetails.status}
+            value={data.passingStatus}
+          />
+          <TraineeDetailRow
+            label={strings.lms.examination.examResponseDetails.finalSubmission}
+            value={data.finalSubmission}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-const Row = ({ label, value }: any) => (
-  <View style={{ marginBottom: vh(10) }}>
+const TraineeDetailRow = ({ label, value }: any) => (
+  <View style={styles.row}>
     <TextAtom style={styles.label}>{label}</TextAtom>
     <TextAtom style={styles.value}>{value || '-'}</TextAtom>
   </View>
@@ -64,7 +96,15 @@ const Row = ({ label, value }: any) => (
 export default ExamResponseDetailsListTrainee;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: {
+    flex: 1,
+    backgroundColor: colors.backgroundColor,
+    paddingTop: vh(10),
+  },
+  scrollContent: {
+    paddingHorizontal: vw(15),
+    paddingBottom: vh(20),
+  },
   card: {
     backgroundColor: colors.white,
     borderRadius: vw(10),
@@ -81,4 +121,5 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
     color: colors.grey,
   },
+  row: { marginBottom: vh(10) },
 });

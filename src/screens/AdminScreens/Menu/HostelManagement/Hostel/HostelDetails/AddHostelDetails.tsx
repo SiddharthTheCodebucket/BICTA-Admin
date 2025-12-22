@@ -338,7 +338,6 @@ const AddHostelDetails = (props: Props) => {
     setValue('alternateContactNo', updated);
   };
 
-  console.log('form', form);
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />

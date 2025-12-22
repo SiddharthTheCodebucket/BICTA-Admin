@@ -212,18 +212,10 @@ const TraineeFullDetails = ({ route, navigation }: any) => {
           />
 
           {/* Photo */}
-          <ImageField
-            label="Photo"
-            uri={data?.photo}
-            onPress={() => console.log('open photo')}
-          />
+          <ImageField label="Photo" uri={data?.photo} onPress={() => {}} />
 
           {/* Sign */}
-          <ImageField
-            label="Sign"
-            uri={data?.sign}
-            onPress={() => console.log('open sign')}
-          />
+          <ImageField label="Sign" uri={data?.sign} onPress={() => {}} />
 
           {/* Created By */}
           <FieldRow label="Created By" value={data?.createdBy?.name} />
