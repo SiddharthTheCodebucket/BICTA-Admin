@@ -111,7 +111,7 @@ const StockReport = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Stock Report');
+    Header.setNavigation(navigation, strings.stock_report);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -120,20 +120,20 @@ const StockReport = (props: Props) => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         getMedicineTypeList();
         setFirstTimeLoad(false);
-        listFacultyDetails(1, true, '');
+        listStockReports(1, true, '');
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listFacultyDetails(1, true, '');
+    listStockReports(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
+    if (centerSerach.name === strings.all_centers) {
       return ['Gaya', 'Patna'];
     }
 
@@ -145,7 +145,7 @@ const StockReport = (props: Props) => {
     setShowFilter(!showFilter);
   };
 
-  const listFacultyDetails = (
+  const listStockReports = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -205,14 +205,14 @@ const StockReport = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listFacultyDetails(1, true, text);
+      listStockReports(1, true, text);
     }, 500),
     [],
   );
@@ -224,7 +224,7 @@ const StockReport = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listFacultyDetails(1, true, '');
+    listStockReports(1, true, '');
   };
   const BedCard = ({ item, index, navigation }: any) => {
     const thumbnail =
@@ -240,12 +240,12 @@ const StockReport = (props: Props) => {
           </TextAtom>
         </View>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Medicine Name</TextAtom>
+          <TextAtom style={styles.label}>{strings.medicine_name}</TextAtom>
           <TextAtom style={styles.value}>{item.medicineName ?? '-'}</TextAtom>
         </View>
 
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Medicine Type</TextAtom>
+          <TextAtom style={styles.label}>{strings.medicine_type}</TextAtom>
           <TextAtom style={styles.value}>{item.medicineType ?? '-'}</TextAtom>
         </View>
         <View style={[styles.rowBetween]}>
@@ -285,8 +285,8 @@ const StockReport = (props: Props) => {
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Medicine Type'}
-        placeholder={'Medicine Type'}
+        label={strings.medicine_type}
+        placeholder={strings.medicine_type}
         onPress={() => {
           navigation.navigate('DropDownModal', {
             name: 'Medicine Type',
@@ -303,8 +303,8 @@ const StockReport = (props: Props) => {
         inputText={selectedMedicineType?.name}
       />
       <DropDownOrganism
-        label={'Medicine'}
-        placeholder={'Medicine'}
+        label={strings.medicine}
+        placeholder={strings.medicine}
         onPress={() => {
           navigation.navigate('DropDownModal', {
             name: 'Medicine',
@@ -320,8 +320,8 @@ const StockReport = (props: Props) => {
         inputText={selectedMedicine?.name}
       />
       <DateInputOrganism
-        label={'Start Date'}
-        placeholder={'Start Date'}
+        label={strings.start_date}
+        placeholder={strings.start_date}
         value={startDate}
         onChangeText={(val: any) => {
           setStartDate(val);
@@ -330,8 +330,8 @@ const StockReport = (props: Props) => {
         dateFormat="DD-MM-YYYY"
       />
       <DateInputOrganism
-        label={'End Date'}
-        placeholder={'End Date'}
+        label={strings.end_date}
+        placeholder={strings.end_date}
         value={endDate}
         onChangeText={(val: any) => {
           setEndDate(val);
@@ -342,12 +342,12 @@ const StockReport = (props: Props) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.apply_filter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.clear_filter}
           containerStyle={styles.clearBtn}
           bttnTextStyle={{ color: colors.primary }}
         />
@@ -360,7 +360,7 @@ const StockReport = (props: Props) => {
     setSelectedMedicine({});
     setStartDate('');
     setEndDate('');
-    listFacultyDetails(1, true, search, []);
+    listStockReports(1, true, search, []);
   };
 
   const buildFilters = () => {
@@ -390,7 +390,7 @@ const StockReport = (props: Props) => {
   const applyFilter = () => {
     const filters = buildFilters();
 
-    listFacultyDetails(1, true, search, filters, {
+    listStockReports(1, true, search, filters, {
       exportFlagExcel: false,
       exportFlagPdf: false,
     });
@@ -402,12 +402,12 @@ const StockReport = (props: Props) => {
     if (filters.length === 0) {
       Toast.show({
         type: 'error',
-        text2: 'Apply at least one filter before downloading.',
+        text2: strings.apply_at_least_one_filter_before_downloading,
       });
       return;
     }
 
-    listFacultyDetails(1, true, search, filters, {
+    listStockReports(1, true, search, filters, {
       exportFlagExcel: true,
       exportFlagPdf: false,
     });
@@ -419,12 +419,12 @@ const StockReport = (props: Props) => {
     if (filters.length === 0) {
       Toast.show({
         type: 'error',
-        text2: 'Apply at least one filter before downloading',
+        text2: strings.apply_at_least_one_filter_before_downloading,
       });
       return;
     }
 
-    listFacultyDetails(1, true, search, filters, {
+    listStockReports(1, true, search, filters, {
       exportFlagPdf: true,
       exportFlagExcel: false,
     });
@@ -487,7 +487,7 @@ const StockReport = (props: Props) => {
       >
         <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
           <TextAtom style={styles.filterText}>
-            {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+            {showFilter ? strings.hide_filter : strings.show_filter}
           </TextAtom>
         </TouchableAtom>
         <TouchableAtom
@@ -544,28 +544,30 @@ const StockReport = (props: Props) => {
         </TouchableAtom>
       </View>
 
-    { crediantialData.user[0].tenantId===3 &&  <DropDownOrganism
-        label={''}
-        placeholder={'Center'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Center',
-            Data: [
-              { id: 'All Centers', name: 'All Centers' },
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
-            ],
-            selectedData: centerSerach,
-            setSelectedData: (data: any) => {
-              setCenterSerach(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={centerSerach?.name}
-        containerStyle={{ marginBottom: vh(-10) }}
-      />}
+      {crediantialData.user[0].tenantId === 3 && (
+        <DropDownOrganism
+          label={''}
+          placeholder={strings.center}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Center',
+              Data: [
+                { id: strings.all_centers, name: strings.all_centers },
+                { id: 'Gaya', name: 'Gaya' },
+                { id: 'Patna', name: 'Patna' },
+              ],
+              selectedData: centerSerach,
+              setSelectedData: (data: any) => {
+                setCenterSerach(data);
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={centerSerach?.name}
+          containerStyle={{ marginBottom: vh(-10) }}
+        />
+      )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}
@@ -580,7 +582,9 @@ const StockReport = (props: Props) => {
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.no_data_found}
+            </TextAtom>
           ) : null
         }
         ListHeaderComponent={<View>{showFilter && <FilterForm />}</View>}
@@ -599,14 +603,14 @@ const StockReport = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listFacultyDetails(1, false, '');
+              listStockReports(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listFacultyDetails(page + 1, false, search)
+            ? listStockReports(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
@@ -682,7 +686,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.light_gray_bg,
     borderRadius: 8,
     marginTop: 6,
   },
@@ -698,13 +702,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.light_green_bg,
+    borderColor: colors.dark_green_border,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.light_red_bg,
+    borderColor: colors.dark_red_border,
   },
 
   statusText: {
@@ -712,8 +716,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.active_green },
+  inActiveText: { color: colors.inactive_red },
 
   dropMenu: {
     marginTop: vh(6),
@@ -767,5 +771,9 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  hardcodedStyle: {
+    color: colors.pharmacy_yellow,
+    fontSize: 16,
   },
 });

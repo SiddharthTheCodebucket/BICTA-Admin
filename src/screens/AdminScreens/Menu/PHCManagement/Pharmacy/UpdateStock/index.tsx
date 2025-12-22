@@ -83,7 +83,7 @@ const UpdateStock = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Pharmacy Update Stocks');
+    Header.setNavigation(navigation, strings.update_stock);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -91,20 +91,20 @@ const UpdateStock = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listAssignmentQuestionBank(1, true, '');
+        listMedicineBatches(1, true, '');
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listAssignmentQuestionBank(1, true, '');
+    listMedicineBatches(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
+    if (centerSerach.name === strings.all_centers) {
       return ['Gaya', 'Patna'];
     }
 
@@ -116,7 +116,7 @@ const UpdateStock = (props: Props) => {
     setShowFilter(!showFilter);
   };
 
-  const listAssignmentQuestionBank = (
+  const listMedicineBatches = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -165,14 +165,14 @@ const UpdateStock = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listAssignmentQuestionBank(1, true, text);
+      listMedicineBatches(1, true, text);
     }, 500),
     [],
   );
@@ -184,7 +184,7 @@ const UpdateStock = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listAssignmentQuestionBank(1, true, '');
+    listMedicineBatches(1, true, '');
   };
 
   const BedCard = ({ item, index, navigation }: any) => {
@@ -192,29 +192,29 @@ const UpdateStock = (props: Props) => {
       <ViewAtom style={styles.card}>
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+            {strings.sr_no} {index + 1}
           </TextAtom>
         </View>
 
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Medicine Type</TextAtom>
+          <TextAtom style={styles.label}>{strings.medicine_type}</TextAtom>
           <TextAtom style={styles.value}>
             {item.medicineTypeName ?? '-'}
           </TextAtom>
         </View>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Medicine Name</TextAtom>
+          <TextAtom style={styles.label}>{strings.medicine_name}</TextAtom>
           <TextAtom style={styles.value}>
             {item.medicineStockName ?? '-'}
           </TextAtom>
         </View>
         <View style={[styles.rowBetween]}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Batch</TextAtom>
+            <TextAtom style={styles.label}>{strings.batch}</TextAtom>
             <TextAtom style={styles.value}>{item.batch ?? '-'}</TextAtom>
           </View>
           <View style={{ flex: 1, alignSelf: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Expiry Date</TextAtom>
+            <TextAtom style={styles.labelRight}>{strings.expiry_date}</TextAtom>
             <TextAtom style={styles.valueRight}>
               {moment(item.expiryDate, 'YYYY-MM-DD').format('DD-MM-YYYY') ??
                 '-'}
@@ -223,17 +223,17 @@ const UpdateStock = (props: Props) => {
         </View>
         <View style={[styles.rowBetween, { width: '100%' }]}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Medicine Unit</TextAtom>
+            <TextAtom style={styles.label}>{strings.medicine_unit}</TextAtom>
             <TextAtom style={styles.value}>{item.medicineUnit ?? '-'}</TextAtom>
           </View>
 
           <View style={{ flex: 1, alignItems: 'center' }}>
-            <TextAtom style={styles.label}>Stock</TextAtom>
+            <TextAtom style={styles.label}>{strings.stock}</TextAtom>
             <TextAtom style={styles.value}>{item.stock ?? '-'}</TextAtom>
           </View>
 
           <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Total Unit</TextAtom>
+            <TextAtom style={styles.labelRight}>{strings.total_unit}</TextAtom>
             <TextAtom style={styles.valueRight}>
               {item.totalUnits ?? '-'}
             </TextAtom>
@@ -251,30 +251,28 @@ const UpdateStock = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
       {crediantialData.user[0].tenantId === 3 && (
-
         <DropDownOrganism
-        label={''}
-        placeholder={'Centers'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Center',
-            Data: [
-              { id: 'All Centers', name: 'All Centers' },
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
-            ],
-            selectedData: centerSerach,
-            setSelectedData: (data: any) => {
-              setCenterSerach(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={centerSerach?.name}
-        containerStyle={{ marginBottom: vh(-10) }}
-      />
-
+          label={''}
+          placeholder={strings.centers}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Center',
+              Data: [
+                { id: strings.all_centers, name: strings.all_centers },
+                { id: 'Gaya', name: 'Gaya' },
+                { id: 'Patna', name: 'Patna' },
+              ],
+              selectedData: centerSerach,
+              setSelectedData: (data: any) => {
+                setCenterSerach(data);
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={centerSerach?.name}
+          containerStyle={{ marginBottom: vh(-10) }}
+        />
       )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
@@ -290,7 +288,9 @@ const UpdateStock = (props: Props) => {
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.no_data_found}
+            </TextAtom>
           ) : null
         }
         ListFooterComponent={
@@ -308,14 +308,14 @@ const UpdateStock = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listAssignmentQuestionBank(1, false, '');
+              listMedicineBatches(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listAssignmentQuestionBank(page + 1, false, search)
+            ? listMedicineBatches(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.light_gray_bg,
     borderRadius: 8,
     marginTop: 6,
   },
@@ -407,13 +407,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.light_green_bg,
+    borderColor: colors.dark_green_border,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.light_red_bg,
+    borderColor: colors.dark_red_border,
   },
 
   statusText: {
@@ -421,8 +421,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.active_green },
+  inActiveText: { color: colors.inactive_red },
 
   dropMenu: {
     marginTop: vh(6),
@@ -476,5 +476,9 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  hardcodedStyle: {
+    borderWidth: 2,
+    borderColor: colors.pharmacy_green,
   },
 });
