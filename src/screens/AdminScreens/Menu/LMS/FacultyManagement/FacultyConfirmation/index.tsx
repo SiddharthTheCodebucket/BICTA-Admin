@@ -11,7 +11,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -34,7 +33,6 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import {
@@ -43,7 +41,6 @@ import {
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 

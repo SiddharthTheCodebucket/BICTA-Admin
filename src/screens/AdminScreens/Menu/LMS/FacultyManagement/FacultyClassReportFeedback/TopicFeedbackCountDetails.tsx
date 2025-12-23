@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { useCallback, useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -11,44 +6,20 @@ import {
   ActivityIndicator,
   RefreshControl,
   TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useReportListFacultyFeedbackReportMutation,
-  useReportListFacultySubFeedbackReportMutation,
-  useReportListFacultyTopicFeedbackReportMutation,
-  useReportListFeedbackTrainneDetailsMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
+import { useReportListFeedbackTrainneDetailsMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import {
-  downloadAndOpenFile,
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
 
 interface Props {
   route: any;
@@ -94,11 +65,9 @@ const TopicFeedbackCountDetails = (props: Props) => {
 
   const [reportListFeedbackTraineeDetailsApi] =
     useReportListFeedbackTrainneDetailsMutation();
-  const [commonDropdownApi] = useCommonDropdownListMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
-  const [url, setUrl] = useState('');
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
@@ -106,13 +75,10 @@ const TopicFeedbackCountDetails = (props: Props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
 
-  const [facultyNameList, setFacultyNameList] = useState<any>([]);
-  const [selectedFaculty, setSelectedFaculty] = useState<any>({});
-
   const ITEMS_PER_PAGE = 10;
 
-  const [search, setSearch] = React.useState('');
-  const [centerSearch, setCenterSearch] = React.useState<any>({});
+  const [search] = React.useState('');
+  const [centerSearch] = React.useState<any>({});
 
   useLayoutEffect(() => {
     Header.setNavigation(
@@ -125,7 +91,6 @@ const TopicFeedbackCountDetails = (props: Props) => {
 
   useFocusEffect(
     useCallback(() => {
-      getFaculty();
       if (firstTimeLoad && !centerSearch?.name && search === '') {
         setFirstTimeLoad(false);
       }
@@ -182,7 +147,6 @@ const TopicFeedbackCountDetails = (props: Props) => {
         }
 
         setPage(pageNumber);
-        setUrl(res.data.exportUrl);
 
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
@@ -245,36 +209,6 @@ const TopicFeedbackCountDetails = (props: Props) => {
     return <TraineeDetailCard item={item} index={index} />;
   };
 
-  const getFaculty = () => {
-    setInitialCall(true);
-
-    const params = {
-      listType: 'filter_by_faculty_in_feedback',
-      bipardCentre: getCentreFilter(),
-      replacements: ['%%'],
-    };
-
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        const modifiedList = res.data.map((item: any) => ({
-          ...item,
-          id: item.id,
-          name: `${item.id}, ${item.name}, ${item.designation || ''}`.trim(),
-        }));
-
-        setFacultyNameList(modifiedList);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-        });
-      });
-  };
-
   const RatingRow = ({ row, index }: any) => {
     const count = item[row.countKey];
     const traineeIds = item[row.idListKey];
@@ -330,7 +264,7 @@ const TopicFeedbackCountDetails = (props: Props) => {
       </View>
       <View style={styles.ratingTableContainer}>
         {ratingRows.map((row, index) => (
-          <RatingRow key={index} row={row} index={index} />
+          <RatingRow key={index.toString() + 'ddjkj'} row={row} index={index} />
         ))}
       </View>
 

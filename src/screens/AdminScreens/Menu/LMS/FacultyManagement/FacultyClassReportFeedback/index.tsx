@@ -10,7 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
   LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -47,7 +46,6 @@ import {
 } from '../../../../../../utils/CommonFunction';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -202,13 +200,11 @@ const FacultyClassReportFeedback = (props: Props) => {
   const StarRating = ({ rating }: any) => {
     const rounded = Math.round(rating);
 
-    const stars = Array(5)
-      .fill(0)
-      .map((_, i) => (
-        <TextAtom key={i} style={styles.starText}>
-          {i < rounded ? '★' : '☆'}
-        </TextAtom>
-      ));
+    const stars = new Array(5).fill(0).map((_, i) => (
+      <TextAtom key={i.toString() + 'ewrio'} style={styles.starText}>
+        {i < rounded ? '★' : '☆'}
+      </TextAtom>
+    ));
 
     return <ViewAtom style={styles.starContainer}>{stars}</ViewAtom>;
   };
@@ -451,14 +447,14 @@ const FacultyClassReportFeedback = (props: Props) => {
         renderItem={renderFacultyFeedbackItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {
                 strings.lms.facultyManagement.facultyClassReportFeedback.main
                   .noDataFound
               }
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator

@@ -10,8 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -25,7 +23,6 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -34,16 +31,8 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useReportListFacultyFeedbackReportMutation,
-  useReportListFacultySubFeedbackReportMutation,
-  useReportListFacultyTopicFeedbackReportMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
+import { useReportListFacultyTopicFeedbackReportMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import {
   downloadAndOpenFile,
@@ -68,12 +57,10 @@ const debounce = (func: any, delay: number) => {
 const FacultyTopicFeedbackDetails = (props: Props) => {
   const { navigation } = props;
 
-  const { crediantialData } = useAppSelector(state => state.Auth);
   const item = props.route?.params?.item;
 
   const [reportListFacultyTopicFeedbackApi] =
     useReportListFacultyTopicFeedbackReportMutation();
-  const [commonDropdownApi] = useCommonDropdownListMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -84,20 +71,11 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
-
-  const [facultyNameList, setFacultyNameList] = useState<any>([]);
-  const [selectedFaculty, setSelectedFaculty] = useState<any>({});
 
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const [centerSearch, setCenterSearch] = React.useState<any>({});
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
-  };
+  const [centerSearch] = React.useState<any>({});
 
   useLayoutEffect(() => {
     Header.setNavigation(
@@ -109,7 +87,6 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
 
   useFocusEffect(
     useCallback(() => {
-      getFaculty();
       if (firstTimeLoad && !centerSearch?.name && search === '') {
         setFirstTimeLoad(false);
         listTopicFeedbackDetails(1, true, '');
@@ -209,13 +186,11 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
   const StarRating = ({ rating }: any) => {
     const rounded = Math.round(rating);
 
-    const stars = Array(5)
-      .fill(0)
-      .map((_, i) => (
-        <TextAtom key={i} style={styles.starText}>
-          {i < rounded ? '★' : '☆'}
-        </TextAtom>
-      ));
+    const stars = new Array(5).fill(0).map((_, i) => (
+      <TextAtom key={i.toString() + 'kjdsfkhj'} style={styles.starText}>
+        {i < rounded ? '★' : '☆'}
+      </TextAtom>
+    ));
 
     return <ViewAtom style={styles.starContainer}>{stars}</ViewAtom>;
   };
@@ -280,105 +255,6 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
     );
   };
 
-  const listTopicFeedbackReports = (
-    searchKeyword: string,
-    filters: any[] = [],
-  ) => {
-    listTopicFeedbackDetails(1, true, searchKeyword, filters);
-  };
-
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DropDownOrganism
-        label={
-          strings.lms.facultyManagement.facultyClassReportFeedback.main.faculty
-        }
-        placeholder={
-          strings.lms.facultyManagement.facultyClassReportFeedback.main.faculty
-        }
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.facultyManagement.facultyClassReportFeedback.main
-              .faculty,
-            Data: facultyNameList,
-            selectedData: selectedFaculty,
-            setSelectedData: (data: any) => {
-              setSelectedFaculty(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedFaculty?.name}
-      />
-
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText={
-            strings.lms.facultyManagement.facultyClassReportFeedback.main
-              .applyFilter
-          }
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText={
-            strings.lms.facultyManagement.facultyClassReportFeedback.main
-              .clearFilter
-          }
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={styles.primaryText}
-        />
-      </ViewAtom>
-    </View>
-  );
-
-  const clearFilter = () => {
-    setSelectedFaculty({});
-    listTopicFeedbackReports(search, []);
-  };
-
-  const applyFilter = () => {
-    const filters = [];
-
-    if (selectedFaculty?.id) {
-      filters.push(['facultyId', '=', selectedFaculty.id]);
-    }
-
-    listTopicFeedbackReports(search, filters);
-  };
-
-  const getFaculty = () => {
-    setInitialCall(true);
-
-    const params = {
-      listType: 'filter_by_faculty_in_feedback',
-      bipardCentre: getCentreFilter(),
-      replacements: ['%%'],
-    };
-
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        const modifiedList = res.data.map((item: any) => ({
-          ...item,
-          id: item.id,
-          name: `${item.id}, ${item.name}, ${item.designation || ''}`.trim(),
-        }));
-
-        setFacultyNameList(modifiedList);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-        });
-      });
-  };
-
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
@@ -407,14 +283,14 @@ const FacultyTopicFeedbackDetails = (props: Props) => {
         renderItem={renderTopicFeedbackItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {
                 strings.lms.facultyManagement.facultyClassReportFeedback.main
                   .noDataFound
               }
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
