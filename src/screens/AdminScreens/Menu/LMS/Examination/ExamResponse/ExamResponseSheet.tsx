@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { StyleSheet, View, FlatList } from 'react-native';
+import { StyleSheet, View, FlatList, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
@@ -8,7 +8,6 @@ import {
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import RenderHtml from 'react-native-render-html';
-import { useWindowDimensions } from 'react-native';
 import { useListExaminationSubmissionAnswerMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import Toast from 'react-native-toast-message';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
@@ -33,7 +32,7 @@ const ExamResponseSheet = (props: Props) => {
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
 
-  const [laoder, setLoader] = useState(false);
+  const [loader, setLoader] = useState(false);
   const [response, setResponse] = useState<any>([]);
 
   useEffect(() => {
@@ -117,7 +116,7 @@ const ExamResponseSheet = (props: Props) => {
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <FullscreenLoading isVisible={laoder} />
+      <FullscreenLoading isVisible={loader} />
       <FlatList
         showsVerticalScrollIndicator={false}
         data={response}

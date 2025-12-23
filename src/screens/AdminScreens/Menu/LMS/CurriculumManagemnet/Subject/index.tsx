@@ -10,21 +10,11 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -34,26 +24,11 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useBedDetailsRoomMutation,
-  useDeleteBedDetailsRoomMutation,
-  useUpdateBedDetailsRoomMutation,
-} from '../../../../../../injectEndpoints/hostelEndpoints';
-import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import {
-  useDeleteFacultyDetailsMutation,
-  useListFacultyDetailsMutation,
-  useListKnowledgeManagementMutation,
-  useUpdateFacultyDetailsMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
+import { useListKnowledgeManagementMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -72,10 +47,7 @@ const Subject = (props: Props) => {
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
-  const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listSubjectsApi] = useListKnowledgeManagementMutation();
-  const [updateFacultyDetailsApi] = useUpdateFacultyDetailsMutation();
-  const [deleteSubjectApi] = useDeleteFacultyDetailsMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -85,14 +57,6 @@ const Subject = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
-
-  const [facultyTypeList, setFacultyTypeList] = useState<any>([]);
-  const [departmentList, setDepartmentList] = useState<any>([]);
-  const [organisationList, setOrganisationList] = useState<any>([]);
-  const [selectedFacultyType, setSelectedFacultyType] = useState<any>({});
-  const [selectedDepartment, setSelectedDepartment] = useState<any>({});
-  const [selectedOrganisation, setSelectedOrganisation] = useState<any>({});
 
   const ITEMS_PER_PAGE = 10;
 
@@ -112,9 +76,6 @@ const Subject = (props: Props) => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
         listSubjects(1, true, '');
-        getFacultyType();
-        getDepartment();
-        getOrganization();
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
@@ -132,11 +93,6 @@ const Subject = (props: Props) => {
     }
 
     return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
   };
 
   const listSubjects = (
@@ -216,14 +172,7 @@ const Subject = (props: Props) => {
         : null;
 
     return (
-      <TouchableAtom
-        style={styles.card}
-        onPress={() => {
-          // navigation.navigate(screensName.FacultySubjectFeedbackDetails, {
-          //   item: item,
-          // });
-        }}
-      >
+      <TouchableAtom style={styles.card} onPress={() => {}}>
         <View style={styles.cardHeader}>
           <TextAtom style={styles.flex1Label}>
             {strings.lms.curriculumManagement.srNo} {index + 1}
@@ -266,179 +215,9 @@ const Subject = (props: Props) => {
     return <SubjectCard item={item} index={index} navigation={navigation} />;
   };
 
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DropDownOrganism
-        label={strings.lms.curriculumManagement.facultyType}
-        placeholder={strings.lms.curriculumManagement.facultyType}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.curriculumManagement.facultyType,
-            Data: facultyTypeList,
-            selectedData: selectedFacultyType,
-            setSelectedData: (data: any) => {
-              setSelectedFacultyType(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedFacultyType?.name}
-      />
-
-      <DropDownOrganism
-        label={strings.lms.curriculumManagement.department}
-        placeholder={strings.lms.curriculumManagement.department}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.curriculumManagement.department,
-            Data: departmentList,
-            selectedData: selectedDepartment,
-            setSelectedData: (data: any) => {
-              setSelectedDepartment(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedDepartment?.name}
-      />
-
-      <DropDownOrganism
-        label={strings.lms.curriculumManagement.organisation}
-        placeholder={strings.lms.curriculumManagement.organisation}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.curriculumManagement.organisation,
-            Data: organisationList,
-            selectedData: selectedOrganisation,
-            setSelectedData: (data: any) => {
-              setSelectedOrganisation(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedOrganisation?.name}
-      />
-
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText={strings.lms.curriculumManagement.applyFilter}
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText={strings.lms.curriculumManagement.clearFilter}
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={styles.clearBtnText}
-        />
-      </ViewAtom>
-    </View>
-  );
-
-  const clearFilter = () => {
-    setSelectedFacultyType({});
-    setSelectedDepartment({});
-    setSelectedOrganisation({});
-    listSubjects(1, true, search, []);
-  };
-
-  const applyFilter = () => {
-    const filters = [];
-
-    if (selectedFacultyType?.id) {
-      filters.push(['facultyType', '=', selectedFacultyType.id]);
-    }
-
-    if (selectedDepartment?.id) {
-      filters.push(['department', '=', selectedDepartment.id]);
-    }
-
-    if (selectedOrganisation?.id) {
-      filters.push(['facultyOrganisation', '=', selectedOrganisation.id]);
-    }
-
-    listSubjects(1, true, search, filters);
-  };
-
-  const getFacultyType = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'faculty_category',
-      bipardCentre: [],
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setFacultyTypeList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
-
-  const getDepartment = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'filter_by_faculty_department',
-      bipardCentre: ['Gaya', 'Patna'],
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setDepartmentList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-        });
-      });
-  };
-
-  const getOrganization = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'filter_by_faculty_organisation',
-      bipardCentre: ['Gaya', 'Patna'],
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setOrganisationList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-        });
-      });
-  };
-
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      {/* <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-        <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-        </TextAtom>
-      </TouchableAtom>
-      {showFilter && <FilterForm />} */}
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
@@ -485,11 +264,11 @@ const Subject = (props: Props) => {
         renderItem={renderSubjectItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.lms.curriculumManagement.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -519,11 +298,6 @@ const Subject = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };

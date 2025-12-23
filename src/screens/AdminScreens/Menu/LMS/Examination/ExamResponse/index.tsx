@@ -10,8 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -19,7 +17,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
-  images,
   screensName,
   strings,
   vh,
@@ -35,15 +32,10 @@ import FullscreenLoading from '../../../../../../components/organisms/Fullscreen
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useListAssessmentQuestionBankMutation,
-  useListAssignmentQuestionBankMutation,
-  useListExaminationSubmissionTestListMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
+import { useListExaminationSubmissionTestListMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import moment from 'moment';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -56,6 +48,13 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+const DescriptionRow = ({ label, value }: any) => (
+  <View style={styles.flex1}>
+    <TextAtom style={styles.label}>{label}</TextAtom>
+    <TextAtom style={styles.value}>{value}</TextAtom>
+  </View>
+);
 
 const ExamResponse = (props: Props) => {
   const { navigation } = props;
@@ -72,7 +71,6 @@ const ExamResponse = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
 
   const ITEMS_PER_PAGE = 10;
 
@@ -109,11 +107,6 @@ const ExamResponse = (props: Props) => {
     }
 
     return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
   };
 
   const listExaminations = (
@@ -223,13 +216,6 @@ const ExamResponse = (props: Props) => {
     );
   };
 
-  const DescriptionRow = ({ label, value }: any) => (
-    <View style={styles.flex1}>
-      <TextAtom style={styles.label}>{label}</TextAtom>
-      <TextAtom style={styles.value}>{value}</TextAtom>
-    </View>
-  );
-
   const renderExaminationItem = ({ item, index }: any) => {
     return (
       <ExaminationCard item={item} index={index} navigation={navigation} />
@@ -239,12 +225,6 @@ const ExamResponse = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      {/* <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-        <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-        </TextAtom>
-      </TouchableAtom>
-      {showFilter && <FilterForm />} */}
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
@@ -291,11 +271,11 @@ const ExamResponse = (props: Props) => {
         renderItem={renderExaminationItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.lms.examination.examResponse.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -325,11 +305,6 @@ const ExamResponse = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };

@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -13,14 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import {
-  colors,
-  fonts,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -62,8 +50,8 @@ const ExaminationQuestionBankDetails = (props: Props) => {
   const stripHtml = (s?: string) => {
     if (!s) return '';
     return s
-      .replace(/<[^>]*>/g, '')
-      .replace(/&nbsp;/g, ' ')
+      .replaceAll(/<[^>]*>/g, '')
+      .replaceAll(/&nbsp;/, ' ')
       .trim();
   };
 

@@ -10,8 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -19,7 +17,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
-  images,
   screensName,
   strings,
   vh,
@@ -35,13 +32,9 @@ import FullscreenLoading from '../../../../../../components/organisms/Fullscreen
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useListAssessmentQuestionBankMutation,
-  useListAssignmentQuestionBankMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
+import { useListAssessmentQuestionBankMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -54,6 +47,13 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+const DescriptionRow = ({ label, value }: any) => (
+  <View style={styles.flex1}>
+    <TextAtom style={styles.label}>{label}</TextAtom>
+    <TextAtom style={styles.value}>{value}</TextAtom>
+  </View>
+);
 
 const ExaminationQuestionBank = (props: Props) => {
   const { navigation } = props;
@@ -70,7 +70,6 @@ const ExaminationQuestionBank = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
 
   const ITEMS_PER_PAGE = 10;
 
@@ -107,11 +106,6 @@ const ExaminationQuestionBank = (props: Props) => {
     }
 
     return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
   };
 
   const listQuestionBank = (
@@ -223,13 +217,6 @@ const ExaminationQuestionBank = (props: Props) => {
     );
   };
 
-  const DescriptionRow = ({ label, value }: any) => (
-    <View style={styles.flex1}>
-      <TextAtom style={styles.label}>{label}</TextAtom>
-      <TextAtom style={styles.value}>{value}</TextAtom>
-    </View>
-  );
-
   const renderQuestionBankItem = ({ item, index }: any) => {
     return (
       <QuestionBankCard item={item} index={index} navigation={navigation} />
@@ -239,12 +226,6 @@ const ExaminationQuestionBank = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      {/* <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-        <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-        </TextAtom>
-      </TouchableAtom>
-      {showFilter && <FilterForm />} */}
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
@@ -291,11 +272,11 @@ const ExaminationQuestionBank = (props: Props) => {
         renderItem={renderQuestionBankItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.lms.examination.questionBank.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -325,11 +306,6 @@ const ExaminationQuestionBank = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };

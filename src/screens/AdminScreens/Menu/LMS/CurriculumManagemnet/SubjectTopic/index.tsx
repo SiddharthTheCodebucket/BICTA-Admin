@@ -10,21 +10,12 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
   LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  vh,
-  vw,
-  strings,
-} from '../../../../../../constants';
+import { colors, fonts, vh, vw, strings } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -34,27 +25,14 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useBedDetailsRoomMutation,
-  useDeleteBedDetailsRoomMutation,
-  useUpdateBedDetailsRoomMutation,
-} from '../../../../../../injectEndpoints/hostelEndpoints';
+
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import {
-  useDeleteFacultyDetailsMutation,
-  useListFacultyDetailsMutation,
-  useListKnowledgeManagementMutation,
-  useListKnowledgeManagementSubTopicMutation,
-  useUpdateFacultyDetailsMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
+import { useListKnowledgeManagementSubTopicMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -204,14 +182,7 @@ const SubjectTopic = (props: Props) => {
   };
   const SubjectTopicCard = ({ item, index, navigation }: any) => {
     return (
-      <TouchableAtom
-        style={styles.card}
-        onPress={() => {
-          // navigation.navigate(screensName.FacultySubjectFeedbackDetails, {
-          //   item: item,
-          // });
-        }}
-      >
+      <TouchableAtom style={styles.card} onPress={() => {}}>
         <View style={styles.cardHeader}>
           <TextAtom style={styles.flex1Label}>
             {strings.lms.curriculumManagement.srNo} {index + 1}
@@ -369,11 +340,11 @@ const SubjectTopic = (props: Props) => {
         renderItem={renderSubjectTopicItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          !initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.lms.curriculumManagement.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -403,11 +374,6 @@ const SubjectTopic = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };

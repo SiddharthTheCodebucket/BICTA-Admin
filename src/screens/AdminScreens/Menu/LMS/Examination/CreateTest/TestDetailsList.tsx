@@ -10,7 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  Linking,
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -31,14 +30,10 @@ import {
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
-import { useDeleteVehicleDetailsMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import {
   useListAssessmentCreateTestMutation,
-  useUpdateAssessmentAssignmentMutation,
   useUpdateAssessmentCreateTestMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 import moment from 'moment';
@@ -68,8 +63,8 @@ const TestDetailsList = (props: Props) => {
 
   const ITEMS_PER_PAGE = 10;
 
-  const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const [search] = React.useState('');
+  const [centerSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
     Header.setNavigation(
@@ -140,7 +135,7 @@ const TestDetailsList = (props: Props) => {
   };
 
   const TestDetailCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
+    const [statusValue] = useState(item.status ?? 'Active');
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
     const onSelectStatus = (newStatus: string) => {
@@ -343,11 +338,11 @@ const TestDetailsList = (props: Props) => {
         renderItem={renderTestDetailItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.lms.examination.testDetailsList.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator

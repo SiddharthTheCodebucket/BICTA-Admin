@@ -1,5 +1,4 @@
 import React, {
-  createRef,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -11,11 +10,8 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  LayoutAnimation,
   ScrollView,
-  TextInput,
-  Modal,
-  Keyboard,
+  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -40,27 +36,10 @@ import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
-import moment from 'moment';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import {
-  downloadAndOpenFile,
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
-import {
-  useAddFileNoTrainingDetailsMutation,
-  useDeleteTrainingDetailsMutation,
-  useDownloadTrainingCategoryMutation,
-  useExtendTrainingEndDateMutation,
-  useListAssignmentResponseReportMutation,
-  useListClassroomTimeTableManageMutation,
-  useListExaminationSubmissionAnswerMutation,
-  useListExaminationSubmissionReportMutation,
-  useListTrainingDetailsMutation,
-  useUpdateTraineeLoginDetailsMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
-import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
+import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
+import { useListExaminationSubmissionReportMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
+
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
@@ -77,6 +56,13 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+const DescriptionRow = ({ label, value }: any) => (
+  <View style={styles.flex1}>
+    <TextAtom style={styles.label}>{label}</TextAtom>
+    <TextAtom style={styles.value}>{value}</TextAtom>
+  </View>
+);
 
 const TraineeResponseList = (props: Props) => {
   const { navigation } = props;
@@ -98,15 +84,14 @@ const TraineeResponseList = (props: Props) => {
   const [showFilter, setShowFilter] = useState(false);
 
   const [url, setUrl] = useState('');
-  const [selectedItems, setSelectedItems] = useState<any>([]);
-  const [totalCount, setTotalCount] = useState(0);
+  const [selectedItems] = useState<any>([]);
 
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const [centerSerach] = React.useState<any>({});
 
-  const [bacthList, setBatchList] = useState<any>([]);
+  const [batchList, setBatchList] = useState<any>([]);
   const [selectedBacth, setSelectedBacth] = useState<any>({});
   const [selectedResult, setSelectedResult] = useState<any>({});
 
@@ -195,8 +180,6 @@ const TraineeResponseList = (props: Props) => {
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
         setUrl(res.data.exportUrl);
-        const totalCountApi = res?.data?.totalCount ?? 0;
-        setTotalCount(totalCountApi);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -278,13 +261,6 @@ const TraineeResponseList = (props: Props) => {
     );
   };
 
-  const DescriptionRow = ({ label, value }: any) => (
-    <View style={styles.flex1}>
-      <TextAtom style={styles.label}>{label}</TextAtom>
-      <TextAtom style={styles.value}>{value}</TextAtom>
-    </View>
-  );
-
   const renderTraineeResponseItem = ({ item, index }: any) => {
     return (
       <TraineeCard
@@ -304,7 +280,7 @@ const TraineeResponseList = (props: Props) => {
         onPress={() => {
           navigation.navigate('DropDownModal', {
             name: strings.lms.examination.traineeResponseList.batch,
-            Data: bacthList,
+            Data: batchList,
             selectedData: selectedBacth,
             setSelectedData: (data: any) => {
               setSelectedBacth(data);
@@ -448,11 +424,11 @@ const TraineeResponseList = (props: Props) => {
         renderItem={renderTraineeResponseItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.lms.examination.traineeResponseList.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListHeaderComponent={showFilter ? <FilterForm /> : null}
         ListFooterComponent={
@@ -483,11 +459,6 @@ const TraineeResponseList = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddTrainingDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };
