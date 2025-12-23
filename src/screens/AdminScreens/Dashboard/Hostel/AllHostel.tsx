@@ -32,6 +32,97 @@ import {
 } from '../../../../utils/CommonFunction';
 import { useFocusEffect } from '@react-navigation/native';
 
+interface HostelCardProps {
+  item: any;
+  onPress: (item: any) => void;
+}
+
+const HostelCard = ({ item, onPress }: HostelCardProps) => {
+  return (
+    <TouchableAtom style={styles.card} onPress={() => onPress(item)}>
+      <View style={styles.flex1}>
+        <TextAtom style={styles.label}>
+          {strings.allHostel.hostelName}{' '}
+          <TextAtom style={styles.valueRight}>{item.hostelName}</TextAtom>
+        </TextAtom>
+      </View>
+
+      <ViewAtom style={styles.separator} />
+
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.allHostel.noOfFloors}{' '}
+            <TextAtom style={styles.value}>{item.noOfFloors}</TextAtom>
+          </TextAtom>
+        </View>
+
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.allHostel.noOfBeds}{' '}
+            <TextAtom style={styles.valueRight}>{item.noOfBeds}</TextAtom>
+          </TextAtom>
+        </View>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.allHostel.noOfRooms}{' '}
+            <TextAtom style={styles.value}>{item.noOfRooms}</TextAtom>
+          </TextAtom>
+        </View>
+
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.allHostel.noOfVacant}{' '}
+            <TextAtom style={styles.valueRight}>{item.noOfVacantBeds}</TextAtom>
+          </TextAtom>
+        </View>
+      </View>
+    </TouchableAtom>
+  );
+};
+
+interface FilterFormProps {
+  startDate: any;
+  setStartDate: (val: any) => void;
+  applyFilter: () => void;
+  clearFilter: () => void;
+}
+
+const FilterForm = ({
+  startDate,
+  setStartDate,
+  applyFilter,
+  clearFilter,
+}: FilterFormProps) => (
+  <View style={styles.filterContainer}>
+    <DateInputOrganism
+      label={strings.allHostel.date}
+      placeholder={strings.allHostel.date}
+      value={startDate}
+      onChangeText={setStartDate}
+      fieldName="date"
+      dateFormat="DD-MM-YYYY"
+    />
+
+    <ViewAtom style={styles.buttonRow}>
+      <ButtonOrganism
+        onPress={applyFilter}
+        bttnText={strings.allHostel.applyFilter}
+        containerStyle={styles.applyBtn}
+      />
+      <ButtonOrganism
+        onPress={clearFilter}
+        bttnText={strings.allHostel.clearFilter}
+        containerStyle={styles.clearBtn}
+        bttnTextStyle={styles.clearBtnText}
+      />
+    </ViewAtom>
+  </View>
+);
+
 const AllHostel = (props: any) => {
   const { navigation } = props;
   const selectedCenter = props.route?.params?.selectedCenter;
@@ -118,58 +209,8 @@ const AllHostel = (props: any) => {
       });
   };
 
-  const HostelCard = ({ item, index }: any) => {
-    return (
-      <TouchableAtom
-        style={styles.card}
-        onPress={() => {
-          navigation.navigate(screensName.HostelDetailsDashbaord, {
-            item: item,
-          });
-        }}
-      >
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.allHostel.hostelName}{' '}
-            <TextAtom style={styles.valueRight}>{item.hostelName}</TextAtom>
-          </TextAtom>
-        </View>
-        <ViewAtom style={styles.separator} />
-        <View style={styles.rowBetween}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.allHostel.noOfFloors}{' '}
-              <TextAtom style={styles.value}>{item.noOfFloors}</TextAtom>
-            </TextAtom>
-          </View>
-
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.allHostel.noOfBeds}{' '}
-              <TextAtom style={styles.valueRight}>{item.noOfBeds}</TextAtom>
-            </TextAtom>
-          </View>
-        </View>
-
-        <View style={styles.rowBetween}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.allHostel.noOfRooms}{' '}
-              <TextAtom style={styles.value}>{item.noOfRooms}</TextAtom>
-            </TextAtom>
-          </View>
-
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.allHostel.noOfVacant}{' '}
-              <TextAtom style={styles.valueRight}>
-                {item.noOfVacantBeds}
-              </TextAtom>
-            </TextAtom>
-          </View>
-        </View>
-      </TouchableAtom>
-    );
+  const onHostelPress = (item: any) => {
+    navigation.navigate(screensName.HostelDetailsDashbaord, { item });
   };
 
   const renderTotalCard = () => {
@@ -239,33 +280,6 @@ const AllHostel = (props: any) => {
     );
   };
 
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DateInputOrganism
-        label={strings.allHostel.date}
-        placeholder={strings.allHostel.date}
-        value={startDate}
-        onChangeText={(val: any) => {
-          setStartDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText={strings.allHostel.applyFilter}
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText={strings.allHostel.clearFilter}
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={styles.clearBtnText}
-        />
-      </ViewAtom>
-    </View>
-  );
   const clearFilter = () => {
     setStartDate('');
     fetchHostelData();
@@ -339,10 +353,19 @@ const AllHostel = (props: any) => {
         showsVerticalScrollIndicator={false}
         data={reportData}
         keyExtractor={(_, i) => i.toString()}
-        renderItem={HostelCard}
+        renderItem={({ item }) => (
+          <HostelCard item={item} onPress={onHostelPress} />
+        )}
         ListHeaderComponent={
           <View>
-            {showFilter && <FilterForm />}
+            {showFilter && (
+              <FilterForm
+                startDate={startDate}
+                setStartDate={setStartDate}
+                applyFilter={applyFilter}
+                clearFilter={clearFilter}
+              />
+            )}
             {renderTotalCard()}
           </View>
         }

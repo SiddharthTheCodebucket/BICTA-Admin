@@ -76,6 +76,27 @@ const HostelPlanning = (props: any) => {
     }, 1000);
   };
 
+  const filterHostelsByDate = (list: any[], date: string) =>
+    list.filter(item => item.reportDate === date);
+
+  const calculateBedSummary = (list: any[]) => {
+    return list.reduce(
+      (acc, h) => {
+        acc.hostelTotal += h.totalTraineeBeds || 0;
+        acc.hostelOccupied += h.occupiedTraineeBeds || 0;
+        acc.guestTotal += h.totalGuestBeds || 0;
+        acc.guestOccupied += h.occupiedGuestBeds || 0;
+        return acc;
+      },
+      {
+        hostelTotal: 0,
+        hostelOccupied: 0,
+        guestTotal: 0,
+        guestOccupied: 0,
+      },
+    );
+  };
+
   const fetchHostelPlanningData = (isRefreshing = false) => {
     if (!isRefreshing) {
       setLoader(true);
@@ -108,29 +129,11 @@ const HostelPlanning = (props: any) => {
         const days = generateMonthDays();
 
         const finalMapped: any = days.map(day => {
-          const filtered = apiList.filter(
-            (item: any) => item.reportDate === day.fullDate,
-          );
-
-          let hostelTotal = 0;
-          let hostelOccupied = 0;
-          let guestTotal = 0;
-          let guestOccupied = 0;
-
-          filtered.forEach((h: any) => {
-            hostelTotal += h.totalTraineeBeds || 0;
-            hostelOccupied += h.occupiedTraineeBeds || 0;
-
-            guestTotal += h.totalGuestBeds || 0;
-            guestOccupied += h.occupiedGuestBeds || 0;
-          });
-
+          const filtered = filterHostelsByDate(apiList, day.fullDate);
+          const summary = calculateBedSummary(filtered);
           return {
             ...day,
-            hostelTotal,
-            hostelOccupied,
-            guestTotal,
-            guestOccupied,
+            ...summary,
           };
         });
 

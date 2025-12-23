@@ -14,6 +14,142 @@ import TouchableAtom from '../../../../components/atoms/TouchableAtom';
 import ViewAtom from '../../../../components/atoms/ViewAtom';
 import { Header } from '../../../../components/organisms/HeaderOrganism';
 
+interface FloorCardProps {
+  floor: any;
+  getRoomColor: (vacant: number, total: number) => string;
+  onRoomPress: (room: any, isVacant: boolean) => void;
+}
+
+const FloorCard = ({ floor, getRoomColor, onRoomPress }: FloorCardProps) => {
+  return (
+    <View style={styles.floorCard}>
+      <TextAtom style={styles.floorTitle}>{floor.floorName}</TextAtom>
+      <ViewAtom style={styles.line} />
+
+      <View style={styles.roomsContainer}>
+        {floor.rooms.map((room: any) => {
+          const isVacant = room.vacantBeds === room.totalBeds;
+
+          return (
+            <TouchableAtom
+              key={room.roomId}
+              style={[
+                styles.roomBox,
+                {
+                  backgroundColor: getRoomColor(
+                    room.vacantBeds,
+                    room.totalBeds,
+                  ),
+                },
+              ]}
+              onPress={() => onRoomPress(room, isVacant)}
+            >
+              <TextAtom style={styles.roomText}>{room.roomNo}</TextAtom>
+            </TouchableAtom>
+          );
+        })}
+      </View>
+    </View>
+  );
+};
+
+interface BedDetailsModalProps {
+  visible: boolean;
+  bedReportData: any[];
+  onClose: () => void;
+}
+
+const BedDetailsModal = ({
+  visible,
+  bedReportData,
+  onClose,
+}: BedDetailsModalProps) => {
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalBox}>
+          <TouchableAtom style={styles.closeBtn} onPress={onClose}>
+            <TextAtom style={styles.closeButtonText}>
+              {strings.hostelDetailsDashboard.closeSymbol}
+            </TextAtom>
+          </TouchableAtom>
+
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.modalScrollContent}
+          >
+            {bedReportData.map((bed: any, index: number) => {
+              const detail = bed.allocatedDetails[0];
+
+              return (
+                <View key={bed.bedId ?? index} style={styles.bedCard}>
+                  <View style={styles.rowBetween}>
+                    <View style={styles.tag}>
+                      <TextAtom style={styles.tagText}>
+                        {strings.hostelDetailsDashboard.floorName}
+                      </TextAtom>
+                      <TextAtom style={styles.tagText}>
+                        {bed.floorNumber}
+                      </TextAtom>
+                    </View>
+
+                    <View style={styles.tag}>
+                      <TextAtom style={styles.tagText}>
+                        {strings.hostelDetailsDashboard.roomNumber}
+                      </TextAtom>
+                      <TextAtom style={styles.tagText}>{bed.roomNo}</TextAtom>
+                    </View>
+                  </View>
+
+                  <View style={styles.bedTag}>
+                    <TextAtom style={styles.bedTagText}>
+                      {strings.hostelDetailsDashboard.bedNumber} {bed.bedNumber}
+                    </TextAtom>
+                  </View>
+
+                  <View style={styles.rowBetween}>
+                    <TextAtom style={styles.nameText}>
+                      {detail?.name} ({detail?.gender})
+                    </TextAtom>
+                    <TextAtom style={styles.mobileText}>
+                      +91 {detail?.mobileNo}
+                    </TextAtom>
+                  </View>
+
+                  <View style={styles.rowBetween}>
+                    <TextAtom style={styles.dateText}>
+                      {strings.hostelDetailsDashboard.from}{' '}
+                      {detail?.trainingStartDate}
+                    </TextAtom>
+                    <TextAtom style={styles.dateText}>
+                      {strings.hostelDetailsDashboard.to}{' '}
+                      {detail?.trainingEndDate}
+                    </TextAtom>
+                  </View>
+
+                  <TextAtom style={styles.trainingText}>
+                    {strings.hostelDetailsDashboard.training}{' '}
+                    {detail?.trainingName}
+                  </TextAtom>
+
+                  {index !== bedReportData.length - 1 && (
+                    <View style={styles.divider} />
+                  )}
+                </View>
+              );
+            })}
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
 const HostelDetailsDashbaord = (props: any) => {
   const item = props.route?.params?.item;
   const { navigation } = props;
@@ -114,48 +250,6 @@ const HostelDetailsDashbaord = (props: any) => {
     return colors.warningOrange;
   };
 
-  const FloorCard = ({ floor }: any) => {
-    return (
-      <View style={styles.floorCard}>
-        <TextAtom style={styles.floorTitle}>{floor.floorName}</TextAtom>
-        <ViewAtom style={styles.line} />
-
-        <View style={styles.roomsContainer}>
-          {floor.rooms.map((room: any) => {
-            const isVacant = room.vacantBeds === room.totalBeds;
-
-            return (
-              <TouchableAtom
-                key={room.roomId}
-                style={[
-                  styles.roomBox,
-                  {
-                    backgroundColor: getRoomColor(
-                      room.vacantBeds,
-                      room.totalBeds,
-                    ),
-                  },
-                ]}
-                onPress={() => {
-                  if (isVacant) {
-                    Toast.show({
-                      type: 'info',
-                      text2: strings.hostelDetailsDashboard.noRoomAllocated,
-                    });
-                  } else {
-                    fetchBedData(room.roomId);
-                  }
-                }}
-              >
-                <TextAtom style={styles.roomText}>{room.roomNo}</TextAtom>
-              </TouchableAtom>
-            );
-          })}
-        </View>
-      </View>
-    );
-  };
-
   const renderTotalCard = () => {
     return (
       <View style={[styles.card, styles.summaryCardBg]}>
@@ -205,97 +299,16 @@ const HostelDetailsDashbaord = (props: any) => {
     );
   };
 
-  const BedDetailsModal = () => {
-    return (
-      <Modal
-        visible={modalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <TouchableAtom
-              style={styles.closeBtn}
-              onPress={() => setModalVisible(false)}
-            >
-              <TextAtom style={styles.closeButtonText}>
-                {strings.hostelDetailsDashboard.closeSymbol}
-              </TextAtom>
-            </TouchableAtom>
+  const handleRoomPress = (room: any, isVacant: boolean) => {
+    if (isVacant) {
+      Toast.show({
+        type: 'info',
+        text2: strings.hostelDetailsDashboard.noRoomAllocated,
+      });
+      return;
+    }
 
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.modalScrollContent}
-            >
-              {bedReportData.map((bed: any, index: number) => {
-                const detail = bed.allocatedDetails[0];
-
-                return (
-                  <View key={index} style={styles.bedCard}>
-                    <View style={styles.rowBetween}>
-                      <View style={styles.tag}>
-                        <TextAtom numberOfLines={0} style={styles.tagText}>
-                          {strings.hostelDetailsDashboard.floorName}
-                        </TextAtom>
-                        <TextAtom numberOfLines={0} style={styles.tagText}>
-                          {bed?.floorNumber}
-                        </TextAtom>
-                      </View>
-
-                      <View style={styles.tag}>
-                        <TextAtom style={styles.tagText}>
-                          {strings.hostelDetailsDashboard.roomNumber}
-                        </TextAtom>
-                        <TextAtom style={styles.tagText}>
-                          {bed?.roomNo}
-                        </TextAtom>
-                      </View>
-                    </View>
-
-                    <View style={styles.bedTag}>
-                      <TextAtom style={styles.bedTagText}>
-                        {strings.hostelDetailsDashboard.bedNumber}{' '}
-                        {bed?.bedNumber}
-                      </TextAtom>
-                    </View>
-                    <View style={styles.rowBetween}>
-                      <TextAtom style={styles.nameText}>
-                        {detail?.name} ({detail?.gender})
-                      </TextAtom>
-
-                      <TextAtom style={styles.mobileText}>
-                        +91 {detail?.mobileNo}
-                      </TextAtom>
-                    </View>
-                    <View style={styles.rowBetween}>
-                      <TextAtom style={styles.dateText}>
-                        {strings.hostelDetailsDashboard.from}{' '}
-                        {detail?.trainingStartDate}
-                      </TextAtom>
-
-                      <TextAtom style={styles.dateText}>
-                        {strings.hostelDetailsDashboard.to}{' '}
-                        {detail?.trainingEndDate}
-                      </TextAtom>
-                    </View>
-
-                    <TextAtom style={styles.trainingText}>
-                      {strings.hostelDetailsDashboard.training}{' '}
-                      {detail?.trainingName}
-                    </TextAtom>
-
-                    {index !== bedReportData.length - 1 && (
-                      <View style={styles.divider} />
-                    )}
-                  </View>
-                );
-              })}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-    );
+    fetchBedData(room.roomId);
   };
 
   return (
@@ -309,7 +322,13 @@ const HostelDetailsDashbaord = (props: any) => {
           showsVerticalScrollIndicator={false}
           data={reportData?.floorWiseRooms || []}
           keyExtractor={item => item.floorId.toString()}
-          renderItem={({ item }) => <FloorCard floor={item} />}
+          renderItem={({ item }) => (
+            <FloorCard
+              floor={item}
+              getRoomColor={getRoomColor}
+              onRoomPress={handleRoomPress}
+            />
+          )}
           ListEmptyComponent={
             <TextAtom style={styles.emptyText}>
               {strings.hostelDetailsDashboard.noDataFound}
@@ -318,8 +337,11 @@ const HostelDetailsDashbaord = (props: any) => {
           contentContainerStyle={styles.listContentPadding}
         />
       </SafeAreaView>
-
-      <BedDetailsModal />
+      <BedDetailsModal
+        visible={modalVisible}
+        bedReportData={bedReportData}
+        onClose={() => setModalVisible(false)}
+      />
     </>
   );
 };
