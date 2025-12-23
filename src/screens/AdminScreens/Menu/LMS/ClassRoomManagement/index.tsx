@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, screensName, strings, vh, vw } from '../../../../../constants';
 import {
@@ -30,11 +30,6 @@ const ClassRoomManagement = (props: Props) => {
         navigation.navigate(screensName.TimeTable);
       },
     },
-    // {
-    //   id: 2,
-    //   name: 'Bulk Scheduling Manager',
-    //   onPress: () => {},
-    // },
     {
       id: 3,
       name: strings.lms.classRoomManagement.facultyClassApprove,
@@ -42,11 +37,6 @@ const ClassRoomManagement = (props: Props) => {
         navigation.navigate(screensName.FacultyClassApprove);
       },
     },
-    // {
-    //   id: 4,
-    //   name: 'Training Bulk Schedule',
-    //   onPress: () => {},
-    // },
   ];
 
   return (

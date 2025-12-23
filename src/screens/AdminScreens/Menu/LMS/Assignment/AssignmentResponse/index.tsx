@@ -10,8 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -19,7 +17,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
-  images,
   screensName,
   strings,
   vh,
@@ -35,15 +32,9 @@ import FullscreenLoading from '../../../../../../components/organisms/Fullscreen
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useListAssessmentAssignmentAssignQueMutation,
-  useListAssignmentQuestionBankMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -65,25 +56,17 @@ const AssignmentResponse = (props: Props) => {
   const [commonApi] = useCommonDropdownListMutation();
 
   const [data, setData] = useState<any>([]);
-  const [page, setPage] = useState(1);
 
-  const [nextPageAvailable, setNextPageAvailable] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
-
-  const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    useLayoutEffect(() => {
-      Header.setNavigation(navigation, strings.lms.assignmentResponse.title);
-      navigation.BackButtonPress = () => navigation.goBack();
-    });
+    Header.setNavigation(navigation, strings.lms.assignmentResponse.title);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -109,11 +92,6 @@ const AssignmentResponse = (props: Props) => {
     }
 
     return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
   };
 
   const listAssignmentTrainingList = () => {
@@ -261,12 +239,7 @@ const AssignmentResponse = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      {/* <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-        <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-        </TextAtom>
-      </TouchableAtom>
-      {showFilter && <FilterForm />} */}
+
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
@@ -313,11 +286,11 @@ const AssignmentResponse = (props: Props) => {
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.lms.assignmentResponse.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator

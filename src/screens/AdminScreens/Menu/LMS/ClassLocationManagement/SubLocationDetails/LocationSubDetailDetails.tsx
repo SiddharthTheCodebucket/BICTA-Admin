@@ -1,11 +1,10 @@
 import React, { useLayoutEffect } from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { Header } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import moment from 'moment';
 
 const FieldRow = ({ label, value }: any) => (
   <ViewAtom style={styles.row}>
@@ -51,14 +50,6 @@ const LocationSubDetailDetails = ({ route, navigation }: any) => {
     );
     navigation.BackButtonPress = () => navigation.goBack();
   });
-
-  const maskAadhaar = (aadhaar: string) => {
-    if (!aadhaar) return '-';
-    const last4 = aadhaar.slice(-4);
-    return `XXXX XXXX ${last4}`;
-  };
-
-  const formatDate = (d: any) => (d ? moment(d).format('DD-MM-YYYY') : '-');
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>

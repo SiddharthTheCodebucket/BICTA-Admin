@@ -1,5 +1,4 @@
 import React, {
-  createRef,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -13,9 +12,6 @@ import {
   RefreshControl,
   LayoutAnimation,
   ScrollView,
-  TextInput,
-  Modal,
-  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -43,22 +39,8 @@ import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganis
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import {
-  downloadAndOpenFile,
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
-import {
-  useAddFileNoTrainingDetailsMutation,
-  useDeleteTrainingDetailsMutation,
-  useDownloadTrainingCategoryMutation,
-  useExtendTrainingEndDateMutation,
-  useListAssignmentResponseReportMutation,
-  useListClassroomTimeTableManageMutation,
-  useListTrainingDetailsMutation,
-  useUpdateTraineeLoginDetailsMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
-import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
+import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
+import { useListAssignmentResponseReportMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
@@ -96,17 +78,16 @@ const AssignmentRessponseDetails = (props: Props) => {
   const [showFilter, setShowFilter] = useState(false);
 
   const [url, setUrl] = useState('');
-  const [selectedItems, setSelectedItems] = useState<any>([]);
-  const [totalCount, setTotalCount] = useState(0);
+  const [selectedItems] = useState<any>([]);
 
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const [centerSerach] = React.useState<any>({});
 
   const [assignmentList, setAssignmentList] = useState<any>([]);
   const [selectedassignment, setSelectedassignment] = useState<any>({});
-  const [bacthList, setBatchList] = useState<any>([]);
+  const [batchList, setBatchList] = useState<any>([]);
   const [selectedBacth, setSelectedBacth] = useState<any>({});
   const [selectedAssignmentStatus, setSelectedAssignmentStatus] = useState<any>(
     {},
@@ -197,7 +178,6 @@ const AssignmentRessponseDetails = (props: Props) => {
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
         setUrl(res.data.exportUrl);
         const totalCountApi = res?.data?.totalCount ?? 0;
-        setTotalCount(totalCountApi);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -317,7 +297,7 @@ const AssignmentRessponseDetails = (props: Props) => {
         onPress={() => {
           navigation.navigate('DropDownModal', {
             name: strings.lms.assignmentResponse.batch,
-            Data: bacthList,
+            Data: batchList,
             selectedData: selectedBacth,
             setSelectedData: (data: any) => {
               setSelectedBacth(data);
@@ -511,11 +491,11 @@ const AssignmentRessponseDetails = (props: Props) => {
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.lms.assignmentResponse.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListHeaderComponent={showFilter ? <FilterForm /> : null}
         ListFooterComponent={
@@ -546,11 +526,6 @@ const AssignmentRessponseDetails = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddTrainingDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };

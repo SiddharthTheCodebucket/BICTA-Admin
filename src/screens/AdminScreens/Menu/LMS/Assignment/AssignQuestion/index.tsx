@@ -10,21 +10,11 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -33,16 +23,11 @@ import {
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useListAssessmentAssignmentAssignQueMutation,
-  useListAssignmentQuestionBankMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
+import { useListAssessmentAssignmentAssignQueMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -72,7 +57,6 @@ const AssignQuestion = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
 
   const ITEMS_PER_PAGE = 10;
 
@@ -106,11 +90,6 @@ const AssignQuestion = (props: Props) => {
     }
 
     return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
   };
 
   const listAssignmentQuestionBank = (
@@ -272,12 +251,7 @@ const AssignQuestion = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      {/* <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-        <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-        </TextAtom>
-      </TouchableAtom>
-      {showFilter && <FilterForm />} */}
+
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
@@ -324,9 +298,9 @@ const AssignQuestion = (props: Props) => {
         renderItem={renderAssignQuestionItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>{strings.noDataFound}</TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -356,11 +330,6 @@ const AssignQuestion = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };

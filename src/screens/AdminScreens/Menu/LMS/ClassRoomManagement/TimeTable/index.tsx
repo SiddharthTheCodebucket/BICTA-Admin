@@ -10,23 +10,13 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  LayoutAnimation,
   ScrollView,
-  TextInput,
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -37,29 +27,13 @@ import FullscreenLoading from '../../../../../../components/organisms/Fullscreen
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import {
-  downloadAndOpenFile,
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
-import {
-  useAddFileNoTrainingDetailsMutation,
-  useDeleteTrainingDetailsMutation,
-  useDownloadTrainingCategoryMutation,
-  useExtendTrainingEndDateMutation,
-  useListClassroomTimeTableManageMutation,
-  useListTrainingDetailsMutation,
-  useUpdateTraineeLoginDetailsMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
+import { isNullUndefined } from '../../../../../../utils/CommonFunction';
+import { useExtendTrainingEndDateMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -78,13 +52,9 @@ const TimeTable = (props: Props) => {
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
-  const [downloadApi] = useDownloadTrainingCategoryMutation();
   const [listTimeTablesApi] = useCommonDropdownListMutation();
-  const [addFileNoTimeTableApi] = useAddFileNoTrainingDetailsMutation();
-  const [updateTimeTableLoginDetailsApi] =
-    useUpdateTraineeLoginDetailsMutation();
+
   const [extendTimeTableEndDateApi] = useExtendTrainingEndDateMutation();
-  const [deleteTimeTableApi] = useDeleteTrainingDetailsMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -94,19 +64,12 @@ const TimeTable = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
 
   const [dateExtendedModal, setDateExtendedModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  const [selectedItems, setSelectedItems] = useState<any>([]);
-  const [totalCount, setTotalCount] = useState(0);
-
-  const [startDate, setStartDate] = useState<any>('');
-  const [endDate, setEndDate] = useState<any>('');
-
-  const ITEMS_PER_PAGE = 10;
+  const [selectedItems] = useState<any>([]);
 
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
@@ -147,11 +110,6 @@ const TimeTable = (props: Props) => {
       return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
     return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
   };
 
   const listTimeTables = (
@@ -195,8 +153,6 @@ const TimeTable = (props: Props) => {
 
         setPage(pageNumber);
 
-        const totalCountApi = newData.length;
-        setTotalCount(totalCountApi);
         setNextPageAvailable(false); // UI-side pagination handled now
       })
       .catch((err: any) => {
@@ -227,202 +183,7 @@ const TimeTable = (props: Props) => {
     listTimeTables(1, true, '');
   };
 
-  const handleSelectAll = () => {
-    if (selectedItems.length === totalCount) {
-      setSelectedItems([]);
-      listTimeTables(1, true, search);
-    } else {
-      setInitialCall(true);
-
-      const params: any = {
-        search,
-        sort: {
-          attributes: ['created_at'],
-          sorts: ['desc'],
-        },
-        filters: [],
-        pageNo: 1,
-        itemsPerPage: totalCount,
-
-        bipardCentre: getCentreFilter() ?? [],
-      };
-
-      if (activeTab === strings.lms.classRoomManagement.previousTraining) {
-        params.isCourseActive = false;
-      } else {
-        params.isCourseActive = true;
-      }
-
-      listTimeTablesApi(params)
-        .unwrap()
-        .then((res: any) => {
-          const fullData = res.data?.data ?? [];
-          setData(fullData);
-          setSelectedItems(fullData);
-          setNextPageAvailable(false);
-          setInitialCall(false);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || strings.something_went_wrong_,
-          });
-        });
-    }
-  };
-
-  const downloadTimeTables = async () => {
-    setInitialCall(true);
-
-    const params: any = {
-      category: selectedItems,
-    };
-
-    downloadApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setInitialCall(false);
-        const fileUrl = res.data?.fileUrl ?? '';
-        if (fileUrl) {
-        }
-        downloadAndOpenFile(fileUrl);
-        setSelectedItems([]);
-        listTimeTables(1, true, search);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || strings.something_went_wrong_,
-        });
-      });
-  };
-
   const TimeTableCard = ({ item, index, isSelected }: any) => {
-    const [statusValue, setStatusValue] = useState(item.isLoginAllowed ?? null);
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-    const [fileNo, setFileNo] = useState(item.fileNo || '');
-    const [isEditingFile, setIsEditingFile] = useState(!item.fileNo);
-    const [loadingFileSave, setLoadingFileSave] = useState(false);
-
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
-
-      if (newStatus === statusValue) return;
-
-      navigation.navigate(screensName.AlertOrganism, {
-        title: strings.lms.assignmentDetailsList.statusChangeConf,
-        message: `${strings.lms.assignmentDetailsList.statusChangeMsg} "${newStatus}"?`,
-        okText: strings.lms.assignmentDetailsList.confirm,
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          updateTimeTableLoginDetails(item.id, newStatus);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const updateTimeTableLoginDetails = (id: any, newStatus: string) => {
-      setInitialCall(true);
-      const params = {
-        trainingId: id,
-        isLoginAllowed: newStatus,
-      };
-      updateTimeTableLoginDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || strings.something_went_wrong_,
-          });
-        });
-    };
-
-    const saveFileNo = () => {
-      if (!fileNo?.trim()) {
-        Toast.show({
-          type: 'error',
-          text2: strings.lms.classRoomManagement.fileNoNotEmpty,
-        });
-        return;
-      }
-
-      setLoadingFileSave(true);
-
-      const params = {
-        id: item.id,
-        fileNo: fileNo,
-      };
-
-      addFileNoTimeTableApi(params)
-        .unwrap()
-        .then(res => {
-          Toast.show({ type: 'success', text2: res.data.message });
-          setIsEditingFile(false);
-          setLoadingFileSave(false);
-          listTimeTables(1, false, '');
-        })
-        .catch(err => {
-          setLoadingFileSave(false);
-          Toast.show({
-            type: 'error',
-            text2:
-              err.data?.message ||
-              strings.lms.classRoomManagement.errorUpdatingFileNo,
-          });
-        });
-    };
-
-    const handleDelete = () => {
-      navigation.navigate(screensName.AlertOrganism, {
-        title: strings.lms.locationDetails.deleteConfirmation,
-        message: strings.lms.locationDetails.deleteMsg,
-        okText: strings.lms.locationDetails.confirm,
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          deleteTimeTable(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const deleteTimeTable = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        course_id: id,
-      };
-      deleteTimeTableApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || strings.something_went_wrong_,
-          });
-        });
-    };
-
     return (
       <TouchableAtom
         onPress={() => {}}
@@ -432,97 +193,7 @@ const TimeTable = (props: Props) => {
           <TextAtom style={[styles.label, { flex: 1 }]}>
             {strings.lms.locationDetails.srNo} {index + 1}
           </TextAtom>
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                setSelectedItem(item);
-                setDateExtendedModal(true);
-                setSelectedDate('');
-              }}
-            >
-              <ImageAtom
-                source={images.extended}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                  resizeMode: 'contain',
-                }}
-              />
-            </TouchableAtom> */}
-
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                // navigation.navigate(screensName.AddCreateTour, { item: item });
-              }}
-            >
-              <ImageAtom
-                source={images.link}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                navigation.navigate(screensName.AddTrainingDetails, {
-                  item: item,
-                });
-              }}
-            >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
-            </TouchableAtom> */}
-          </View>
+          <View style={{ flexDirection: 'row', gap: vw(15) }}></View>
         </View>
 
         <View style={styles.flex1}>
@@ -575,63 +246,6 @@ const TimeTable = (props: Props) => {
         isSelected={selectedItems.some((x: any) => x.id === item.id)}
       />
     );
-  };
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DateInputOrganism
-        label={strings.lms.classRoomManagement.startDate}
-        placeholder={strings.lms.classRoomManagement.startDate}
-        value={startDate}
-        onChangeText={(val: any) => {
-          setStartDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <DateInputOrganism
-        label={strings.lms.classRoomManagement.endDate}
-        placeholder={strings.lms.classRoomManagement.endDate}
-        value={endDate}
-        onChangeText={(val: any) => {
-          setEndDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText={strings.lms.locationDetails.applyFilter}
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText={strings.lms.locationDetails.clearFilter}
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
-        />
-      </ViewAtom>
-    </View>
-  );
-  const clearFilter = () => {
-    setStartDate('');
-    setEndDate('');
-    listTimeTables(1, true, search, []);
-  };
-
-  const applyFilter = (isExport = false) => {
-    const filters = [];
-
-    if (startDate) {
-      const formatted = moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
-      filters.push(['courseStartDate', '>=', formatted]);
-    }
-
-    if (endDate) {
-      const formatted = moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
-      filters.push(['courseEndDate', '<=', formatted]);
-    }
-    listTimeTables(1, true, search, filters);
   };
 
   const DateExtendModal = () => {
@@ -750,48 +364,6 @@ const TimeTable = (props: Props) => {
 
       <View style={styles.headerBox}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          {/* <View
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'flex-end',
-            }}
-          > */}
-          {/* <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-              <TextAtom style={styles.filterText}>
-                {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-              </TextAtom>
-            </TouchableAtom> */}
-          {/* <TouchableAtom
-              style={styles.filterButton}
-              onPress={handleSelectAll}
-            >
-              <TextAtom style={styles.filterText}>
-                {selectedItems?.length === totalCount
-                  ? strings.lms.classRoomManagement.unselectAll
-                  : strings.lms.classRoomManagement.selectAll}
-              </TextAtom>
-            </TouchableAtom>
-            <TouchableAtom
-              style={styles.filterButton}
-              onPress={() => {
-                if (selectedItems.length === 0) {
-                  Toast.show({
-                    type: 'error',
-                    text2: strings.lms.classRoomManagement.selectToDownload,
-                  });
-                  return;
-                }
-                downloadTimeTables();
-              }}
-            >
-              <ImageAtom
-                source={images.download}
-                style={{ tintColor: colors.black }}
-              />
-            </TouchableAtom>
-          </View>
-          {showFilter && <FilterForm />} */}
-
           {crediantialData.user[0].tenantId === 3 && (
             <DropDownOrganism
               label={''}
@@ -859,11 +431,11 @@ const TimeTable = (props: Props) => {
         renderItem={renderTimeTableItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.lms.locationDetails.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -893,11 +465,6 @@ const TimeTable = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddTrainingDetails);
-        }}
-      /> */}
 
       <DateExtendModal />
     </SafeAreaView>

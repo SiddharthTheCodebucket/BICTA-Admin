@@ -10,7 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  Linking,
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -31,16 +30,11 @@ import {
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
-import { useDeleteVehicleDetailsMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import {
   useListAssessmentAssignmentMutation,
-  useListTrainingBatchDetailsMutation,
   useUpdateAssessmentAssignmentMutation,
-  useUpdateTrainingBatchDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 import moment from 'moment';
 
@@ -69,8 +63,8 @@ const AssignmentDetailsList = (props: Props) => {
 
   const ITEMS_PER_PAGE = 10;
 
-  const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const [search] = React.useState('');
+  const [centerSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
     Header.setNavigation(navigation, strings.lms.assignmentDetailsList.title);
@@ -138,7 +132,7 @@ const AssignmentDetailsList = (props: Props) => {
   };
 
   const AssessmentAssignmentCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(
+    const [statusValue] = useState(
       item.visibility ?? strings.lms.assignmentDetails.show,
     );
     const [showStatusMenu, setShowStatusMenu] = useState(false);
@@ -327,11 +321,11 @@ const AssignmentDetailsList = (props: Props) => {
         renderItem={renderAssessmentAssignmentItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.lms.assignmentResponse.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator

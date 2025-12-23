@@ -1,44 +1,24 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
   ScrollView,
-  ActivityIndicator,
   RefreshControl,
   TouchableOpacity,
-  LayoutAnimation,
   FlatList,
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import RenderHTML from 'react-native-render-html';
-import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-
-import {
-  useListAssignmentQuestionBankMutation,
-  useListAssignmentResponseMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
+import { useListAssignmentResponseMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import moment from 'moment';
 
 interface Props {
@@ -69,8 +49,8 @@ const AssessmentDetails = (props: Props) => {
   const stripHtml = (s?: string) => {
     if (!s) return '';
     return s
-      .replace(/<[^>]*>/g, '')
-      .replace(/&nbsp;/g, ' ')
+      .replaceAll(/<[^>]*>/g, '')
+      .replaceAll(/&nbsp;/, ' ')
       .trim();
   };
 
@@ -148,9 +128,6 @@ const AssessmentDetails = (props: Props) => {
   };
 
   const renderMCQItem = ({ item, index }: { item: any; index: number }) => {
-    const correct = item.correctAnswer; // e.g. "option_2"
-    const correctOptionKey = correct?.replace('option_', 'option'); // "option2" not used but kept
-    // Map correctAnswer to option text easily:
     const optionMap: Record<string, string> = {
       option_1: item._option1 ?? item.option1 ?? '',
       option_2: item._option2 ?? item.option2 ?? '',

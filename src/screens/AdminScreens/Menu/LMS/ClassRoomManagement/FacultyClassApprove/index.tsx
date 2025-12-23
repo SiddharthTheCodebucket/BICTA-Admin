@@ -12,8 +12,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   LayoutAnimation,
-  ScrollView,
-  TextInput,
   Modal,
   Keyboard,
 } from 'react-native';
@@ -23,46 +21,33 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
-  images,
   screensName,
   strings,
   vh,
   vw,
 } from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import { isNullUndefined } from '../../../../../../utils/CommonFunction';
 import {
-  downloadAndOpenFile,
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
-import {
-  useAddFileNoTrainingDetailsMutation,
-  useDeleteTrainingDetailsMutation,
-  useDownloadTrainingCategoryMutation,
   useExtendTrainingEndDateMutation,
   useListClassroomTimeTableManageMutation,
-  useListTrainingDetailsMutation,
-  useUpdateTraineeLoginDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
+
 import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -79,18 +64,13 @@ const debounce = (func: any, delay: number) => {
 const FacultyClassApprove = (props: Props) => {
   const { navigation } = props;
 
-  const { crediantialData } = useAppSelector(state => state.Auth);
   const input1_ref: any = createRef();
-  const [downloadApi] = useDownloadTrainingCategoryMutation();
+
   const [listFacultyClassApprovalsApi] =
     useListClassroomTimeTableManageMutation();
-  const [addFileNoFacultyClassApproveApi] =
-    useAddFileNoTrainingDetailsMutation();
-  const [updateFacultyClassApproveLoginDetailsApi] =
-    useUpdateTraineeLoginDetailsMutation();
+
   const [extendFacultyClassApproveEndDateApi] =
     useExtendTrainingEndDateMutation();
-  const [deleteFacultyClassApproveApi] = useDeleteTrainingDetailsMutation();
   const [dropDownApi] = useCommonDropdownListMutation();
 
   const [data, setData] = useState<any>([]);
@@ -107,19 +87,17 @@ const FacultyClassApprove = (props: Props) => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  const [selectedItems, setSelectedItems] = useState<any>([]);
-  const [totalCount, setTotalCount] = useState(0);
+  const [selectedItems] = useState<any>([]);
 
   const [startDate, setStartDate] = useState<any>('');
-  const [endDate, setEndDate] = useState<any>('');
 
   const [trainingStartLimit, setTrainingStartLimit] = useState<any>(null);
   const [trainingEndLimit, setTrainingEndLimit] = useState<any>(null);
 
   const ITEMS_PER_PAGE = 10;
 
-  const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const [search] = React.useState('');
+  const [centerSerach] = React.useState<any>({});
 
   const [selectedBipardLocation, setSelectedBipardLocation] = useState<any>({});
   const [trainingNameList, setTrainingNameList] = useState<any>({});
@@ -210,9 +188,6 @@ const FacultyClassApprove = (props: Props) => {
 
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
-
-        const totalCountApi = res?.data?.totalCount ?? 0;
-        setTotalCount(totalCountApi);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -225,216 +200,7 @@ const FacultyClassApprove = (props: Props) => {
       });
   };
 
-  const handleSearch = useCallback(
-    debounce((text: string) => {
-      listFacultyClassApprovals(1, true, text);
-    }, 500),
-    [],
-  );
-
-  const onChangeSearch = (text: string) => {
-    setSearch(text);
-    handleSearch(text);
-  };
-
-  const onClearSearch = () => {
-    setSearch('');
-    listFacultyClassApprovals(1, true, '');
-  };
-
-  const handleSelectAll = () => {
-    if (selectedItems.length === totalCount) {
-      setSelectedItems([]);
-      listFacultyClassApprovals(1, true, search);
-    } else {
-      setInitialCall(true);
-
-      const params: any = {
-        search,
-        sort: {
-          attributes: ['created_at'],
-          sorts: ['desc'],
-        },
-        filters: [],
-        pageNo: 1,
-        itemsPerPage: totalCount,
-
-        bipardCentre: getCentreFilter() ?? [],
-      };
-
-      listFacultyClassApprovalsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          const fullData = res.data?.data ?? [];
-          setData(fullData);
-          setSelectedItems(fullData);
-          setNextPageAvailable(false);
-          setInitialCall(false);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || strings.something_went_wrong_,
-          });
-        });
-    }
-  };
-
-  const downloadFacultyClassApprovals = async () => {
-    setInitialCall(true);
-
-    const params: any = {
-      category: selectedItems,
-    };
-
-    downloadApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setInitialCall(false);
-        const fileUrl = res.data?.fileUrl ?? '';
-        if (fileUrl) {
-        }
-        downloadAndOpenFile(fileUrl);
-        setSelectedItems([]);
-        listFacultyClassApprovals(1, true, search);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || strings.something_went_wrong_,
-        });
-      });
-  };
-
   const FacultyClassApproveCard = ({ item, index, isSelected }: any) => {
-    const [statusValue, setStatusValue] = useState(item.isLoginAllowed ?? null);
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-    const [fileNo, setFileNo] = useState(item.fileNo || '');
-    const [isEditingFile, setIsEditingFile] = useState(!item.fileNo);
-    const [loadingFileSave, setLoadingFileSave] = useState(false);
-
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
-
-      if (newStatus === statusValue) return;
-
-      navigation.navigate(screensName.AlertOrganism, {
-        title: strings.lms.assignmentDetailsList.statusChangeConf,
-        message: `${strings.lms.assignmentDetailsList.statusChangeMsg} "${newStatus}"?`,
-        okText: strings.lms.assignmentDetailsList.confirm,
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          updateFacultyClassApproveLoginDetails(item.id, newStatus);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const updateFacultyClassApproveLoginDetails = (
-      id: any,
-      newStatus: string,
-    ) => {
-      setInitialCall(true);
-      const params = {
-        trainingId: id,
-        isLoginAllowed: newStatus,
-      };
-      updateFacultyClassApproveLoginDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || strings.something_went_wrong_,
-          });
-        });
-    };
-
-    const saveFileNo = () => {
-      if (!fileNo?.trim()) {
-        Toast.show({
-          type: 'error',
-          text2: strings.lms.classRoomManagement.fileNoNotEmpty,
-        });
-        return;
-      }
-
-      setLoadingFileSave(true);
-
-      const params = {
-        id: item.id,
-        fileNo: fileNo,
-      };
-
-      addFileNoFacultyClassApproveApi(params)
-        .unwrap()
-        .then(res => {
-          Toast.show({ type: 'success', text2: res.data.message });
-          setIsEditingFile(false);
-          setLoadingFileSave(false);
-          listFacultyClassApprovals(1, false, '');
-        })
-        .catch(err => {
-          setLoadingFileSave(false);
-          Toast.show({
-            type: 'error',
-            text2:
-              err.data?.message ||
-              strings.lms.classRoomManagement.errorUpdatingFileNo,
-          });
-        });
-    };
-
-    const handleDelete = () => {
-      navigation.navigate(screensName.AlertOrganism, {
-        title: strings.lms.locationDetails.deleteConfirmation,
-        message: strings.lms.locationDetails.deleteMsg,
-        okText: strings.lms.locationDetails.confirm,
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          deleteFacultyClassApprove(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const deleteFacultyClassApprove = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        course_id: id,
-      };
-      deleteFacultyClassApproveApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || strings.something_went_wrong_,
-          });
-        });
-    };
-
     return (
       <TouchableAtom
         onPress={() => {
@@ -448,97 +214,7 @@ const FacultyClassApprove = (props: Props) => {
           <TextAtom style={[styles.label, { flex: 1 }]}>
             {strings.lms.locationDetails.srNo} {index + 1}
           </TextAtom>
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                setSelectedItem(item);
-                setDateExtendedModal(true);
-                setSelectedDate('');
-              }}
-            >
-              <ImageAtom
-                source={images.extended}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                  resizeMode: 'contain',
-                }}
-              />
-            </TouchableAtom> */}
-
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                // navigation.navigate(screensName.AddCreateTour, { item: item });
-              }}
-            >
-              <ImageAtom
-                source={images.link}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                navigation.navigate(screensName.AddTrainingDetails, {
-                  item: item,
-                });
-              }}
-            >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
-            </TouchableAtom> */}
-          </View>
+          <View style={{ flexDirection: 'row', gap: vw(15) }}></View>
         </View>
 
         <View style={styles.flex1}>
@@ -908,85 +584,6 @@ const FacultyClassApprove = (props: Props) => {
             : strings.lms.classRoomManagement.showFilter}
         </TextAtom>
       </TouchableAtom>
-      {/* 
-      <View style={{ height: vh(130) }}>
-        <ScrollView showsVerticalScrollIndicator={false}>
- <View
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'flex-end',
-            }}
-          > 
-        <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-              <TextAtom style={styles.filterText}>
-                {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-              </TextAtom>
-            </TouchableAtom> 
- <TouchableAtom
-              style={styles.filterButton}
-              onPress={handleSelectAll}
-            >
-              <TextAtom style={styles.filterText}>
-                {selectedItems?.length === totalCount
-                  ? 'Unselect All'
-                  : 'Select All'}
-              </TextAtom>
-            </TouchableAtom>
-            <TouchableAtom
-              style={styles.filterButton}
-              onPress={() => {
-                if (selectedItems.length === 0) {
-                  Toast.show({
-                    type: 'error',
-                    text2: 'Select to download',
-                  });
-                  return;
-                }
-                downloadFacultyClassApprovals();
-              }}
-            >
-              <ImageAtom
-                source={images.download}
-                style={{ tintColor: colors.black }}
-              />
-            </TouchableAtom>
-          </View>
-          {showFilter && <FilterForm />}
-
-          {crediantialData.user[0].tenantId === 3 && (
-
-
-            <DropDownOrganism
-            label={''}
-            placeholder={'Centers'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Center',
-                Data: [
-                  { id: 'All Centers', name: 'All Centers' },
-                  { id: 'Gaya', name: 'Gaya' },
-                  { id: 'Patna', name: 'Patna' },
-                ],
-                selectedData: centerSerach,
-                setSelectedData: setCenterSerach,
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={centerSerach?.name}
-            containerStyle={{ marginBottom: vh(5) }}
-          />
-
-
-          )}
-          <SearchBoxOrganism
-            onChangeText={onChangeSearch}
-            searchText={search}
-            onPressCross={onClearSearch}
-            searchBox={{ marginTop: vh(10) }}
-          />
-        </ScrollView>
-      </View> */}
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -994,11 +591,11 @@ const FacultyClassApprove = (props: Props) => {
         renderItem={renderFacultyClassApproveItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.lms.locationDetails.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListHeaderComponent={showFilter ? <FilterForm /> : null}
         ListFooterComponent={
@@ -1029,11 +626,6 @@ const FacultyClassApprove = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddTrainingDetails);
-        }}
-      /> */}
 
       <DateExtendModal />
     </SafeAreaView>

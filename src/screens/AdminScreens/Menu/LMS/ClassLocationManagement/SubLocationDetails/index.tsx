@@ -11,7 +11,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -34,29 +33,15 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
+
 import {
-  useBedDetailsRoomMutation,
-  useDeleteBedDetailsRoomMutation,
-  useUpdateBedDetailsRoomMutation,
-} from '../../../../../../injectEndpoints/hostelEndpoints';
-import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import {
-  useDeleteFacultyDetailsMutation,
-  useListClassLocationDetailsMutation,
   useListClassSubLocationDetailsMutation,
-  useListFacultyDetailsMutation,
-  useUpdateClassLocationDetailsMutation,
   useUpdateClassSubLocationDetailsMutation,
-  useUpdateFacultyDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -75,11 +60,9 @@ const SubLocationDetails = (props: Props) => {
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
-  const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listSubLocationDetailsApi] = useListClassSubLocationDetailsMutation();
   const [updateSubLocationDetailsApi] =
     useUpdateClassSubLocationDetailsMutation();
-  const [deleteSubLocationDetailsApi] = useDeleteFacultyDetailsMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -89,14 +72,6 @@ const SubLocationDetails = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
-
-  const [facultyTypeList, setFacultyTypeList] = useState<any>([]);
-  const [departmentList, setDepartmentList] = useState<any>([]);
-  const [organisationList, setOrganisationList] = useState<any>([]);
-  const [selectedFacultyType, setSelectedFacultyType] = useState<any>({});
-  const [selectedDepartment, setSelectedDepartment] = useState<any>({});
-  const [selectedOrganisation, setSelectedOrganisation] = useState<any>({});
 
   const ITEMS_PER_PAGE = 10;
 
@@ -116,9 +91,6 @@ const SubLocationDetails = (props: Props) => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
         listSubLocationDetails(1, true, '');
-        getFacultyType();
-        getDepartment();
-        getOrganization();
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
@@ -136,11 +108,6 @@ const SubLocationDetails = (props: Props) => {
     }
 
     return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
   };
 
   const listSubLocationDetails = (
@@ -214,7 +181,7 @@ const SubLocationDetails = (props: Props) => {
   };
 
   const SubLocationDetailsCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
+    const [statusValue] = useState(item.status ?? 'Active');
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
     const onSelectStatus = (newStatus: string) => {
@@ -246,44 +213,6 @@ const SubLocationDetails = (props: Props) => {
           Toast.show({
             type: 'success',
             text2: res.data?.message.message,
-          });
-          setInitialCall(false);
-          listSubLocationDetails(1, true, search);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || strings.something_went_wrong_,
-          });
-        });
-    };
-
-    const handleDelete = () => {
-      navigation.navigate(screensName.AlertOrganism, {
-        title: strings.lms.locationDetails.deleteConfirmation,
-        message: strings.lms.locationDetails.deleteMsg,
-        okText: strings.lms.locationDetails.confirm,
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          deleteSubLocationDetails(item.facultyId);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const deleteSubLocationDetails = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        faculty_id: id,
-      };
-      deleteSubLocationDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
           });
           setInitialCall(false);
           listSubLocationDetails(1, true, search);
@@ -435,179 +364,10 @@ const SubLocationDetails = (props: Props) => {
     );
   };
 
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DropDownOrganism
-        label={strings.lms.locationDetails.facultyType}
-        placeholder={strings.lms.locationDetails.facultyType}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.locationDetails.facultyType,
-            Data: facultyTypeList,
-            selectedData: selectedFacultyType,
-            setSelectedData: (data: any) => {
-              setSelectedFacultyType(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedFacultyType?.name}
-      />
-
-      <DropDownOrganism
-        label={strings.lms.locationDetails.department}
-        placeholder={strings.lms.locationDetails.department}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.locationDetails.department,
-            Data: departmentList,
-            selectedData: selectedDepartment,
-            setSelectedData: (data: any) => {
-              setSelectedDepartment(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedDepartment?.name}
-      />
-
-      <DropDownOrganism
-        label={strings.lms.locationDetails.organisation}
-        placeholder={strings.lms.locationDetails.organisation}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.locationDetails.organisation,
-            Data: organisationList,
-            selectedData: selectedOrganisation,
-            setSelectedData: (data: any) => {
-              setSelectedOrganisation(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedOrganisation?.name}
-      />
-
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText={strings.lms.locationDetails.applyFilter}
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText={strings.lms.locationDetails.clearFilter}
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
-        />
-      </ViewAtom>
-    </View>
-  );
-
-  const clearFilter = () => {
-    setSelectedFacultyType({});
-    setSelectedDepartment({});
-    setSelectedOrganisation({});
-    listSubLocationDetails(1, true, search, []);
-  };
-
-  const applyFilter = () => {
-    const filters = [];
-
-    if (selectedFacultyType?.id) {
-      filters.push(['facultyType', '=', selectedFacultyType.id]);
-    }
-
-    if (selectedDepartment?.id) {
-      filters.push(['department', '=', selectedDepartment.id]);
-    }
-
-    if (selectedOrganisation?.id) {
-      filters.push(['facultyOrganisation', '=', selectedOrganisation.id]);
-    }
-
-    listSubLocationDetails(1, true, search, filters);
-  };
-
-  const getFacultyType = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'faculty_category',
-      bipardCentre: [],
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setFacultyTypeList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
-
-  const getDepartment = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'filter_by_faculty_department',
-      bipardCentre: ['Gaya', 'Patna'],
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setDepartmentList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-        });
-      });
-  };
-
-  const getOrganization = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'filter_by_faculty_organisation',
-      bipardCentre: ['Gaya', 'Patna'],
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setOrganisationList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-        });
-      });
-  };
-
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      {/* <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-        <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-        </TextAtom>
-      </TouchableAtom>
-      {showFilter && <FilterForm />} */}
+
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
@@ -654,11 +414,11 @@ const SubLocationDetails = (props: Props) => {
         renderItem={renderSubLocationDetailsItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.lms.assignmentResponse.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -688,11 +448,6 @@ const SubLocationDetails = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };
