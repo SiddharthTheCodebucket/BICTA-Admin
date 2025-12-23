@@ -10,7 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
   LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,7 +19,6 @@ import {
   colors,
   fonts,
   images,
-  screensName,
   strings,
   vh,
   vw,
@@ -34,36 +32,17 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useBedDetailsRoomMutation,
-  useDeleteBedDetailsRoomMutation,
-  useUpdateBedDetailsRoomMutation,
-} from '../../../../../../injectEndpoints/hostelEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import {
-  useDeleteFacultyDetailsMutation,
-  useListFacultyDetailsMutation,
-  useListKnowledgeManagementMutation,
-  useUpdateFacultyDetailsMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
-import {
-  useListPatientPrescriptionsMutation,
-  useListPharmacyReportMutation,
-} from '../../../../../../injectEndpoints/phcEndpoints';
-import {
-  downloadAndOpenFile,
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
+import { useListPharmacyReportMutation } from '../../../../../../injectEndpoints/phcEndpoints';
+import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -101,9 +80,6 @@ const StockReport = (props: Props) => {
   const [selectedMedicine, setSelectedMedicine] = useState<any>({});
   const [startDate, setStartDate] = useState<any>('');
   const [endDate, setEndDate] = useState<any>('');
-
-  const [exportUrlExcel, setExportUrlExcel] = useState('');
-  const [exportUrlPdf, setExportUrlPdf] = useState('');
 
   const ITEMS_PER_PAGE = 10;
 
@@ -190,12 +166,10 @@ const StockReport = (props: Props) => {
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
 
         if (res?.data?.exportUrlExcel) {
-          setExportUrlExcel(res.data.exportUrlExcel);
           downloadAndOpenFile(res.data.exportUrlExcel);
         }
 
         if (res?.data?.exportUrlPdf) {
-          setExportUrlPdf(res.data.exportUrlPdf);
           downloadAndOpenFile(res.data.exportUrlPdf);
         }
       })
@@ -227,11 +201,6 @@ const StockReport = (props: Props) => {
     listStockReports(1, true, '');
   };
   const BedCard = ({ item, index, navigation }: any) => {
-    const thumbnail =
-      item?.thumbnail && item.thumbnail !== null && item.thumbnail !== ''
-        ? { uri: item.thumbnail }
-        : null;
-
     return (
       <ViewAtom style={styles.card}>
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
@@ -581,11 +550,11 @@ const StockReport = (props: Props) => {
         renderItem={renderListBedDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.no_data_found}
             </TextAtom>
-          ) : null
+          )
         }
         ListHeaderComponent={<View>{showFilter && <FilterForm />}</View>}
         ListFooterComponent={

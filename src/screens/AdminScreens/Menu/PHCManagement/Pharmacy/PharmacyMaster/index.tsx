@@ -10,21 +10,11 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -33,7 +23,6 @@ import {
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import { useListMedicineMutation } from '../../../../../../injectEndpoints/phcEndpoints';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
@@ -41,7 +30,6 @@ import { isNullUndefined } from '../../../../../../utils/CommonFunction';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -70,7 +58,6 @@ const PharmacyMaster = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
 
   const ITEMS_PER_PAGE = 10;
 
@@ -104,11 +91,6 @@ const PharmacyMaster = (props: Props) => {
     }
 
     return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
   };
 
   const listMedicines = (
@@ -237,15 +219,15 @@ const PharmacyMaster = (props: Props) => {
         </View>
         <View style={{ flex: 1 }}>
           <TextAtom style={styles.label}>{strings.photo}</TextAtom>
-          {!isNullUndefined(item.photo) ? (
+          {isNullUndefined(item.photo) ? (
+            <TextAtom style={styles.label}>-</TextAtom>
+          ) : (
             <ImageAtom
               source={{
                 uri: item.photo,
               }}
               style={[styles.thumbnail]}
             />
-          ) : (
-            <TextAtom style={styles.label}>-</TextAtom>
           )}
         </View>
       </ViewAtom>
@@ -296,11 +278,11 @@ const PharmacyMaster = (props: Props) => {
         renderItem={renderListBedDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.no_data_found}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator

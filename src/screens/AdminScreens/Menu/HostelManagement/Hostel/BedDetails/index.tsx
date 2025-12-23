@@ -10,7 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
   LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -47,7 +46,6 @@ import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -60,6 +58,170 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+interface BedCardProps {
+  item: any;
+  index: number;
+  navigation: NavigationType;
+  onRefresh: () => void;
+  onDelete: (id: any) => void;
+  onUpdateStatus: (id: any) => void;
+}
+
+const BedCard = ({
+  item,
+  index,
+  navigation,
+  onRefresh,
+  onDelete,
+  onUpdateStatus,
+}: BedCardProps) => {
+  const [statusValue] = useState(
+    item.status ?? strings.hostelManagement.active,
+  );
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
+
+  const confirmStatusChange = () => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: strings.hostelManagement.bedDetails.statusChangeConfirmation,
+      message: strings.hostelManagement.bedDetails.statusChangeMessage,
+      okText: strings.hostelManagement.confirm,
+      double: true,
+      cancelText: strings.cancel,
+      okFunction: () => onUpdateStatus(item.id),
+      cancelFunction: () => {},
+    });
+  };
+
+  const confirmDelete = () => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: strings.hostelManagement.bedDetails.deleteConfirmation,
+      message: strings.hostelManagement.bedDetails.deleteMessage,
+      okText: strings.hostelManagement.confirm,
+      double: true,
+      cancelText: strings.cancel,
+      okFunction: () => onDelete(item.id),
+      cancelFunction: () => {},
+    });
+  };
+
+  return (
+    <View style={styles.card}>
+      <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+        <TextAtom style={[styles.label, styles.flex1]}>
+          {strings.hostelManagement.srNo} {index + 1}
+        </TextAtom>
+
+        <View style={styles.actionRow}>
+          <TouchableAtom
+            style={styles.editButton}
+            onPress={() =>
+              navigation.navigate(screensName.AddBedDetails, {
+                item,
+                onDone: onRefresh,
+              })
+            }
+          >
+            <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
+          </TouchableAtom>
+
+          <TouchableAtom style={styles.deleteButton} onPress={confirmDelete}>
+            <ImageAtom source={images.delete} style={styles.iconSmall} />
+          </TouchableAtom>
+        </View>
+      </View>
+
+      <View style={styles.statusContainer}>
+        <TouchableAtom
+          onPress={() => setShowStatusMenu(!showStatusMenu)}
+          style={[
+            styles.statusBox,
+            statusValue === strings.hostelManagement.active
+              ? styles.activeBox
+              : styles.inActiveBox,
+          ]}
+        >
+          <TextAtom
+            style={[
+              styles.statusText,
+              statusValue === strings.hostelManagement.active
+                ? styles.activeText
+                : styles.inActiveText,
+            ]}
+          >
+            {statusValue}
+          </TextAtom>
+          <ImageAtom source={images.downArrow} />
+        </TouchableAtom>
+
+        {showStatusMenu && (
+          <View style={styles.dropMenu}>
+            <TouchableAtom
+              style={styles.dropItem}
+              onPress={confirmStatusChange}
+            >
+              <TextAtom style={styles.statusTextBlack}>
+                {strings.hostelManagement.active}
+              </TextAtom>
+            </TouchableAtom>
+          </View>
+        )}
+      </View>
+    </View>
+  );
+};
+
+interface FilterFormProps {
+  navigation: NavigationType;
+  hostelList: any[];
+  floorList: any[];
+  roomList: any[];
+  selectedHostel: any;
+  selectedFloor: any;
+  selectedRoom: any;
+  setSelectedHostel: (d: any) => void;
+  setSelectedFloor: (d: any) => void;
+  setSelectedRoom: (d: any) => void;
+  applyFilter: () => void;
+  clearFilter: () => void;
+  getFloorName: (id: any) => void;
+  getRoomName: (id: any) => void;
+}
+
+const FilterForm = ({
+  navigation,
+  hostelList,
+  floorList,
+  roomList,
+  selectedHostel,
+  selectedFloor,
+  selectedRoom,
+  setSelectedHostel,
+  setSelectedFloor,
+  setSelectedRoom,
+  applyFilter,
+  clearFilter,
+  getFloorName,
+  getRoomName,
+}: FilterFormProps) => (
+  <View style={styles.filterContainer}>
+    <ViewAtom style={styles.buttonRow}>
+      <ButtonOrganism
+        onPress={applyFilter}
+        bttnText={strings.hostelManagement.bedAvailability.applyFilter}
+        containerStyle={styles.applyBtn}
+      />
+      <ButtonOrganism
+        onPress={clearFilter}
+        bttnText={strings.hostelManagement.bedAvailability.clearFilter}
+        containerStyle={styles.clearBtn}
+        bttnTextStyle={{ color: colors.primary }}
+      />
+    </ViewAtom>
+  </View>
+);
+
+const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 
 const BedDetails = (props: Props) => {
   const { navigation } = props;
@@ -197,295 +359,63 @@ const BedDetails = (props: Props) => {
     bedDetailsList(1, true, '');
   };
 
-  const BedCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(
-      item.status ?? strings.hostelManagement.active,
-    );
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
-
-      if (newStatus === statusValue) return;
-
-      navigation.navigate(screensName.AlertOrganism, {
-        title: strings.hostelManagement.bedDetails.statusChangeConfirmation,
-        message: strings.hostelManagement.bedDetails.statusChangeMessage,
-        okText: strings.hostelManagement.confirm,
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          updateBedStatus(item.id);
-        },
-        cancelFunction: () => {},
-      });
+  const updateBedStatus = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      idForChangeStatus: id,
     };
-
-    const updateBedStatus = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        idForChangeStatus: id,
-      };
-      updatebedDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message?.message,
-          });
-          setInitialCall(false);
-          bedDetailsList(1, true, search);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || strings.something_went_wrong,
-          });
+    updatebedDetailsApi(params)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message?.message,
         });
-    };
-
-    const handleDelete = () => {
-      navigation.navigate(screensName.AlertOrganism, {
-        title: strings.hostelManagement.bedDetails.deleteConfirmation,
-        message: strings.hostelManagement.bedDetails.deleteMessage,
-        okText: strings.hostelManagement.confirm,
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          deleteBedHostelRoom(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const deleteBedHostelRoom = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        id: id,
-      };
-      deletebedDetailsRoomApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          bedDetailsList(1, true, search);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || strings.something_went_wrong,
-          });
+        setInitialCall(false);
+        bedDetailsList(1, true, search);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || strings.something_went_wrong,
         });
-    };
-
-    return (
-      <View style={styles.card}>
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, styles.flex1]}>
-            {strings.hostelManagement.srNo} {index + 1}
-          </TextAtom>
-
-          <View style={styles.actionRow}>
-            <TouchableAtom
-              style={styles.editButton}
-              onPress={() => {
-                navigation.navigate(screensName.AddBedDetails, {
-                  item: item,
-                  onDone: () => bedDetailsList(1, true, search),
-                });
-              }}
-            >
-              <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
-            </TouchableAtom>
-
-            <TouchableAtom
-              style={styles.deleteButton}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom source={images.delete} style={styles.iconSmall} />
-            </TouchableAtom>
-          </View>
-        </View>
-
-        <View style={styles.rowBetween}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.hostelManagement.bedDetails.hostelName}
-            </TextAtom>
-            <TextAtom style={styles.value}>
-              {item.selectHostelName ?? '-'}
-            </TextAtom>
-          </View>
-          <View style={styles.flex1End}>
-            <TextAtom style={styles.labelRight}>
-              {strings.hostelManagement.bedDetails.floorName}
-            </TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {item.selectFloorName ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
-        <View style={styles.rowBetween}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.hostelManagement.bedDetails.roomNo}
-            </TextAtom>
-            <TextAtom style={styles.value}>{item.selectRoomNo ?? '-'}</TextAtom>
-          </View>
-
-          <View style={styles.flex1End}>
-            <TextAtom style={styles.labelRight}>
-              {strings.hostelManagement.bedDetails.bedName}
-            </TextAtom>
-            <TextAtom numberOfLines={0} style={styles.valueRight}>
-              {item.bedName ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
-
-        {showStatusMenu && (
-          <TouchableOpacity
-            onPress={() => setShowStatusMenu(false)}
-            style={styles.overlay}
-          />
-        )}
-
-        <View style={styles.statusContainer}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.bedDetails.status}
-          </TextAtom>
-
-          <TouchableAtom
-            onPress={() => setShowStatusMenu(!showStatusMenu)}
-            style={[
-              styles.statusBox,
-              statusValue === strings.hostelManagement.active
-                ? styles.activeBox
-                : styles.inActiveBox,
-            ]}
-          >
-            <TextAtom
-              style={[
-                styles.statusText,
-                statusValue === strings.hostelManagement.active
-                  ? styles.activeText
-                  : styles.inActiveText,
-              ]}
-            >
-              {statusValue}
-            </TextAtom>
-            <ImageAtom source={images.downArrow} />
-          </TouchableAtom>
-
-          {showStatusMenu && (
-            <View style={styles.dropMenu}>
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() => onSelectStatus(strings.hostelManagement.active)}
-              >
-                <TextAtom style={styles.statusTextBlack}>
-                  {strings.hostelManagement.active}
-                </TextAtom>
-              </TouchableAtom>
-
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() =>
-                  onSelectStatus(strings.hostelManagement.inActive)
-                }
-              >
-                <TextAtom style={styles.statusTextBlack}>
-                  {strings.hostelManagement.inActive}
-                </TextAtom>
-              </TouchableAtom>
-            </View>
-          )}
-        </View>
-      </View>
-    );
+      });
   };
 
-  const renderListBedDetails = ({ item, index }: any) => {
-    return <BedCard item={item} index={index} navigation={navigation} />;
+  const deleteBedHostelRoom = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      id: id,
+    };
+    deletebedDetailsRoomApi(params)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+        setInitialCall(false);
+        bedDetailsList(1, true, search);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || strings.something_went_wrong,
+        });
+      });
   };
 
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DropDownOrganism
-        label={strings.hostelManagement.bedAvailability.hostel}
-        placeholder={strings.hostelManagement.bedAvailability.hostel}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.hostelManagement.bedAvailability.hostel,
-            Data: hostelList,
-            selectedData: selectedHostel,
-            setSelectedData: (data: any) => {
-              setSelectedHostel(data);
-              getFloorName(data.id);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedHostel?.name}
-      />
-
-      <DropDownOrganism
-        label={strings.hostelManagement.bedAvailability.floor}
-        placeholder={strings.hostelManagement.bedAvailability.floor}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.hostelManagement.bedAvailability.floor,
-            Data: floorList,
-            selectedData: selectedFloor,
-            setSelectedData: (data: any) => {
-              setSelectedFloor(data);
-              getRoomName(data.id);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedFloor?.name}
-      />
-
-      <DropDownOrganism
-        label={strings.hostelManagement.bedAvailability.room}
-        placeholder={strings.hostelManagement.bedAvailability.room}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.hostelManagement.bedAvailability.room,
-            Data: roomList,
-            selectedData: selectedRoom,
-            setSelectedData: (data: any) => {
-              setSelectedRoom(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedRoom?.name}
-      />
-
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText={strings.hostelManagement.bedAvailability.applyFilter}
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText={strings.hostelManagement.bedAvailability.clearFilter}
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
-        />
-      </ViewAtom>
-    </View>
+  const renderListBedDetails = ({ item, index }: any) => (
+    <BedCard
+      item={item}
+      index={index}
+      navigation={navigation}
+      onRefresh={() => bedDetailsList(1, true, search)}
+      onDelete={deleteBedHostelRoom}
+      onUpdateStatus={updateBedStatus}
+    />
   );
 
   const clearFilter = () => {
@@ -592,7 +522,24 @@ const BedDetails = (props: Props) => {
             : strings.hostelManagement.bedAvailability.showFilter}
         </TextAtom>
       </TouchableAtom>
-      {showFilter && <FilterForm />}
+      {showFilter && (
+        <FilterForm
+          navigation={navigation}
+          hostelList={hostelList}
+          floorList={floorList}
+          roomList={roomList}
+          selectedHostel={selectedHostel}
+          selectedFloor={selectedFloor}
+          selectedRoom={selectedRoom}
+          setSelectedHostel={setSelectedHostel}
+          setSelectedFloor={setSelectedFloor}
+          setSelectedRoom={setSelectedRoom}
+          applyFilter={applyFilter}
+          clearFilter={clearFilter}
+          getFloorName={getFloorName}
+          getRoomName={getRoomName}
+        />
+      )}
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
@@ -639,11 +586,11 @@ const BedDetails = (props: Props) => {
         renderItem={renderListBedDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.hostelManagement.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -671,7 +618,7 @@ const BedDetails = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
+        ItemSeparatorComponent={BedItemSeparator}
       />
       <FloatingButton
         onButtonPress={() => {

@@ -10,21 +10,11 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -33,20 +23,12 @@ import {
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useListMedicineBatchMutation,
-  useListMedicineMutation,
-  useListMedicineTypeMutation,
-} from '../../../../../../injectEndpoints/phcEndpoints';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import { isNullUndefined } from '../../../../../../utils/CommonFunction';
+import { useListMedicineBatchMutation } from '../../../../../../injectEndpoints/phcEndpoints';
 import moment from 'moment';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -75,7 +57,6 @@ const UpdateStock = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
 
   const ITEMS_PER_PAGE = 10;
 
@@ -109,11 +90,6 @@ const UpdateStock = (props: Props) => {
     }
 
     return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
   };
 
   const listMedicineBatches = (
@@ -287,11 +263,11 @@ const UpdateStock = (props: Props) => {
         renderItem={renderListBedDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.no_data_found}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator

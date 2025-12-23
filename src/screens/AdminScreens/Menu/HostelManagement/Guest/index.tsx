@@ -32,7 +32,6 @@ import FullscreenLoading from '../../../../../components/organisms/FullscreenLoa
 import SearchBoxOrganism from '../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
 import FloatingButton from '../../../../../components/organisms/FloatingButton';
-import { useDeleteTripDetailsMutation } from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ImageAtom from '../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
 import {
@@ -40,9 +39,9 @@ import {
   useGuestListMutation,
 } from '../../../../../injectEndpoints/hostelEndpoints';
 import { useAppSelector } from '../../../../../hooks';
+import ViewAtom from '../../../../../components/atoms/ViewAtom';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -55,6 +54,96 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+interface GuestListCardProps {
+  item: any;
+  index: number;
+  navigation: NavigationType;
+  onDelete: (id: any) => void;
+  onEditDone: () => void;
+}
+
+const GuestListCard = ({
+  item,
+  index,
+  navigation,
+  onDelete,
+  onEditDone,
+}: GuestListCardProps) => {
+  const handleDelete = () => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: strings.guest.deleteConfirmation,
+      message: strings.guest.deleteItemConfirmation,
+      okText: strings.guest.confirm,
+      double: true,
+      cancelText: strings.cancel,
+      okFunction: () => onDelete(item.id),
+      cancelFunction: () => {},
+    });
+  };
+
+  return (
+    <ViewAtom style={styles.card}>
+      <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+        <TextAtom style={[styles.label, styles.flex1]}>
+          {strings.guest.srNo} {index + 1}
+        </TextAtom>
+
+        <View style={styles.actionRow}>
+          <TouchableAtom
+            style={styles.editButton}
+            onPress={() =>
+              navigation.navigate(screensName.AddGuest, {
+                item,
+                onDone: onEditDone,
+              })
+            }
+          >
+            <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
+          </TouchableAtom>
+
+          <TouchableAtom style={styles.deleteButton} onPress={handleDelete}>
+            <ImageAtom source={images.delete} style={styles.iconSmall} />
+          </TouchableAtom>
+        </View>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>{strings.guest.guestId}</TextAtom>
+          <TextAtom style={styles.value}>{item.guestId ?? '-'}</TextAtom>
+        </View>
+        <View style={styles.flex1End}>
+          <TextAtom style={styles.labelRight}>{strings.guest.name}</TextAtom>
+          <TextAtom style={styles.valueRight}>{item.name ?? '-'}</TextAtom>
+        </View>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>{strings.guest.mobileNumber}</TextAtom>
+          <TextAtom style={styles.value}>{item.mobileNo}</TextAtom>
+        </View>
+        <View style={styles.flex1End}>
+          <TextAtom style={styles.labelRight}>{strings.guest.gender}</TextAtom>
+          <TextAtom style={styles.valueRight}>{item.gender ?? '-'}</TextAtom>
+        </View>
+      </View>
+
+      <View style={styles.flex1}>
+        <TextAtom style={styles.label}>{strings.guest.officeEmail}</TextAtom>
+        <TextAtom style={styles.value}>{item.officeEmail ?? '-'}</TextAtom>
+      </View>
+
+      <View style={styles.flex1}>
+        <TextAtom style={styles.label}>{strings.guest.designation}</TextAtom>
+        <TextAtom style={styles.value}>{item.designation ?? '-'}</TextAtom>
+      </View>
+    </ViewAtom>
+  );
+};
+
+const GuestItemSeparator = () => <View style={styles.itemSeparator} />;
 
 const Guest = (props: Props) => {
   const { navigation } = props;
@@ -175,112 +264,23 @@ const Guest = (props: Props) => {
     guestListDetails(1, true, '');
   };
 
-  const GuestListCard = ({ item, index, navigation }: any) => {
-    const handleDelete = () => {
-      navigation.navigate(screensName.AlertOrganism, {
-        title: strings.guest.deleteConfirmation,
-        message: strings.guest.deleteItemConfirmation,
-        okText: strings.guest.confirm,
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          deleteGuest(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
+  const deleteGuest = (id: any) => {
+    setInitialCall(true);
 
-    const deleteGuest = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        guestId: id,
-      };
-      deleteGuestApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || strings.something_went_wrong,
-          });
+    deleteGuestApi({ guestId: id })
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({ type: 'success', text2: res.data.message });
+        setInitialCall(false);
+        setFirstTimeLoad(true);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || strings.something_went_wrong,
         });
-    };
-
-    return (
-      <TouchableAtom style={styles.card} onPress={() => {}}>
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, styles.flex1]}>
-            {strings.guest.srNo} {index + 1}
-          </TextAtom>
-
-          <View style={styles.actionRow}>
-            <TouchableAtom
-              style={styles.editButton}
-              onPress={() => {
-                navigation.navigate(screensName.AddGuest, {
-                  item: item,
-                  onDone: () => guestListDetails(1, true, search),
-                });
-              }}
-            >
-              <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
-            </TouchableAtom>
-
-            <TouchableAtom
-              style={styles.deleteButton}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom source={images.delete} style={styles.iconSmall} />
-            </TouchableAtom>
-          </View>
-        </View>
-        <View style={styles.rowBetween}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>{strings.guest.guestId}</TextAtom>
-            <TextAtom style={styles.value}>{item.guestId ?? '-'}</TextAtom>
-          </View>
-          <View style={styles.flex1End}>
-            <TextAtom style={styles.labelRight}>{strings.guest.name}</TextAtom>
-            <TextAtom style={styles.valueRight}>{item.name ?? '-'}</TextAtom>
-          </View>
-        </View>
-
-        <View style={[styles.rowBetween]}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.guest.mobileNumber}
-            </TextAtom>
-            <TextAtom style={styles.value}>{item.mobileNo}</TextAtom>
-          </View>
-          <View style={styles.flex1End}>
-            <TextAtom style={styles.labelRight}>
-              {strings.guest.gender}
-            </TextAtom>
-            <TextAtom style={styles.valueRight}>{item.gender ?? '-'}</TextAtom>
-          </View>
-        </View>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>{strings.guest.officeEmail}</TextAtom>
-          <TextAtom style={styles.value}>{item.officeEmail ?? '-'}</TextAtom>
-        </View>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>{strings.guest.designation}</TextAtom>
-          <TextAtom style={styles.value}>{item.designation ?? '-'}</TextAtom>
-        </View>
-      </TouchableAtom>
-    );
-  };
-
-  const renderGuestListDetails = ({ item, index }: any) => {
-    return <GuestListCard item={item} index={index} navigation={navigation} />;
+      });
   };
 
   return (
@@ -327,16 +327,24 @@ const Guest = (props: Props) => {
       />
 
       <FlatList
+        keyExtractor={item => String(item.id)}
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderGuestListDetails}
-        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item, index }) => (
+          <GuestListCard
+            item={item}
+            index={index}
+            navigation={navigation}
+            onDelete={deleteGuest}
+            onEditDone={() => guestListDetails(1, true, search)}
+          />
+        )}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.guest.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -364,7 +372,7 @@ const Guest = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
+        ItemSeparatorComponent={GuestItemSeparator}
       />
       <FloatingButton
         onButtonPress={() => {

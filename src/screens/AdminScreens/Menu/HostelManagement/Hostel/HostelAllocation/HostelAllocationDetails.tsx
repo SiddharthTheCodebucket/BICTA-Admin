@@ -50,6 +50,16 @@ const HostelAllocationDetails = ({ route, navigation }: any) => {
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
+  let trainingProgrammeValue: any = '-';
+
+  if (data?.nameOfTrainingProgramme) {
+    trainingProgrammeValue = data.nameOfTrainingProgramme;
+
+    if (data?.nameOfTrainingProgrammeId) {
+      trainingProgrammeValue += ` (${data.nameOfTrainingProgrammeId})`;
+    }
+  }
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <ScrollView
@@ -59,15 +69,7 @@ const HostelAllocationDetails = ({ route, navigation }: any) => {
         <ViewAtom style={styles.card}>
           <FullWidthField
             label={strings.hostelManagement.hostelAllocation.trainingProgramme}
-            value={
-              data?.nameOfTrainingProgramme
-                ? `${data.nameOfTrainingProgramme}${
-                    data?.nameOfTrainingProgrammeId
-                      ? ` (${data.nameOfTrainingProgrammeId})`
-                      : ''
-                  }`
-                : '-'
-            }
+            value={trainingProgrammeValue}
           />
 
           <FieldRow

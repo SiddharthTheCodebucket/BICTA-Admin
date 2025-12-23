@@ -1,18 +1,10 @@
-import { Keyboard, Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import { Keyboard, StyleSheet } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {
-  colors,
-  fonts,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -63,9 +55,9 @@ const AddBedDetails = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item)
-        ? strings.hostelManagement.addBedDetails.editTitle
-        : strings.hostelManagement.addBedDetails.addTitle,
+      isNullUndefined(item)
+        ? strings.hostelManagement.addBedDetails.addTitle
+        : strings.hostelManagement.addBedDetails.editTitle,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);

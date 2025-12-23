@@ -45,7 +45,6 @@ import ViewAtom from '../../../../../components/atoms/ViewAtom';
 import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -182,7 +181,7 @@ const VehicleRegistration = (props: Props) => {
   };
 
   const VehicleCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
+    const [statusValue] = useState(item.status ?? 'Active');
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
     const onSelectStatus = (newStatus: string) => {
@@ -477,9 +476,9 @@ const VehicleRegistration = (props: Props) => {
         renderItem={renderListVehicleDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator

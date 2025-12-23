@@ -55,7 +55,6 @@ import {
 import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -99,14 +98,14 @@ const HostelAllocation = (props: Props) => {
 
   const [isComingFromDropdown, setIsComingFromDropdown] = useState(false);
 
-  const [trainindDetailList, setTrainingDetailList] = useState<any>([]);
+  const [trainingDetailList, setTrainingDetailList] = useState<any>([]);
   const [trainindDetail, setTrainindDetail] = useState<any>({});
-  const [genderList, setGenderList] = useState<any>([
+  const [genderList] = useState<any>([
     { id: 'Male', name: 'Male' },
     { id: 'Female', name: 'Female' },
   ]);
   const [gender, setGender] = useState<any>({});
-  const [allocationStatusList, setAllocationStatusList] = useState<any>([
+  const [allocationStatusList] = useState<any>([
     { id: 'Pending for allocation', name: 'Pending' },
     { id: 'Allocated', name: 'Allocated' },
   ]);
@@ -553,7 +552,7 @@ const HostelAllocation = (props: Props) => {
         onPress={() => {
           navigation.navigate('DropDownModal', {
             name: strings.hostelManagement.hostelAllocation.trainingDetail,
-            Data: trainindDetailList,
+            Data: trainingDetailList,
             selectedData: trainindDetail,
             setSelectedData: (data: any) => {
               setTrainindDetail(data);
@@ -871,9 +870,9 @@ const HostelAllocation = (props: Props) => {
         renderItem={renderListRoomDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -959,7 +958,7 @@ const HostelAllocation = (props: Props) => {
                 setIsComingFromDropdown(true);
                 navigation.navigate('DropDownModal', {
                   name: 'Hostel List',
-                  Data: trainindDetailList,
+                  Data: trainingDetailList,
                   selectedData: selectedHostel,
                   setSelectedData: (data: any) => setSelectedHostel(data),
                   typeName: 'name',

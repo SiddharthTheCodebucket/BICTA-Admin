@@ -1,18 +1,10 @@
-import { Keyboard, Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {
-  colors,
-  fonts,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -75,9 +67,9 @@ const AddHostelDetails = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item)
-        ? strings.hostelManagement.addHostelDetails.editTitle
-        : strings.hostelManagement.addHostelDetails.addTitle,
+      isNullUndefined(item)
+        ? strings.hostelManagement.addHostelDetails.addTitle
+        : strings.hostelManagement.addHostelDetails.editTitle,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -94,11 +86,6 @@ const AddHostelDetails = (props: Props) => {
     getTrainingCenter();
 
     if (!item) return;
-
-    const locationMap: any = {
-      1: { id: 'Gaya', name: 'Gaya' },
-      2: { id: 'Patna', name: 'Patna' },
-    };
 
     const selectedTrainingCenter = {
       id: item.trainingCentre,
@@ -283,7 +270,7 @@ const AddHostelDetails = (props: Props) => {
   };
 
   const handleAlternateChange = (text: any, index: any) => {
-    const numeric = text.replace(/[^0-9]/g, '').slice(0, 10);
+    const numeric = text.replaceAll(/\D/g, '').slice(0, 10);
 
     const updated = [...form.alternateContactNo];
     updated[index] = numeric;
@@ -495,7 +482,10 @@ const AddHostelDetails = (props: Props) => {
         )}
 
         {form?.alternateContactNo?.map((num: any, index: any) => (
-          <ViewAtom key={index} style={styles.alternateRow}>
+          <ViewAtom
+            key={index.toString() + num?.toString()}
+            style={styles.alternateRow}
+          >
             <TextInputOrganisms
               label={
                 index === 0

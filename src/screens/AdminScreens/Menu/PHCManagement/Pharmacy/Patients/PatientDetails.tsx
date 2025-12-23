@@ -3,7 +3,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -124,7 +123,10 @@ const PatientDetails = ({ route, navigation }: any) => {
 
             {data?.medicine?.length > 0 ? (
               data.medicine.map((item: any, index: number) => (
-                <MedicineCard key={index} item={item} />
+                <MedicineCard
+                  key={index.toString() + item?.medicineName}
+                  item={item}
+                />
               ))
             ) : (
               <TextAtom style={styles.fullValue}>

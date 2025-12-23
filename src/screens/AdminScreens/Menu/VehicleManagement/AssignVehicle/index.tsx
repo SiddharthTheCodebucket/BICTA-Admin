@@ -46,7 +46,6 @@ import moment from 'moment';
 import { useAppSelector } from '../../../../../hooks';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -380,11 +379,7 @@ const AssignVehicle = (props: Props) => {
               height: vh(30),
             }}
             onPress={() => {
-              if (item.isRemoved !== 'No') {
-                setSelectedAssignItem(item);
-                setShowAssignModal(true);
-                getDriverList();
-              } else {
+              if (item.isRemoved === 'No') {
                 navigation.navigate(screensName.AlertOrganism, {
                   title: 'Release Confirmation',
                   message:
@@ -395,6 +390,10 @@ const AssignVehicle = (props: Props) => {
                   okFunction: () => removeAssignStatus(item.id),
                   cancelFunction: () => {},
                 });
+              } else {
+                setSelectedAssignItem(item);
+                setShowAssignModal(true);
+                getDriverList();
               }
             }}
           >
@@ -506,9 +505,9 @@ const AssignVehicle = (props: Props) => {
         renderItem={renderListVehicleDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator

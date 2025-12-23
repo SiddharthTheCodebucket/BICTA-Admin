@@ -903,9 +903,9 @@ const TraineeRelease = (props: Props) => {
         renderItem={renderListRoomDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListHeaderComponent={<View>{showFilter && <FilterForm />}</View>}
         ListFooterComponent={

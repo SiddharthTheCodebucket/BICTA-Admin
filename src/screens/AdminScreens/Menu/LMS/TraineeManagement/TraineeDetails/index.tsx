@@ -737,7 +737,7 @@ const TraineeDetails = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={{ height:'auto' }}>
+      <View style={{ height: 'auto' }}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View
             style={{
@@ -815,30 +815,26 @@ const TraineeDetails = (props: Props) => {
           {/* {showFilter && <FilterForm />} */}
 
           {crediantialData.user[0].tenantId === 3 && (
-
-
             <DropDownOrganism
-            label={''}
-            placeholder={'Centers'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Center',
-                Data: [
-                  { id: 'All Centers', name: 'All Centers' },
-                  { id: 'Gaya', name: 'Gaya' },
-                  { id: 'Patna', name: 'Patna' },
-                ],
-                selectedData: centerSerach,
-                setSelectedData: setCenterSerach,
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={centerSerach?.name}
-            containerStyle={{ marginBottom: vh(5) }}
-          />
-
-
+              label={''}
+              placeholder={'Centers'}
+              onPress={() => {
+                navigation.navigate('DropDownModal', {
+                  name: 'Center',
+                  Data: [
+                    { id: 'All Centers', name: 'All Centers' },
+                    { id: 'Gaya', name: 'Gaya' },
+                    { id: 'Patna', name: 'Patna' },
+                  ],
+                  selectedData: centerSerach,
+                  setSelectedData: setCenterSerach,
+                  typeName: 'name',
+                  typeId: 'id',
+                });
+              }}
+              inputText={centerSerach?.name}
+              containerStyle={{ marginBottom: vh(5) }}
+            />
           )}
           <SearchBoxOrganism
             onChangeText={onChangeSearch}
@@ -873,9 +869,9 @@ const TraineeDetails = (props: Props) => {
         renderItem={renderListRoomDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListHeaderComponent={<View>{showFilter && <FilterForm />}</View>}
         ListFooterComponent={

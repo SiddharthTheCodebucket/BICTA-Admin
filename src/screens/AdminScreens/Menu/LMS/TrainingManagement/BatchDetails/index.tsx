@@ -187,28 +187,26 @@ const BatchDetails = (props: Props) => {
       <View style={{ height: 'auto' }}>
         <ScrollView showsVerticalScrollIndicator={false}>
           {crediantialData.user[0].tenantId === 3 && (
-
             <DropDownOrganism
-            label={''}
-            placeholder={'Centers'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Center',
-                Data: [
-                  { id: 'All Centers', name: 'All Centers' },
-                  { id: 'Gaya', name: 'Gaya' },
-                  { id: 'Patna', name: 'Patna' },
-                ],
-                selectedData: centerSerach,
-                setSelectedData: setCenterSerach,
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={centerSerach?.name}
-            containerStyle={{ marginBottom: vh(5) }}
-          />
-
+              label={''}
+              placeholder={'Centers'}
+              onPress={() => {
+                navigation.navigate('DropDownModal', {
+                  name: 'Center',
+                  Data: [
+                    { id: 'All Centers', name: 'All Centers' },
+                    { id: 'Gaya', name: 'Gaya' },
+                    { id: 'Patna', name: 'Patna' },
+                  ],
+                  selectedData: centerSerach,
+                  setSelectedData: setCenterSerach,
+                  typeName: 'name',
+                  typeId: 'id',
+                });
+              }}
+              inputText={centerSerach?.name}
+              containerStyle={{ marginBottom: vh(5) }}
+            />
           )}
           <SearchBoxOrganism
             onChangeText={onChangeSearch}
@@ -244,9 +242,9 @@ const BatchDetails = (props: Props) => {
         renderItem={renderCard}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator

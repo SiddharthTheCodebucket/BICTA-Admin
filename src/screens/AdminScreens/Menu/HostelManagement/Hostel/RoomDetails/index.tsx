@@ -47,7 +47,6 @@ import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -199,10 +198,10 @@ const RoomDetails = (props: Props) => {
   };
 
   const RoomCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
-    const [roomTypeValue, setRoomTypeValue] = useState(item.roomType ?? null);
+    const [statusValue] = useState(item.status ?? 'Active');
+    const [roomTypeValue] = useState(item.roomType ?? null);
     const [showStatusMenu, setShowStatusMenu] = useState(false);
-    const [showRoomTypeMenu, setShowSRoomtypeMenu] = useState(false);
+    const [showRoomTypeMenu, setShowRoomTypeMenu] = useState(false);
 
     const onSelectStatus = (newStatus: string) => {
       setShowStatusMenu(false);
@@ -222,7 +221,7 @@ const RoomDetails = (props: Props) => {
       });
     };
     const onSelectRoomType = (roomType: string) => {
-      setShowSRoomtypeMenu(false);
+      setShowRoomTypeMenu(false);
 
       if (roomType === roomTypeValue) return;
 
@@ -453,7 +452,7 @@ const RoomDetails = (props: Props) => {
 
         {showRoomTypeMenu && (
           <TouchableOpacity
-            onPress={() => setShowSRoomtypeMenu(false)}
+            onPress={() => setShowRoomTypeMenu(false)}
             style={styles.overlay}
           />
         )}
@@ -464,7 +463,7 @@ const RoomDetails = (props: Props) => {
           </TextAtom>
 
           <TouchableAtom
-            onPress={() => setShowSRoomtypeMenu(!showRoomTypeMenu)}
+            onPress={() => setShowRoomTypeMenu(!showRoomTypeMenu)}
             style={[styles.statusBox, { borderColor: colors.primary }]}
           >
             <TextAtom style={[styles.statusText, { color: colors.black }]}>
@@ -681,11 +680,11 @@ const RoomDetails = (props: Props) => {
         renderItem={renderListRoomDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          !initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.hostelManagement.roomDetails.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator

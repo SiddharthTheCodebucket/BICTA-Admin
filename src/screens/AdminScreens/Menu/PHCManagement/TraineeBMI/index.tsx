@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, images, screensName, vh, vw } from '../../../../../constants';
+import { colors, screensName, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,

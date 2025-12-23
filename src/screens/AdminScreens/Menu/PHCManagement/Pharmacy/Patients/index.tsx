@@ -10,7 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
   LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -34,28 +33,14 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useBedDetailsRoomMutation,
-  useDeleteBedDetailsRoomMutation,
-  useUpdateBedDetailsRoomMutation,
-} from '../../../../../../injectEndpoints/hostelEndpoints';
-import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import {
-  useDeleteFacultyDetailsMutation,
-  useListFacultyDetailsMutation,
-  useListKnowledgeManagementMutation,
-  useUpdateFacultyDetailsMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
 import { useListPatientPrescriptionsMutation } from '../../../../../../injectEndpoints/phcEndpoints';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -244,11 +229,6 @@ const Patients = (props: Props) => {
     listPatients(1, true, '');
   };
   const BedCard = ({ item, index, navigation }: any) => {
-    const thumbnail =
-      item?.thumbnail && item.thumbnail !== null && item.thumbnail !== ''
-        ? { uri: item.thumbnail }
-        : null;
-
     return (
       <TouchableAtom
         style={styles.card}
@@ -363,16 +343,15 @@ const Patients = (props: Props) => {
         <TouchableAtom
           style={styles.filterButton}
           onPress={() => {
-            if (!selectedDateTime?.id) {
+            if (selectedDateTime?.id) {
+              if (exportUrl) {
+                downloadAndOpenFile(exportUrl);
+              }
+            } else {
               Toast.show({
                 type: 'error',
                 text2: strings.apply_month_year_filter_before_downloading,
               });
-              return;
-            } else {
-              if (exportUrl) {
-                downloadAndOpenFile(exportUrl);
-              }
             }
           }}
         >
@@ -420,11 +399,11 @@ const Patients = (props: Props) => {
         renderItem={renderListBedDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.no_data_found}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -454,11 +433,6 @@ const Patients = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };

@@ -42,7 +42,6 @@ import DropDownOrganism from '../../../../../components/organisms/DropDownOrgani
 import { useAppSelector } from '../../../../../hooks';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -366,9 +365,9 @@ const CreateTour = (props: Props) => {
         renderItem={renderListTourDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator

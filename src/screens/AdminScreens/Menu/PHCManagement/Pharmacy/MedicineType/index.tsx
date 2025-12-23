@@ -10,21 +10,11 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -33,18 +23,11 @@ import {
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useListMedicineMutation,
-  useListMedicineTypeMutation,
-} from '../../../../../../injectEndpoints/phcEndpoints';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import { isNullUndefined } from '../../../../../../utils/CommonFunction';
+import { useListMedicineTypeMutation } from '../../../../../../injectEndpoints/phcEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -73,7 +56,6 @@ const MedicineType = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
 
   const ITEMS_PER_PAGE = 10;
 
@@ -107,11 +89,6 @@ const MedicineType = (props: Props) => {
     }
 
     return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
   };
 
   const listMedicineTypes = (
@@ -248,11 +225,11 @@ const MedicineType = (props: Props) => {
         renderItem={renderListBedDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.no_data_found}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -282,11 +259,6 @@ const MedicineType = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };

@@ -3,16 +3,8 @@ import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {
-  colors,
-  fonts,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -85,7 +77,6 @@ const EditGuestHostelallocation = (props: Props) => {
   useEffect(() => {
     if (!item) return;
 
-    // let preEmail = item.officeEmail || item.mobileNo || "";
     setValue('emailId', '');
 
     const genderObj =
@@ -127,7 +118,7 @@ const EditGuestHostelallocation = (props: Props) => {
   }, [item, form.genderList]);
 
   const isEmail = (val: string) => /\S+@\S+\.\S+/.test(val);
-  const isNumeric = (val: string) => /^[0-9]+$/.test(val);
+  const isNumeric = (val: string) => /^\D+$/.test(val);
 
   const schema = Yup.object().shape({
     purpose: Yup.string().required(

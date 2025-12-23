@@ -1,18 +1,10 @@
-import { Keyboard, Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import { Keyboard, StyleSheet } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {
-  colors,
-  fonts,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../constants';
+import { colors, strings, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -54,9 +46,9 @@ const AddGuest = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item)
-        ? strings.addGuest.editGuest
-        : strings.addGuest.addGuest,
+      isNullUndefined(item)
+        ? strings.addGuest.addGuest
+        : strings.addGuest.editGuest,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -118,7 +110,6 @@ const AddGuest = (props: Props) => {
     gender: Yup.object({
       name: Yup.string().required(strings.addGuest.genderRequired),
     }),
-    // designation: Yup.string().required('Designation is required'),
     mobileNo: Yup.string()
       .required(strings.addGuest.mobileNumberRequired)
       .max(10, strings.enter_valid_mobile)
@@ -161,16 +152,6 @@ const AddGuest = (props: Props) => {
     addGuestApi(params)
       .unwrap()
       .then((res: any) => {
-        // navigation.dispatch(
-        //   CommonActions.reset({
-        //     index: 0,
-        //     routes: [
-        //       {
-        //         name: screensName.Guest,
-        //       },
-        //     ],
-        //   }),
-        // );
         navigation.goBack();
         props.route.params?.onDone?.();
         Toast.show({
@@ -203,16 +184,6 @@ const AddGuest = (props: Props) => {
     updateGuestApi(params)
       .unwrap()
       .then((res: any) => {
-        // navigation.dispatch(
-        //   CommonActions.reset({
-        //     index: 0,
-        //     routes: [
-        //       {
-        //         name: screensName.Guest,
-        //       },
-        //     ],
-        //   }),
-        // );
         navigation.goBack();
         props.route.params?.onDone?.();
         Toast.show({
@@ -336,10 +307,7 @@ const AddGuest = (props: Props) => {
           returnKeyType={'done'}
           onChangeText={(val: string) => {
             setValue('designation', val);
-            // setErrors({ ...errors, designation: '' });
           }}
-          //   isMandatory
-          //   errorMessage={errors.designation}
         />
         <DropDownOrganism
           label={strings.addGuest.gender}

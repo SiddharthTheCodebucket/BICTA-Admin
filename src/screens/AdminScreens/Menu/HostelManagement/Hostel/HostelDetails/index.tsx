@@ -43,7 +43,6 @@ import {
 } from '../../../../../../injectEndpoints/hostelEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -56,6 +55,8 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+const HostelItemSeparator = () => <View style={styles.itemSeparator} />;
 
 const HostelDetails = (props: Props) => {
   const { navigation } = props;
@@ -181,7 +182,7 @@ const HostelDetails = (props: Props) => {
   };
 
   const HostelCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
+    const [statusValue] = useState(item.status ?? 'Active');
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
     const onSelectStatus = (newStatus: string) => {
@@ -472,11 +473,11 @@ const HostelDetails = (props: Props) => {
         renderItem={renderListHostelDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.hostelManagement.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -504,7 +505,7 @@ const HostelDetails = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
+        ItemSeparatorComponent={HostelItemSeparator}
       />
       <FloatingButton
         onButtonPress={() => {

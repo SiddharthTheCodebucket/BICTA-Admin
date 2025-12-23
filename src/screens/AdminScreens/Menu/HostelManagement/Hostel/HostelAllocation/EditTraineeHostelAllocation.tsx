@@ -1,18 +1,10 @@
-import { Keyboard, Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import { Keyboard, StyleSheet } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {
-  colors,
-  fonts,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -21,7 +13,6 @@ import TextInputOrganisms from '../../../../../../components/organisms/TextInput
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import { isNullUndefined } from '../../../../../../utils/CommonFunction';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import { useUpdateHostelAllocationMutation } from '../../../../../../injectEndpoints/hostelEndpoints';
 

@@ -48,7 +48,6 @@ import {
 import { useAppSelector } from '../../../../../../hooks';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -61,6 +60,269 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+const HostelAllocationSeparator = () => <View style={{ height: vh(10) }} />;
+
+interface TraineeCardProps {
+  item: any;
+  index: number;
+  navigation: NavigationType;
+}
+
+const TraineeCard = ({ item, index, navigation }: TraineeCardProps) => {
+  return (
+    <TouchableAtom
+      style={styles.card}
+      onPress={() =>
+        navigation.navigate(screensName.TrainneHostelAllocationDetails, {
+          data: item,
+        })
+      }
+    >
+      <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+        <TextAtom style={[styles.label, styles.flex1]}>
+          {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
+        </TextAtom>
+      </View>
+
+      <View>
+        <TextAtom style={styles.label}>
+          {strings.hostelManagement.hostelAllocationHistory.trainingProgramme}
+        </TextAtom>
+        <TextAtom style={styles.value}>
+          {item.nameOfTrainingProgramme || '-'}
+          {item.nameOfTrainingProgrammeId
+            ? ` (${item.nameOfTrainingProgrammeId})`
+            : ''}
+        </TextAtom>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocationHistory.courseStartDate}
+          </TextAtom>
+          <TextAtom style={styles.value}>
+            {moment(item.courseStartDate).format('DD-MM-YYYY')}
+          </TextAtom>
+        </View>
+
+        <View style={styles.flexEnd}>
+          <TextAtom style={styles.labelRight}>
+            {strings.hostelManagement.hostelAllocationHistory.courseEndDate}
+          </TextAtom>
+          <TextAtom style={styles.valueRight}>
+            {moment(item.courseEndDate).format('DD-MM-YYYY')}
+          </TextAtom>
+        </View>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocationHistory.hostel}
+          </TextAtom>
+          <TextAtom style={styles.value}>{item.hostelName ?? '-'}</TextAtom>
+        </View>
+
+        <View style={styles.centerAlign}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocationHistory.room}
+          </TextAtom>
+          <TextAtom style={styles.value}>{item.roomNo ?? '-'}</TextAtom>
+        </View>
+
+        <View style={styles.flexEnd}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocationHistory.bed}
+          </TextAtom>
+          <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
+        </View>
+      </View>
+    </TouchableAtom>
+  );
+};
+
+interface GuestCardProps {
+  item: any;
+  index: number;
+}
+
+const GuestCard = ({ item, index }: GuestCardProps) => {
+  return (
+    <View style={styles.card}>
+      <TextAtom style={[styles.label, styles.marginBottom5]}>
+        {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
+      </TextAtom>
+
+      <View>
+        <TextAtom style={styles.label}>
+          {strings.hostelManagement.hostelAllocationHistory.name}
+        </TextAtom>
+        <TextAtom style={styles.value}>{item.name || '-'}</TextAtom>
+      </View>
+
+      <View>
+        <TextAtom style={styles.label}>
+          {strings.hostelManagement.hostelAllocationHistory.email}
+        </TextAtom>
+        <TextAtom style={styles.value}>{item.officeEmail || '-'}</TextAtom>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <TextAtom style={styles.label}>
+          {strings.hostelManagement.hostelAllocationHistory.mobileNumber}
+        </TextAtom>
+        <TextAtom style={styles.value}>{item.mobileNo ?? '-'}</TextAtom>
+      </View>
+
+      <View style={[styles.rowBetween, styles.marginTop8]}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocationHistory.hostel}
+          </TextAtom>
+          <TextAtom style={styles.value}>{item.hostelName ?? '-'}</TextAtom>
+        </View>
+
+        <View style={styles.centerAlign}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocationHistory.room}
+          </TextAtom>
+          <TextAtom style={styles.value}>{item.roomNo ?? '-'}</TextAtom>
+        </View>
+
+        <View style={styles.flexEnd}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocationHistory.bed}
+          </TextAtom>
+          <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+interface FilterFormProps {
+  navigation: NavigationType;
+  trainingDetailList: any[];
+  trainindDetail: any;
+  setTrainindDetail: (d: any) => void;
+  genderList: any[];
+  gender: any;
+  setGender: (d: any) => void;
+  hostelList: any[];
+  hostel: any;
+  setHostel: (d: any) => void;
+  startDate: any;
+  endDate: any;
+  setStartDate: (d: any) => void;
+  setEndDate: (d: any) => void;
+  applyFilter: () => void;
+  clearFilter: () => void;
+}
+
+const FilterForm = ({
+  navigation,
+  trainingDetailList,
+  trainindDetail,
+  setTrainindDetail,
+  genderList,
+  gender,
+  setGender,
+  hostelList,
+  hostel,
+  setHostel,
+  startDate,
+  endDate,
+  setStartDate,
+  setEndDate,
+  applyFilter,
+  clearFilter,
+}: FilterFormProps) => (
+  <View style={styles.filterContainer}>
+    <DropDownOrganism
+      label={strings.hostelManagement.hostelAllocationHistory.trainingDetail}
+      placeholder={
+        strings.hostelManagement.hostelAllocationHistory.trainingDetail
+      }
+      onPress={() =>
+        navigation.navigate('DropDownModal', {
+          name: strings.hostelManagement.hostelAllocationHistory.trainingDetail,
+          Data: trainingDetailList,
+          selectedData: trainindDetail,
+          setSelectedData: setTrainindDetail,
+          typeName: 'name',
+          typeId: 'id',
+        })
+      }
+      inputText={trainindDetail?.name}
+    />
+
+    <DropDownOrganism
+      label={strings.hostelManagement.hostelAllocationHistory.gender}
+      placeholder={strings.hostelManagement.hostelAllocationHistory.gender}
+      onPress={() =>
+        navigation.navigate('DropDownModal', {
+          name: strings.hostelManagement.hostelAllocationHistory.gender,
+          Data: genderList,
+          selectedData: gender,
+          setSelectedData: setGender,
+          typeName: 'name',
+          typeId: 'id',
+        })
+      }
+      inputText={gender?.name}
+    />
+
+    <DropDownOrganism
+      label={strings.hostelManagement.hostelAllocationHistory.hostel}
+      placeholder={strings.hostelManagement.hostelAllocationHistory.hostel}
+      onPress={() =>
+        navigation.navigate('DropDownModal', {
+          name: strings.hostelManagement.hostelAllocationHistory.hostel,
+          Data: hostelList,
+          selectedData: hostel,
+          setSelectedData: setHostel,
+          typeName: 'name',
+          typeId: 'id',
+        })
+      }
+      inputText={hostel?.name}
+    />
+
+    <DateInputOrganism
+      label={strings.hostelManagement.hostelAllocationHistory.startDate}
+      placeholder={strings.hostelManagement.hostelAllocationHistory.startDate}
+      value={startDate}
+      onChangeText={setStartDate}
+      fieldName="date"
+      dateFormat="DD-MM-YYYY"
+    />
+
+    <DateInputOrganism
+      label={strings.hostelManagement.hostelAllocationHistory.endDate}
+      placeholder={strings.hostelManagement.hostelAllocationHistory.endDate}
+      value={endDate}
+      onChangeText={setEndDate}
+      fieldName="date"
+      dateFormat="DD-MM-YYYY"
+    />
+
+    <ViewAtom style={styles.buttonRow}>
+      <ButtonOrganism
+        onPress={applyFilter}
+        bttnText={strings.hostelManagement.hostelAllocationHistory.applyFilter}
+        containerStyle={styles.applyBtn}
+      />
+      <ButtonOrganism
+        onPress={clearFilter}
+        bttnText={strings.hostelManagement.hostelAllocationHistory.clearFilter}
+        containerStyle={styles.clearBtn}
+        bttnTextStyle={styles.colorPrimary}
+      />
+    </ViewAtom>
+  </View>
+);
 
 const HostelAllocationHistory = (props: Props) => {
   const { navigation } = props;
@@ -79,9 +341,9 @@ const HostelAllocationHistory = (props: Props) => {
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
 
-  const [trainindDetailList, setTrainingDetailList] = useState<any>([]);
+  const [trainingDetailList, setTrainingDetailList] = useState<any>([]);
   const [trainindDetail, setTrainindDetail] = useState<any>({});
-  const [genderList, setGenderList] = useState<any>([
+  const [genderList] = useState<any>([
     { id: 'Male', name: 'Male' },
     { id: 'Female', name: 'Female' },
   ]);
@@ -227,235 +489,13 @@ const HostelAllocationHistory = (props: Props) => {
     hostelAllocationDetails(1, true, '');
   };
 
-  const TraineeCard = ({ item, index, navigation }: any) => {
-    return (
-      <TouchableAtom
-        style={styles.card}
-        onPress={() => {
-          navigation.navigate(screensName.TrainneHostelAllocationDetails, {
-            data: item,
-          });
-        }}
-      >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, styles.flex1]}>
-            {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
-          </TextAtom>
-        </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.hostelAllocationHistory.trainingProgramme}
-          </TextAtom>
-          <TextAtom style={styles.value}>
-            {item.nameOfTrainingProgramme || '-'}
-            {item.nameOfTrainingProgrammeId
-              ? ` (${item.nameOfTrainingProgrammeId})`
-              : ''}
-          </TextAtom>
-        </View>
-
-        <View style={styles.rowBetween}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.hostelManagement.hostelAllocationHistory.courseStartDate}
-            </TextAtom>
-            <TextAtom style={styles.value}>
-              {moment(item.courseStartDate).format('DD-MM-YYYY')}
-            </TextAtom>
-          </View>
-          <View style={styles.flexEnd}>
-            <TextAtom style={styles.labelRight}>
-              {strings.hostelManagement.hostelAllocationHistory.courseEndDate}
-            </TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {moment(item.courseEndDate).format('DD-MM-YYYY')}
-            </TextAtom>
-          </View>
-        </View>
-        <View style={[styles.rowBetween]}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.hostelManagement.hostelAllocationHistory.hostel}
-            </TextAtom>
-            <TextAtom style={styles.value}>{item.hostelName ?? '-'}</TextAtom>
-          </View>
-
-          <View style={styles.centerAlign}>
-            <TextAtom style={styles.label}>
-              {strings.hostelManagement.hostelAllocationHistory.room}
-            </TextAtom>
-            <TextAtom style={styles.value}>{item.roomNo ?? '-'}</TextAtom>
-          </View>
-
-          <View style={styles.flexEnd}>
-            <TextAtom style={styles.label}>
-              {strings.hostelManagement.hostelAllocationHistory.bed}
-            </TextAtom>
-            <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
-          </View>
-        </View>
-      </TouchableAtom>
+  const renderListRoomDetails = ({ item, index }: any) =>
+    activeTab === 'Guest' ? (
+      <GuestCard item={item} index={index} />
+    ) : (
+      <TraineeCard item={item} index={index} navigation={navigation} />
     );
-  };
 
-  const GuestCard = ({ item, index }: any) => {
-    return (
-      <View style={styles.card}>
-        <TextAtom style={[styles.label, styles.marginBottom5]}>
-          {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
-        </TextAtom>
-
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.hostelAllocationHistory.name}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.name || '-'}</TextAtom>
-        </View>
-
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.hostelAllocationHistory.email}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.officeEmail || '-'}</TextAtom>
-        </View>
-
-        <View style={styles.rowBetween}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.hostelAllocationHistory.mobileNumber}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.mobileNo ?? '-'}</TextAtom>
-        </View>
-
-        <View style={[styles.rowBetween, styles.marginTop8]}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.hostelManagement.hostelAllocationHistory.hostel}
-            </TextAtom>
-            <TextAtom style={styles.value}>{item.hostelName ?? '-'}</TextAtom>
-          </View>
-
-          <View style={styles.centerAlign}>
-            <TextAtom style={styles.label}>
-              {strings.hostelManagement.hostelAllocationHistory.room}
-            </TextAtom>
-            <TextAtom style={styles.value}>{item.roomNo ?? '-'}</TextAtom>
-          </View>
-
-          <View style={styles.flexEnd}>
-            <TextAtom style={styles.label}>
-              {strings.hostelManagement.hostelAllocationHistory.bed}
-            </TextAtom>
-            <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
-          </View>
-        </View>
-      </View>
-    );
-  };
-
-  const renderListRoomDetails = ({ item, index }: any) => {
-    if (activeTab === 'Guest') {
-      return <GuestCard item={item} index={index} />;
-    } else {
-      return <TraineeCard item={item} index={index} navigation={navigation} />;
-    }
-  };
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DropDownOrganism
-        label={strings.hostelManagement.hostelAllocationHistory.trainingDetail}
-        placeholder={
-          strings.hostelManagement.hostelAllocationHistory.trainingDetail
-        }
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.hostelManagement.hostelAllocationHistory
-              .trainingDetail,
-            Data: trainindDetailList,
-            selectedData: trainindDetail,
-            setSelectedData: (data: any) => {
-              setTrainindDetail(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={trainindDetail?.name}
-      />
-
-      <DropDownOrganism
-        label={strings.hostelManagement.hostelAllocationHistory.gender}
-        placeholder={strings.hostelManagement.hostelAllocationHistory.gender}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.hostelManagement.hostelAllocationHistory.gender,
-            Data: genderList,
-            selectedData: gender,
-            setSelectedData: (data: any) => {
-              setGender(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={gender?.name}
-      />
-
-      <DropDownOrganism
-        label={strings.hostelManagement.hostelAllocationHistory.hostel}
-        placeholder={strings.hostelManagement.hostelAllocationHistory.hostel}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.hostelManagement.hostelAllocationHistory.hostel,
-            Data: hostelList,
-            selectedData: hostel,
-            setSelectedData: (data: any) => {
-              setHostel(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={hostel?.name}
-      />
-      <DateInputOrganism
-        label={strings.hostelManagement.hostelAllocationHistory.startDate}
-        placeholder={strings.hostelManagement.hostelAllocationHistory.startDate}
-        value={startDate}
-        onChangeText={(val: any) => {
-          setStartDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <DateInputOrganism
-        label={strings.hostelManagement.hostelAllocationHistory.endDate}
-        placeholder={strings.hostelManagement.hostelAllocationHistory.endDate}
-        value={endDate}
-        onChangeText={(val: any) => {
-          setEndDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText={
-            strings.hostelManagement.hostelAllocationHistory.applyFilter
-          }
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText={
-            strings.hostelManagement.hostelAllocationHistory.clearFilter
-          }
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={styles.colorPrimary}
-        />
-      </ViewAtom>
-    </View>
-  );
   const clearFilter = () => {
     setTrainindDetail({});
     setGender({});
@@ -561,7 +601,26 @@ const HostelAllocationHistory = (props: Props) => {
               />
             </TouchableAtom>
           </View>
-          {showFilter && <FilterForm />}
+          {showFilter && (
+            <FilterForm
+              navigation={navigation}
+              trainingDetailList={trainingDetailList}
+              trainindDetail={trainindDetail}
+              setTrainindDetail={setTrainindDetail}
+              genderList={genderList}
+              gender={gender}
+              setGender={setGender}
+              hostelList={hostelList}
+              hostel={hostel}
+              setHostel={setHostel}
+              startDate={startDate}
+              endDate={endDate}
+              setStartDate={setStartDate}
+              setEndDate={setEndDate}
+              applyFilter={applyFilter}
+              clearFilter={clearFilter}
+            />
+          )}
 
           {crediantialData.user[0].tenantId === 3 && (
             <DropDownOrganism
@@ -627,9 +686,9 @@ const HostelAllocationHistory = (props: Props) => {
         renderItem={renderListRoomDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -657,7 +716,7 @@ const HostelAllocationHistory = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={HostelAllocationSeparator}
       />
     </SafeAreaView>
   );
