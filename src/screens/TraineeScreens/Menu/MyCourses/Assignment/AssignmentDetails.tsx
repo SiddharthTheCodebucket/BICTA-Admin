@@ -23,6 +23,13 @@ interface Props {
   navigation: NavigationType;
 }
 
+const RowItem = ({ label, value }: { label: string; value: string }) => (
+  <ViewAtom style={styles.row}>
+    <TextAtom style={styles.labelBlack}>{label}: </TextAtom>
+    <TextAtom style={styles.valueGrey}>{value}</TextAtom>
+  </ViewAtom>
+);
+
 const AssignmentDetails = (props: Props) => {
   const { navigation } = props;
   const submissionId = props.route.params.submissionId;
@@ -65,13 +72,6 @@ const AssignmentDetails = (props: Props) => {
       });
   };
 
-  const RowItem = ({ label, value }: { label: string; value: string }) => (
-    <ViewAtom style={styles.row}>
-      <TextAtom style={styles.labelBlack}>{label}: </TextAtom>
-      <TextAtom style={styles.valueGrey}>{value}</TextAtom>
-    </ViewAtom>
-  );
-
   const subjective = assignmentResponseData.assignment?.subjective;
   const objective = assignmentResponseData.assignment?.objective;
 
@@ -106,14 +106,17 @@ const AssignmentDetails = (props: Props) => {
               <ViewAtom style={styles.qaWrapper}>
                 {objective.mcqQuestions?.map((q: any, i: number) => {
                   const cleanedQ = q.question
-                    .replace(/<[^>]+>/g, '')
-                    .replace(/&nbsp;/g, ' ');
+                    .replaceAll(/<[^>]+>/g, '')
+                    .replaceAll('&nbsp;', ' ');
 
                   const selected = objective.mcqResponse[i];
                   const correct = q.correctAnswer;
 
                   return (
-                    <ViewAtom key={i} style={{ marginBottom: vh(12) }}>
+                    <ViewAtom
+                      key={`objective-${i}-${q.id || q.question}`}
+                      style={{ marginBottom: vh(12) }}
+                    >
                       <TextAtom style={styles.question}>
                         Q{i + 1}. {cleanedQ}
                       </TextAtom>
@@ -121,26 +124,28 @@ const AssignmentDetails = (props: Props) => {
                       {q.options.map((opt: string, idx: number) => {
                         const isSelected = selected === idx;
                         const isCorrect = correct === idx;
+                        const getBackgroundColor = () => {
+                          if (isCorrect) return '#c8f7c5';
+                          if (isSelected) return '#f7d4d4';
+                          return colors.white;
+                        };
+                        const backgroundColor = getBackgroundColor();
 
                         return (
                           <ViewAtom
-                            key={idx}
+                            key={`option-${q.id || q.question}-${opt}`}
                             style={{
                               paddingVertical: vh(5),
                               paddingHorizontal: vw(10),
                               borderRadius: vw(6),
                               marginTop: vh(4),
-                              backgroundColor: isCorrect
-                                ? '#c8f7c5'
-                                : isSelected
-                                ? '#f7d4d4'
-                                : colors.white,
+                              backgroundColor,
                               borderWidth: 1,
                               borderColor: '#ccc',
                             }}
                           >
                             <TextAtom style={{ fontSize: vw(13.5) }}>
-                              {String.fromCharCode(65 + idx)}. {opt}
+                              {String.fromCodePoint(65 + idx)}. {opt}
                             </TextAtom>
                           </ViewAtom>
                         );
@@ -155,11 +160,14 @@ const AssignmentDetails = (props: Props) => {
                 {subjective.subjectiveQuestion?.map((q: any, i: number) => {
                   const fileUrl = subjective.uploadedResponseFile?.[i];
                   return (
-                    <ViewAtom key={i} style={{ marginBottom: vh(12) }}>
+                    <ViewAtom
+                      key={`subjective-${i}-${q}`}
+                      style={{ marginBottom: vh(12) }}
+                    >
                       <RenderHTML
                         contentWidth={vw(300)}
                         source={{
-                          html: `<span class="qText">Q${i + 1}. ${q.replace(
+                          html: `<span class="qText">Q${i + 1}. ${q.replaceAll(
                             /<[^>]+>/g,
                             '',
                           )}</span>`,

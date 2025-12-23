@@ -23,7 +23,6 @@ import ViewAtom from '../../../../components/atoms/ViewAtom';
 import { useListfeedbackResponseMutation } from '../../../../injectEndpointsTrainee/feedbackEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -36,6 +35,8 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+const ItemSeparator = () => <View style={{ height: vh(10) }} />;
 
 const FeedbackResponseList = (props: Props) => {
   const { navigation } = props;
@@ -235,9 +236,9 @@ const FeedbackResponseList = (props: Props) => {
         renderItem={renderFeedbackResCard}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -265,7 +266,7 @@ const FeedbackResponseList = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={ItemSeparator}
       />
       <FloatingButton
         onButtonPress={() => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vw, vh, screensName } from '../../../../constants';
+import { colors, fonts, vw, vh } from '../../../../constants';
 import strings from '../../../../constants/strings';
 import {
   Header,
@@ -151,11 +151,11 @@ const BlockDetails = ({ route, navigation }: Props) => {
         renderItem={renderCard}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          !loader ? (
+          loader ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.blockDetails.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
         contentContainerStyle={styles.listContent}
       />

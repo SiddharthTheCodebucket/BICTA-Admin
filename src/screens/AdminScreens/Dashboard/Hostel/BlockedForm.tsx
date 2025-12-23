@@ -23,7 +23,6 @@ import ViewAtom from '../../../../components/atoms/ViewAtom';
 import { useDashboardBlockBedMutation } from '../../../../injectEndpoints/dashboardEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -379,7 +378,10 @@ const BlockedForm = (props: Props) => {
         </TouchableOpacity>
 
         {selectedHostels?.map((item: any, index: any) => (
-          <ViewAtom key={index} style={styles.hostelItemContainer}>
+          <ViewAtom
+            key={index?.toString() + item?.hostelId}
+            style={styles.hostelItemContainer}
+          >
             <TextAtom style={styles.hostelItemText}>{item.hostel}</TextAtom>
 
             <TextAtom style={styles.hostelItemText}>

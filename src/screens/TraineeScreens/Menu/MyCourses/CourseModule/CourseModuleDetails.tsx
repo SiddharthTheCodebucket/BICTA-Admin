@@ -1,5 +1,5 @@
-import { StyleSheet, ScrollView, Image, TextInput } from 'react-native';
-import React, { useEffect, useLayoutEffect, useCallback } from 'react';
+import { StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useEffect, useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { colors, fonts, images, vh, vw } from '../../../../../constants';
@@ -96,8 +96,8 @@ const CourseModuleDetails = (props: Props) => {
           </ViewAtom>
         </ViewAtom>
 
-        {courseModuleData?.topics?.map((item: any, index: number) => (
-          <ViewAtom key={index} style={styles.topicCard}>
+        {courseModuleData?.topics?.map((item: any) => (
+          <ViewAtom key={item.id || item.topic} style={styles.topicCard}>
             <TextAtom style={styles.topicTitle}>Topic: {item.topic}</TextAtom>
 
             <TextAtom style={styles.topicLabel} numberOfLines={2}>

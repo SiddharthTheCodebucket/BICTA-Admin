@@ -47,7 +47,7 @@ const EditorWithToolbar = ({
 
   useEffect(() => {
     const t = setTimeout(() => {
-      if (editorRef && editorRef.current) {
+      if (editorRef?.current) {
         try {
           if (initialValue) {
             if (typeof editorRef.current.setContentHTML === 'function') {
@@ -112,9 +112,6 @@ const AssignmentDetails = (props: Props) => {
     React.useState<any>([]);
   const [answers, setAnswers] = React.useState<any>({});
   const [selectedOption, setSelectedOption] = React.useState<any>({});
-  const [updatedQuestions, setUpdatedQuestions] = React.useState<
-    Record<number, boolean>
-  >({});
 
   const [commonDropdownListApi] = useCommonDropdownListMutation();
   const [updateAssignmentResponseApi] = useUpdateAssignmentResponseMutation();
@@ -232,7 +229,7 @@ const AssignmentDetails = (props: Props) => {
         allowMultiSelection: false,
       });
 
-      if (result && result[0]) {
+      if (result?.[0]) {
         const file = result[0];
 
         setAnswers((prev: any) => ({
@@ -254,6 +251,7 @@ const AssignmentDetails = (props: Props) => {
       }
     } catch (err: any) {
       if (err?.code === 'DOCUMENT_PICKER_CANCELED') {
+        // User cancelled the document picker, no action needed
       } else {
         Toast.show({
           type: 'error',
@@ -322,9 +320,9 @@ const AssignmentDetails = (props: Props) => {
           const selectedType = selectedOption[qId]?.id;
 
           return (
-            <ViewAtom key={index} style={styles.card}>
+            <ViewAtom key={qId} style={styles.card}>
               <TextAtom numberOfLines={3} style={styles.questionTitle}>
-                Q{index + 1}. {item.question.replace(/<[^>]+>/g, '')}
+                Q{index + 1}. {item.question.replaceAll(/<[^>]+>/g, '')}
               </TextAtom>
 
               <TextAtom style={styles.chooseText}>

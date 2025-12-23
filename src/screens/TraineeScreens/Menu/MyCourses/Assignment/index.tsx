@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet } from 'react-native';
-import React, { useCallback, useEffect, useLayoutEffect } from 'react';
+import React, { useCallback, useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   colors,
@@ -84,7 +84,7 @@ const Assignment = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
       <ScrollView showsVerticalScrollIndicator={false}>
-        {assignmentList?.map((item: any, index: number) => {
+        {assignmentList?.map((item: any) => {
           const isSubmitted = item.assignmentStatus === 'Submitted';
 
           const handlePress = () => {
@@ -97,7 +97,7 @@ const Assignment = (props: Props) => {
 
           return (
             <TouchableAtom
-              key={index}
+              key={item.submissionId}
               onPress={handlePress}
               disabled={!isSubmitted}
               style={[styles.card]}

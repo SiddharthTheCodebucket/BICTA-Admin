@@ -54,7 +54,7 @@ const HostelReport = (props: any) => {
     setShowFilter(!showFilter);
   };
 
-  const [userTypeList, setUserTypeList] = useState<any>([
+  const [userTypeList] = useState<any>([
     { id: 'Trainee', name: 'Trainee' },
     { id: 'Guest', name: 'Guest' },
   ]);

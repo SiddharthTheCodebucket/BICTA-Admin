@@ -152,11 +152,11 @@ const HostelPlanningDetails = (props: Props) => {
         keyExtractor={(_, index) => index.toString()}
         renderItem={renderRow}
         ListEmptyComponent={
-          !loading ? (
+          loading ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.hostelPlanningDetails.noDataFound}
             </TextAtom>
-          ) : null
+          )
         }
       />
     </SafeAreaView>

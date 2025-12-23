@@ -1,10 +1,9 @@
-import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Keyboard, StyleSheet } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import { CommonActions } from '@react-navigation/native';
 import * as Yup from 'yup';
-import { colors, screensName, vh } from '../../../../constants';
+import { colors, vh } from '../../../../constants';
 import {
   Header,
   NavigationType,

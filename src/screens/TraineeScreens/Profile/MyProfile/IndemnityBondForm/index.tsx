@@ -58,7 +58,7 @@ const IndemnityBondForm = ({ navigation }: Props) => {
   }, []);
 
   const [checkingSubmission, setCheckingSubmission] = useState(true);
-  const [redirectAfterFetch, setRedirectAfterFetch] = useState(false);
+  const [redirectAfterFetch] = useState(false);
   const [loader, setLoader] = useState(false);
   const [form, setForm] = useState<any>({
     traineeId: '',
@@ -118,7 +118,10 @@ const IndemnityBondForm = ({ navigation }: Props) => {
 
         setLoader(false);
         setCheckingSubmission(false);
-
+        if (isSubmitted) {
+          navigation.replace(screensName.IndemnityBond, { data });
+          return;
+        }
         setForm((prev: any) => ({
           ...prev,
           traineeId: data.traineeId,
@@ -127,12 +130,10 @@ const IndemnityBondForm = ({ navigation }: Props) => {
           relationName: data.relationName ?? '',
           residence: data.residence ?? '',
           employmentAt: data.employmentAt ?? '',
-          duration: !isNullUndefined(data.duration)
-            ? String(data.duration)
-            : '',
-          date: !isNullUndefined(data.date) ? String(data.date) : '',
+          duration: isNullUndefined(data.duration) ? '' : String(data.duration),
+          date: isNullUndefined(data.date) ? '' : String(data.date),
           month: data.month ?? '',
-          year: !isNullUndefined(data.year) ? String(data.year) : '',
+          year: isNullUndefined(data.year) ? '' : String(data.year),
           campus: data.campus ?? '',
           district: data.district ?? '',
           firstWitnessName: data.firstWitnessName ?? '',
@@ -145,10 +146,6 @@ const IndemnityBondForm = ({ navigation }: Props) => {
           uploadSignatureOfWitnessFirst: {},
           uploadSignatureOfWitnessSecond: {},
         }));
-        if (isSubmitted) {
-          navigation.replace(screensName.IndemnityBond, { data });
-          return;
-        }
       })
       .catch((err: any) => {
         setLoader(false);

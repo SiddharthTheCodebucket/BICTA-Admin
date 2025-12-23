@@ -7,13 +7,12 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import moment from 'moment';
 import * as Yup from 'yup';
-import { colors, fonts, screensName, vh, vw } from '../../../../constants';
+import { colors, fonts, vh, vw } from '../../../../constants';
 import {
   Header,
   NavigationType,
@@ -28,7 +27,6 @@ import {
 import TextInputOrganisms from '../../../../components/organisms/TextInputOrganisms';
 import ImageUploadOrganism from '../../../../components/organisms/ImageUploadOrganism';
 import ButtonOrganism from '../../../../components/organisms/ButtonOrganism';
-import { CommonActions } from '@react-navigation/native';
 
 interface Props {
   route: any;
@@ -323,9 +321,9 @@ const SupportViewAndReply = (props: Props) => {
           renderItem={renderReplyCard}
           keyExtractor={it => it.id.toString()}
           ListEmptyComponent={
-            !loader ? (
+            loader ? null : (
               <TextAtom style={styles.noReplies}>No replies found</TextAtom>
-            ) : null
+            )
           }
           ListFooterComponent={<>{renderAddReplySection()}</>}
           keyboardShouldPersistTaps="handled"

@@ -214,7 +214,7 @@ const Dashboard = (props: Props) => {
         {noticeListData.length > 0 ? (
           noticeListData.map((item: any, index: any) => (
             <TouchableOpacity
-              key={index.toString()}
+              key={index.toString() + item?.title}
               style={styles.noticeCard}
               onPress={() => item?.file && Linking.openURL(item.file)}
             >
@@ -262,7 +262,7 @@ const Dashboard = (props: Props) => {
                 strings.message_6,
                 strings.message_7,
               ].map((msg, index) => (
-                <Text key={index} style={styles.text}>
+                <Text key={index.toString() + msg} style={styles.text}>
                   {msg} {'\n'}
                 </Text>
               ))}

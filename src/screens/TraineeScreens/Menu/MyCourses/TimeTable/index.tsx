@@ -42,6 +42,89 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+interface FilterFormProps {
+  monthData: any[];
+  weekData: any[];
+  selectedMonth: any;
+  selectedWeek: any;
+  error: any;
+  navigation: NavigationType;
+  onMonthSelect: (data: any) => void;
+  onWeekSelect: (data: any) => void;
+  onApplyFilter: () => void;
+  onClearFilter: () => void;
+  getWeekData: (id: string) => void;
+}
+
+const FilterForm = ({
+  monthData,
+  weekData,
+  selectedMonth,
+  selectedWeek,
+  error,
+  navigation,
+  onMonthSelect,
+  onWeekSelect,
+  onApplyFilter,
+  onClearFilter,
+  getWeekData,
+}: FilterFormProps) => (
+  <View style={styles.filterContainer}>
+    <DropDownOrganism
+      label={'Month'}
+      placeholder={'Select a Month'}
+      onPress={() => {
+        navigation.navigate('DropDownModal', {
+          name: 'Month',
+          Data: monthData,
+          selectedData: selectedMonth,
+          setSelectedData: (data: any) => {
+            onMonthSelect(data);
+            getWeekData(data.id);
+          },
+          typeName: 'name',
+          typeId: 'id',
+        });
+      }}
+      inputText={selectedMonth?.name}
+      isMandatory
+      errorMessage={error['selectedMonth.name']}
+    />
+
+    <DropDownOrganism
+      label={'Week'}
+      placeholder={'Select a Week'}
+      onPress={() => {
+        navigation.navigate('DropDownModal', {
+          name: 'Week',
+          Data: weekData,
+          selectedData: selectedWeek,
+          setSelectedData: onWeekSelect,
+          typeName: 'name',
+          typeId: 'id',
+        });
+      }}
+      inputText={selectedWeek?.name}
+      isMandatory
+      errorMessage={error['selectedWeek.name']}
+    />
+
+    <ViewAtom style={styles.buttonRow}>
+      <ButtonOrganism
+        onPress={onApplyFilter}
+        bttnText="Apply Filter"
+        containerStyle={styles.applyBtn}
+      />
+      <ButtonOrganism
+        onPress={onClearFilter}
+        bttnText="Clear Filter"
+        containerStyle={styles.clearBtn}
+        bttnTextStyle={{ color: colors.primary }}
+      />
+    </ViewAtom>
+  </View>
+);
+
 const TimeTable = (props: Props) => {
   const { navigation } = props;
   const [showFilter, setShowFilter] = useState(false);
@@ -273,7 +356,7 @@ const TimeTable = (props: Props) => {
 
               return (
                 <TouchableAtom
-                  key={index}
+                  key={`${item.date}-${session.timeId}-${session.selectFacultyId}`}
                   onPress={() => {
                     if (isFeedbackYes) {
                       feedbackListFaculty(session);
@@ -321,68 +404,6 @@ const TimeTable = (props: Props) => {
     );
   };
 
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DropDownOrganism
-        label={'Month'}
-        placeholder={'Select a Month'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Month',
-            Data: monthData,
-            selectedData: selectedMonth,
-            setSelectedData: (data: any) => {
-              setSelectedMonth(data);
-              getWeekData(data.id);
-              setSelectedWeek({});
-              setError({ ...error, 'selectedMonth.name': '' });
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedMonth?.name}
-        isMandatory
-        errorMessage={error['selectedMonth.name']}
-      />
-
-      <DropDownOrganism
-        label={'Week'}
-        placeholder={'Select a Week'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Week',
-            Data: weekData,
-            selectedData: selectedWeek,
-            setSelectedData: (data: any) => {
-              setSelectedWeek(data);
-              setError({ ...error, 'selectedWeek.name': '' });
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedWeek?.name}
-        isMandatory
-        errorMessage={error['selectedWeek.name']}
-      />
-
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText="Apply Filter"
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText="Clear Filter"
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
-        />
-      </ViewAtom>
-    </View>
-  );
-
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
@@ -392,18 +413,39 @@ const TimeTable = (props: Props) => {
         </TextAtom>
       </TouchableAtom>
 
-      {showFilter && <FilterForm />}
+      {showFilter && (
+        <FilterForm
+          monthData={monthData}
+          weekData={weekData}
+          selectedMonth={selectedMonth}
+          selectedWeek={selectedWeek}
+          error={error}
+          navigation={navigation}
+          onMonthSelect={(data: any) => {
+            setSelectedMonth(data);
+            setSelectedWeek({});
+            setError({ ...error, 'selectedMonth.name': '' });
+          }}
+          onWeekSelect={(data: any) => {
+            setSelectedWeek(data);
+            setError({ ...error, 'selectedWeek.name': '' });
+          }}
+          onApplyFilter={applyFilter}
+          onClearFilter={clearFilter}
+          getWeekData={getWeekData}
+        />
+      )}
 
       <FlatList
         data={groupedArray}
         renderItem={renderDateCard}
         keyExtractor={item => item.date}
         ListEmptyComponent={
-          !loader ? (
+          loader ? null : (
             <TextAtom style={styles.emptyText}>
               No timetable data found
             </TextAtom>
-          ) : null
+          )
         }
         contentContainerStyle={styles.flatListContainer}
       />

@@ -1,4 +1,4 @@
-import { StyleSheet, ScrollView, Image, TextInput } from 'react-native';
+import { StyleSheet, ScrollView, Image } from 'react-native';
 import React, { useEffect, useLayoutEffect, useCallback } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -102,12 +102,12 @@ const CourseModule = (props: Props) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: vw(15) }}
       >
-        {courseModuleData?.map((item: any, index: number) => {
+        {courseModuleData?.map((item: any) => {
           const thumbnail = { uri: item.subjectThumbnail };
 
           return (
             <TouchableAtom
-              key={index}
+              key={item.subjectId}
               style={styles.card}
               onPress={() =>
                 navigation.navigate(screensName.CourseModuleDetails, {

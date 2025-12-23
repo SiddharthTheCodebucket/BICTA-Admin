@@ -22,7 +22,6 @@ import TouchableAtom from '../../../../components/atoms/TouchableAtom';
 import { useListExaminationSubReportMutation } from '../../../../injectEndpointsTrainee/examinationEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -35,6 +34,8 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+const ItemSeparator = () => <View style={{ height: vh(10) }} />;
 
 const Examination = (props: Props) => {
   const { navigation } = props;
@@ -184,11 +185,11 @@ const Examination = (props: Props) => {
         renderItem={renderExaminationCard}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               No examination data found
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -216,7 +217,7 @@ const Examination = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={ItemSeparator}
       />
     </SafeAreaView>
   );
