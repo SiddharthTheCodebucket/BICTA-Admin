@@ -17,13 +17,15 @@ const Splash = (props: Props) => {
   useEffect(() => {
     if (isNullUndefined(token)) {
       Router.resetNew(navigation, 'OnBoardingNavigator');
-    } else {
-      if (crediantialData.user[0].userType === 'TRAINEE') {
-        Router.resetNew(navigation, 'TraineeRootNavigator');
-      } else {
-        Router.resetNew(navigation, 'RootNavigatorAdmin');
-      }
+      return;
     }
+
+    if (crediantialData.user[0].userType === 'TRAINEE') {
+      Router.resetNew(navigation, 'TraineeRootNavigator');
+      return;
+    }
+
+    Router.resetNew(navigation, 'RootNavigatorAdmin');
   }, [navigation]);
 
   return (

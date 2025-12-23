@@ -26,7 +26,7 @@ import { resetRegistrationState } from '../../../featuresTrainee/Registration/re
 
 interface Props {
   navigation: NavigationType;
-  goNext: any;
+
   goBack: any;
 }
 
@@ -39,10 +39,7 @@ const Confirm = (props: Props) => {
 
   const [addTraineeRegistrationApi] = useAddTraineeRegistrationMutation();
 
-  const {} = useAppSelector(state => state.Registration);
-
   const {
-    trainingName,
     isAlreadyRegistered,
     trainingCenter,
     name,
@@ -74,7 +71,7 @@ const Confirm = (props: Props) => {
   const otpRefs: any = [createRef(), createRef(), createRef(), createRef()];
 
   const handleOtpChange = (value: string, index: number) => {
-    const cleaned = value.replace(/[^0-9]/g, '');
+    const cleaned = value.replaceAll(/[^\D]/g, '');
     const temp = [...otp];
     temp[index] = cleaned;
     setOtp(temp);
@@ -132,8 +129,9 @@ const Confirm = (props: Props) => {
     const formData = new FormData();
     formData.append(
       'isAlreadyRegistered',
-      isAlreadyRegistered.id === 'Yes' ? true : false,
+      String(isAlreadyRegistered.id === 'Yes'),
     );
+
     formData.append('nameOfTrainingProgramme', qrData.trainingId);
     if (isAlreadyRegistered.id === 'No') {
       formData.append('name', name);
@@ -384,7 +382,7 @@ const Confirm = (props: Props) => {
             >
               {otp.map((digit, index) => (
                 <TextInput
-                  key={index}
+                  key={`otp-${index.toString()}`}
                   ref={otpRefs[index]}
                   value={digit}
                   onChangeText={val => handleOtpChange(val, index)}
@@ -442,29 +440,23 @@ const Confirm = (props: Props) => {
                 bttnText="Submit"
                 onPress={() => {
                   closeModal();
+
                   const code = otp.join('');
 
-                  if (code.length !== 4) {
-                    Toast.show({
-                      type: 'error',
-                      text1: 'Invalid OTP',
-                      text2: 'Please enter a valid 4-digit OTP.',
-                    });
-                    return;
-                  } else {
+                  if (code.length === 4) {
                     if (isAlreadyRegistered.id === 'No') {
                       addTraineeRegistration();
                     } else {
                       addTraineeRegistrationForAlreadyRegister();
                     }
+                    return;
                   }
 
-                  // dispatch(
-                  //   saveRegistrationState({
-                  //     mobileNumber: localMobile,
-                  //     officeEmail: localEmail,
-                  //   }),
-                  // );
+                  Toast.show({
+                    type: 'error',
+                    text1: 'Invalid OTP',
+                    text2: 'Please enter a valid 4-digit OTP.',
+                  });
                 }}
                 containerStyle={{
                   width: '48%',

@@ -4,8 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
 import { useDispatch } from 'react-redux';
 import { colors, fonts, strings, vh, vw } from '../../../constants';
-import { NavigationType } from '../../../components/organisms/HeaderOrganism';
-import FullscreenLoading from '../../../components/organisms/FullscreenLoading';
 import ViewAtom from '../../../components/atoms/ViewAtom';
 import ImageUploadOrganism from '../../../components/organisms/ImageUploadOrganism';
 import ButtonOrganism from '../../../components/organisms/ButtonOrganism';
@@ -14,7 +12,6 @@ import { saveRegistrationState } from '../../../featuresTrainee/Registration/reg
 import TextAtom from '../../../components/atoms/TextAtom';
 
 interface Props {
-  navigation: NavigationType;
   goNext: any;
   goBack: any;
 }
@@ -23,7 +20,6 @@ const Uploads = (props: Props) => {
   const { goBack, goNext } = props;
   const dispatch = useDispatch();
 
-  const [loader, setLoader] = useState(false);
   const [errors, setErrors] = useState<any>({});
 
   const { uploadedPhoto, uploadedSignature, isAlreadyRegistered } =
@@ -74,8 +70,6 @@ const Uploads = (props: Props) => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <FullscreenLoading isVisible={loader} />
-
       <ScrollView showsVerticalScrollIndicator={false}>
         <ImageUploadOrganism
           label={strings.upload_photo}

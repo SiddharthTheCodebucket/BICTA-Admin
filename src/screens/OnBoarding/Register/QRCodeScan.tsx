@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Camera,
   useCameraDevice,
   useCodeScanner,
 } from 'react-native-vision-camera';
-
+import Toast from 'react-native-toast-message';
 import { useIsFocused } from '@react-navigation/native';
 
 import { colors, fonts, screensName, vh, vw } from '../../../constants';
@@ -14,6 +14,7 @@ import TextAtom from '../../../components/atoms/TextAtom';
 import ViewAtom from '../../../components/atoms/ViewAtom';
 import FullscreenLoading from '../../../components/organisms/FullscreenLoading';
 import { NavigationType } from '../../../components/organisms/HeaderOrganism';
+
 interface Props {
   navigation: NavigationType;
 }
@@ -35,8 +36,12 @@ const QRCodeScan = (props: Props) => {
   useEffect(() => {
     (async () => {
       const status = await Camera.requestCameraPermission();
-      if (status !== 'granted') {
-      }
+      if (status === 'granted') return;
+      Toast.show({
+        type: 'error',
+        text1: 'Permission required',
+        text2: 'Camera permission is required to continue.',
+      });
     })();
   }, []);
 
