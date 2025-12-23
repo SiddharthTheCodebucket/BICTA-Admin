@@ -1,4 +1,4 @@
-import { PermissionsAndroid, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Toast from 'react-native-toast-message';
 type ellipsizeMode = 'head' | 'middle' | 'tail' | 'clip';
@@ -42,29 +42,31 @@ export function isNullUndefined(item: any, check: boolean = false): boolean {
 export const removeEmojis = (str: string) => {
   const regex =
     /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g;
-  return str.replace(regex, '');
+  return str.replaceAll(regex, '');
 };
 export const normalizeSpaces = (value: string) => {
   return value.replace('  ', ' ');
 };
 export const normalizeFirstSpace = (value: string) => {
-  return value.replace(/^\s+/g, '');
+  return value.replaceAll(/^\s+/g, '');
 };
 export const removeAlphabet = (value: string) => {
-  return value.replace(/\D/g, '');
+  return value.replaceAll(/\D/g, '');
 };
 export const normalizeNumber = (value: string) => {
-  return value.replace(/\D/g, '');
+  return value.replaceAll(/\D/g, '');
 };
+
 export const normalizeLetters = (value: string) => {
-  return value.replace(/[^a-zA-Z\s\u0900-\u097F]/g, '').replace(/Z\u0900/g, ''); // This will remove non-letter characters except 'Z\u0900'
+  return value.replaceAll(/[^a-zA-Z\s\u0900-\u097F]/g, '');
 };
+
 export const normalizeLettersAndNumbers = (value: string) => {
-  return value.replace(/[^a-zA-Z0-9]/g, '');
+  return value.replaceAll(/[^a-zA-Z0-9]/g, '');
 };
 
 export const otpRegex = (value: string) => {
-  return value.replace(/[- #*;,.<>{}[\]\\/]/gi, '');
+  return value.replaceAll(/[- #*;,.<>{}[\]\\/]/gi, '');
 };
 
 export const isIOS = Platform.OS === 'ios';
@@ -115,24 +117,6 @@ export const formatDate = (isoString: string): string => {
 
 export const downloadAndOpenFile = async (fileUrl: string) => {
   try {
-    // if (Platform.OS === 'android') {
-    //   const permission =
-    //     Platform.Version >= 33
-    //       ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
-    //       : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
-
-    //   const granted = await PermissionsAndroid.request(permission, {
-    //     title: 'Storage Permission Required',
-    //     message: 'We need access to save the file',
-    //     buttonPositive: 'OK',
-    //     buttonNegative: 'Cancel',
-    //   });
-
-    //   if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-    //     return;
-    //   }
-    // }
-
     const fileName = fileUrl.split('/').pop();
     const downloadDir =
       Platform.OS === 'android'

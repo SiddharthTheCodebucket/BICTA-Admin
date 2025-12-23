@@ -39,7 +39,9 @@ const SearchBoxOrganism = (props: Props) => {
         value={props.searchText}
       />
 
-      {props.searchText.length !== 0 ? (
+      {props.searchText.length === 0 ? (
+        <ImageAtom source={images.search} style={styles.crossIconStyle} />
+      ) : (
         <TouchableAtom
           activeOpacity={0.8}
           hitSlop={styles.hitSlop}
@@ -49,8 +51,6 @@ const SearchBoxOrganism = (props: Props) => {
         >
           <Image source={images.cross} style={styles.crossIconStyle} />
         </TouchableAtom>
-      ) : (
-        <ImageAtom source={images.search} style={styles.crossIconStyle} />
       )}
     </PressableAtom>
   );

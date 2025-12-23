@@ -39,15 +39,18 @@ export default function RatingSelector({
 }: any) {
   const ratings = options ?? defaultRatings;
 
+  const pressAnims = React.useRef(
+    ratings.map(() => new Animated.Value(1)),
+  ).current;
+
   return (
     <View style={styles.wrapper}>
       <LabelWithMandatoryMolecules label={label} isMandatory={true} />
 
       <View style={styles.container}>
-        {ratings.map((item: any) => {
+        {ratings.map((item: any, index: number) => {
           const isSelected = value?.id === item.id;
-
-          const pressAnim = React.useRef(new Animated.Value(1)).current;
+          const pressAnim = pressAnims[index];
 
           const animateIn = () => {
             Animated.spring(pressAnim, {
@@ -68,7 +71,7 @@ export default function RatingSelector({
               key={item.id}
               onPressIn={animateIn}
               onPressOut={animateOut}
-              onPress={() => onSelect(item)}
+              onPress={() => onSelect?.(item)}
             >
               <Animated.View
                 style={[

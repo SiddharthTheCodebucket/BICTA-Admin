@@ -123,7 +123,7 @@ export const Header = {
       headerRight: () => (
         <View style={styles.rightContainer}>
           <TouchableOpacity
-            onPress={() => onNotificationPress && onNotificationPress()}
+            onPress={() => onNotificationPress?.()}
             hitSlop={styles.backBttnHitSlop}
           >
             <ImageAtom source={images.notification} style={styles.notifyIcon} />

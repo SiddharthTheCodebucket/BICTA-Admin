@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, ViewStyle } from 'react-native';
 import { colors, fonts, vh, vw } from '../../constants';
 import LabelWithMandatoryMolecules from '../molecules/LabelWithMandatoryMolecules';
@@ -93,7 +93,7 @@ const DateInputOrganism = (props: Props) => {
         date={
           props.value === ''
             ? new Date()
-            : new Date(moment(props.value, props.dateFormat))
+            : moment(props.value, props.dateFormat).toDate()
         }
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}

@@ -49,6 +49,9 @@ import ShowCaseNoticeModal from '../modal/ShowCaseNoticeModal';
 
 const RootStackScreen = createNativeStackNavigator();
 
+const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
+const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
+
 const TraineeRootNavigator = () => {
   return (
     <RootStackScreen.Navigator
@@ -165,7 +168,7 @@ const TraineeRootNavigator = () => {
       >
         <RootStackScreen.Screen
           name={screensName.DropDownModal}
-          component={DropDownModal}
+          component={DropDownModalScreen}
           options={{
             animation: 'fade',
             headerShown: false,
@@ -174,7 +177,7 @@ const TraineeRootNavigator = () => {
         />
         <RootStackScreen.Screen
           name={'ErrorModal'}
-          component={ErrorModal}
+          component={ErrorModalScreen}
           options={{
             animation: 'fade',
             headerShown: false,

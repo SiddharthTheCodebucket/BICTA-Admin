@@ -116,6 +116,9 @@ import BMIDetails from '../screens/AdminScreens/Menu/PHCManagement/TraineeBMI/BM
 import BasicPatientDetails from '../screens/AdminScreens/Menu/PHCManagement/PHCManagemnetMain/BasicPatientDetails';
 import PatientDetailDetails from '../screens/AdminScreens/Menu/PHCManagement/PHCManagemnetMain/BasicPatientDetails/PatientDetailDetails';
 
+const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
+const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
+
 const RootNavigatorAdmin = () => {
   const RootStackScreen = createNativeStackNavigator();
   return (
@@ -492,7 +495,7 @@ const RootNavigatorAdmin = () => {
       >
         <RootStackScreen.Screen
           name={screensName.DropDownModal}
-          component={DropDownModal}
+          component={DropDownModalScreen}
           options={{
             animation: 'fade',
             headerShown: false,
@@ -501,7 +504,7 @@ const RootNavigatorAdmin = () => {
         />
         <RootStackScreen.Screen
           name={'ErrorModal'}
-          component={ErrorModal}
+          component={ErrorModalScreen}
           options={{
             animation: 'fade',
             headerShown: false,

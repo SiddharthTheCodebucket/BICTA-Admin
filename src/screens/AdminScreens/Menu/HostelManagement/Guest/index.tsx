@@ -215,12 +215,7 @@ const Guest = (props: Props) => {
     };
 
     return (
-      <TouchableAtom
-        style={styles.card}
-        onPress={() => {
-          navigation.navigate(screensName.CreateTourDetails, { item: item });
-        }}
-      >
+      <TouchableAtom style={styles.card} onPress={() => {}}>
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, styles.flex1]}>
             {strings.guest.srNo} {index + 1}

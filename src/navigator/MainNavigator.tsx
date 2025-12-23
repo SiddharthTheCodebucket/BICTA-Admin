@@ -10,7 +10,6 @@ import ForgotPassword from '../screens/OnBoarding/ForgotPassword';
 import RootNavigatorAdmin from './RootNavigatorAdmin';
 import TraineeRootNavigator from './TraineeRootNavigator';
 import DropDownModal from '../modal/DropDownModal';
-import { useAppSelector } from '../hooks';
 import RegistrationSteeper from '../screens/OnBoarding/Register/RegistrationSteeper';
 import QRCodeScan from '../screens/OnBoarding/Register/QRCodeScan';
 
@@ -48,11 +47,10 @@ const OnBoardingNavigator = () => (
   </OnBoardingStack.Navigator>
 );
 
+const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
+
 const MainNavigator = () => {
   const RootStackScreen = createNativeStackNavigator();
-  const { token, crediantialData } = useAppSelector(state => state.Auth);
-
-  let userType = crediantialData?.user?.[0]?.userType?.toUpperCase();
 
   return (
     <NavigationContainer ref={navigationRef}>
@@ -86,7 +84,7 @@ const MainNavigator = () => {
         >
           <RootStackScreen.Screen
             name={screensName.DropDownModal}
-            component={DropDownModal}
+            component={DropDownModalScreen}
             options={{
               animation: 'fade',
               headerShown: false,

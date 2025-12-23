@@ -46,11 +46,11 @@ const ErrorModal = ({ navigation, route }: Props) => {
         </Text>
         <ButtonOrganism
           onPress={() => {
-            if (routeName !== '') {
+            if (routeName === '') {
+              navigation.goBack();
+            } else {
               dispatch({ type: 'RESET' });
               Router.resetNew(navigation, routeName, params);
-            } else {
-              navigation.goBack();
             }
           }}
           bttnText={strings.ok}

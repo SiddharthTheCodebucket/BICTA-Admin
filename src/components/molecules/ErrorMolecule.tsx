@@ -1,25 +1,21 @@
-import {StyleSheet, Text, View, StyleProp, ViewStyle} from 'react-native';
+import { StyleSheet, Text, View, StyleProp, ViewStyle } from 'react-native';
 import React from 'react';
-import {nFixedLines} from '../../utils/CommonFunction';
-import {colors, vh, vw} from '../../constants';
+import { nFixedLines } from '../../utils/CommonFunction';
+import { colors, vh, vw } from '../../constants';
 
 interface Props {
   errorMessage?: string;
   errorMessageView?: StyleProp<ViewStyle>;
 }
 
-const ErrorMolecule: React.FC<Props> = ({errorMessage, errorMessageView}) => {
+const ErrorMolecule: React.FC<Props> = ({ errorMessage, errorMessageView }) => {
+  if (!errorMessage) return null;
+
   return (
-    <View>
-      {typeof errorMessage !== 'undefined' ? (
-        <View style={[styles.errorMessageView, errorMessageView]}>
-          {errorMessage !== '' && (
-            <Text style={styles.errorMessage} {...nFixedLines(2)}>
-              {errorMessage}
-            </Text>
-          )}
-        </View>
-      ) : null}
+    <View style={[styles.errorMessageView, errorMessageView]}>
+      <Text style={styles.errorMessage} {...nFixedLines(2)}>
+        {errorMessage}
+      </Text>
     </View>
   );
 };
