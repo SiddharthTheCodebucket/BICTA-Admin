@@ -3,9 +3,8 @@ import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, screensName, vh, vw } from '../../../../../../constants';
+import { colors, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -42,9 +41,9 @@ const AddTrainingCategory = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item)
-        ? 'Edit Training Category'
-        : 'Add Training Category',
+      isNullUndefined(item)
+        ? 'Add Training Category'
+        : 'Edit Training Category',
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);

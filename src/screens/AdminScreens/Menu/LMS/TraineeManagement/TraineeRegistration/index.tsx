@@ -12,7 +12,6 @@ import {
   RefreshControl,
   LayoutAnimation,
   ScrollView,
-  TextInput,
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -39,8 +38,6 @@ import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
-import moment from 'moment';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import {
   downloadAndOpenFile,
@@ -48,7 +45,6 @@ import {
 } from '../../../../../../utils/CommonFunction';
 import {
   useApproveTrainingIdCardMutation,
-  useDownloadTrainingCategoryMutation,
   useDownloadTrainingIdCardMutation,
   useListTraineeRegistrationMutation,
   useListTrainingBatchDetailsMutation,
@@ -56,11 +52,9 @@ import {
 import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import { useDeleteTraineeRegistrationMutation } from '../../../../../../injectEndpoints/profileEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import { pick } from '@react-native-documents/picker';
 import ImageUploadOrganism from '../../../../../../components/organisms/ImageUploadOrganism';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -79,7 +73,6 @@ const TraineeRegistration = (props: Props) => {
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
-  const [downloadApi] = useDownloadTrainingCategoryMutation();
   const [commonListApi] = useCommonDropdownListMutation();
   const [listTraineeDetailsApi] = useListTraineeRegistrationMutation();
   const [deleteTraineeDetailsApi] = useDeleteTraineeRegistrationMutation();
@@ -92,7 +85,6 @@ const TraineeRegistration = (props: Props) => {
 
   const [showIdModal, setShowIdModal] = useState(false);
   const [ccSignature, setCcSignature] = useState<any>({});
-  const [generatedIdUrl, setGeneratedIdUrl] = useState('');
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
@@ -105,14 +97,13 @@ const TraineeRegistration = (props: Props) => {
   const [selectedTraining, setSelectedTraining] = useState<any>({});
   const [batchList, setBatchList] = useState<any>([]);
   const [selectedBatch, setSelectedBatch] = useState<any>({});
-  const [pregnancyList, setPregnancyList] = useState<any>([
+  const [pregnancyList] = useState<any>([
     { id: 'Yes', name: 'No' },
     { id: 'No', name: 'No' },
   ]);
   const [selectedPregnancy, setSelectedPregnancy] = useState<any>({});
 
-  const [selectedItems, setSelectedItems] = useState<any>([]);
-  const [totalCount, setTotalCount] = useState(0);
+  const [selectedItems] = useState<any>([]);
 
   const ITEMS_PER_PAGE = 10;
 
@@ -210,9 +201,6 @@ const TraineeRegistration = (props: Props) => {
 
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
-
-        const totalCountApi = res?.data?.totalCount ?? 0;
-        setTotalCount(totalCountApi);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -240,33 +228,6 @@ const TraineeRegistration = (props: Props) => {
   const onClearSearch = () => {
     setSearch('');
     listTraineeDetais(1, true, '');
-  };
-
-  const downloadTraining = async () => {
-    setInitialCall(true);
-
-    const params: any = {
-      category: selectedItems,
-    };
-
-    downloadApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setInitialCall(false);
-        const fileUrl = res.data?.fileUrl ?? '';
-        if (fileUrl) {
-        }
-        downloadAndOpenFile(fileUrl);
-        setSelectedItems([]);
-        listTraineeDetais(1, true, search);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || 'Something went wrong',
-        });
-      });
   };
 
   const TraineeCard = ({ item, index, isSelected }: any) => {

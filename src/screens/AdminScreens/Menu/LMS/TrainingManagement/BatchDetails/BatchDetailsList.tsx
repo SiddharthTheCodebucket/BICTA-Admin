@@ -10,7 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  Linking,
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -31,10 +30,7 @@ import {
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
-import { useDeleteVehicleDetailsMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import {
   useListTrainingBatchDetailsMutation,
@@ -54,7 +50,6 @@ const BatchDetailsList = (props: Props) => {
   const [listTrainingBatchDetailsApi] = useListTrainingBatchDetailsMutation();
   const [updateTrainingBatchDetailsApi] =
     useUpdateTrainingBatchDetailsMutation();
-  const [deleteVehicleDetailsApi] = useDeleteVehicleDetailsMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -67,8 +62,8 @@ const BatchDetailsList = (props: Props) => {
 
   const ITEMS_PER_PAGE = 10;
 
-  const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const [search] = React.useState('');
+  const [centerSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'Batch Details List');
@@ -137,7 +132,7 @@ const BatchDetailsList = (props: Props) => {
   };
 
   const VehicleCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.action ?? 'Active');
+    const [statusValue] = useState(item.action ?? 'Active');
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
     const onSelectStatus = (newStatus: string) => {
@@ -397,11 +392,6 @@ const BatchDetailsList = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddVehicle);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };

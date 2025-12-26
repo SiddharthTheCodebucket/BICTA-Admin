@@ -1,25 +1,11 @@
-import {
-  Alert,
-  Keyboard,
-  Linking,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { pick } from '@react-native-documents/picker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {
-  colors,
-  fonts,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -32,11 +18,7 @@ import {
   isNullUndefined,
   normalizeNumber,
 } from '../../../../../../utils/CommonFunction';
-import {
-  useAddTripDetailsMutation,
-  useCommonDropdownListMutation,
-  useUpdateTripDetailsMutation,
-} from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import moment from 'moment';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
@@ -65,7 +47,6 @@ const AddTraineeRegistration = (props: Props) => {
   const input6_ref: any = createRef();
 
   const [otpTimer, setOtpTimer] = useState(0);
-  const [listsReady, setListsReady] = useState(false);
 
   const [commonDropdownListApi] = useCommonDropdownListMutation();
 
@@ -80,9 +61,9 @@ const AddTraineeRegistration = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item)
-        ? 'Edit Trainee Registration'
-        : 'Add Trainee Registration',
+      isNullUndefined(item)
+        ? 'Add Trainee Registration'
+        : 'Edit Trainee Registration',
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -594,7 +575,7 @@ const AddTraineeRegistration = (props: Props) => {
     formDataYes.append('otp', form.otp);
     formDataYes.append('isAlreadyRegistered', isAlready);
 
-    const payload = !isAlready ? formDataNo : formDataYes;
+    const payload = isAlready ? formDataYes : formDataNo;
 
     addTraineeRegistrationApi(payload)
       .unwrap()
@@ -848,7 +829,7 @@ const AddTraineeRegistration = (props: Props) => {
         allowMultiSelection: false,
       });
 
-      if (result && result[0]) {
+      if (result?.[0]) {
         const file = result[0];
 
         // file size validation
@@ -878,7 +859,6 @@ const AddTraineeRegistration = (props: Props) => {
           ...errors,
           'excelFile.uri': '',
         });
-        // fileUpload(fileData);
 
         Toast.show({
           type: 'success',
@@ -1391,9 +1371,9 @@ const AddTraineeRegistration = (props: Props) => {
               onPress={handleFileUpload}
             >
               <TextAtom numberOfLines={0} style={styles.uploadText}>
-                {!isNullUndefined(form.excelFile)
-                  ? form.excelFile.fileName
-                  : strings.choose_file}
+                {isNullUndefined(form.excelFile)
+                  ? strings.choose_file
+                  : form.excelFile.fileName}
               </TextAtom>
               <TextAtom style={styles.instructionText}>{'Add Excel'}</TextAtom>
             </TouchableOpacity>

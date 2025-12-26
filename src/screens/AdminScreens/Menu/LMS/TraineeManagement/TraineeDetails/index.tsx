@@ -12,8 +12,6 @@ import {
   RefreshControl,
   LayoutAnimation,
   ScrollView,
-  TextInput,
-  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -23,7 +21,6 @@ import {
   fonts,
   images,
   screensName,
-  strings,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -39,13 +36,8 @@ import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
-import moment from 'moment';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import {
-  downloadAndOpenFile,
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
+import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 import {
   useDownloadTraineeDetailsMutation,
   useDownloadTraineeRegFormMutation,
@@ -56,7 +48,6 @@ import {
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -776,7 +767,7 @@ const TraineeDetails = (props: Props) => {
                     type: 'error',
                     text2: 'Please select',
                   });
-                  return;
+                  return null;
                 } else {
                   downloadExcel();
                 }
@@ -812,7 +803,6 @@ const TraineeDetails = (props: Props) => {
               />
             </TouchableAtom>
           </View>
-          {/* {showFilter && <FilterForm />} */}
 
           {crediantialData.user[0].tenantId === 3 && (
             <DropDownOrganism

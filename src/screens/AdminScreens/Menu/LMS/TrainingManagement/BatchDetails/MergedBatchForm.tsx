@@ -1,17 +1,9 @@
-import {
-  Keyboard,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, screensName, vh, vw } from '../../../../../../constants';
+import { colors, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -20,17 +12,11 @@ import TextInputOrganisms from '../../../../../../components/organisms/TextInput
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import {
-  isNullUndefined,
-  normalizeNumber,
-} from '../../../../../../utils/CommonFunction';
-import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
+import { isNullUndefined } from '../../../../../../utils/CommonFunction';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import moment from 'moment';
 import {
   useListTraineeDetailsMutation,
   useMergeTrainingBatchDetailsMutation,
-  useUpdateTrainingBatchDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 
 interface Props {
@@ -43,8 +29,6 @@ const MergedBatchForm = (props: Props) => {
   const item = props.route.params?.item;
   const input1_ref: any = createRef();
 
-  const [updateTrainingBatchDetailsApi] =
-    useUpdateTrainingBatchDetailsMutation();
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listTraineeDetailsApi] = useListTraineeDetailsMutation();
   const [mergeTrainingBatchDetailsApi] = useMergeTrainingBatchDetailsMutation();
@@ -389,7 +373,7 @@ const MergedBatchForm = (props: Props) => {
           {form.noOfCandidateTrnasferSelected?.map(
             (candidate: any, index: number) => (
               <View
-                key={index}
+                key={index?.toString() + candidate?.id?.toString()}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -415,7 +399,6 @@ const MergedBatchForm = (props: Props) => {
 
                 <TouchableOpacity
                   onPress={() => {
-                    // Remove from selected & return back to list
                     setForm((prev: any) => ({
                       ...prev,
                       noOfCandidateTrnasferSelected:

@@ -54,10 +54,8 @@ import {
   useListTrainingDetailsMutation,
   useUpdateTraineeLoginDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -288,6 +286,7 @@ const TrainingDetails = (props: Props) => {
         setInitialCall(false);
         const fileUrl = res.data?.fileUrl ?? '';
         if (fileUrl) {
+          // Download and open file
         }
         downloadAndOpenFile(fileUrl);
         setSelectedItems([]);
@@ -303,7 +302,7 @@ const TrainingDetails = (props: Props) => {
   };
 
   const TraineeCard = ({ item, index, isSelected }: any) => {
-    const [statusValue, setStatusValue] = useState(item.isLoginAllowed ?? null);
+    const [statusValue] = useState(item.isLoginAllowed ?? null);
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
     const [fileNo, setFileNo] = useState(item.fileNo || '');
@@ -461,53 +460,6 @@ const TrainingDetails = (props: Props) => {
               />
             </TouchableAtom>
 
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                // navigation.navigate(screensName.AddCreateTour, { item: item });
-              }}
-            >
-              <ImageAtom
-                source={images.link}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                navigation.navigate(screensName.AddTrainingDetails, {
-                  item: item,
-                });
-              }}
-            >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-
             <TouchableAtom
               style={{
                 borderWidth: vw(1),
@@ -558,23 +510,7 @@ const TrainingDetails = (props: Props) => {
         <View style={{ marginTop: vh(4) }}>
           <TextAtom style={styles.label}>File No.</TextAtom>
 
-          {!isEditingFile ? (
-            // SHOW LABEL + EDIT ICON
-            <TouchableAtom
-              style={styles.fileDisplayBox}
-              onPress={() => setIsEditingFile(true)}
-            >
-              <TextAtom style={styles.fileText}>{fileNo}</TextAtom>
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  width: vw(16),
-                  height: vw(16),
-                  tintColor: colors.black,
-                }}
-              />
-            </TouchableAtom>
-          ) : (
+          {isEditingFile ? (
             // SHOW INPUT + ✓ SAVE
             <View style={styles.fileInputRow}>
               <TextInput
@@ -600,6 +536,22 @@ const TrainingDetails = (props: Props) => {
                 />
               </TouchableAtom>
             </View>
+          ) : (
+            // SHOW LABEL + EDIT ICON
+            <TouchableAtom
+              style={styles.fileDisplayBox}
+              onPress={() => setIsEditingFile(true)}
+            >
+              <TextAtom style={styles.fileText}>{fileNo}</TextAtom>
+              <ImageAtom
+                source={images.edit_pencil}
+                style={{
+                  width: vw(16),
+                  height: vw(16),
+                  tintColor: colors.black,
+                }}
+              />
+            </TouchableAtom>
           )}
         </View>
 
@@ -1022,12 +974,6 @@ const TrainingDetails = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddTrainingDetails);
-        }}
-      /> */}
-
       <DateExtendModal />
     </SafeAreaView>
   );

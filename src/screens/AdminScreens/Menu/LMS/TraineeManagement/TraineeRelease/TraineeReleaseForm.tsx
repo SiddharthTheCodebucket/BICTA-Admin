@@ -1,15 +1,8 @@
-import {
-  Alert,
-  Keyboard,
-  Linking,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { pick } from '@react-native-documents/picker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {
@@ -364,7 +357,7 @@ const TraineeReleaseForm = (props: Props) => {
         allowMultiSelection: false,
       });
 
-      if (result && result[0]) {
+      if (result?.[0]) {
         const file = result[0];
 
         // file size validation
@@ -725,9 +718,9 @@ const TraineeReleaseForm = (props: Props) => {
           onPress={handleFileUpload}
         >
           <TextAtom numberOfLines={0} style={styles.uploadText}>
-            {!isNullUndefined(form.file)
-              ? form.file.fileName
-              : strings.choose_file}
+            {isNullUndefined(form.file)
+              ? strings.choose_file
+              : form.file.fileName}
           </TextAtom>
           <TextAtom style={styles.instructionText}>{'Add File'}</TextAtom>
         </TouchableOpacity>

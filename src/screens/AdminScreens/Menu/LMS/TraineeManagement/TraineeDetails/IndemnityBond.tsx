@@ -172,7 +172,10 @@ const IndemnityBond = (props: Props) => {
         </ViewAtom>
         <ViewAtom style={styles.contentPadding}>
           {strings.indemnity_clauses.map((clause: string, index: number) => (
-            <Text style={styles.pointText} key={index}>
+            <Text
+              style={styles.pointText}
+              key={index.toString() + 'indemnity_clauses'}
+            >
               {index + 1}. {clause}
             </Text>
           ))}

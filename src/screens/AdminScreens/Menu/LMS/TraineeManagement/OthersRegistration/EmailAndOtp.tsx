@@ -1,19 +1,11 @@
-import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, StyleSheet } from 'react-native';
 import React, { createRef, useEffect, useState } from 'react';
 import { NavigationType } from '../../../../../../components/organisms/HeaderOrganism';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
-import {
-  colors,
-  fonts,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, vh, vw } from '../../../../../../constants';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import { useAppSelector } from '../../../../../../hooks';
 import { useDispatch } from 'react-redux';
 import {
@@ -22,27 +14,23 @@ import {
   saveOtp,
 } from '../../../../../../features/OtherRegistration/otherRegistrationSlice';
 import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
-import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import { normalizeNumber } from '../../../../../../utils/CommonFunction';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ImageUploadOrganism from '../../../../../../components/organisms/ImageUploadOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import Toast from 'react-native-toast-message';
 import { useAddMukhiyaRegistrationMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import moment from 'moment';
-import { CommonActions } from '@react-navigation/native';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
-  goNext: any;
+
   goBack: any;
   onDone?: any;
 }
 
 const EmailAndOtp = (props: Props) => {
-  const { navigation, goNext, goBack, onDone } = props;
+  const { navigation, goBack, onDone } = props;
   const input1_ref: any = createRef();
   const input2_ref: any = createRef();
 
@@ -238,7 +226,6 @@ const EmailAndOtp = (props: Props) => {
           autoHide: true,
         });
         onDone?.();
-        // navigation.navigate(screensName.TraineeManagement);
         navigation.pop();
         dispatch(resetOtherRegistrationState());
       })

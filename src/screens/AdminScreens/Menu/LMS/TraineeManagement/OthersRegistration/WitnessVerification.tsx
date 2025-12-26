@@ -1,6 +1,5 @@
-import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, StyleSheet } from 'react-native';
 import React, { createRef } from 'react';
-import { NavigationType } from '../../../../../../components/organisms/HeaderOrganism';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
 import { colors, strings, vh, vw } from '../../../../../../constants';
@@ -24,14 +23,12 @@ import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ImageUploadOrganism from '../../../../../../components/organisms/ImageUploadOrganism';
 
 interface Props {
-  route: any;
-  navigation: NavigationType;
   goNext: any;
   goBack: any;
 }
 
 const WitnessVerification = (props: Props) => {
-  const { navigation, goNext, goBack } = props;
+  const { goNext, goBack } = props;
   const input1_ref: any = createRef();
   const input2_ref: any = createRef();
   const input3_ref: any = createRef();

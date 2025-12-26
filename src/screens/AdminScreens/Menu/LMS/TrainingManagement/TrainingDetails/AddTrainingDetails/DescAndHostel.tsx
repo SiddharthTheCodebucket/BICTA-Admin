@@ -1,15 +1,8 @@
-import {
-  Keyboard,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { createRef, useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { colors, strings, vh, vw } from '../../../../../../../constants';
 import { NavigationType } from '../../../../../../../components/organisms/HeaderOrganism';
@@ -29,8 +22,6 @@ import {
 } from '../../../../../../../features/TrainingManagement/trainingManagementSlice';
 import moment from 'moment';
 import { useUpdateTrainingDetailsMutation } from '../../../../../../../injectEndpoints/lmsEndpoints';
-import TextAtom from '../../../../../../../components/atoms/TextAtom';
-import TouchableAtom from '../../../../../../../components/atoms/TouchableAtom';
 import { isNullUndefined } from '../../../../../../../utils/CommonFunction';
 
 interface Props {
@@ -50,12 +41,10 @@ const DescAndHostel = (props: Props) => {
 
   const {
     bipardLocation,
-    trainingCategoryList,
+
     trainingCategory,
     budget,
-    budgetList,
-    training,
-    trainingList,
+
     trainingFullName,
     trainingShortName,
     trainingStartDate,
@@ -64,7 +53,7 @@ const DescAndHostel = (props: Props) => {
     trainingFee,
     natureOfCourse,
     noOfParticipants,
-    parentDepartmentList,
+
     parentDepartment,
     noOfSectionAndBatches,
     status,
@@ -109,9 +98,6 @@ const DescAndHostel = (props: Props) => {
         }),
       );
       dispatch(addHostelItem(selectedHostels));
-      // selectedHostels.forEach((h: any) => {
-      //   dispatch(removeHostelItem(h.id));
-      // });
     }
   }, [item]);
 
@@ -202,12 +188,12 @@ const DescAndHostel = (props: Props) => {
     appendIfValid('course_location', null);
     appendIfValid('course_sub_location', null);
     const formattedLocation = {
-      locations: !isNullUndefined(trainingTeamLocations)
-        ? trainingTeamLocations.map((loc: any) => ({
+      locations: isNullUndefined(trainingTeamLocations)
+        ? []
+        : trainingTeamLocations.map((loc: any) => ({
             courseLocation: loc.courseLocation,
             courseSubLocation: loc.courseSubLocation,
-          }))
-        : [],
+          })),
     };
 
     appendIfValid('location', JSON.stringify(formattedLocation));
@@ -303,7 +289,7 @@ const DescAndHostel = (props: Props) => {
           >
             {hostel?.map((hostel: any, index: number) => (
               <View
-                key={index}
+                key={index.toString() + hostel?.id}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -348,57 +334,6 @@ const DescAndHostel = (props: Props) => {
             ))}
           </View>
         )}
-
-        {/* 
-        <DropDownOrganism
-          label={'Hostel Sequence'}
-          placeholder={'Hostel Sequence'}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: 'Hostel Sequence',
-              Data: hostelList,
-              selectedData: hostel,
-              setSelectedData: (data: any) => {
-                dispatch(saveHostel(data));
-                setErrors({ ...errors, 'hostel.id': '' });
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={hostel?.name}
-          isMandatory
-          errorMessage={errors['hostel.id']}
-        /> */}
-        {/* <ViewAtom
-          style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 10 }}
-        >
-          {hostel?.map((item: any) => (
-            <ViewAtom
-              key={item.id}
-              style={{
-                flexDirection: 'row',
-                backgroundColor: colors.lightGrey,
-                paddingHorizontal: 10,
-                paddingVertical: 6,
-                borderRadius: 20,
-                marginRight: 8,
-                marginBottom: 8,
-              }}
-            >
-              <TextAtom>{item.name}</TextAtom>
-
-              <TouchableAtom
-                onPress={() => dispatch(removeHostelItem(item.id))}
-                style={{ marginLeft: 6 }}
-              >
-                <TextAtom style={{ color: 'red', fontWeight: 'bold' }}>
-                  ×
-                </TextAtom>
-              </TouchableAtom>
-            </ViewAtom>
-          ))}
-        </ViewAtom> */}
       </KeyboardAwareScrollView>
       <ViewAtom style={styles.footer}>
         <ButtonOrganism

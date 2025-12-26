@@ -1,6 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import Toast from 'react-native-toast-message';
+import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 import StepHeader from '../../../../../../../components/organisms/StepHeader';
@@ -86,7 +85,7 @@ const AddTrainingDetails = ({ navigation, route }: Props) => {
     return true;
   }, [navigation]);
 
-  const [loader, setLoader] = useState(false);
+  const [loader] = useState(false);
 
   const goNext = () => setStep(s => s + 1);
   const goBack = () => setStep(s => s - 1);

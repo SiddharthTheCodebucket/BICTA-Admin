@@ -1,15 +1,11 @@
 import { Keyboard, StyleSheet } from 'react-native';
-import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, screensName, vh, vw } from '../../../../../../../constants';
-import {
-  Header,
-  NavigationType,
-} from '../../../../../../../components/organisms/HeaderOrganism';
+import { colors, vh, vw } from '../../../../../../../constants';
+import { NavigationType } from '../../../../../../../components/organisms/HeaderOrganism';
 import TextInputOrganisms from '../../../../../../../components/organisms/TextInputOrganisms';
 import DropDownOrganism from '../../../../../../../components/organisms/DropDownOrganism';
 import ButtonOrganism from '../../../../../../../components/organisms/ButtonOrganism';
@@ -240,8 +236,6 @@ const General = (props: Props) => {
       } else {
         addTrainingDetails();
       }
-
-      // goNext();
     } catch (err: any) {
       setErrors({ [err.path]: err.message });
     }
@@ -505,7 +499,7 @@ const General = (props: Props) => {
     appendIfNotNull(
       'hostel_allocation_order',
       JSON.stringify(
-        !isNullUndefined(hostel) ? hostel.map((h: any) => Number(h.id)) : [],
+        isNullUndefined(hostel) ? [] : hostel.map((h: any) => Number(h.id)),
       ),
     );
 
@@ -542,12 +536,12 @@ const General = (props: Props) => {
     appendIfNotNull('course_sub_location', null);
 
     const formattedLocation = {
-      locations: !isNullUndefined(trainingTeamLocations)
-        ? trainingTeamLocations.map((loc: any) => ({
+      locations: isNullUndefined(trainingTeamLocations)
+        ? []
+        : trainingTeamLocations.map((loc: any) => ({
             courseLocation: loc.courseLocation,
             courseSubLocation: loc.courseSubLocation,
-          }))
-        : [],
+          })),
     };
 
     appendIfNotNull('location', JSON.stringify(formattedLocation));

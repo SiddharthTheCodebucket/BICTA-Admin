@@ -41,7 +41,6 @@ import {
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -126,7 +125,7 @@ const TrainingCategoryMaster = (props: Props) => {
       filters: [],
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
-      bipardCentre: centreFilter ? centreFilter : [],
+      bipardCentre: centreFilter ?? [],
     };
 
     listTrainingApi(params)
@@ -274,6 +273,7 @@ const TrainingCategoryMaster = (props: Props) => {
         setInitialCall(false);
         const fileUrl = res.data?.fileUrl ?? '';
         if (fileUrl) {
+          // Download and open file
         }
         downloadAndOpenFile(fileUrl);
         setSelectedItems([]);
