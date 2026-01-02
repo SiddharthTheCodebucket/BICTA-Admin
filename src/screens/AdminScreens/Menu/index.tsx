@@ -7,6 +7,7 @@ import {
   NavigationType,
 } from '../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../components/atoms/TextAtom';
+import { useAppSelector } from '../../../hooks';
 
 interface Props {
   navigation: NavigationType;
@@ -15,13 +16,20 @@ interface Props {
 const Menu = ({ navigation }: Props) => {
   const [time, setTime] = useState(new Date());
 
+  const { crediantialData } = useAppSelector(state => state.Auth);
+
+  const userType: string | undefined = crediantialData?.user?.[0]?.userType;
+
+  const canSeeInvoice =
+    userType === 'SUPERADMIN' || userType === 'ACCOUNTCONTROLLER';
+
   useLayoutEffect(() => {
     Header.setDashboardHeader(navigation, {
       time,
       logo: images.logo,
       onNotificationPress: () => console.log('Notification Clicked'),
     });
-  }, [time]);
+  }, [time, navigation]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -30,7 +38,7 @@ const Menu = ({ navigation }: Props) => {
     return () => clearInterval(interval);
   }, []);
 
-  const DATA = [
+  const baseData = [
     {
       id: 1,
       name: 'Learning Management System',
@@ -59,13 +67,21 @@ const Menu = ({ navigation }: Props) => {
         navigation.navigate(screensName.VehicleManagement);
       },
     },
-    {
-      id: 4,
-      name: 'Invoice & Bill Management',
-      onPress: () => {
-        navigation.navigate(screensName.InvoiceAndBillManagement);
-      },
-    },
+  ];
+
+  const DATA = [
+    ...baseData,
+    ...(canSeeInvoice
+      ? [
+          {
+            id: 5,
+            name: 'Invoice & Bill Management',
+            onPress: () => {
+              navigation.navigate(screensName.InvoiceAndBillManagement);
+            },
+          },
+        ]
+      : []),
   ];
 
   return (
