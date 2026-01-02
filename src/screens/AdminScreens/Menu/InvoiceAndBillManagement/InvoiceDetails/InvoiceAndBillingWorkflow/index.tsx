@@ -68,6 +68,49 @@ const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
         <TextAtom style={[styles.label, { flex: 1 }]}>
           Sr. No: {index + 1}
         </TextAtom>
+        <View style={{ flexDirection: 'row', gap: vw(15) }}>
+          <TouchableAtom
+            style={{
+              borderWidth: vw(1),
+              borderColor: colors.primary,
+              borderRadius: vw(4),
+              padding: vw(3),
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => {
+              navigation.navigate(screensName.Movement, {
+                item: item,
+              });
+            }}
+          >
+            <ImageAtom
+              source={images.eyeOpen}
+              style={{
+                tintColor: colors.primary,
+                width: vw(15),
+                height: vw(15),
+              }}
+            />
+          </TouchableAtom>
+
+          {/* <TouchableAtom
+            style={{
+              borderWidth: vw(1),
+              borderColor: colors.red_2,
+              borderRadius: vw(6),
+              padding: vw(3),
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => {}}
+          >
+            <ImageAtom
+              source={images.delete}
+              style={{ width: vw(15), height: vw(15) }}
+            />
+          </TouchableAtom> */}
+        </View>
       </View>
 
       <View style={{ flex: 1 }}>
@@ -277,7 +320,6 @@ const InvoiceAndBillingWorkflow = (props: Props) => {
   const [page, setPage] = useState(1);
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
-  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
@@ -312,13 +354,10 @@ const InvoiceAndBillingWorkflow = (props: Props) => {
 
   useFocusEffect(
     useCallback(() => {
-      if (firstTimeLoad && search === '') {
-        setFirstTimeLoad(false);
-        listVendorDetails(1, true, '');
-        getCurrentStatus();
-        getAssignTo();
-      }
-    }, [firstTimeLoad, search]),
+      listVendorDetails(1, true, '');
+      getCurrentStatus();
+      getAssignTo();
+    }, []),
   );
 
   const toggleFilter = () => {

@@ -144,4 +144,5 @@ export default {
   list_patient_symptoms_details: 'phc/list-patient-symptoms-details',
 
   //Invoice and Bill Management
+  list_vendor_request_movemnet: 'vendor/list-vendor-request-movement',
 };

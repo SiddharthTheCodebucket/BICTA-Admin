@@ -152,4 +152,5 @@ export default {
   InvoiceDetails: 'InvoiceDetails',
   InvoiceAndBillingWorkflow: 'InvoiceAndBillingWorkflow',
   InvoiceDetailDetails: 'InvoiceDetailDetails',
+  Movement: 'Movement',
 };
