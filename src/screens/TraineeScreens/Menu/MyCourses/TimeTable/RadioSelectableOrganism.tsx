@@ -32,7 +32,7 @@ const RadioSelectableOrganism = (props: Props) => {
         isMandatory={props.isMandatory}
         labelStyle={props.labelStyle}
       />
-      <FlatList
+    
         showsVerticalScrollIndicator={false}
         data={data}
         numColumns={2}

@@ -180,7 +180,7 @@ const Login = (props: Props) => {
                 name: 'Role',
                 Data: [
                   { id: 'TRAINEE', name: 'Trainee' },
-                  { id: 'NON-TRAINEE', name: 'BIPARD Officials' },
+                  { id: 'NON-TRAINEE', name: 'Non-Trainee' },
                 ],
                 selectedData: role,
                 setSelectedData: (data: any) => {

@@ -118,8 +118,10 @@ const CourseModule = (props: Props) => {
               <Image source={thumbnail} style={styles.thumbnail} />
 
               <ViewAtom style={{ flex: 1, marginLeft: vw(10) }}>
-                <TextAtom style={styles.subject}>{item.subject}</TextAtom>
-                <TextAtom style={styles.label}>
+                <TextAtom numberOfLines={0} style={styles.subject}>
+                  {item.subject}
+                </TextAtom>
+                <TextAtom numberOfLines={0} style={styles.label}>
                   Subject Details:{' '}
                   <TextAtom style={styles.value}>
                     {item.subjectDescription}
@@ -161,7 +163,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.grey_6,
   },
   subject: {
-    fontSize: vw(14.5),
+    fontSize: vw(14),
     fontFamily: fonts.Roboto_Bold,
     color: colors.primary,
   },
@@ -173,5 +175,6 @@ const styles = StyleSheet.create({
   value: {
     fontFamily: fonts.Roboto_Medium,
     color: colors.grey,
+    fontSize: vw(12),
   },
 });

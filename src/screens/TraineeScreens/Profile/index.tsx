@@ -106,7 +106,7 @@ const Profile = (props: Props) => {
   };
 
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
+    <View style={styles.container}>
       <FullscreenLoading isVisible={loader} />
       <View style={{ flex: 1 }}>
         {DATA.map(item => {
@@ -140,7 +140,7 @@ const Profile = (props: Props) => {
         }}
         bttnText={strings.logout}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

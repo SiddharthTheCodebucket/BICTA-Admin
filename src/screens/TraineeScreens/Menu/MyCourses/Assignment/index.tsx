@@ -157,8 +157,9 @@ const styles = StyleSheet.create({
     elevation: 4,
     shadowColor: colors.black,
     shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    width: vw(330),
+    shadowOffset: { width: 0, height: 1 },
+    width: vw(325),
+    marginLeft: vh(2),
   },
   headerRow: {
     flexDirection: 'row',

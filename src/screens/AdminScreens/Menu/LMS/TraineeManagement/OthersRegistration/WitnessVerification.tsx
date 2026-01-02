@@ -132,7 +132,7 @@ const WitnessVerification = (props: Props) => {
   };
 
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
+    <View style={styles.container}>
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         style={{ flex: 1 }}
@@ -279,7 +279,7 @@ const WitnessVerification = (props: Props) => {
           onPress={handleNext}
         />
       </ViewAtom>
-    </SafeAreaView>
+    </View>
   );
 };
 

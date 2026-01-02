@@ -162,7 +162,7 @@ const Dashboard = (props: Props) => {
     setCurrentDate(moment(currentDate).add(1, 'month').toDate());
 
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
+    <View style={styles.container}>
       <FullscreenLoading isVisible={loader} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.heading}>{strings.dg_message}</Text>
@@ -277,7 +277,7 @@ const Dashboard = (props: Props) => {
           </View>
         </SafeAreaView>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 };
 

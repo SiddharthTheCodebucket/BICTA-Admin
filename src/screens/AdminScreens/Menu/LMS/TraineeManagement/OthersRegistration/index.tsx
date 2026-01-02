@@ -334,8 +334,7 @@ const OthersRegistration = ({ navigation, route }: Props) => {
   };
 
   return (
-    <SafeAreaView
-      edges={['bottom']}
+    <View
       style={{
         flex: 1,
         paddingHorizontal: vw(15),
@@ -366,7 +365,7 @@ const OthersRegistration = ({ navigation, route }: Props) => {
           onDone={onDone}
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

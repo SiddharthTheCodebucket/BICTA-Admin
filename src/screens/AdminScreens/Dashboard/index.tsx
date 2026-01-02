@@ -63,7 +63,7 @@ const Dashboard = (props: Props) => {
     }
   }, [props.route?.params]);
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
+    <View style={styles.container}>
       <FullscreenLoading isVisible={loader} />
 
       <View style={styles.tabRow}>
@@ -149,7 +149,7 @@ const Dashboard = (props: Props) => {
           selectedCenter={centerSerach?.id}
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -161,12 +161,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundColor,
     paddingHorizontal: vw(15),
     paddingTop: vh(10),
-    paddingBottom: vh(10),
   },
   tabRow: {
     flexDirection: 'row',
     width: vw(330),
-    marginTop: vh(5),
+    // marginTop: vh(5),
     alignItems: 'center',
     gap: vh(10),
   },
@@ -177,7 +176,7 @@ const styles = StyleSheet.create({
     borderRadius: vw(6),
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: vh(6),
+    // marginTop: vh(6),
   },
   activeTab: {
     backgroundColor: colors.primary,
@@ -197,6 +196,7 @@ const styles = StyleSheet.create({
   centerContent: {
     width: vw(125),
     height: vh(35),
+    marginTop: vh(5),
   },
   centerDownArrow: {
     marginLeft: vh(-300),

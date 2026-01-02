@@ -273,7 +273,7 @@ const InvoiceDashboard = (props: Props) => {
   );
 
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
+    <View style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
       <View style={styles.tabContainer}>
         {FILTER_TABS.map(tab => (
@@ -422,7 +422,7 @@ const InvoiceDashboard = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -461,10 +461,13 @@ const styles = StyleSheet.create({
     borderRadius: vw(8),
     paddingHorizontal: vw(15),
     paddingVertical: vh(12),
-    shadowColor: colors.black,
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    width: vw(325),
+    marginLeft: vh(2),
   },
 
   cardTitle: {

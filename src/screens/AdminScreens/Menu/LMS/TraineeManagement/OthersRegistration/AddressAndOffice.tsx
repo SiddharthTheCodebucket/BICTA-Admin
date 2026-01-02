@@ -153,7 +153,7 @@ const AddressAndOffice = (props: Props) => {
   };
 
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
+    <View style={styles.container}>
       <FullscreenLoading isVisible={loader} />
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
@@ -275,7 +275,7 @@ const AddressAndOffice = (props: Props) => {
           onPress={handleNext}
         />
       </ViewAtom>
-    </SafeAreaView>
+    </View>
   );
 };
 

@@ -192,7 +192,7 @@ const HostelPlanning = (props: any) => {
   };
 
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
+    <View style={styles.container}>
       <FullscreenLoading isVisible={loader} />
       <View
         style={{
@@ -257,7 +257,7 @@ const HostelPlanning = (props: any) => {
           />
         }
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

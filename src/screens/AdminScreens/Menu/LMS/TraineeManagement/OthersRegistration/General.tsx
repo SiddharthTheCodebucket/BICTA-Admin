@@ -224,7 +224,7 @@ const General = (props: Props) => {
   };
 
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
+    <View style={styles.container}>
       <FullscreenLoading isVisible={loader} />
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
@@ -516,7 +516,7 @@ const General = (props: Props) => {
         onPress={handleNext}
         containerStyle={{ width: vw(328), marginBottom: vh(30) }}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

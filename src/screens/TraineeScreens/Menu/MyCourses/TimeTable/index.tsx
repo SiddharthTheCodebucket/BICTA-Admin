@@ -6,6 +6,7 @@ import {
   Platform,
   UIManager,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -60,6 +61,7 @@ const TimeTable = (props: Props) => {
   const [selectedWeek, setSelectedWeek] = useState<any>({});
   const [classroomTimeTableList, setClassroomTimeTableList] = useState<any>([]);
   const [expandedDate, setExpandedDate] = useState<string | null>(null);
+  const [expandLoader, setExpandLoader] = useState<string | null>(null);
 
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'Time Table');
@@ -252,7 +254,19 @@ const TimeTable = (props: Props) => {
             LayoutAnimation.configureNext(
               LayoutAnimation.Presets.easeInEaseOut,
             );
-            setExpandedDate(isExpanded ? null : item.date);
+
+            if (expandedDate === item.date) {
+              setExpandedDate(null);
+              setExpandLoader(null);
+            } else {
+              setExpandedDate(item.date);
+              setExpandLoader(item.date);
+
+              // fake delay OR future API call
+              setTimeout(() => {
+                setExpandLoader(null);
+              }, 600);
+            }
           }}
           style={styles.dateHeader}
         >
@@ -265,56 +279,62 @@ const TimeTable = (props: Props) => {
 
         {isExpanded && (
           <ViewAtom style={styles.sessionListContainer}>
-            {item.sessions.map((session: any, index: number) => {
-              const isFeedbackYes = session.isFeedbackSubmitted === 'Yes';
-              const backgroundColor = isFeedbackYes
-                ? colors.lightGreen
-                : colors.lightPrimary;
+            {expandLoader === item.date ? (
+              <ViewAtom style={styles.innerLoader}>
+                <ActivityIndicator size="small" color={colors.primary} />
+              </ViewAtom>
+            ) : (
+              item.sessions.map((session: any, index: number) => {
+                const isFeedbackYes = session.isFeedbackSubmitted === 'Yes';
+                const backgroundColor = isFeedbackYes
+                  ? colors.lightGreen
+                  : colors.lightPrimary;
 
-              return (
-                <TouchableAtom
-                  key={index}
-                  onPress={() => {
-                    if (isFeedbackYes) {
-                      feedbackListFaculty(session);
-                    } else {
-                      navigation.navigate(screensName.FacultyFeedbackModal, {
-                        data: session,
-                        isEdit: true,
-                      });
-                    }
-                  }}
-                  style={[styles.sessionCard, { backgroundColor }]}
-                >
-                  <TextAtom style={styles.sessionTitle}>
-                    {session.selectASession} ({session.time})
-                  </TextAtom>
-
-                  <ViewAtom style={styles.sessionDetails}>
-                    <TextAtom style={styles.sessionLabel}>
-                      Subject:{' '}
-                      <TextAtom style={styles.sessionValue}>
-                        {session.selectSubject}
-                      </TextAtom>
+                return (
+                  <TouchableAtom
+                    key={index}
+                    onPress={() => {
+                      if (isFeedbackYes) {
+                        feedbackListFaculty(session);
+                      } else {
+                        navigation.navigate(screensName.FacultyFeedbackModal, {
+                          data: session,
+                          isEdit: true,
+                        });
+                      }
+                    }}
+                    style={[styles.sessionCard, { backgroundColor }]}
+                  >
+                    <TextAtom style={styles.sessionTitle}>
+                      {session.selectASession} ({session.time})
                     </TextAtom>
 
-                    <TextAtom style={styles.sessionLabel}>
-                      Topic:{' '}
-                      <TextAtom style={styles.sessionValue}>
-                        {session.selectTopic}
+                    <ViewAtom style={styles.sessionDetails}>
+                      <TextAtom style={styles.sessionLabel}>
+                        Subject:{' '}
+                        <TextAtom style={styles.sessionValue}>
+                          {session.selectSubject}
+                        </TextAtom>
                       </TextAtom>
-                    </TextAtom>
 
-                    <TextAtom style={styles.sessionLabel}>
-                      Faculty:{' '}
-                      <TextAtom style={styles.sessionValue}>
-                        {session.selectFaculty}
+                      <TextAtom style={styles.sessionLabel}>
+                        Topic:{' '}
+                        <TextAtom style={styles.sessionValue}>
+                          {session.selectTopic}
+                        </TextAtom>
                       </TextAtom>
-                    </TextAtom>
-                  </ViewAtom>
-                </TouchableAtom>
-              );
-            })}
+
+                      <TextAtom style={styles.sessionLabel}>
+                        Faculty:{' '}
+                        <TextAtom style={styles.sessionValue}>
+                          {session.selectFaculty}
+                        </TextAtom>
+                      </TextAtom>
+                    </ViewAtom>
+                  </TouchableAtom>
+                );
+              })
+            )}
           </ViewAtom>
         )}
       </ViewAtom>
@@ -395,6 +415,7 @@ const TimeTable = (props: Props) => {
       {showFilter && <FilterForm />}
 
       <FlatList
+        showsVerticalScrollIndicator={false}
         data={groupedArray}
         renderItem={renderDateCard}
         keyExtractor={item => item.date}
@@ -453,14 +474,15 @@ const styles = StyleSheet.create({
   dateCardContainer: {
     backgroundColor: colors.white,
     marginHorizontal: vw(15),
-    marginVertical: vh(8),
+    marginVertical: vh(4),
     borderRadius: vw(8),
     paddingHorizontal: vw(12),
     paddingVertical: vh(15),
-    shadowColor: colors.black,
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
   },
   dateHeader: {
     flexDirection: 'row',
@@ -495,5 +517,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.Roboto_Regular,
     color: colors.black,
     fontSize: vw(13),
+  },
+  innerLoader: {
+    paddingVertical: vh(15),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

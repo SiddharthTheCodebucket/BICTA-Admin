@@ -378,7 +378,7 @@ const HostelReport = (props: any) => {
   };
 
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
+    <View style={styles.container}>
       <FullscreenLoading isVisible={loader} />
       <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
         <TextAtom style={styles.filterText}>
@@ -404,7 +404,7 @@ const HostelReport = (props: any) => {
           />
         }
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -422,9 +422,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: vw(15),
     paddingVertical: vh(8),
     shadowColor: colors.black,
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
+    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
     width: vw(320),
     marginLeft: vh(2),
   },
