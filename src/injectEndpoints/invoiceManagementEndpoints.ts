@@ -10,7 +10,25 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    assigneeListVendor: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.assignee_list_vendor,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    assigneeAddVendor: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.assignee_add_vendor,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
-export const { useListVendorRequestMovemnetMutation } = apiEndpoints;
+export const {
+  useListVendorRequestMovemnetMutation,
+  useAssigneeListVendorMutation,
+  useAssigneeAddVendorMutation,
+} = apiEndpoints;

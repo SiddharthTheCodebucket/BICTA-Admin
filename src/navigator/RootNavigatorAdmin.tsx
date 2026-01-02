@@ -120,6 +120,7 @@ import InvoiceDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagemen
 import InvoiceAndBillingWorkflow from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow';
 import InvoiceDetailDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/InvoiceDetailDetails';
 import Movement from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/Movement';
+import AssignBillForm from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/AssignBillForm';
 
 const RootNavigatorAdmin = () => {
   const RootStackScreen = createNativeStackNavigator();
@@ -505,6 +506,10 @@ const RootNavigatorAdmin = () => {
           component={InvoiceDetailDetails}
         />
         <RootStackScreen.Screen name="Movement" component={Movement} />
+        <RootStackScreen.Screen
+          name="AssignBillForm"
+          component={AssignBillForm}
+        />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{

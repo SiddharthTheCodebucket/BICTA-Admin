@@ -145,4 +145,6 @@ export default {
 
   //Invoice and Bill Management
   list_vendor_request_movemnet: 'vendor/list-vendor-request-movement',
+  assignee_list_vendor: 'vendor/select-assignee-to-vendor-request',
+  assignee_add_vendor: 'vendor/add-assignee-to-vendor-request',
 };

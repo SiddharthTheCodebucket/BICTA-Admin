@@ -32,4 +32,7 @@ export default {
   link: require('../assets/images/link.png'),
   extended: require('../assets/images/extended.png'),
   random: require('../assets/images/random.png'),
+  assign: require('../assets/images/assign.png'),
+  reassign: require('../assets/images/reassign.png'),
+  payment: require('../assets/images/payment.png'),
 };

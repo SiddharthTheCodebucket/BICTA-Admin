@@ -54,9 +54,15 @@ interface VendorCardProps {
   item: any;
   index: number;
   navigation: any;
+  onPressAssign: () => void;
 }
 
-const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
+const VendorCard: React.FC<VendorCardProps> = ({
+  item,
+  index,
+  navigation,
+  onPressAssign,
+}) => {
   return (
     <TouchableAtom
       style={styles.card}
@@ -68,7 +74,7 @@ const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
         <TextAtom style={[styles.label, { flex: 1 }]}>
           Sr. No: {index + 1}
         </TextAtom>
-        <View style={{ flexDirection: 'row', gap: vw(15) }}>
+        <View style={{ flexDirection: 'row', gap: vw(10) }}>
           <TouchableAtom
             style={{
               borderWidth: vw(1),
@@ -94,11 +100,33 @@ const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
             />
           </TouchableAtom>
 
-          {/* <TouchableAtom
+          <TouchableAtom
             style={{
               borderWidth: vw(1),
-              borderColor: colors.red_2,
-              borderRadius: vw(6),
+              borderColor: colors.primary,
+              borderRadius: vw(4),
+              padding: vw(3),
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => {
+              onPressAssign();
+            }}
+          >
+            <ImageAtom
+              source={images.assign}
+              style={{
+                width: vw(15),
+                height: vw(15),
+                tintColor: colors.primary,
+              }}
+            />
+          </TouchableAtom>
+          <TouchableAtom
+            style={{
+              borderWidth: vw(1),
+              borderColor: colors.primary,
+              borderRadius: vw(4),
               padding: vw(3),
               alignItems: 'center',
               justifyContent: 'center',
@@ -106,10 +134,34 @@ const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
             onPress={() => {}}
           >
             <ImageAtom
-              source={images.delete}
-              style={{ width: vw(15), height: vw(15) }}
+              source={images.reassign}
+              style={{
+                width: vw(15),
+                height: vw(15),
+                tintColor: colors.primary,
+              }}
             />
-          </TouchableAtom> */}
+          </TouchableAtom>
+          <TouchableAtom
+            style={{
+              borderWidth: vw(1),
+              borderColor: colors.primary,
+              borderRadius: vw(4),
+              padding: vw(3),
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => {}}
+          >
+            <ImageAtom
+              source={images.payment}
+              style={{
+                width: vw(15),
+                height: vw(15),
+                tintColor: colors.primary,
+              }}
+            />
+          </TouchableAtom>
         </View>
       </View>
 
@@ -434,10 +486,23 @@ const InvoiceAndBillingWorkflow = (props: Props) => {
     setSearch('');
     listVendorDetails(1, true, '');
   };
+  const onPressAssign = (item: any) => {
+    navigation.navigate(screensName.AssignBillForm, {
+      item: item,
+      onDone: () => listVendorDetails(1, true, search),
+    });
+  };
 
   const renderListVendorDetails = useCallback(
     ({ item, index }: any) => (
-      <VendorCard item={item} index={index} navigation={navigation} />
+      <VendorCard
+        item={item}
+        index={index}
+        navigation={navigation}
+        onPressAssign={() => {
+          onPressAssign(item);
+        }}
+      />
     ),
     [navigation],
   );
