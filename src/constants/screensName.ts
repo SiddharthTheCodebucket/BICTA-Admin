@@ -148,4 +148,8 @@ export default {
   PersonalInfo: 'PersonalInfo',
   Uploads: 'Uploads',
   Confirm: 'Confirm',
+  InvoiceAndBillManagement: 'InvoiceAndBillManagement',
+  InvoiceDetails: 'InvoiceDetails',
+  InvoiceAndBillingWorkflow: 'InvoiceAndBillingWorkflow',
+  InvoiceDetailDetails: 'InvoiceDetailDetails',
 };

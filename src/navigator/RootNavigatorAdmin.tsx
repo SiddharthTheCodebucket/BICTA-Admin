@@ -115,6 +115,10 @@ import BMI from '../screens/AdminScreens/Menu/PHCManagement/TraineeBMI/BMI';
 import BMIDetails from '../screens/AdminScreens/Menu/PHCManagement/TraineeBMI/BMI/BMIDetails';
 import BasicPatientDetails from '../screens/AdminScreens/Menu/PHCManagement/PHCManagemnetMain/BasicPatientDetails';
 import PatientDetailDetails from '../screens/AdminScreens/Menu/PHCManagement/PHCManagemnetMain/BasicPatientDetails/PatientDetailDetails';
+import InvoiceAndBillManagement from '../screens/AdminScreens/Menu/InvoiceAndBillManagement';
+import InvoiceDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails';
+import InvoiceAndBillingWorkflow from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow';
+import InvoiceDetailDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/InvoiceDetailDetails';
 
 const RootNavigatorAdmin = () => {
   const RootStackScreen = createNativeStackNavigator();
@@ -482,6 +486,22 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="PatientDetailDetails"
           component={PatientDetailDetails}
+        />
+        <RootStackScreen.Screen
+          name="InvoiceAndBillManagement"
+          component={InvoiceAndBillManagement}
+        />
+        <RootStackScreen.Screen
+          name="InvoiceDetails"
+          component={InvoiceDetails}
+        />
+        <RootStackScreen.Screen
+          name="InvoiceAndBillingWorkflow"
+          component={InvoiceAndBillingWorkflow}
+        />
+        <RootStackScreen.Screen
+          name="InvoiceDetailDetails"
+          component={InvoiceDetailDetails}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

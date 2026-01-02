@@ -59,6 +59,13 @@ const Menu = ({ navigation }: Props) => {
         navigation.navigate(screensName.VehicleManagement);
       },
     },
+    {
+      id: 4,
+      name: 'Invoice & Bill Management',
+      onPress: () => {
+        navigation.navigate(screensName.InvoiceAndBillManagement);
+      },
+    },
   ];
 
   return (
