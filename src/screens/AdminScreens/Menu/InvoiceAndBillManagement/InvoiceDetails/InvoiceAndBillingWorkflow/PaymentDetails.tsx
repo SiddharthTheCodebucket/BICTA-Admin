@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { useCallback, useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -13,84 +8,115 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import { colors, fonts, vh, vw } from '../../../../../../constants';
+import { useFocusEffect } from '@react-navigation/native';
+import {
+  colors,
+  fonts,
+  images,
+  screensName,
+  vh,
+  vw,
+} from '../../../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import { useListVendorRequestMovemnetMutation } from '../../../../../../injectEndpoints/invoiceManagementEndpoints';
+import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import moment from 'moment';
+import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import { useListVendorPaymentHistoryMutation } from '../../../../../../injectEndpoints/invoiceManagementEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
+import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 
 interface Props {
   route: any;
   navigation: NavigationType;
 }
 
-const debounce = (func: any, delay: number) => {
-  let timer: any;
-  return (...args: any[]) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      func(...args);
-    }, delay);
-  };
-};
-
-interface MovementCardProps {
+interface PaymentCardProps {
   item: any;
   index: number;
+  navigation: any;
+  onPressEdit: () => void;
 }
 
-const MovementCard: React.FC<MovementCardProps> = ({ item, index }: any) => {
+const PaymentCard: React.FC<PaymentCardProps> = ({
+  item,
+  index,
+  navigation,
+  onPressEdit,
+}) => {
   return (
-    <ViewAtom style={styles.card}>
+    <TouchableAtom
+      style={styles.card}
+      onPress={() => {
+        navigation.navigate(screensName.PaymentDetailDetails, { data: item });
+      }}
+    >
       <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
         <TextAtom style={[styles.label, { flex: 1 }]}>
           Sr. No: {index + 1}
         </TextAtom>
-      </View>
-
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>Sent By</TextAtom>
-        <TextAtom style={styles.value}>{item.sentBy ?? '-'}</TextAtom>
-      </View>
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>Sent To</TextAtom>
-        <TextAtom style={styles.value}>{item.sentTo ?? '-'}</TextAtom>
-      </View>
-
-      <View style={[styles.rowBetween]}>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Sent On</TextAtom>
-          <TextAtom style={styles.value}>{item.sentOn ?? '-'}</TextAtom>
+        <View style={{ flexDirection: 'row', gap: vw(10) }}>
+          <TouchableAtom
+            style={{
+              borderWidth: vw(1),
+              borderColor: colors.primary,
+              borderRadius: vw(4),
+              padding: vw(3),
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => {
+              onPressEdit();
+            }}
+          >
+            <ImageAtom
+              source={images.edit_pencil}
+              style={{
+                tintColor: colors.primary,
+                width: vw(15),
+                height: vw(15),
+              }}
+            />
+          </TouchableAtom>
         </View>
       </View>
+      <ViewAtom style={styles.rowBetween}>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Payment Date</TextAtom>
+          <TextAtom numberOfLines={0} style={styles.value}>
+            {moment(item.paymentDate).format('DD-MM-YYYY') ?? '-'}
+          </TextAtom>
+        </View>
+
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.labelRight}>Net Payment</TextAtom>
+          <TextAtom numberOfLines={0} style={styles.valueRight}>
+            {item.netPayment ?? '-'}
+          </TextAtom>
+        </View>
+      </ViewAtom>
+
       <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>Status</TextAtom>
-        <TextAtom numberOfLines={0} style={[styles.value]}>
-          {item.currentStatus ?? '-'}
-        </TextAtom>
-      </View>
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>Remark</TextAtom>
+        <TextAtom style={styles.label}>Payment Remark</TextAtom>
         <TextAtom numberOfLines={0} style={styles.value}>
-          {item.remarks ?? '-'}
+          {item.paymentRemark ?? '-'}
         </TextAtom>
       </View>
-    </ViewAtom>
+    </TouchableAtom>
   );
 };
 
 const ListItemSeparator = () => <View style={{ height: vh(10) }} />;
 
-const Movement = (props: Props) => {
+const PaymentDetails = (props: Props) => {
   const { navigation } = props;
-  const item = props.route?.params?.item;
+  const item = props.route?.params?.item ?? null;
 
-  const [listVendorRequestMovemnetApi] = useListVendorRequestMovemnetMutation();
+  const [listVendorPaymentHistoryApi] = useListVendorPaymentHistoryMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -102,18 +128,20 @@ const Movement = (props: Props) => {
 
   const ITEMS_PER_PAGE = 10;
 
-  const [search, setSearch] = React.useState('');
+  const [search] = React.useState('');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Movement History Data');
+    Header.setNavigation(navigation, 'Payment Details');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
-  useEffect(() => {
-    listVendorRequestMovemnet(1, true, '');
-  }, [navigation]);
+  useFocusEffect(
+    useCallback(() => {
+      listVendorPaymentHistory(1, true, '');
+    }, []),
+  );
 
-  const listVendorRequestMovemnet = (
+  const listVendorPaymentHistory = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -122,18 +150,17 @@ const Movement = (props: Props) => {
     initial ? setInitialCall(true) : setInitialCall(false);
 
     const params: any = {
-      uniqueId: item.uniqueId,
+      uniqueId: item?.uniqueId,
       search: keyword,
       sort: {
-        attributes: ['createdAt'],
+        attributes: ['created_at'],
         sorts: ['desc'],
       },
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
     };
-
-    listVendorRequestMovemnetApi(params)
+    listVendorPaymentHistoryApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -162,42 +189,79 @@ const Movement = (props: Props) => {
       });
   };
 
-  const handleSearch = useCallback(
-    debounce((text: string) => {
-      listVendorRequestMovemnet(1, true, text);
-    }, 500),
-    [],
-  );
-
-  const onChangeSearch = (text: string) => {
-    setSearch(text);
-    handleSearch(text);
+  const onPressEdit = (item: any) => {
+    navigation.navigate(screensName.AddPaymentDetails, {
+      isEdit: true,
+      item: item,
+      onDone: () => listVendorPaymentHistory(1, true, search),
+    });
   };
 
-  const onClearSearch = () => {
-    setSearch('');
-    listVendorRequestMovemnet(1, true, '');
-  };
-
-  const renderListMovementDetails = useCallback(
-    ({ item, index }: any) => <MovementCard item={item} index={index} />,
+  const renderlistVendorPaymentHistory = useCallback(
+    ({ item, index }: any) => (
+      <PaymentCard
+        item={item}
+        index={index}
+        navigation={navigation}
+        onPressEdit={() => {
+          onPressEdit(item);
+        }}
+      />
+    ),
     [navigation],
   );
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <SearchBoxOrganism
-        onChangeText={onChangeSearch}
-        searchText={search}
-        onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
-      />
+      <TextAtom
+        style={{
+          width: vw(330),
+          alignSelf: 'center',
+          fontSize: vw(16),
+          fontFamily: fonts.Roboto_Bold,
+          color: colors.black,
+          marginTop: vh(5),
+        }}
+      >
+        {`Payment Details - ${item.vendorName}`}
+      </TextAtom>
+      <TextAtom
+        style={{
+          width: vw(330),
+          alignSelf: 'center',
+          fontSize: vw(14),
+          fontFamily: fonts.Roboto_Medium,
+          color: colors.black,
+          marginTop: vh(5),
+        }}
+      >
+        {`Unique Id : ${item.uniqueId}`}
+      </TextAtom>
+      <ViewAtom
+        style={[
+          styles.rowBetween,
+          { width: vw(330), alignSelf: 'center', marginTop: vh(5) },
+        ]}
+      >
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Outstanding Amount</TextAtom>
+          <TextAtom style={styles.value}>
+            {item.invoiceAmount - item.totalPaidAmount}
+          </TextAtom>
+        </View>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.labelRight}>Invoice Amount</TextAtom>
+          <TextAtom style={styles.valueRight}>
+            {item.invoiceAmount ?? '-'}
+          </TextAtom>
+        </View>
+      </ViewAtom>
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListMovementDetails}
+        renderItem={renderlistVendorPaymentHistory}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           initialCall ? null : (
@@ -219,24 +283,32 @@ const Movement = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listVendorRequestMovemnet(1, false, '');
+              listVendorPaymentHistory(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listVendorRequestMovemnet(page + 1, false, search)
+            ? listVendorPaymentHistory(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={ListItemSeparator}
       />
+      <FloatingButton
+        onButtonPress={() => {
+          navigation.navigate(screensName.AddPaymentDetails, {
+            item: item,
+            onDone: () => listVendorPaymentHistory(1, true, search),
+          });
+        }}
+      />
     </SafeAreaView>
   );
 };
 
-export default Movement;
+export default PaymentDetails;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },

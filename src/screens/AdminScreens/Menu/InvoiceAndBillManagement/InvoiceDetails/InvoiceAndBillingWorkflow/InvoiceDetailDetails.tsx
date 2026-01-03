@@ -84,12 +84,12 @@ const InvoiceDetailDetails = ({ route, navigation }: any) => {
 
           <FieldRow label="BIPARD Campus" value={data?.bipardCentreName} />
 
-          <FieldRow
+          <FullWidthField
             label="Currently Assigned To"
             value={data?.currentlyAssignedTo}
           />
           <FieldRow label="Assign Date" value={data?.dateOfAssign} />
-          <FieldRow label="Status" value={data?.currentStatus} />
+          <FullWidthField label="Status" value={data?.currentStatus} />
 
           <FieldRow
             label="Is Payment Received"

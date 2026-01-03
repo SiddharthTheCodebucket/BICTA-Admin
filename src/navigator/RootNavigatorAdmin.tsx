@@ -121,6 +121,9 @@ import InvoiceAndBillingWorkflow from '../screens/AdminScreens/Menu/InvoiceAndBi
 import InvoiceDetailDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/InvoiceDetailDetails';
 import Movement from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/Movement';
 import AssignBillForm from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/AssignBillForm';
+import PaymentDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/PaymentDetails';
+import PaymentDetailDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/PaymentDetailDetails';
+import AddPaymentDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/AddPaymentDetails';
 
 const RootNavigatorAdmin = () => {
   const RootStackScreen = createNativeStackNavigator();
@@ -509,6 +512,18 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="AssignBillForm"
           component={AssignBillForm}
+        />
+        <RootStackScreen.Screen
+          name="PaymentDetails"
+          component={PaymentDetails}
+        />
+        <RootStackScreen.Screen
+          name="PaymentDetailDetails"
+          component={PaymentDetailDetails}
+        />
+        <RootStackScreen.Screen
+          name="AddPaymentDetails"
+          component={AddPaymentDetails}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

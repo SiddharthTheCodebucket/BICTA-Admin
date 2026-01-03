@@ -24,6 +24,27 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listVendorPaymentHistory: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_vendor_payment_history,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    addVendorPaymentHistory: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.add_vendor_payment_history,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateVendorPaymentHistory: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_vendor_payment_history,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -31,4 +52,7 @@ export const {
   useListVendorRequestMovemnetMutation,
   useAssigneeListVendorMutation,
   useAssigneeAddVendorMutation,
+  useListVendorPaymentHistoryMutation,
+  useAddVendorPaymentHistoryMutation,
+  useUpdateVendorPaymentHistoryMutation,
 } = apiEndpoints;

@@ -147,4 +147,7 @@ export default {
   list_vendor_request_movemnet: 'vendor/list-vendor-request-movement',
   assignee_list_vendor: 'vendor/select-assignee-to-vendor-request',
   assignee_add_vendor: 'vendor/add-assignee-to-vendor-request',
+  list_vendor_payment_history: 'vendor/list-vendor-payment-history',
+  add_vendor_payment_history: 'vendor/add-vendor-payment-history',
+  update_vendor_payment_history: 'vendor/update-vendor-payment-history',
 };

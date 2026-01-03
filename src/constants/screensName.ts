@@ -154,4 +154,7 @@ export default {
   InvoiceDetailDetails: 'InvoiceDetailDetails',
   Movement: 'Movement',
   AssignBillForm: 'AssignBillForm',
+  PaymentDetails: 'PaymentDetails',
+  PaymentDetailDetails: 'PaymentDetailDetails',
+  AddPaymentDetails: 'AddPaymentDetails',
 };
