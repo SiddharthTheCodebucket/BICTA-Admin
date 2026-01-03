@@ -35,6 +35,7 @@ import DateInputOrganism from '../../../../../../components/organisms/DateInputO
 import moment from 'moment';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
+import { useAppSelector } from '../../../../../../hooks';
 
 interface Props {
   navigation: NavigationType;
@@ -372,7 +373,9 @@ const ListItemSeparator = () => <View style={{ height: vh(10) }} />;
 
 const InvoiceAndBillingWorkflow = (props: Props) => {
   const { navigation } = props;
+  const { crediantialData } = useAppSelector(state => state.Auth);
 
+  const userType: string | undefined = crediantialData?.user?.[0]?.userType;
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listVendorApi] = useVendorListMutation();
 
@@ -510,10 +513,18 @@ const InvoiceAndBillingWorkflow = (props: Props) => {
   };
 
   const onPressPaymentDetails = (item: any) => {
-    navigation.navigate(screensName.PaymentDetails, {
-      item: item,
-      onDone: () => listVendorDetails(1, true, search),
-    });
+    if (item.currentStatus === 'Pending' && userType === 'SUPERADMIN') {
+      Toast.show({
+        type: 'error',
+        text2:
+          'You cannot make payment for this invoice before changing status. Current status is:Pending',
+      });
+    } else {
+      navigation.navigate(screensName.PaymentDetails, {
+        item: item,
+        onDone: () => listVendorDetails(1, true, search),
+      });
+    }
   };
 
   const renderListVendorDetails = useCallback(
