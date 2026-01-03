@@ -6,6 +6,7 @@ import { colors, fonts, images, screensName } from '../constants';
 import Dashboard from '../screens/AdminScreens/Dashboard';
 import Menu from '../screens/AdminScreens/Menu';
 import Profile from '../screens/AdminScreens/Profile';
+import { useAppSelector } from '../hooks';
 
 const BottomTab = createBottomTabNavigator();
 
@@ -41,6 +42,12 @@ const renderTabBarButton = (props: any) => {
 };
 
 function BottomTabNavigatorAdmin() {
+  const { crediantialData } = useAppSelector(state => state.Auth);
+
+  const userType: string | undefined = crediantialData?.user?.[0]?.userType;
+
+  const canSeeInvoice = userType === 'ACCOUNTCONTROLLER';
+
   return (
     <BottomTab.Navigator
       screenOptions={{
@@ -48,21 +55,25 @@ function BottomTabNavigatorAdmin() {
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarStyle: styles.tabBar,
         tabBarButton: renderTabBarButton,
+        headerShown: false,
       }}
     >
-      <BottomTab.Screen
-        name={screensName.Dashboard}
-        component={Dashboard}
-        options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: renderHomeIcon(),
-        }}
-        listeners={({ navigation, route }) => ({
-          tabPress: event => {
-            navigation.navigate(screensName.Dashboard);
-          },
-        })}
-      />
+      {!canSeeInvoice && (
+        <BottomTab.Screen
+          name={screensName.Dashboard}
+          component={Dashboard}
+          options={{
+            tabBarLabel: 'Home',
+            tabBarIcon: renderHomeIcon(),
+          }}
+          listeners={({ navigation }) => ({
+            tabPress: () => {
+              navigation.navigate(screensName.Dashboard);
+            },
+          })}
+        />
+      )}
+
       <BottomTab.Screen
         name={screensName.Menu}
         component={Menu}
@@ -70,12 +81,13 @@ function BottomTabNavigatorAdmin() {
           tabBarLabel: 'Menu',
           tabBarIcon: renderMenuIcon(),
         }}
-        listeners={({ navigation, route }) => ({
-          tabPress: event => {
+        listeners={({ navigation }) => ({
+          tabPress: () => {
             navigation.navigate(screensName.Menu);
           },
         })}
       />
+
       <BottomTab.Screen
         name={screensName.Profile}
         component={Profile}
@@ -83,8 +95,8 @@ function BottomTabNavigatorAdmin() {
           tabBarLabel: 'Profile',
           tabBarIcon: renderProfileIcon(),
         }}
-        listeners={({ navigation, route }) => ({
-          tabPress: event => {
+        listeners={({ navigation }) => ({
+          tabPress: () => {
             navigation.navigate(screensName.Profile);
           },
         })}

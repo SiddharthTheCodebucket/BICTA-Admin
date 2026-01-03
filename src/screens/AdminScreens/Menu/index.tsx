@@ -20,6 +20,7 @@ const Menu = ({ navigation }: Props) => {
 
   const userType: string | undefined = crediantialData?.user?.[0]?.userType;
 
+  const isAccountController = userType === 'ACCOUNTCONTROLLER';
   const canSeeInvoice =
     userType === 'SUPERADMIN' || userType === 'ACCOUNTCONTROLLER';
 
@@ -42,62 +43,51 @@ const Menu = ({ navigation }: Props) => {
     {
       id: 1,
       name: 'Learning Management System',
-      onPress: () => {
-        navigation.navigate(screensName.LMS);
-      },
+      onPress: () => navigation.navigate(screensName.LMS),
     },
     {
       id: 2,
       name: 'Hostel Management',
-      onPress: () => {
-        navigation.navigate(screensName.HostelManagement);
-      },
+      onPress: () => navigation.navigate(screensName.HostelManagement),
     },
     {
       id: 3,
       name: 'PHC Management System',
-      onPress: () => {
-        navigation.navigate(screensName.PHCManagement);
-      },
+      onPress: () => navigation.navigate(screensName.PHCManagement),
     },
     {
       id: 4,
       name: 'Vehicle Management System',
+      onPress: () => navigation.navigate(screensName.VehicleManagement),
+    },
+  ];
+
+  const invoiceMenu = [
+    {
+      id: 5,
+      name: 'Invoice & Bill Management',
       onPress: () => {
-        navigation.navigate(screensName.VehicleManagement);
+        navigation.navigate(screensName.InvoiceAndBillManagement);
       },
     },
   ];
 
-  const DATA = [
-    ...baseData,
-    ...(canSeeInvoice
-      ? [
-          {
-            id: 5,
-            name: 'Invoice & Bill Management',
-            onPress: () => {
-              navigation.navigate(screensName.InvoiceAndBillManagement);
-            },
-          },
-        ]
-      : []),
-  ];
+  const DATA = isAccountController
+    ? invoiceMenu
+    : [...baseData, ...(canSeeInvoice ? invoiceMenu : [])];
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <View style={{ flex: 1 }}>
-        {DATA.map(item => {
-          return (
-            <TouchableOpacity
-              key={item.id.toString()}
-              style={styles.touchable}
-              onPress={item.onPress}
-            >
-              <TextAtom>{item.name}</TextAtom>
-            </TouchableOpacity>
-          );
-        })}
+        {DATA.map(item => (
+          <TouchableOpacity
+            key={item.id.toString()}
+            style={styles.touchable}
+            onPress={item.onPress}
+          >
+            <TextAtom>{item.name}</TextAtom>
+          </TouchableOpacity>
+        ))}
       </View>
     </SafeAreaView>
   );
@@ -109,10 +99,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundColor,
-  },
-  logoutBtn: {
-    alignSelf: 'center',
-    width: '90%',
   },
   touchable: {
     width: vw(328),

@@ -215,6 +215,7 @@ const PaymentDetails = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
       <TextAtom
+        numberOfLines={0}
         style={{
           width: vw(330),
           alignSelf: 'center',
