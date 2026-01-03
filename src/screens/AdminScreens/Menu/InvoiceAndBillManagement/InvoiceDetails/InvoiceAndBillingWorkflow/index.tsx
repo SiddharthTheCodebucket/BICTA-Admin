@@ -55,6 +55,7 @@ interface VendorCardProps {
   index: number;
   navigation: any;
   onPressAssign: () => void;
+  onPressReAssign: () => void;
 }
 
 const VendorCard: React.FC<VendorCardProps> = ({
@@ -62,6 +63,7 @@ const VendorCard: React.FC<VendorCardProps> = ({
   index,
   navigation,
   onPressAssign,
+  onPressReAssign,
 }) => {
   return (
     <TouchableAtom
@@ -131,7 +133,9 @@ const VendorCard: React.FC<VendorCardProps> = ({
               alignItems: 'center',
               justifyContent: 'center',
             }}
-            onPress={() => {}}
+            onPress={() => {
+              onPressReAssign();
+            }}
           >
             <ImageAtom
               source={images.reassign}
@@ -493,6 +497,14 @@ const InvoiceAndBillingWorkflow = (props: Props) => {
     });
   };
 
+  const onPressReAssign = (item: any) => {
+    navigation.navigate(screensName.AssignBillForm, {
+      updateAssigneeFlag: true,
+      item: item,
+      onDone: () => listVendorDetails(1, true, search),
+    });
+  };
+
   const renderListVendorDetails = useCallback(
     ({ item, index }: any) => (
       <VendorCard
@@ -501,6 +513,9 @@ const InvoiceAndBillingWorkflow = (props: Props) => {
         navigation={navigation}
         onPressAssign={() => {
           onPressAssign(item);
+        }}
+        onPressReAssign={() => {
+          onPressReAssign(item);
         }}
       />
     ),

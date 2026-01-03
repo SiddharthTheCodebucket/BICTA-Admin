@@ -35,6 +35,7 @@ const initialForm = {
 const AssignBillForm = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
+  const updateAssigneeFlag = props.route.params?.updateAssigneeFlag;
 
   const input1_ref: any = createRef();
 
@@ -43,7 +44,10 @@ const AssignBillForm = (props: Props) => {
   const [addAssigneeDetailsApi] = useAssigneeAddVendorMutation();
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Assign');
+    Header.setNavigation(
+      navigation,
+      updateAssigneeFlag ? 'Re-Assign' : 'Assign',
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
 
@@ -60,15 +64,23 @@ const AssignBillForm = (props: Props) => {
     getAssigneeList();
   }, []);
 
-  const schema = Yup.object().shape({
+  const baseSchema = {
     selectedAssignee: Yup.object({
       id: Yup.string().required('Assignee is required'),
     }),
     selectedStatus: Yup.object({
       id: Yup.string().required('Status is required'),
     }),
-    remark: Yup.string().required('Remark is required'),
-  });
+  };
+
+  const schema = Yup.object().shape(
+    updateAssigneeFlag
+      ? baseSchema
+      : {
+          ...baseSchema,
+          remark: Yup.string().required('Remark is required'),
+        },
+  );
 
   const onSubmit = () => {
     try {
@@ -81,14 +93,19 @@ const AssignBillForm = (props: Props) => {
 
   const addAssigneeDetails = () => {
     setLoader(true);
-    let params = {
+
+    const params: any = {
       id: null,
-      uniqueId: item.uniqueId,
-      assignee: form.selectedAssignee.id,
-      currentStatus: form.selectedStatus.id,
-      remarks: form.remark,
-      fileNo: null,
+      uniqueId: item?.uniqueId,
+      assignee: form?.selectedAssignee?.id,
+      currentStatus: form?.selectedStatus?.id,
+      updateAssigneeFlag: !!updateAssigneeFlag,
     };
+
+    if (!updateAssigneeFlag) {
+      params.remarks = form.remark;
+      params.fileNo = null;
+    }
 
     addAssigneeDetailsApi(params)
       .unwrap()
@@ -97,7 +114,7 @@ const AssignBillForm = (props: Props) => {
         props.route.params?.onDone?.();
         Toast.show({
           type: 'success',
-          text2: res.data.message,
+          text2: res?.data?.message,
         });
         setLoader(false);
       })
@@ -126,7 +143,7 @@ const AssignBillForm = (props: Props) => {
         setLoader(false);
         Toast.show({
           type: 'error',
-          text2: err.data.message,
+          text2: err?.data?.message,
           autoHide: true,
         });
       });
@@ -134,9 +151,7 @@ const AssignBillForm = (props: Props) => {
 
   const getAssigneeList = () => {
     setLoader(true);
-
     const params = {};
-
     assigneeListApi(params)
       .unwrap()
       .then((res: any) => {
@@ -147,7 +162,7 @@ const AssignBillForm = (props: Props) => {
         setLoader(false);
         Toast.show({
           type: 'error',
-          text2: err.data.message,
+          text2: err?.data?.message,
         });
       });
   };
@@ -164,21 +179,24 @@ const AssignBillForm = (props: Props) => {
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={vh(120)}
       >
-        <TextInputOrganisms
-          label={'Remark'}
-          placeholder={'Remark'}
-          ref={input1_ref}
-          onSubmitEditing={() => Keyboard.dismiss()}
-          value={form.remark}
-          autoCapitalize={'none'}
-          returnKeyType={'done'}
-          onChangeText={(val: string) => {
-            setValue('remark', val);
-            setErrors({ ...errors, remark: '' });
-          }}
-          isMandatory
-          errorMessage={errors.remark}
-        />
+        {!updateAssigneeFlag && (
+          <TextInputOrganisms
+            label={'Remark'}
+            placeholder={'Remark'}
+            ref={input1_ref}
+            onSubmitEditing={() => Keyboard.dismiss()}
+            value={form.remark}
+            autoCapitalize={'none'}
+            returnKeyType={'done'}
+            onChangeText={(val: string) => {
+              setValue('remark', val);
+              setErrors({ ...errors, remark: '' });
+            }}
+            isMandatory
+            errorMessage={errors.remark}
+          />
+        )}
+
         <DropDownOrganism
           label={'Status'}
           placeholder={'Status'}
@@ -192,7 +210,6 @@ const AssignBillForm = (props: Props) => {
                   ...prev,
                   selectedStatus: data,
                 }));
-
                 setErrors({ ...errors, 'selectedStatus.id': '' });
               },
               typeName: 'name',
@@ -217,7 +234,6 @@ const AssignBillForm = (props: Props) => {
                   ...prev,
                   selectedAssignee: data,
                 }));
-
                 setErrors({ ...errors, 'selectedAssignee.id': '' });
               },
               typeName: 'name',
@@ -230,7 +246,10 @@ const AssignBillForm = (props: Props) => {
         />
       </KeyboardAwareScrollView>
 
-      <ButtonOrganism onPress={onSubmit} bttnText={'Assign'} />
+      <ButtonOrganism
+        onPress={onSubmit}
+        bttnText={updateAssigneeFlag ? 'Re-Assign' : 'Assign'}
+      />
     </SafeAreaView>
   );
 };
