@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import { Linking, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Camera,
+  CameraPermissionStatus,
   useCameraDevice,
   useCodeScanner,
 } from 'react-native-vision-camera';
@@ -25,6 +26,8 @@ const QRCodeScan = (props: Props) => {
   const device = useCameraDevice('back');
 
   const [scanned, setScanned] = useState(false);
+  const [permission, setPermission] =
+    useState<CameraPermissionStatus>('not-determined');
 
   useEffect(() => {
     if (isFocused) {
@@ -35,8 +38,7 @@ const QRCodeScan = (props: Props) => {
   useEffect(() => {
     (async () => {
       const status = await Camera.requestCameraPermission();
-      if (status !== 'granted') {
-      }
+      setPermission(status);
     })();
   }, []);
 
@@ -58,6 +60,37 @@ const QRCodeScan = (props: Props) => {
       }, 1000);
     },
   });
+
+  if (permission === 'denied') {
+    return (
+      <SafeAreaView style={styles.container}>
+        <TextAtom
+          style={{
+            fontFamily: fonts.Roboto_Bold,
+            fontSize: vw(16),
+            color: colors.red,
+            marginTop: vh(200),
+            textAlign: 'center',
+          }}
+        >
+          Camera permission is required to scan QR Code
+        </TextAtom>
+
+        <TextAtom
+          onPress={() => Linking.openSettings()}
+          style={{
+            fontFamily: fonts.Roboto_Bold,
+            fontSize: vw(14),
+            color: colors.primary,
+            marginTop: vh(16),
+            textDecorationLine: 'underline',
+          }}
+        >
+          Open Settings
+        </TextAtom>
+      </SafeAreaView>
+    );
+  }
 
   if (!device) return null;
 
@@ -89,9 +122,10 @@ const QRCodeScan = (props: Props) => {
         }}
       >
         <Camera
+          key={permission}
           style={{ flex: 1 }}
           device={device}
-          isActive={isFocused && !loader} // 🔥 IMPORTANT
+          isActive={isFocused && permission === 'granted' && !loader}
           codeScanner={codeScanner}
         />
       </ViewAtom>
