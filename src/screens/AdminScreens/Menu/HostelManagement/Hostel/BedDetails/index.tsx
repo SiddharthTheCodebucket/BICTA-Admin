@@ -240,6 +240,61 @@ const FilterForm = ({
   getRoomName,
 }: FilterFormProps) => (
   <View style={styles.filterContainer}>
+    <DropDownOrganism
+      label={strings.hostelManagement.roomDetails.hostel}
+      placeholder={strings.hostelManagement.roomDetails.hostel}
+      onPress={() => {
+        navigation.navigate('DropDownModal', {
+          name: strings.hostelManagement.roomDetails.hostel,
+          Data: hostelList,
+          selectedData: selectedHostel,
+          setSelectedData: (data: any) => {
+            setSelectedHostel(data);
+            getFloorName(data.id);
+          },
+          typeName: 'name',
+          typeId: 'id',
+        });
+      }}
+      inputText={selectedHostel?.name}
+    />
+
+    <DropDownOrganism
+      label={strings.hostelManagement.roomDetails.floor}
+      placeholder={strings.hostelManagement.roomDetails.floor}
+      onPress={() => {
+        navigation.navigate('DropDownModal', {
+          name: strings.hostelManagement.roomDetails.floor,
+          Data: floorList,
+          selectedData: selectedFloor,
+          setSelectedData: (data: any) => {
+            setSelectedFloor(data);
+            getRoomName(data.id);
+          },
+          typeName: 'name',
+          typeId: 'id',
+        });
+      }}
+      inputText={selectedFloor?.name}
+    />
+
+    <DropDownOrganism
+      label={strings.hostelPlanningDetails.room}
+      placeholder={strings.hostelPlanningDetails.room}
+      onPress={() => {
+        navigation.navigate('DropDownModal', {
+          name: strings.hostelPlanningDetails.room,
+          Data: roomList,
+          selectedData: selectedRoom,
+          setSelectedData: (data: any) => {
+            setSelectedRoom(data);
+          },
+          typeName: 'name',
+          typeId: 'id',
+        });
+      }}
+      inputText={selectedRoom?.name}
+    />
     <ViewAtom style={styles.buttonRow}>
       <ButtonOrganism
         onPress={applyFilter}
