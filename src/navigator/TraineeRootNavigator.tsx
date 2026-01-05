@@ -41,11 +41,13 @@ import SupportViewAndReply from '../screens/TraineeScreens/Menu/Support/SupportV
 import AddSupport from '../screens/TraineeScreens/Menu/Support/AddSupport';
 
 import Feedback from '../screens/TraineeScreens/Menu/Feedback';
-import FeedbackResponse from '../screens/TraineeScreens/Menu/Feedback/FeedbackResponse';
 import OverallFeedback from '../screens/TraineeScreens/Menu/Feedback/OverallFeedback';
-import FeedbackResponseList from '../screens/TraineeScreens/Menu/Feedback/FeedbackResponseList';
 
 import ShowCaseNoticeModal from '../modal/ShowCaseNoticeModal';
+import AddMessFeedback from '../screens/TraineeScreens/Menu/Feedback/MessFeedback/AddMessFeedback';
+import MessFeedback from '../screens/TraineeScreens/Menu/Feedback/MessFeedback';
+import HouseKeepingFeedback from '../screens/TraineeScreens/Menu/Feedback/HouseKeepingFeedback';
+import AddHousekeepingFeedback from '../screens/TraineeScreens/Menu/Feedback/HouseKeepingFeedback/AddHousekeepingFeedback';
 
 const RootStackScreen = createNativeStackNavigator();
 
@@ -145,16 +147,21 @@ const TraineeRootNavigator = () => {
 
         <RootStackScreen.Screen name="Feedback" component={Feedback} />
         <RootStackScreen.Screen
-          name="FeedbackResponse"
-          component={FeedbackResponse}
+          name="AddMessFeedback"
+          component={AddMessFeedback}
         />
         <RootStackScreen.Screen
           name="OverallFeedback"
           component={OverallFeedback}
         />
+        <RootStackScreen.Screen name="MessFeedback" component={MessFeedback} />
         <RootStackScreen.Screen
-          name="FeedbackResponseList"
-          component={FeedbackResponseList}
+          name="HouseKeepingFeedback"
+          component={HouseKeepingFeedback}
+        />
+        <RootStackScreen.Screen
+          name="AddHousekeepingFeedback"
+          component={AddHousekeepingFeedback}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

@@ -1,35 +1,34 @@
-import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Keyboard, StyleSheet } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import { CommonActions } from '@react-navigation/native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as Yup from 'yup';
-import { colors, screensName, vh } from '../../../../constants';
+import { colors, vh } from '../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../components/organisms/HeaderOrganism';
+} from '../../../../../components/organisms/HeaderOrganism';
 import RatingSelector, {
   defaultRatings,
-} from '../../../../components/organisms/RatingSelector';
-import DropDownOrganism from '../../../../components/organisms/DropDownOrganism';
-import TextInputOrganisms from '../../../../components/organisms/TextInputOrganisms';
-import FullscreenLoading from '../../../../components/organisms/FullscreenLoading';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import ButtonOrganism from '../../../../components/organisms/ButtonOrganism';
-import { useCommonDropdownListMutation } from '../../../../injectEndpointsTrainee/profileEndpoints';
-import { useAddFeedbackResponseMutation } from '../../../../injectEndpointsTrainee/feedbackEndpoints';
+} from '../../../../../components/organisms/RatingSelector';
+import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
+import TextInputOrganisms from '../../../../../components/organisms/TextInputOrganisms';
+import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
+import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
+import { useCommonDropdownListMutation } from '../../../../../injectEndpointsTrainee/profileEndpoints';
+import { useAddFeedbackResponseMutation } from '../../../../../injectEndpointsTrainee/feedbackEndpoints';
 
 interface Props {
   route: any;
   navigation: NavigationType;
 }
 
-const FeedbackResponse = (props: Props) => {
+const AddHousekeepingFeedback = (props: Props) => {
   const { navigation } = props;
   const input1_ref: any = createRef();
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Feedback Response');
+    Header.setNavigation(navigation, 'Add Housekeeping Feedback');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -40,6 +39,8 @@ const FeedbackResponse = (props: Props) => {
   const [form, setForm] = useState<any>({
     feedbackCategoryList: [],
     feedbackCategory: {},
+    feedbackSubCategoryList: [],
+    feedbackSubCategory: {},
     feedbackTopicList: [],
     feedbackTopic: {},
     rating: {},
@@ -63,6 +64,9 @@ const FeedbackResponse = (props: Props) => {
     }),
     feedbackTopic: Yup.object({
       name: Yup.string().required('Feedback Topic is required'),
+    }),
+    feedbackSubCategory: Yup.object({
+      name: Yup.string().required('Feedback Sub Category is required'),
     }),
     feedbackCategory: Yup.object({
       name: Yup.string().required('Feedback Category is required'),
@@ -89,7 +93,46 @@ const FeedbackResponse = (props: Props) => {
     commonDropdownListApi(params)
       .unwrap()
       .then((res: any) => {
-        setValue('feedbackCategoryList', res.data);
+        const categoryList = res.data || [];
+        setValue('feedbackCategoryList', categoryList);
+        setLoader(false);
+
+        const housekeepingCategory = categoryList.find(
+          (item: any) => item.id === 2,
+        );
+
+        if (housekeepingCategory) {
+          setForm((prev: any) => ({
+            ...prev,
+            feedbackCategory: housekeepingCategory,
+            feedbackSubCategory: {},
+            feedbackTopic: {},
+          }));
+
+          getSubCategoryList(housekeepingCategory.id);
+        }
+      })
+      .catch((err: any) => {
+        setLoader(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+          autoHide: true,
+        });
+      });
+  };
+
+  const getSubCategoryList = (id: string) => {
+    setLoader(true);
+    const params = {
+      bipardCentre: [],
+      listType: 'feedback_sub_category',
+      replacements: ['%%', id],
+    };
+    commonDropdownListApi(params)
+      .unwrap()
+      .then((res: any) => {
+        setValue('feedbackSubCategoryList', res.data);
         setLoader(false);
       })
       .catch((err: any) => {
@@ -128,7 +171,9 @@ const FeedbackResponse = (props: Props) => {
   const addFeedbackResponse = () => {
     setLoader(true);
     const params = {
+      id: null,
       categoryId: form.feedbackCategory?.id,
+      subCategoryId: form.feedbackSubCategory?.id,
       topicId: form.feedbackTopic?.id,
       response: form.rating.label,
       remark: form.remarks,
@@ -191,13 +236,40 @@ const FeedbackResponse = (props: Props) => {
           inputText={form.feedbackCategory?.name}
           isMandatory
           errorMessage={errors['feedbackCategory.name']}
+          isDisabled
         />
+
         <DropDownOrganism
-          label={'Feedback Tpoic'}
-          placeholder={'Feedback Tpoic'}
+          label={'Feedback Sub Category'}
+          placeholder={'Feedback Sub Category'}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Feedback Tpoic',
+              name: 'Feedback Sub Category',
+              Data: form.feedbackSubCategoryList,
+              selectedData: form.feedbackSubCategory,
+              setSelectedData: (data: any) => {
+                setForm((prev: any) => ({
+                  ...prev,
+                  feedbackSubCategory: data,
+                  feedbackTopic: {},
+                }));
+                getTopicList(data.id);
+                setErrors({ ...errors, 'feedbackSubCategory.name': '' });
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={form.feedbackSubCategory?.name}
+          isMandatory
+          errorMessage={errors['feedbackSubCategory.name']}
+        />
+        <DropDownOrganism
+          label={'Feedback Topic'}
+          placeholder={'Feedback Topic'}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Feedback Topic',
               Data: form.feedbackTopicList,
               selectedData: form.feedbackTopic,
               setSelectedData: (data: any) => {
@@ -244,7 +316,7 @@ const FeedbackResponse = (props: Props) => {
   );
 };
 
-export default FeedbackResponse;
+export default AddHousekeepingFeedback;
 
 const styles = StyleSheet.create({
   container: {

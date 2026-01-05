@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, images, screensName, vh, vw } from '../../../../constants';
+import { colors, screensName, vh, vw } from '../../../../constants';
 import {
   Header,
   NavigationType,
@@ -21,13 +21,20 @@ const Feedback = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Feedback Response',
+      name: 'Mess Feedback',
       onPress: () => {
-        navigation.navigate(screensName.FeedbackResponseList);
+        navigation.navigate(screensName.MessFeedback);
       },
     },
     {
       id: 2,
+      name: 'House Keeping Feedback',
+      onPress: () => {
+        navigation.navigate(screensName.HouseKeepingFeedback);
+      },
+    },
+    {
+      id: 3,
       name: 'Overall Feedback',
       onPress: () => {
         navigation.navigate(screensName.OverallFeedback);

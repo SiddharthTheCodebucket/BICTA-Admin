@@ -10,20 +10,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import moment from 'moment';
 import { useFocusEffect } from '@react-navigation/native';
-import { colors, fonts, screensName, vh, vw } from '../../../../constants';
+import { colors, fonts, screensName, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../components/atoms/TextAtom';
-import FullscreenLoading from '../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../components/organisms/SearchBoxOrganism';
-import FloatingButton from '../../../../components/organisms/FloatingButton';
-import ViewAtom from '../../../../components/atoms/ViewAtom';
-import { useListfeedbackResponseMutation } from '../../../../injectEndpointsTrainee/feedbackEndpoints';
+} from '../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../components/atoms/TextAtom';
+import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
+import SearchBoxOrganism from '../../../../../components/organisms/SearchBoxOrganism';
+import FloatingButton from '../../../../../components/organisms/FloatingButton';
+import ViewAtom from '../../../../../components/atoms/ViewAtom';
+import { useListfeedbackResponseMutation } from '../../../../../injectEndpointsTrainee/feedbackEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -37,7 +36,9 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const FeedbackResponseList = (props: Props) => {
+const ListItemSeparator = () => <View style={{ height: vh(10) }} />;
+
+const HouseKeepingFeedback = (props: Props) => {
   const { navigation } = props;
 
   const [ListfeedbackResponseApi] = useListfeedbackResponseMutation();
@@ -56,7 +57,7 @@ const FeedbackResponseList = (props: Props) => {
   const [search, setSearch] = React.useState('');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Feedback Response List');
+    Header.setNavigation(navigation, 'Housekeeping Feedback');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -78,7 +79,7 @@ const FeedbackResponseList = (props: Props) => {
         attributes: ['id'],
         sorts: ['desc'],
       },
-      filters: [],
+      filters: [['categoryId', '=', 2]],
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
     };
@@ -179,6 +180,14 @@ const FeedbackResponseList = (props: Props) => {
           </TextAtom>
         </TextAtom>
       </View>
+      <View style={{ marginTop: vh(8) }}>
+        <TextAtom numberOfLines={0} style={styles.label}>
+          Sub Category Name:{' '}
+          <TextAtom numberOfLines={0} style={styles.value}>
+            {item.subCategoryName || '-'}
+          </TextAtom>
+        </TextAtom>
+      </View>
 
       <View style={{ marginTop: vh(8) }}>
         <TextAtom numberOfLines={0} style={styles.label}>
@@ -235,9 +244,9 @@ const FeedbackResponseList = (props: Props) => {
         renderItem={renderFeedbackResCard}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -265,11 +274,11 @@ const FeedbackResponseList = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={ListItemSeparator}
       />
       <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.FeedbackResponse, {
+          navigation.navigate(screensName.AddHousekeepingFeedback, {
             onDone: () => ListfeedbackResponse(1, true, search),
           });
         }}
@@ -278,7 +287,7 @@ const FeedbackResponseList = (props: Props) => {
   );
 };
 
-export default FeedbackResponseList;
+export default HouseKeepingFeedback;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
