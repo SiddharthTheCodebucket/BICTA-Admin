@@ -159,4 +159,5 @@ export default {
   add_admin_role: 'user-management/add-admin-role',
   update_admin_role: 'user-management/update-admin-role',
   delete_admin_role: 'user-management/delete-admin-role',
+  list_permissions_name: 'user-management/list-permissions-name',
 };

@@ -52,6 +52,13 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listPermissionsName: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_permissions_name,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -63,4 +70,5 @@ export const {
   useAddAdminRoleMutation,
   useUpdateAdminRoleMutation,
   useDeleteAdminRoleMutation,
+  useListPermissionsNameMutation,
 } = apiEndpoints;

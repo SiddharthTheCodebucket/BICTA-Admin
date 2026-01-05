@@ -130,6 +130,7 @@ export default {
   UserRegistrationDetails: 'UserRegistrationDetails',
   RoleManagement: 'RoleManagement',
   AddRole: 'AddRole',
+  PermissionNameList: 'PermissionNameList',
 
   // Trainee Screen
   MyProfile: 'MyProfile',

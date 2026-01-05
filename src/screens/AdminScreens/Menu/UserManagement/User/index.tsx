@@ -40,7 +40,9 @@ const User = (props: Props) => {
     {
       id: 3,
       name: 'Permission Name List',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.PermissionNameList);
+      },
     },
     {
       id: 4,
