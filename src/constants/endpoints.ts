@@ -150,4 +150,13 @@ export default {
   list_vendor_payment_history: 'vendor/list-vendor-payment-history',
   add_vendor_payment_history: 'vendor/add-vendor-payment-history',
   update_vendor_payment_history: 'vendor/update-vendor-payment-history',
+
+  //User Management
+  list_internal_user: 'user-management/list-internal-users',
+  approve_internal_user_status: 'user-management/approve-internal-users-status',
+  delete_internal_user: 'user-management/delete-internal-users',
+  list_admin_role: 'user-management/list-admin-role',
+  add_admin_role: 'user-management/add-admin-role',
+  update_admin_role: 'user-management/update-admin-role',
+  delete_admin_role: 'user-management/delete-admin-role',
 };

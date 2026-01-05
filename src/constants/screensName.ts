@@ -124,6 +124,12 @@ export default {
   PaymentDetails: 'PaymentDetails',
   PaymentDetailDetails: 'PaymentDetailDetails',
   AddPaymentDetails: 'AddPaymentDetails',
+  UserManagement: 'UserManagement',
+  User: 'User',
+  UserRegistration: 'UserRegistration',
+  UserRegistrationDetails: 'UserRegistrationDetails',
+  RoleManagement: 'RoleManagement',
+  AddRole: 'AddRole',
 
   // Trainee Screen
   MyProfile: 'MyProfile',

@@ -124,6 +124,12 @@ import AssignBillForm from '../screens/AdminScreens/Menu/InvoiceAndBillManagemen
 import PaymentDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/PaymentDetails';
 import PaymentDetailDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/PaymentDetailDetails';
 import AddPaymentDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/AddPaymentDetails';
+import UserManagement from '../screens/AdminScreens/Menu/UserManagement';
+import User from '../screens/AdminScreens/Menu/UserManagement/User';
+import UserRegistration from '../screens/AdminScreens/Menu/UserManagement/User/UserRegistration';
+import UserRegistrationDetails from '../screens/AdminScreens/Menu/UserManagement/User/UserRegistration/UserRegistrationDetails';
+import RoleManagement from '../screens/AdminScreens/Menu/UserManagement/User/RoleManagement';
+import AddRole from '../screens/AdminScreens/Menu/UserManagement/User/RoleManagement/AddRole';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -528,6 +534,24 @@ const RootNavigatorAdmin = () => {
           name="AddPaymentDetails"
           component={AddPaymentDetails}
         />
+        <RootStackScreen.Screen
+          name="UserManagement"
+          component={UserManagement}
+        />
+        <RootStackScreen.Screen name="User" component={User} />
+        <RootStackScreen.Screen
+          name="UserRegistration"
+          component={UserRegistration}
+        />
+        <RootStackScreen.Screen
+          name="UserRegistrationDetails"
+          component={UserRegistrationDetails}
+        />
+        <RootStackScreen.Screen
+          name="RoleManagement"
+          component={RoleManagement}
+        />
+        <RootStackScreen.Screen name="AddRole" component={AddRole} />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{

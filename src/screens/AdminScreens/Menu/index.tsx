@@ -60,6 +60,11 @@ const Menu = ({ navigation }: Props) => {
       name: 'Vehicle Management System',
       onPress: () => navigation.navigate(screensName.VehicleManagement),
     },
+    {
+      id: 6,
+      name: 'User Management',
+      onPress: () => navigation.navigate(screensName.UserManagement),
+    },
   ];
 
   const invoiceMenu = [
