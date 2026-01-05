@@ -1,6 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, images, vw, vh } from '../../../constants';
 import strings from '../../../constants/strings';
 import {

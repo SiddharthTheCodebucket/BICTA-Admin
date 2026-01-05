@@ -60,6 +60,8 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
+const ListItemSeparator = () => <View style={{ height: vh(10) }} />;
+
 const RoomDetails = (props: Props) => {
   const { navigation } = props;
 
@@ -712,7 +714,7 @@ const RoomDetails = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={styles.height10} />}
+        ItemSeparatorComponent={ListItemSeparator}
       />
       <FloatingButton
         onButtonPress={() => {

@@ -1,6 +1,5 @@
-import { Keyboard, StyleSheet } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
 import React, { createRef } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
 import { colors, strings, vh, vw } from '../../../../../../constants';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
