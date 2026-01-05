@@ -76,12 +76,13 @@ const BedCard = ({
   onDelete,
   onUpdateStatus,
 }: BedCardProps) => {
-  const [statusValue] = useState(
-    item.status ?? strings.hostelManagement.active,
-  );
+  const statusValue = item.status ?? strings.hostelManagement.active;
+
   const [showStatusMenu, setShowStatusMenu] = useState(false);
 
   const confirmStatusChange = () => {
+    setShowStatusMenu(false);
+
     navigation.navigate(screensName.AlertOrganism, {
       title: strings.hostelManagement.bedDetails.statusChangeConfirmation,
       message: strings.hostelManagement.bedDetails.statusChangeMessage,
@@ -188,7 +189,6 @@ const BedCard = ({
           </TextAtom>
           <ImageAtom source={images.downArrow} />
         </TouchableAtom>
-
         {showStatusMenu && (
           <View style={styles.dropMenu}>
             <TouchableAtom
@@ -197,6 +197,15 @@ const BedCard = ({
             >
               <TextAtom style={styles.statusTextBlack}>
                 {strings.hostelManagement.active}
+              </TextAtom>
+            </TouchableAtom>
+
+            <TouchableAtom
+              style={styles.dropItem}
+              onPress={confirmStatusChange}
+            >
+              <TextAtom style={styles.statusTextBlack}>
+                {strings.hostelManagement.inActive}
               </TextAtom>
             </TouchableAtom>
           </View>
@@ -315,7 +324,6 @@ const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 
 const BedDetails = (props: Props) => {
   const { navigation } = props;
-
   const { crediantialData } = useAppSelector(state => state.Auth);
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [bedDetailsApi] = useBedDetailsRoomMutation();
@@ -673,8 +681,9 @@ const BedDetails = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
+        extraData={data}
         renderItem={renderListBedDetails}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={item => item.id.toString()}
         ListEmptyComponent={
           initialCall ? null : (
             <TextAtom style={styles.emptyText}>
