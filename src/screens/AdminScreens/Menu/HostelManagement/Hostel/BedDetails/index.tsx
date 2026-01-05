@@ -109,9 +109,8 @@ const BedCard = ({
     <View style={styles.card}>
       <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
         <TextAtom style={[styles.label, styles.flex1]}>
-          {strings.hostelManagement.srNo} {index + 1}
+          {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
         </TextAtom>
-
         <View style={styles.actionRow}>
           <TouchableAtom
             style={styles.editButton}
@@ -128,6 +127,42 @@ const BedCard = ({
           <TouchableAtom style={styles.deleteButton} onPress={confirmDelete}>
             <ImageAtom source={images.delete} style={styles.iconSmall} />
           </TouchableAtom>
+        </View>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.roomDetails.hostelName}
+          </TextAtom>
+          <TextAtom style={styles.value}>
+            {item.selectHostelName ?? '-'}
+          </TextAtom>
+        </View>
+        <View style={{ flex: 1, alignItems: 'flex-end' }}>
+          <TextAtom style={styles.labelRight}>
+            {strings.hostelManagement.roomDetails.floorName}
+          </TextAtom>
+          <TextAtom style={styles.valueRight}>
+            {item.selectFloorName ?? '-'}
+          </TextAtom>
+        </View>
+      </View>
+      <View style={styles.rowBetween}>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.roomDetails.roomNo}
+          </TextAtom>
+          <TextAtom style={styles.value}>{item.selectRoomNo ?? '-'}</TextAtom>
+        </View>
+
+        <View style={{ flex: 1, alignItems: 'flex-end' }}>
+          <TextAtom style={styles.labelRight}>
+            {strings.hostelManagement.bedDetails.bedName}
+          </TextAtom>
+          <TextAtom numberOfLines={0} style={styles.valueRight}>
+            {item.bedName ?? '-'}
+          </TextAtom>
         </View>
       </View>
 
@@ -810,5 +845,30 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  editBtn: {
+    borderWidth: vw(1),
+    borderColor: colors.green,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSm: {
+    tintColor: colors.green,
+    width: vw(15),
+    height: vw(15),
+  },
+  deleteBtn: {
+    borderWidth: vw(1),
+    borderColor: colors.red_2,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSmDelete: {
+    width: vw(15),
+    height: vw(15),
   },
 });
