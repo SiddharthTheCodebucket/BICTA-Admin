@@ -1,14 +1,13 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { StyleSheet, View, FlatList } from 'react-native';
+import { StyleSheet, View, FlatList, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vh, vw } from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import RenderHtml from 'react-native-render-html';
-import { useWindowDimensions } from 'react-native';
 import { useListExaminationSubmissionAnswerMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import Toast from 'react-native-toast-message';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
@@ -22,23 +21,25 @@ const ExamResponseSheet = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item || {};
   const { width } = useWindowDimensions();
-  console.log('item===>', item);
-  const [listExaminationSubmissionAnswerApi] =
-    useListExaminationSubmissionAnswerMutation();
+
+  const [listExamResponsesApi] = useListExaminationSubmissionAnswerMutation();
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Responses List');
+    Header.setNavigation(
+      navigation,
+      strings.lms.examination.examResponseSheet.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
 
-  const [laoder, setLoader] = useState(false);
+  const [loader, setLoader] = useState(false);
   const [response, setResponse] = useState<any>([]);
 
   useEffect(() => {
-    listExaminationSubmissionAnswer();
+    listExamResponses();
   }, []);
 
-  const listExaminationSubmissionAnswer = () => {
+  const listExamResponses = () => {
     setLoader(true);
 
     const params: any = {
@@ -54,7 +55,7 @@ const ExamResponseSheet = (props: Props) => {
       itemsPerPage: 10,
     };
 
-    listExaminationSubmissionAnswerApi(params)
+    listExamResponsesApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.user[0] ?? [];
@@ -65,24 +66,21 @@ const ExamResponseSheet = (props: Props) => {
         setLoader(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
   const renderItem = ({ item, index }: any) => {
     const selectedOptionKey = item.mcqResponse;
-    const correctOptionKey = item.correctOption;
-
     const selectedAnswer = selectedOptionKey ?? 'N/A';
-
-    const correctAnswer = correctOptionKey;
+    const correctAnswer = item.correctOption;
 
     return (
       <View style={styles.card}>
         <View style={styles.row}>
           <TextAtom style={styles.qIndex}>Q{index + 1}.</TextAtom>
-          <View style={{ flex: 1 }}>
+          <View style={styles.flex1}>
             <RenderHtml
               contentWidth={width - vw(40)}
               source={{ html: item.mcqQuestion }}
@@ -91,7 +89,9 @@ const ExamResponseSheet = (props: Props) => {
         </View>
 
         <View style={styles.answerBlock}>
-          <TextAtom style={styles.label}>Selected Answer: </TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.lms.examination.examResponseSheet.selectedAnswer}{' '}
+          </TextAtom>
           <TextAtom
             style={[
               styles.value,
@@ -103,7 +103,9 @@ const ExamResponseSheet = (props: Props) => {
         </View>
 
         <View style={styles.answerBlock}>
-          <TextAtom style={styles.label}>Correct Answer: </TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.lms.examination.examResponseSheet.correctAnswer}{' '}
+          </TextAtom>
           <TextAtom style={[styles.value, { color: colors.green }]}>
             {correctAnswer}
           </TextAtom>
@@ -114,7 +116,7 @@ const ExamResponseSheet = (props: Props) => {
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <FullscreenLoading isVisible={laoder} />
+      <FullscreenLoading isVisible={loader} />
       <FlatList
         showsVerticalScrollIndicator={false}
         data={response}
@@ -122,9 +124,11 @@ const ExamResponseSheet = (props: Props) => {
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
-          <TextAtom style={styles.emptyText}>No responses found</TextAtom>
+          <TextAtom style={styles.emptyText}>
+            {strings.lms.examination.examResponseSheet.noResponsesFound}
+          </TextAtom>
         }
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
     </SafeAreaView>
   );
@@ -186,4 +190,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.Roboto_Medium,
     marginTop: vh(50),
   },
+  flex1: { flex: 1 },
+  itemSeparator: { height: vh(10) },
 });

@@ -10,23 +10,13 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  LayoutAnimation,
   ScrollView,
-  TextInput,
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -37,29 +27,13 @@ import FullscreenLoading from '../../../../../../components/organisms/Fullscreen
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import {
-  downloadAndOpenFile,
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
-import {
-  useAddFileNoTrainingDetailsMutation,
-  useDeleteTrainingDetailsMutation,
-  useDownloadTrainingCategoryMutation,
-  useExtendTrainingEndDateMutation,
-  useListClassroomTimeTableManageMutation,
-  useListTrainingDetailsMutation,
-  useUpdateTraineeLoginDetailsMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
+import { isNullUndefined } from '../../../../../../utils/CommonFunction';
+import { useExtendTrainingEndDateMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -78,12 +52,9 @@ const TimeTable = (props: Props) => {
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
-  const [downloadApi] = useDownloadTrainingCategoryMutation();
-  const [listTrainingDetailsApi] = useCommonDropdownListMutation();
-  const [addFileNoTrainingDetailsApi] = useAddFileNoTrainingDetailsMutation();
-  const [updateTraineeLoginDetailsApi] = useUpdateTraineeLoginDetailsMutation();
-  const [extendTrainingEndDateApi] = useExtendTrainingEndDateMutation();
-  const [deleteTrainingDetailsApi] = useDeleteTrainingDetailsMutation();
+  const [listTimeTablesApi] = useCommonDropdownListMutation();
+
+  const [extendTimeTableEndDateApi] = useExtendTrainingEndDateMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -93,29 +64,25 @@ const TimeTable = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
 
   const [dateExtendedModal, setDateExtendedModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  const [selectedItems, setSelectedItems] = useState<any>([]);
-  const [totalCount, setTotalCount] = useState(0);
-
-  const [startDate, setStartDate] = useState<any>('');
-  const [endDate, setEndDate] = useState<any>('');
-
-  const ITEMS_PER_PAGE = 10;
+  const [selectedItems] = useState<any>([]);
 
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
-  const [activeTab, setActiveTab] = useState<
-    'Current Training' | 'Previous Training'
-  >('Current Training');
+  const [activeTab, setActiveTab] = useState<string>(
+    strings.lms.classRoomManagement.currentTraining,
+  );
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Time Table Data');
+    Header.setNavigation(
+      navigation,
+      strings.lms.classRoomManagement.timeTableData,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -123,34 +90,29 @@ const TimeTable = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listTrainingDetais(1, true, '');
+        listTimeTables(1, true, '');
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listTrainingDetais(1, true, '');
+    listTimeTables(1, true, '');
   }, [centerSerach]);
 
   useEffect(() => {
-    listTrainingDetais(1, true, search);
+    listTimeTables(1, true, search);
   }, [activeTab]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
     return [centerSerach.name];
   };
 
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
-  };
-
-  const listTrainingDetais = (
+  const listTimeTables = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -167,14 +129,14 @@ const TimeTable = (props: Props) => {
     if (centreFilter) {
       params.bipardCentre = centreFilter;
     }
-    listTrainingDetailsApi(params)
+    listTimeTablesApi(params)
       .unwrap()
       .then((res: any) => {
         let newData = res.data ?? [];
 
         // 🔥 FILTER HERE
         newData = newData.filter((item: any) =>
-          activeTab === 'Current Training'
+          activeTab === strings.lms.classRoomManagement.currentTraining
             ? item.isCourseActive === 'Yes'
             : item.isCourseActive === 'No',
         );
@@ -191,8 +153,6 @@ const TimeTable = (props: Props) => {
 
         setPage(pageNumber);
 
-        const totalCountApi = newData.length;
-        setTotalCount(totalCountApi);
         setNextPageAvailable(false); // UI-side pagination handled now
       })
       .catch((err: any) => {
@@ -201,14 +161,14 @@ const TimeTable = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listTrainingDetais(1, true, text);
+      listTimeTables(1, true, text);
     }, 500),
     [],
   );
@@ -220,314 +180,40 @@ const TimeTable = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listTrainingDetais(1, true, '');
+    listTimeTables(1, true, '');
   };
 
-  const handleSelectAll = () => {
-    if (selectedItems.length === totalCount) {
-      setSelectedItems([]);
-      listTrainingDetais(1, true, search);
-    } else {
-      setInitialCall(true);
-
-      const params: any = {
-        search,
-        sort: {
-          attributes: ['created_at'],
-          sorts: ['desc'],
-        },
-        filters: [],
-        pageNo: 1,
-        itemsPerPage: totalCount,
-
-        bipardCentre: getCentreFilter() ?? [],
-      };
-
-      if (activeTab === 'Previous Training') {
-        params.isCourseActive = false;
-      } else {
-        params.isCourseActive = true;
-      }
-
-      listTrainingDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          const fullData = res.data?.data ?? [];
-          setData(fullData);
-          setSelectedItems(fullData);
-          setNextPageAvailable(false);
-          setInitialCall(false);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    }
-  };
-
-  const downloadTraining = async () => {
-    setInitialCall(true);
-
-    const params: any = {
-      category: selectedItems,
-    };
-
-    downloadApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setInitialCall(false);
-        const fileUrl = res.data?.fileUrl ?? '';
-        if (fileUrl) {
-        }
-        downloadAndOpenFile(fileUrl);
-        setSelectedItems([]);
-        listTrainingDetais(1, true, search);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || 'Something went wrong',
-        });
-      });
-  };
-
-  const TraineeCard = ({ item, index, isSelected }: any) => {
-    const [statusValue, setStatusValue] = useState(item.isLoginAllowed ?? null);
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-    const [fileNo, setFileNo] = useState(item.fileNo || '');
-    const [isEditingFile, setIsEditingFile] = useState(!item.fileNo);
-    const [loadingFileSave, setLoadingFileSave] = useState(false);
-
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
-
-      if (newStatus === statusValue) return;
-
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: `Are you sure you want to change the status to "${newStatus}"?`,
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          updateTraineeLoginDetails(item.id, newStatus);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const updateTraineeLoginDetails = (id: any, newStatus: string) => {
-      setInitialCall(true);
-      const params = {
-        trainingId: id,
-        isLoginAllowed: newStatus,
-      };
-      updateTraineeLoginDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
-
-    const saveFileNo = () => {
-      if (!fileNo?.trim()) {
-        Toast.show({ type: 'error', text2: 'File No cannot be empty!' });
-        return;
-      }
-
-      setLoadingFileSave(true);
-
-      const params = {
-        id: item.id,
-        fileNo: fileNo,
-      };
-
-      addFileNoTrainingDetailsApi(params)
-        .unwrap()
-        .then(res => {
-          Toast.show({ type: 'success', text2: res.data.message });
-          setIsEditingFile(false);
-          setLoadingFileSave(false);
-          listTrainingDetais(1, false, '');
-        })
-        .catch(err => {
-          setLoadingFileSave(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Error updating File No',
-          });
-        });
-    };
-
-    const handleDelete = () => {
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Delete Confirmation',
-        message: 'Are you sure you want to delete this item?',
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          deleteTrainingDetails(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const deleteTrainingDetails = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        course_id: id,
-      };
-      deleteTrainingDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
-
+  const TimeTableCard = ({ item, index, isSelected }: any) => {
     return (
       <TouchableAtom
         onPress={() => {}}
         style={[styles.card, isSelected && styles.selectedCard]}
       >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+        <View style={styles.cardHeader}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+            {strings.lms.locationDetails.srNo} {index + 1}
           </TextAtom>
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                setSelectedItem(item);
-                setDateExtendedModal(true);
-                setSelectedDate('');
-              }}
-            >
-              <ImageAtom
-                source={images.extended}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                  resizeMode: 'contain',
-                }}
-              />
-            </TouchableAtom> */}
-
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                // navigation.navigate(screensName.AddCreateTour, { item: item });
-              }}
-            >
-              <ImageAtom
-                source={images.link}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                navigation.navigate(screensName.AddTrainingDetails, {
-                  item: item,
-                });
-              }}
-            >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
-            </TouchableAtom> */}
-          </View>
+          <View style={{ flexDirection: 'row', gap: vw(15) }}></View>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Training Name</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.classRoomManagement.trainingName}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.name || '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>No of Classes</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.classRoomManagement.noOfClasses}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.noOfBatch ?? '-'}</TextAtom>
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Start Date</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.lms.classRoomManagement.startDate}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {moment(item.courseStartDate).format('DD-MM-YYYY')} -{' '}
               {moment(item.courseEndDate).format('DD-MM-YYYY')}
@@ -535,11 +221,15 @@ const TimeTable = (props: Props) => {
           </View>
         </View>
 
-        {activeTab === 'Previous Training' && (
+        {activeTab === strings.lms.classRoomManagement.previousTraining && (
           <View style={styles.rowBetween}>
-            <View style={{ flex: 1 }}>
-              <TextAtom style={styles.label}>Time Table</TextAtom>
-              <TextAtom style={styles.value}>{'TRAINING END'}</TextAtom>
+            <View style={styles.flex1}>
+              <TextAtom style={styles.label}>
+                {strings.lms.classRoomManagement.timeTable}
+              </TextAtom>
+              <TextAtom style={styles.value}>
+                {strings.lms.classRoomManagement.trainingEnd}
+              </TextAtom>
             </View>
           </View>
         )}
@@ -547,72 +237,15 @@ const TimeTable = (props: Props) => {
     );
   };
 
-  const renderListRoomDetails = ({ item, index }: any) => {
+  const renderTimeTableItem = ({ item, index }: any) => {
     return (
-      <TraineeCard
+      <TimeTableCard
         item={item}
         index={index}
         navigation={navigation}
         isSelected={selectedItems.some((x: any) => x.id === item.id)}
       />
     );
-  };
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DateInputOrganism
-        label={'Start Date'}
-        placeholder={'Start Date'}
-        value={startDate}
-        onChangeText={(val: any) => {
-          setStartDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <DateInputOrganism
-        label={'End Date'}
-        placeholder={'End Date'}
-        value={endDate}
-        onChangeText={(val: any) => {
-          setEndDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText="Apply Filter"
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText="Clear Filter"
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
-        />
-      </ViewAtom>
-    </View>
-  );
-  const clearFilter = () => {
-    setStartDate('');
-    setEndDate('');
-    listTrainingDetais(1, true, search, []);
-  };
-
-  const applyFilter = (isExport = false) => {
-    const filters = [];
-
-    if (startDate) {
-      const formatted = moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
-      filters.push(['courseStartDate', '>=', formatted]);
-    }
-
-    if (endDate) {
-      const formatted = moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
-      filters.push(['courseEndDate', '<=', formatted]);
-    }
-    listTrainingDetais(1, true, search, filters);
   };
 
   const DateExtendModal = () => {
@@ -627,75 +260,32 @@ const TimeTable = (props: Props) => {
           setSelectedItem({});
         }}
       >
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 9999,
-          }}
-        >
-          <View
-            style={{
-              width: '90%',
-              backgroundColor: colors.white,
-              borderRadius: 10,
-              padding: 20,
-              position: 'relative',
-            }}
-          >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
             <TouchableAtom
-              style={{ position: 'absolute', top: 10, right: 10, padding: 5 }}
+              style={styles.modalCloseBtn}
               onPress={() => {
                 setDateExtendedModal(false);
                 setSelectedDate('');
                 setSelectedItem({});
               }}
             >
-              <TextAtom style={{ fontSize: vw(22), color: colors.red_2 }}>
-                ×
-              </TextAtom>
+              <TextAtom style={styles.modalCloseText}>×</TextAtom>
             </TouchableAtom>
 
-            <TextAtom
-              style={{
-                fontSize: vw(16),
-                fontFamily: fonts.Roboto_Bold,
-                marginBottom: vh(15),
-                color: colors.primary,
-                textAlign: 'center',
-              }}
-            >
-              Extended Date
+            <TextAtom style={styles.modalTitle}>
+              {strings.lms.classRoomManagement.extendedDate}
             </TextAtom>
 
             {selectedItem && (
-              <View style={{ marginBottom: vh(12) }}>
-                <TextAtom
-                  numberOfLines={0}
-                  style={{
-                    fontSize: vw(14),
-                    fontFamily: fonts.Roboto_Medium,
-                    color: colors.black,
-                  }}
-                >
-                  Extend Date of: "{selectedItem.trainingFullName}"
+              <View style={styles.modalFieldBox}>
+                <TextAtom numberOfLines={0} style={styles.modalEntityName}>
+                  {strings.lms.classRoomManagement.extendDateOf}: "
+                  {selectedItem.trainingFullName}"
                 </TextAtom>
 
-                <TextAtom
-                  style={{
-                    fontSize: vw(14),
-                    fontFamily: fonts.Roboto_Regular,
-                    color: colors.grey,
-                    marginTop: vh(4),
-                  }}
-                >
-                  Duration:{' '}
+                <TextAtom style={styles.modalDurationText}>
+                  {strings.lms.classRoomManagement.duration}:{' '}
                   {moment(selectedItem?.courseStartDate).format('DD-MMM-YYYY')}
                   {' to '}
                   {moment(selectedItem?.courseEndDate).format('DD-MMM-YYYY')}
@@ -704,8 +294,8 @@ const TimeTable = (props: Props) => {
             )}
 
             <DateInputOrganism
-              label="Start Date"
-              placeholder="Start Date"
+              label={strings.lms.classRoomManagement.startDate}
+              placeholder={strings.lms.classRoomManagement.startDate}
               value={selectedDate}
               onChangeText={(val: any) => {
                 setSelectedDate(val);
@@ -718,38 +308,22 @@ const TimeTable = (props: Props) => {
             />
 
             {/* Action Buttons */}
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'flex-end',
-                marginTop: 25,
-              }}
-            >
+            <View style={styles.modalActionRow}>
               <TouchableAtom
-                style={{
-                  paddingVertical: vh(8),
-                  paddingHorizontal: vw(20),
-                  backgroundColor: colors.green,
-                  borderRadius: vw(6),
-                }}
+                style={styles.modalExtendBtn}
                 onPress={() => {
                   if (isNullUndefined(selectedDate)) {
                     Toast.show({
                       type: 'error',
-                      text2: 'Date is required',
+                      text2: strings.lms.classRoomManagement.dateIsRequired,
                     });
                     return;
                   }
                   extendTrainingEndDate(selectedItem.id, selectedDate);
                 }}
               >
-                <TextAtom
-                  style={{
-                    color: colors.white,
-                    fontFamily: fonts.Roboto_Medium,
-                  }}
-                >
-                  Extend
+                <TextAtom style={styles.modalExtendText}>
+                  {strings.lms.classRoomManagement.extend}
                 </TextAtom>
               </TouchableAtom>
             </View>
@@ -765,7 +339,7 @@ const TimeTable = (props: Props) => {
       trainingId: id,
       newEndDate: moment(date, 'DD-MM-YYYY').format('YYYY-MM-DD'),
     };
-    extendTrainingEndDateApi(params)
+    extendTimeTableEndDateApi(params)
       .unwrap()
       .then((res: any) => {
         Toast.show({
@@ -779,7 +353,7 @@ const TimeTable = (props: Props) => {
         setInitialCall(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
@@ -788,61 +362,28 @@ const TimeTable = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={{ height: 'auto' }}>
+      <View style={styles.headerBox}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          {/* <View
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'flex-end',
-            }}
-          > */}
-          {/* <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-              <TextAtom style={styles.filterText}>
-                {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-              </TextAtom>
-            </TouchableAtom> */}
-          {/* <TouchableAtom
-              style={styles.filterButton}
-              onPress={handleSelectAll}
-            >
-              <TextAtom style={styles.filterText}>
-                {selectedItems?.length === totalCount
-                  ? 'Unselect All'
-                  : 'Select All'}
-              </TextAtom>
-            </TouchableAtom>
-            <TouchableAtom
-              style={styles.filterButton}
-              onPress={() => {
-                if (selectedItems.length === 0) {
-                  Toast.show({
-                    type: 'error',
-                    text2: 'Select to download',
-                  });
-                  return;
-                }
-                downloadTraining();
-              }}
-            >
-              <ImageAtom
-                source={images.download}
-                style={{ tintColor: colors.black }}
-              />
-            </TouchableAtom>
-          </View>
-          {showFilter && <FilterForm />} */}
-
           {crediantialData.user[0].tenantId === 3 && (
             <DropDownOrganism
               label={''}
-              placeholder={'Centers'}
+              placeholder={strings.lms.locationDetails.centers}
               onPress={() => {
                 navigation.navigate('DropDownModal', {
                   name: 'Center',
                   Data: [
-                    { id: 'All Centers', name: 'All Centers' },
-                    { id: 'Gaya', name: 'Gaya' },
-                    { id: 'Patna', name: 'Patna' },
+                    {
+                      id: strings.dashboardIndex.allCenters,
+                      name: strings.dashboardIndex.allCenters,
+                    },
+                    {
+                      id: strings.dashboardIndex.gaya,
+                      name: strings.dashboardIndex.gaya,
+                    },
+                    {
+                      id: strings.dashboardIndex.patna,
+                      name: strings.dashboardIndex.patna,
+                    },
                   ],
                   selectedData: centerSerach,
                   setSelectedData: setCenterSerach,
@@ -863,7 +404,10 @@ const TimeTable = (props: Props) => {
         </ScrollView>
       </View>
       <View style={styles.tabRow}>
-        {['Current Training', 'Previous Training'].map(tab => (
+        {[
+          strings.lms.classRoomManagement.currentTraining,
+          strings.lms.classRoomManagement.previousTraining,
+        ].map(tab => (
           <TouchableAtom
             key={tab}
             style={[styles.tabButton, activeTab === tab && styles.activeTab]}
@@ -884,19 +428,21 @@ const TimeTable = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListRoomDetails}
+        renderItem={renderTimeTableItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          initialCall ? null : (
+            <TextAtom style={styles.emptyText}>
+              {strings.lms.locationDetails.noDataFound}
+            </TextAtom>
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(10) }}
+            style={styles.paginationLoader}
           />
         }
         refreshControl={
@@ -906,24 +452,19 @@ const TimeTable = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listTrainingDetais(1, false, '');
+              listTimeTables(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listTrainingDetais(page + 1, false, search)
+            ? listTimeTables(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddTrainingDetails);
-        }}
-      /> */}
 
       <DateExtendModal />
     </SafeAreaView>
@@ -947,7 +488,7 @@ const styles = StyleSheet.create({
   tabButton: {
     paddingVertical: vh(8),
     paddingHorizontal: vw(20),
-    backgroundColor: '#EAEAEA',
+    backgroundColor: colors.lightGray2,
     borderRadius: vw(6),
   },
   activeTab: {
@@ -1045,7 +586,7 @@ const styles = StyleSheet.create({
   selectedCard: {
     borderWidth: 1,
     borderColor: colors.primary,
-    backgroundColor: '#F3F8FF',
+    backgroundColor: colors.selectedCardBg,
   },
   statusBox: {
     marginTop: vh(8),
@@ -1059,13 +600,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -1073,8 +614,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -1097,7 +638,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'transparent',
+    backgroundColor: colors.transparent,
     zIndex: 998,
   },
   fileInputRow: {
@@ -1145,4 +686,68 @@ const styles = StyleSheet.create({
     color: colors.grey,
     fontFamily: fonts.Roboto_Medium,
   },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: vh(10),
+  },
+  flex1: { flex: 1 },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.transparentBlack,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9999,
+  },
+  modalContent: {
+    width: '90%',
+    backgroundColor: colors.white,
+    borderRadius: 10,
+    padding: 20,
+    position: 'relative',
+  },
+  modalCloseBtn: { position: 'absolute', top: 10, right: 10, padding: 5 },
+  modalCloseText: { fontSize: vw(22), color: colors.red_2 },
+  modalTitle: {
+    fontSize: vw(16),
+    fontFamily: fonts.Roboto_Bold,
+    marginBottom: vh(15),
+    color: colors.primary,
+    textAlign: 'center',
+  },
+  modalFieldBox: { marginBottom: vh(12) },
+  modalEntityName: {
+    fontSize: vw(14),
+    fontFamily: fonts.Roboto_Medium,
+    color: colors.black,
+  },
+  modalDurationText: {
+    fontSize: vw(14),
+    fontFamily: fonts.Roboto_Regular,
+    color: colors.grey,
+    marginTop: vh(4),
+  },
+  modalActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 25,
+  },
+  modalExtendBtn: {
+    paddingVertical: vh(8),
+    paddingHorizontal: vw(20),
+    backgroundColor: colors.green,
+    borderRadius: vw(6),
+  },
+  modalExtendText: {
+    color: colors.white,
+    fontFamily: fonts.Roboto_Medium,
+  },
+  headerBox: { height: 'auto' },
+  paginationLoader: { marginTop: vh(10) },
+  itemSeparator: { height: vh(10) },
 });

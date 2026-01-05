@@ -79,7 +79,9 @@ const AddFacultyDetails = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item) ? 'Edit Faculty Details' : 'Add Faculty Details',
+      !isNullUndefined(item)
+        ? strings.lms.facultyManagement.details.editTitle
+        : strings.lms.facultyManagement.details.addTitle,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -98,8 +100,11 @@ const AddFacultyDetails = (props: Props) => {
     if (!item) return;
 
     const locationMap: any = {
-      1: { id: 'Gaya', name: 'Gaya' },
-      2: { id: 'Patna', name: 'Patna' },
+      1: { id: strings.dashboardIndex.gaya, name: strings.dashboardIndex.gaya },
+      2: {
+        id: strings.dashboardIndex.patna,
+        name: strings.dashboardIndex.patna,
+      },
     };
 
     const selectedLocation = locationMap[item.tenantId] || {};
@@ -129,41 +134,63 @@ const AddFacultyDetails = (props: Props) => {
 
   const schema = Yup.object().shape({
     status: Yup.object({
-      uri: Yup.string().required('Status is required'),
+      id: Yup.string().required(
+        strings.lms.facultyManagement.validation.statusRequired,
+      ),
     }),
     documentCard: Yup.object({
-      uri: Yup.string().required('Document is required'),
+      uri: Yup.string().required(
+        strings.lms.facultyManagement.validation.documentRequired,
+      ),
     }),
     selectedState: Yup.object({
-      id: Yup.string().required('State is required'),
+      id: Yup.string().required(
+        strings.lms.facultyManagement.validation.stateRequired,
+      ),
     }),
     selectedLocation: Yup.object({
-      id: Yup.string().required('Location is required'),
+      id: Yup.string().required(
+        strings.lms.facultyManagement.validation.locationRequired,
+      ),
     }),
     panNo: Yup.string()
-      .required('Pan Number is required')
-      .length(10, 'Pan number must be 10 digits'),
+      .required(strings.lms.facultyManagement.validation.panRequired)
+      .length(10, strings.lms.facultyManagement.validation.panDigits),
     selectedPayLevel: Yup.object({
-      id: Yup.string().required('BIPARD pay level is required'),
+      id: Yup.string().required(
+        strings.lms.facultyManagement.validation.payLevelRequired,
+      ),
     }),
     selectedCategory: Yup.object({
-      id: Yup.string().required('Category is required'),
+      id: Yup.string().required(
+        strings.lms.facultyManagement.validation.categoryRequired,
+      ),
     }),
     mobileNo: Yup.string()
-      .required('Mobile Number is required')
-      .length(10, 'Mobile number must be 10 digits'),
-    emailId: Yup.string().required('Email is required'),
+      .required(strings.lms.facultyManagement.validation.mobileRequired)
+      .length(10, strings.lms.facultyManagement.validation.mobileDigits),
+    emailId: Yup.string().required(
+      strings.lms.facultyManagement.validation.emailRequired,
+    ),
     selectedFacultyName: Yup.object({
-      id: Yup.string().required('Faculty name is required'),
+      id: Yup.string().required(
+        strings.lms.facultyManagement.validation.facultyNameRequired,
+      ),
     }),
     selectedSaluation: Yup.object({
-      id: Yup.string().required('Salutation is required'),
+      id: Yup.string().required(
+        strings.lms.facultyManagement.validation.salutationRequired,
+      ),
     }),
     bipardLocation: Yup.object({
-      id: Yup.string().required('Bipard location is required'),
+      id: Yup.string().required(
+        strings.lms.facultyManagement.validation.bipardLocationRequired,
+      ),
     }),
     selectedFacultyType: Yup.object({
-      id: Yup.string().required('Faculty type is required'),
+      id: Yup.string().required(
+        strings.lms.facultyManagement.validation.facultyTypeRequired,
+      ),
     }),
   });
 
@@ -171,16 +198,16 @@ const AddFacultyDetails = (props: Props) => {
     try {
       schema.validateSync(form);
       if (item) {
-        updateFloorDetails();
+        updateFacultyRecord();
       } else {
-        addFloorDetails();
+        createFacultyRecord();
       }
     } catch (err: any) {
       setErrors({ [err.path]: err.message });
     }
   };
 
-  const addFloorDetails = () => {
+  const createFacultyRecord = () => {
     setLoader(true);
     let params = {
       id: null,
@@ -206,12 +233,12 @@ const AddFacultyDetails = (props: Props) => {
       .catch((err: any) => {
         Toast.show({
           type: 'error',
-          text2: err?.data?.message || 'Something went wrong',
+          text2: err?.data?.message || strings.something_went_wrong,
         });
         setLoader(false);
       });
   };
-  const updateFloorDetails = () => {
+  const updateFacultyRecord = () => {
     setLoader(true);
     let params = {
       id: item.id,
@@ -237,7 +264,7 @@ const AddFacultyDetails = (props: Props) => {
       .catch((err: any) => {
         Toast.show({
           type: 'error',
-          text2: err?.data?.message || 'Something went wrong',
+          text2: err?.data?.message || strings.something_went_wrong,
         });
         setLoader(false);
       });
@@ -260,7 +287,7 @@ const AddFacultyDetails = (props: Props) => {
         setLoader(false);
         Toast.show({
           type: 'error',
-          text2: err.data.message,
+          text2: err.data?.message || strings.something_went_wrong,
           autoHide: true,
         });
       });
@@ -281,7 +308,7 @@ const AddFacultyDetails = (props: Props) => {
         setLoader(false);
         Toast.show({
           type: 'error',
-          text2: err.data.message,
+          text2: err.data?.message || strings.something_went_wrong,
           autoHide: true,
         });
       });
@@ -304,7 +331,7 @@ const AddFacultyDetails = (props: Props) => {
         setLoader(false);
         Toast.show({
           type: 'error',
-          text2: err.data.message,
+          text2: err.data?.message || strings.something_went_wrong,
           autoHide: true,
         });
       });
@@ -344,7 +371,7 @@ const AddFacultyDetails = (props: Props) => {
         setLoader(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -366,7 +393,7 @@ const AddFacultyDetails = (props: Props) => {
         setLoader(false);
         Toast.show({
           type: 'error',
-          text2: err.data.message,
+          text2: err.data?.message || strings.something_went_wrong,
           autoHide: true,
         });
       });
@@ -388,7 +415,7 @@ const AddFacultyDetails = (props: Props) => {
         setLoader(false);
         Toast.show({
           type: 'error',
-          text2: err.data.message,
+          text2: err.data?.message || strings.something_went_wrong,
           autoHide: true,
         });
       });
@@ -410,7 +437,7 @@ const AddFacultyDetails = (props: Props) => {
         setLoader(false);
         Toast.show({
           type: 'error',
-          text2: err.data.message,
+          text2: err.data?.message || strings.something_went_wrong,
           autoHide: true,
         });
       });
@@ -472,7 +499,7 @@ const AddFacultyDetails = (props: Props) => {
       <FullscreenLoading isVisible={loader} />
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
+        style={styles.flex1}
         contentContainerStyle={styles.contentScroll}
         enableOnAndroid={true}
         enableAutomaticScroll={true}
@@ -480,11 +507,11 @@ const AddFacultyDetails = (props: Props) => {
         extraScrollHeight={vh(120)}
       >
         <DropDownOrganism
-          label={'Faculty Type'}
-          placeholder={'Faculty Type'}
+          label={strings.lms.facultyManagement.details.facultyType}
+          placeholder={strings.lms.facultyManagement.details.facultyType}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Faculty Type',
+              name: strings.lms.facultyManagement.details.facultyType,
               Data: form.facultyTypeList,
               selectedData: form.selectedFacultyType,
               setSelectedData: (data: any) => {
@@ -505,14 +532,20 @@ const AddFacultyDetails = (props: Props) => {
         />
 
         <DropDownOrganism
-          label={'Bipard Location'}
-          placeholder={'Bipard Location'}
+          label={strings.lms.facultyManagement.details.bipardLocation}
+          placeholder={strings.lms.facultyManagement.details.bipardLocation}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Bipard Location',
+              name: strings.lms.facultyManagement.details.bipardLocation,
               Data: [
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
               ],
               selectedData: form.bipardLocation,
               setSelectedData: (data: any) => {
@@ -537,11 +570,11 @@ const AddFacultyDetails = (props: Props) => {
         />
 
         <DropDownOrganism
-          label={'Salutation'}
-          placeholder={'Salutation'}
+          label={strings.lms.facultyManagement.details.salutation}
+          placeholder={strings.lms.facultyManagement.details.salutation}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Salutation',
+              name: strings.lms.facultyManagement.details.salutation,
               Data: form.saluationList,
               selectedData: form.selectedSaluation,
               setSelectedData: (data: any) => {
@@ -561,11 +594,11 @@ const AddFacultyDetails = (props: Props) => {
           errorMessage={errors['selectedSaluation.id']}
         />
         <DropDownOrganism
-          label={'Faculty Name'}
-          placeholder={'Faculty Name'}
+          label={strings.lms.facultyManagement.details.facultyName}
+          placeholder={strings.lms.facultyManagement.details.facultyName}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Faculty Name',
+              name: strings.lms.facultyManagement.details.facultyName,
               Data: form.facultyNameList,
               selectedData: form.selectedFacultyName,
               setSelectedData: (data: any) => {
@@ -585,8 +618,8 @@ const AddFacultyDetails = (props: Props) => {
           errorMessage={errors['selectedFacultyName.id']}
         />
         <TextInputOrganisms
-          label={'Email'}
-          placeholder={'Email'}
+          label={strings.lms.facultyManagement.details.email}
+          placeholder={strings.lms.facultyManagement.details.email}
           ref={input1_ref}
           onSubmitEditing={() => input2_ref.current.focus()}
           value={form.emailId}
@@ -601,8 +634,8 @@ const AddFacultyDetails = (props: Props) => {
         />
 
         <TextInputOrganisms
-          label={'Mobile Number'}
-          placeholder={'Mobile Number'}
+          label={strings.lms.facultyManagement.details.mobileNumber}
+          placeholder={strings.lms.facultyManagement.details.mobileNumber}
           ref={input2_ref}
           onSubmitEditing={() => input3_ref.current.focus()}
           value={form.mobileNo}
@@ -617,11 +650,11 @@ const AddFacultyDetails = (props: Props) => {
           keyboardType="numeric"
         />
         <DropDownOrganism
-          label={'Category'}
-          placeholder={'Category'}
+          label={strings.lms.facultyManagement.details.category}
+          placeholder={strings.lms.facultyManagement.details.category}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Category',
+              name: strings.lms.facultyManagement.details.category,
               Data: form.categoryList,
               selectedData: form.selectedCategory,
               setSelectedData: (data: any) => {
@@ -641,11 +674,11 @@ const AddFacultyDetails = (props: Props) => {
           errorMessage={errors['selectedCategory.id']}
         />
         <DropDownOrganism
-          label={'BIPARD Pay Level'}
-          placeholder={'BIPARD Pay Level'}
+          label={strings.lms.facultyManagement.details.payLevel}
+          placeholder={strings.lms.facultyManagement.details.payLevel}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'BIPARD Pay Level',
+              name: strings.lms.facultyManagement.details.payLevel,
               Data: form.payLevelList,
               selectedData: form.selectedPayLevel,
               setSelectedData: (data: any) => {
@@ -666,8 +699,8 @@ const AddFacultyDetails = (props: Props) => {
         />
 
         <TextInputOrganisms
-          label={'Pan Number'}
-          placeholder={'Pan Number'}
+          label={strings.lms.facultyManagement.details.panNumber}
+          placeholder={strings.lms.facultyManagement.details.panNumber}
           ref={input3_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
           value={form.panNo}
@@ -682,27 +715,34 @@ const AddFacultyDetails = (props: Props) => {
         />
         <RadioSelectableOrganism
           data={[
-            { id: 'Bihar', value: 'Bihar' },
-            { id: 'Outside Bihar', value: 'Outside Bihar' },
+            {
+              id: strings.lms.facultyManagement.details.bihar,
+              value: strings.lms.facultyManagement.details.bihar,
+            },
+            {
+              id: strings.lms.facultyManagement.details.outsideBihar,
+              value: strings.lms.facultyManagement.details.outsideBihar,
+            },
           ]}
           onSelect={(item: any) => {
             setValue('selectedLocation', item);
             setErrors({ ...errors, 'selectedLocation.id': '' });
           }}
-          label={'Location'}
+          label={strings.lms.facultyManagement.details.location}
           selectedType={form.selectedLocation}
           typeName={'value'}
           typeId={'id'}
           isMandatory
           errorMessage={errors['selectedLocation.id']}
         />
-        {form.selectedLocation?.id === 'Outside Bihar' && (
+        {form.selectedLocation?.id ===
+          strings.lms.facultyManagement.details.outsideBihar && (
           <DropDownOrganism
-            label={'State'}
-            placeholder={'State'}
+            label={strings.lms.facultyManagement.details.state}
+            placeholder={strings.lms.facultyManagement.details.state}
             onPress={() => {
               navigation.navigate('DropDownModal', {
-                name: 'State',
+                name: strings.lms.facultyManagement.details.state,
                 Data: form.stateList,
                 selectedData: form.selectedState,
                 setSelectedData: (data: any) => {
@@ -723,7 +763,7 @@ const AddFacultyDetails = (props: Props) => {
           />
         )}
         <TextAtom style={styles.labelStyle} numberOfLines={2}>
-          Upload File
+          {strings.lms.facultyManagement.details.uploadFile}
         </TextAtom>
         <TouchableOpacity
           style={[
@@ -738,22 +778,30 @@ const AddFacultyDetails = (props: Props) => {
           onPress={handleFileUpload}
         >
           <TextAtom numberOfLines={0} style={styles.uploadText}>
-            {!isNullUndefined(form.file)
+            {!isNullUndefined(form.documentCard?.uri)
               ? form.documentCard.fileName
               : strings.choose_file}
           </TextAtom>
-          <TextAtom style={styles.instructionText}>{'Add File'}</TextAtom>
+          <TextAtom style={styles.instructionText}>
+            {strings.lms.facultyManagement.details.addFile}
+          </TextAtom>
         </TouchableOpacity>
         <RadioSelectableOrganism
           data={[
-            { id: 'Active', value: 'Active' },
-            { id: 'Inactive', value: 'Inactive' },
+            {
+              id: strings.lms.facultyManagement.details.active,
+              value: strings.lms.facultyManagement.details.active,
+            },
+            {
+              id: strings.lms.facultyManagement.details.inactive,
+              value: strings.lms.facultyManagement.details.inactive,
+            },
           ]}
           onSelect={(item: any) => {
             setValue('status', item);
             setErrors({ ...errors, 'status.id': '' });
           }}
-          label={'Status'}
+          label={strings.lms.facultyManagement.details.status}
           selectedType={form.status}
           typeName={'value'}
           typeId={'id'}
@@ -762,7 +810,14 @@ const AddFacultyDetails = (props: Props) => {
         />
       </KeyboardAwareScrollView>
 
-      <ButtonOrganism onPress={onSubmit} bttnText={item ? 'Update' : 'Add'} />
+      <ButtonOrganism
+        onPress={onSubmit}
+        bttnText={
+          item
+            ? strings.lms.facultyManagement.details.update
+            : strings.lms.facultyManagement.details.add
+        }
+      />
     </SafeAreaView>
   );
 };
@@ -776,6 +831,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: vw(20),
   },
+  flex1: { flex: 1 },
   contentScroll: {
     paddingBottom: vh(10),
   },

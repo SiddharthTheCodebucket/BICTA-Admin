@@ -16,13 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  screensName,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -32,13 +26,8 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useBedDetailsRoomMutation,
-  useDeleteHostelRoomMutation,
-  useUpdateHostelRoomMutation,
-} from '../../../../../../injectEndpoints/hostelEndpoints';
+import { useBedDetailsRoomMutation } from '../../../../../../injectEndpoints/hostelEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
@@ -46,7 +35,6 @@ import DateInputOrganism from '../../../../../../components/organisms/DateInputO
 import moment from 'moment';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -59,6 +47,191 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+interface RoomCardProps {
+  item: any;
+  index: number;
+}
+
+const RoomCard = ({ item, index }: RoomCardProps) => {
+  return (
+    <View style={styles.card}>
+      <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+        <TextAtom style={[styles.label, styles.flex1]}>
+          {strings.hostelManagement.srNo} {index + 1}
+        </TextAtom>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.bedAvailability.hostel}
+          </TextAtom>
+          <TextAtom style={styles.value}>
+            {item.selectHostelName ?? '-'}
+          </TextAtom>
+        </View>
+
+        <View style={styles.flex1End}>
+          <TextAtom style={styles.labelRight}>
+            {strings.hostelManagement.bedAvailability.room}
+          </TextAtom>
+          <TextAtom style={styles.valueRight}>
+            {item.selectRoomNo ?? '-'}
+          </TextAtom>
+        </View>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.bedAvailability.bed}
+          </TextAtom>
+          <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
+        </View>
+
+        <View style={styles.flex1End}>
+          <TextAtom style={styles.labelRight}>
+            {strings.hostelManagement.bedAvailability.bedStatus}
+          </TextAtom>
+          <TextAtom style={styles.valueRight}>{item.bedStatus ?? '-'}</TextAtom>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+interface FilterFormProps {
+  navigation: NavigationType;
+  hostelList: any[];
+  floorList: any[];
+  roomList: any[];
+  selectedHostel: any;
+  selectedFloor: any;
+  selectedRoom: any;
+  startDate: any;
+  endDate: any;
+  setSelectedHostel: (d: any) => void;
+  setSelectedFloor: (d: any) => void;
+  setSelectedRoom: (d: any) => void;
+  setStartDate: (d: any) => void;
+  setEndDate: (d: any) => void;
+  applyFilter: () => void;
+  clearFilter: () => void;
+  getFloorName: (id: any) => void;
+  getRoomName: (id: any) => void;
+}
+
+const FilterForm = ({
+  navigation,
+  hostelList,
+  floorList,
+  roomList,
+  selectedHostel,
+  selectedFloor,
+  selectedRoom,
+  startDate,
+  endDate,
+  setSelectedHostel,
+  setSelectedFloor,
+  setSelectedRoom,
+  setStartDate,
+  setEndDate,
+  applyFilter,
+  clearFilter,
+  getFloorName,
+  getRoomName,
+}: FilterFormProps) => (
+  <View style={styles.filterContainer}>
+    <DropDownOrganism
+      label={strings.hostelManagement.bedAvailability.hostel}
+      placeholder={strings.hostelManagement.bedAvailability.hostel}
+      onPress={() =>
+        navigation.navigate('DropDownModal', {
+          name: strings.hostelManagement.bedAvailability.hostel,
+          Data: hostelList,
+          selectedData: selectedHostel,
+          setSelectedData: (data: any) => {
+            setSelectedHostel(data);
+            getFloorName(data.id);
+          },
+          typeName: 'name',
+          typeId: 'id',
+        })
+      }
+      inputText={selectedHostel?.name}
+    />
+
+    <DropDownOrganism
+      label={strings.hostelManagement.bedAvailability.floor}
+      placeholder={strings.hostelManagement.bedAvailability.floor}
+      onPress={() =>
+        navigation.navigate('DropDownModal', {
+          name: strings.hostelManagement.bedAvailability.floor,
+          Data: floorList,
+          selectedData: selectedFloor,
+          setSelectedData: (data: any) => {
+            setSelectedFloor(data);
+            getRoomName(data.id);
+          },
+          typeName: 'name',
+          typeId: 'id',
+        })
+      }
+      inputText={selectedFloor?.name}
+    />
+
+    <DropDownOrganism
+      label={strings.hostelManagement.bedAvailability.room}
+      placeholder={strings.hostelManagement.bedAvailability.room}
+      onPress={() =>
+        navigation.navigate('DropDownModal', {
+          name: strings.hostelManagement.bedAvailability.room,
+          Data: roomList,
+          selectedData: selectedRoom,
+          setSelectedData: setSelectedRoom,
+          typeName: 'name',
+          typeId: 'id',
+        })
+      }
+      inputText={selectedRoom?.name}
+    />
+
+    <DateInputOrganism
+      label={strings.hostelManagement.bedAvailability.startDate}
+      placeholder={strings.hostelManagement.bedAvailability.startDate}
+      value={startDate}
+      onChangeText={setStartDate}
+      fieldName="date"
+      dateFormat="DD-MM-YYYY"
+    />
+
+    <DateInputOrganism
+      label={strings.hostelManagement.bedAvailability.endDate}
+      placeholder={strings.hostelManagement.bedAvailability.endDate}
+      value={endDate}
+      onChangeText={setEndDate}
+      fieldName="date"
+      dateFormat="DD-MM-YYYY"
+    />
+
+    <ViewAtom style={styles.buttonRow}>
+      <ButtonOrganism
+        onPress={applyFilter}
+        bttnText={strings.hostelManagement.bedAvailability.applyFilter}
+        containerStyle={styles.applyBtn}
+      />
+      <ButtonOrganism
+        onPress={clearFilter}
+        bttnText={strings.hostelManagement.bedAvailability.clearFilter}
+        containerStyle={styles.clearBtn}
+        bttnTextStyle={{ color: colors.primary }}
+      />
+    </ViewAtom>
+  </View>
+);
+
+const RoomItemSeparator = () => <View style={styles.itemSeparator} />;
 
 const BedAvailability = (props: Props) => {
   const { navigation } = props;
@@ -96,7 +269,10 @@ const BedAvailability = (props: Props) => {
   >('Vacant');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Bed Availability Details');
+    Header.setNavigation(
+      navigation,
+      strings.hostelManagement.bedAvailability.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -121,8 +297,8 @@ const BedAvailability = (props: Props) => {
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
     return [centerSerach.name];
   };
@@ -191,7 +367,7 @@ const BedAvailability = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -213,142 +389,10 @@ const BedAvailability = (props: Props) => {
     bedDetailsList(1, true, '');
   };
 
-  const RoomCard = ({ item, index, navigation }: any) => {
-    return (
-      <View style={styles.card}>
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
-          </TextAtom>
-        </View>
-
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Hostel</TextAtom>
-            <TextAtom style={styles.value}>
-              {item.selectHostelName ?? '-'}
-            </TextAtom>
-          </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Room</TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {item.selectRoomNo ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Bed</TextAtom>
-            <TextAtom style={styles.value}>{item.bedName ?? '-'}</TextAtom>
-          </View>
-
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Status</TextAtom>
-            <TextAtom numberOfLines={0} style={styles.valueRight}>
-              {item.bedStatus ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
-      </View>
-    );
-  };
-
-  const renderListRoomDetails = ({ item, index }: any) => {
-    return <RoomCard item={item} index={index} navigation={navigation} />;
-  };
-
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DropDownOrganism
-        label={'Hostel'}
-        placeholder={'Hostel'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Hostel',
-            Data: hostelList,
-            selectedData: selectedHostel,
-            setSelectedData: (data: any) => {
-              setSelectedHostel(data);
-              getFloorName(data.id);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedHostel?.name}
-      />
-
-      <DropDownOrganism
-        label={'Floor'}
-        placeholder={'Floor'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Floor',
-            Data: floorList,
-            selectedData: selectedFloor,
-            setSelectedData: (data: any) => {
-              setSelectedFloor(data);
-              getRoomName(data.id);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedFloor?.name}
-      />
-
-      <DropDownOrganism
-        label={'Room'}
-        placeholder={'Room'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Room',
-            Data: roomList,
-            selectedData: selectedRoom,
-            setSelectedData: (data: any) => {
-              setSelectedRoom(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedRoom?.name}
-      />
-      <DateInputOrganism
-        label={'Start Date'}
-        placeholder={'Start Date'}
-        value={startDate}
-        onChangeText={(val: any) => {
-          setStartDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <DateInputOrganism
-        label={'End Date'}
-        placeholder={'End Date'}
-        value={endDate}
-        onChangeText={(val: any) => {
-          setEndDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText="Apply Filter"
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText="Clear Filter"
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
-        />
-      </ViewAtom>
-    </View>
+  const renderListRoomDetails = ({ item, index }: any) => (
+    <RoomCard item={item} index={index} />
   );
+
   const clearFilter = () => {
     setSelectedHostel({});
     setSelectedFloor({});
@@ -447,27 +491,59 @@ const BedAvailability = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <View style={{ height: 'auto' }}>
+      <View style={styles.heightAuto}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
             <TextAtom style={styles.filterText}>
-              {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+              {showFilter
+                ? strings.hostelManagement.bedAvailability.hideFilter
+                : strings.hostelManagement.bedAvailability.showFilter}
             </TextAtom>
           </TouchableAtom>
 
-          {showFilter && <FilterForm />}
+          {showFilter && (
+            <FilterForm
+              navigation={navigation}
+              hostelList={hostelList}
+              floorList={floorList}
+              roomList={roomList}
+              selectedHostel={selectedHostel}
+              selectedFloor={selectedFloor}
+              selectedRoom={selectedRoom}
+              startDate={startDate}
+              endDate={endDate}
+              setSelectedHostel={setSelectedHostel}
+              setSelectedFloor={setSelectedFloor}
+              setSelectedRoom={setSelectedRoom}
+              setStartDate={setStartDate}
+              setEndDate={setEndDate}
+              applyFilter={applyFilter}
+              clearFilter={clearFilter}
+              getFloorName={getFloorName}
+              getRoomName={getRoomName}
+            />
+          )}
 
           {crediantialData.user[0].tenantId === 3 && (
             <DropDownOrganism
               label={''}
-              placeholder={'Centers'}
+              placeholder={strings.dashboardIndex.centers}
               onPress={() => {
                 navigation.navigate('DropDownModal', {
-                  name: 'Center',
+                  name: strings.dashboardIndex.center,
                   Data: [
-                    { id: 'All Centers', name: 'All Centers' },
-                    { id: 'Gaya', name: 'Gaya' },
-                    { id: 'Patna', name: 'Patna' },
+                    {
+                      id: strings.dashboardIndex.allCenters,
+                      name: strings.dashboardIndex.allCenters,
+                    },
+                    {
+                      id: strings.dashboardIndex.gaya,
+                      name: strings.dashboardIndex.gaya,
+                    },
+                    {
+                      id: strings.dashboardIndex.patna,
+                      name: strings.dashboardIndex.patna,
+                    },
                   ],
                   selectedData: centerSerach,
                   setSelectedData: setCenterSerach,
@@ -512,16 +588,18 @@ const BedAvailability = (props: Props) => {
         renderItem={renderListRoomDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          initialCall ? null : (
+            <TextAtom style={styles.emptyText}>
+              {strings.hostelManagement.noDataFound}
+            </TextAtom>
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(10) }}
+            style={styles.loadingContainer}
           />
         }
         refreshControl={
@@ -542,7 +620,7 @@ const BedAvailability = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={RoomItemSeparator}
       />
     </SafeAreaView>
   );
@@ -565,7 +643,7 @@ const styles = StyleSheet.create({
   tabButton: {
     paddingVertical: vh(8),
     paddingHorizontal: vw(25),
-    backgroundColor: '#EAEAEA',
+    backgroundColor: colors.lightGray2,
     borderRadius: vw(6),
   },
   activeTab: {
@@ -659,5 +737,21 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  flex1: {
+    flex: 1,
+  },
+  flex1End: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  heightAuto: {
+    height: 'auto',
+  },
+  loadingContainer: {
+    marginTop: vh(10),
+  },
+  itemSeparator: {
+    height: vh(10),
   },
 });

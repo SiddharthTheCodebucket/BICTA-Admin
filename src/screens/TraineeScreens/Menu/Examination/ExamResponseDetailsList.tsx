@@ -151,11 +151,11 @@ const ExamResponseDetailsList = (props: Props) => {
         renderItem={renderExaminationCard}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !loader ? (
+          loader ? null : (
             <TextAtom style={styles.emptyText}>
               No examination data found
             </TextAtom>
-          ) : null
+          )
         }
         contentContainerStyle={styles.flatListContainer}
       />

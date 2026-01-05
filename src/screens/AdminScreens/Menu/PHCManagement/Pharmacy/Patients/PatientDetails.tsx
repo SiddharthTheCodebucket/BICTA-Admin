@@ -3,11 +3,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vh, vw } from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { Header } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
@@ -40,14 +39,16 @@ const MedicineCard = ({ item }: any) => (
       {item?.medicineName} ({item?.medicineType})
     </TextAtom>
 
-    <FieldRow label="Dose" value={item?.dose} />
-    <FieldRow label="Count" value={item?.medicineCount} />
+    <FieldRow label={strings.dose} value={item?.dose} />
+    <FieldRow label={strings.count} value={item?.medicineCount} />
 
     {item?.uploadedPrescription ? (
       <TouchableOpacity
         onPress={() => Linking.openURL(item.uploadedPrescription)}
       >
-        <TextAtom style={styles.prescriptionLink}>View Prescription</TextAtom>
+        <TextAtom style={styles.prescriptionLink}>
+          {strings.view_prescription}
+        </TextAtom>
       </TouchableOpacity>
     ) : null}
   </ViewAtom>
@@ -62,7 +63,7 @@ const PatientDetails = ({ route, navigation }: any) => {
     : '-';
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Patient Details');
+    Header.setNavigation(navigation, strings.patient_details);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -74,46 +75,63 @@ const PatientDetails = ({ route, navigation }: any) => {
       >
         <ViewAtom style={styles.card}>
           {/* PATIENT DETAILS FIELDS */}
-          <FieldRow label="Symptom ID" value={data?.symptomId} />
-          <FieldRow label="Patient Type" value={data?.patientType} />
-          <FullWidthField label="Unique ID" value={data?.uniqueId} />
+          <FieldRow label={strings.symptom_id} value={data?.symptomId} />
+          <FieldRow label={strings.patient_type} value={data?.patientType} />
+          <FullWidthField label={strings.unique_id} value={data?.uniqueId} />
 
-          <FullWidthField label="Training Name" value={data?.trainingName} />
-          <FieldRow label="Batch No" value={data?.batchNo} />
+          <FullWidthField
+            label={strings.training_name}
+            value={data?.trainingName}
+          />
+          <FieldRow label={strings.batch_no} value={data?.batchNo} />
 
-          <FullWidthField label="Name" value={data?.name} />
+          <FullWidthField label={strings.name} value={data?.name} />
 
-          <FieldRow label="Blood Group" value={data?.bloodGroup} />
-          <FieldRow label="Age" value={age} />
-          <FieldRow label="Gender" value={data?.gender} />
+          <FieldRow label={strings.blood_group} value={data?.bloodGroup} />
+          <FieldRow label={strings.age} value={age} />
+          <FieldRow label={strings.gender} value={data?.gender} />
 
           <FieldRow
-            label="Temperature (°C)"
+            label={strings.temperature}
             value={data?.temperatureInCelsius}
           />
 
-          <FieldRow label="Blood Pressure" value={data?.bloodPressure} />
-          <FieldRow label="Weight (kg)" value={data?.weight} />
+          <FieldRow
+            label={strings.blood_pressure}
+            value={data?.bloodPressure}
+          />
+          <FieldRow label={strings.weight} value={data?.weight} />
 
           <FullWidthField
-            label="Primary Observations"
+            label={strings.primary_observations}
             value={data?.primaryObservations}
           />
 
-          <FieldRow label="Assigned Doctor" value={data?.assignDoctorName} />
+          <FieldRow
+            label={strings.assigned_doctor}
+            value={data?.assignDoctorName}
+          />
 
-          <FieldRow label="Treatment Types" value={data?.treatmentTypes} />
+          <FieldRow
+            label={strings.treatment_types}
+            value={data?.treatmentTypes}
+          />
 
           {/* MEDICINE LIST */}
           <ViewAtom style={{ marginTop: vh(15) }}>
-            <TextAtom style={styles.fullLabel}>Medicines</TextAtom>
+            <TextAtom style={styles.fullLabel}>{strings.medicines}</TextAtom>
 
             {data?.medicine?.length > 0 ? (
               data.medicine.map((item: any, index: number) => (
-                <MedicineCard key={index} item={item} />
+                <MedicineCard
+                  key={index.toString() + item?.medicineName}
+                  item={item}
+                />
               ))
             ) : (
-              <TextAtom style={styles.fullValue}>No Medicines</TextAtom>
+              <TextAtom style={styles.fullValue}>
+                {strings.no_medicines}
+              </TextAtom>
             )}
           </ViewAtom>
         </ViewAtom>
@@ -175,7 +193,7 @@ const styles = StyleSheet.create({
   medicineCard: {
     padding: vw(12),
     borderRadius: vw(8),
-    backgroundColor: '#F7F7F7',
+    backgroundColor: colors.light_gray_bg,
     marginBottom: vh(10),
   },
 
@@ -191,5 +209,9 @@ const styles = StyleSheet.create({
     color: colors.primary,
     textDecorationLine: 'underline',
     fontFamily: fonts.Roboto_Medium,
+  },
+  hardcodedStyle: {
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
   },
 });

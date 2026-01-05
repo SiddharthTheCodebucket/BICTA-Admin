@@ -1,7 +1,6 @@
-import { vw, vh } from './dimensions';
-import fonts from './fonts';
-import colors from './colors';
-import images from './images';
-import strings from './strings';
-import screensName from './screensName';
-export { colors, vw, vh, fonts, images, strings, screensName };
+export { vw, vh } from './dimensions';
+export { default as fonts } from './fonts';
+export { default as colors } from './colors';
+export { default as images } from './images';
+export { default as strings } from './strings';
+export { default as screensName } from './screensName';

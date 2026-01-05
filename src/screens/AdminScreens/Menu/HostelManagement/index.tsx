@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../constants';
+import { colors, screensName, strings, vh, vw } from '../../../../constants';
 import {
   Header,
   NavigationType,
@@ -16,7 +16,7 @@ const HostelManagement = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Hostel Management');
+    Header.setNavigation(navigation, strings.hostelManagement.hostelMenu.title);
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,19 +25,19 @@ const HostelManagement = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Hostel',
+      name: strings.hostelManagement.hostelMenu.hostel,
       onPress: () => navigation.navigate(screensName.Hostel),
     },
     {
       id: 2,
-      name: 'Guest',
+      name: strings.hostelManagement.hostelMenu.guest,
       onPress: () => navigation.navigate(screensName.Guest),
     },
   ];
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <View style={{ flex: 1 }}>
+      <View style={styles.flex1}>
         {DATA.map(item => {
           return (
             <TouchableOpacity
@@ -70,5 +70,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: vh(15),
+  },
+  flex1: {
+    flex: 1,
   },
 });

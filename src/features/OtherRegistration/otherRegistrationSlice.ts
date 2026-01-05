@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import moment from 'moment';
 
 export interface OtherRegistrationStateType {
   trainingCenterList: { [key: string]: any };

@@ -125,6 +125,9 @@ import PaymentDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagemen
 import PaymentDetailDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/PaymentDetailDetails';
 import AddPaymentDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/AddPaymentDetails';
 
+const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
+const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
+
 const RootNavigatorAdmin = () => {
   const RootStackScreen = createNativeStackNavigator();
   return (
@@ -534,7 +537,7 @@ const RootNavigatorAdmin = () => {
       >
         <RootStackScreen.Screen
           name={screensName.DropDownModal}
-          component={DropDownModal}
+          component={DropDownModalScreen}
           options={{
             animation: 'fade',
             headerShown: false,
@@ -543,7 +546,7 @@ const RootNavigatorAdmin = () => {
         />
         <RootStackScreen.Screen
           name={'ErrorModal'}
-          component={ErrorModal}
+          component={ErrorModalScreen}
           options={{
             animation: 'fade',
             headerShown: false,

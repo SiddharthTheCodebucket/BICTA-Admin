@@ -12,7 +12,10 @@ import TextAtom from '../../../../../components/atoms/TextAtom';
 import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
 import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
 import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
-import { downloadAndOpenFile } from '../../../../../utils/CommonFunction';
+import {
+  downloadAndOpenFile,
+  isNullUndefined,
+} from '../../../../../utils/CommonFunction';
 import { useDownloadApplicationPdfMutation } from '../../../../../injectEndpointsTrainee/showCauseNoticeEndpoints';
 
 interface Props {
@@ -129,7 +132,7 @@ const ApplicationDetails = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
-      {url && (
+      {!isNullUndefined(url) && (
         <ButtonOrganism
           onPress={() => {
             downloadAndOpenFile(url);

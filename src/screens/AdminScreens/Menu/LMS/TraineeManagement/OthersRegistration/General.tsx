@@ -1,5 +1,5 @@
-import { Keyboard, StyleSheet, Text, View } from 'react-native';
-import React, { createRef, useEffect, useRef, useState } from 'react';
+import { Keyboard, StyleSheet } from 'react-native';
+import React, { useRef, useState } from 'react';
 import { NavigationType } from '../../../../../../components/organisms/HeaderOrganism';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
@@ -34,7 +34,6 @@ import Toast from 'react-native-toast-message';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
   goNext: any;
 }

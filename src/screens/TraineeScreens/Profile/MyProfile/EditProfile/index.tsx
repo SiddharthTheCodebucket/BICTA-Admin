@@ -1,4 +1,4 @@
-import { StyleSheet, ScrollView, Keyboard } from 'react-native';
+import { StyleSheet, Keyboard } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
@@ -145,13 +145,13 @@ const EditProfile = ({ navigation }: Props) => {
       uri: Yup.string().required(strings.aadhar_card_required),
     }),
     uploadSignFile:
-      profileData.isBulkRegistration?.toLowerCase() !== 'no'
+      profileData.isBulkRegistration?.toLowerCase() === 'yes'
         ? Yup.object({
             uri: Yup.string().required(strings.sign_required),
           })
         : Yup.mixed().notRequired(),
     uploadPhotoFile:
-      profileData.isBulkRegistration?.toLowerCase() !== 'no'
+      profileData.isBulkRegistration?.toLowerCase() === 'yes'
         ? Yup.object({
             uri: Yup.string().required(strings.photo_required),
           })
@@ -661,7 +661,7 @@ const EditProfile = ({ navigation }: Props) => {
       .unwrap()
       .then((res: any) => {
         if (
-          profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() !== 'yes'
+          profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() === 'no'
         ) {
           navigation.navigate(screensName.IndemnityBondForm);
         } else {

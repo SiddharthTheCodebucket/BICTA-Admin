@@ -10,7 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
   LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,7 +20,6 @@ import {
   fonts,
   images,
   screensName,
-  strings,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -39,19 +37,10 @@ import DropDownOrganism from '../../../../../../components/organisms/DropDownOrg
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import {
-  useListPharmacyReportMutation,
-  useListTraineeBmiMutation,
-} from '../../../../../../injectEndpoints/phcEndpoints';
-import {
-  downloadAndOpenFile,
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
-import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
-import moment from 'moment';
+import { useListTraineeBmiMutation } from '../../../../../../injectEndpoints/phcEndpoints';
+import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -85,10 +74,8 @@ const BMI = (props: Props) => {
 
   const [trainingList, setTrainingList] = useState<any>([]);
   const [selectedTraining, setSelectedTraining] = useState<any>({});
-  const [bacthList, setBatchList] = useState<any>([]);
+  const [batchList, setBatchList] = useState<any>([]);
   const [selectedBatch, setSelectedBatch] = useState<any>({});
-
-  const [exportUrlExcel, setExportUrlExcel] = useState('');
 
   const ITEMS_PER_PAGE = 10;
 
@@ -175,7 +162,6 @@ const BMI = (props: Props) => {
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
 
         if (res?.data?.exportUrlExcel) {
-          setExportUrlExcel(res.data.exportUrlExcel);
           downloadAndOpenFile(res.data.exportUrlExcel);
         }
       })
@@ -277,7 +263,7 @@ const BMI = (props: Props) => {
         onPress={() => {
           navigation.navigate('DropDownModal', {
             name: 'Batch',
-            Data: bacthList,
+            Data: batchList,
             selectedData: selectedBatch,
             setSelectedData: (data: any) => {
               setSelectedBatch(data);
@@ -459,9 +445,9 @@ const BMI = (props: Props) => {
         renderItem={renderListBedDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListHeaderComponent={<View>{showFilter && <FilterForm />}</View>}
         ListFooterComponent={
@@ -492,11 +478,6 @@ const BMI = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };

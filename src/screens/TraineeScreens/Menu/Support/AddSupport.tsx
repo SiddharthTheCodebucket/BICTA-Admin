@@ -3,9 +3,8 @@ import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, fonts, screensName, vh, vw } from '../../../../constants';
+import { colors, fonts, vh, vw } from '../../../../constants';
 import {
   Header,
   NavigationType,
@@ -221,6 +220,26 @@ const AddSupport = (props: Props) => {
       });
   };
 
+  const updateAnswers = (
+    answers: any[],
+    questionId: number,
+    optionId: number,
+  ) => {
+    const updatedAnswers = [...answers];
+
+    const index = updatedAnswers.findIndex(
+      item => item.questionId === questionId,
+    );
+
+    if (index === -1) {
+      updatedAnswers.push({ questionId, optionId });
+    } else {
+      updatedAnswers[index].optionId = optionId;
+    }
+
+    return updatedAnswers;
+  };
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
@@ -356,7 +375,7 @@ const AddSupport = (props: Props) => {
                   color: colors.black,
                 }}
               >
-                {`Question ${index + 1} - ${q.questionName.replace(
+                {`Question ${index + 1} - ${q.questionName.replaceAll(
                   /<[^>]+>/g,
                   '',
                 )}`}
@@ -370,22 +389,13 @@ const AddSupport = (props: Props) => {
                     <TouchableAtom
                       key={optionId}
                       onPress={() => {
-                        const newAnswers = [...form.answers];
-
-                        const existingIndex = newAnswers.findIndex(
-                          a => a.questionId === q.questionId,
+                        const updatedAnswers = updateAnswers(
+                          form.answers,
+                          q.questionId,
+                          optionId,
                         );
 
-                        if (existingIndex !== -1) {
-                          newAnswers[existingIndex].optionId = optionId;
-                        } else {
-                          newAnswers.push({
-                            questionId: q.questionId,
-                            optionId: optionId,
-                          });
-                        }
-
-                        setValue('answers', newAnswers);
+                        setValue('answers', updatedAnswers);
                       }}
                       style={{
                         flexDirection: 'row',

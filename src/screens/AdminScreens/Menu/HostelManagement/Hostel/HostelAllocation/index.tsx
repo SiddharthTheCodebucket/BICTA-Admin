@@ -55,7 +55,6 @@ import {
 import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -99,14 +98,14 @@ const HostelAllocation = (props: Props) => {
 
   const [isComingFromDropdown, setIsComingFromDropdown] = useState(false);
 
-  const [trainindDetailList, setTrainingDetailList] = useState<any>([]);
+  const [trainingDetailList, setTrainingDetailList] = useState<any>([]);
   const [trainindDetail, setTrainindDetail] = useState<any>({});
-  const [genderList, setGenderList] = useState<any>([
+  const [genderList] = useState<any>([
     { id: 'Male', name: 'Male' },
     { id: 'Female', name: 'Female' },
   ]);
   const [gender, setGender] = useState<any>({});
-  const [allocationStatusList, setAllocationStatusList] = useState<any>([
+  const [allocationStatusList] = useState<any>([
     { id: 'Pending for allocation', name: 'Pending' },
     { id: 'Allocated', name: 'Allocated' },
   ]);
@@ -123,7 +122,10 @@ const HostelAllocation = (props: Props) => {
   const [activeTab, setActiveTab] = useState<'Trainee' | 'Guest'>('Trainee');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Hostel Allocation');
+    Header.setNavigation(
+      navigation,
+      strings.hostelManagement.hostelAllocation.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -166,7 +168,7 @@ const HostelAllocation = (props: Props) => {
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
-    if (centerSerach.name === 'All Centers') {
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
       return ['Gaya', 'Patna'];
     }
     return [centerSerach.name];
@@ -276,18 +278,13 @@ const HostelAllocation = (props: Props) => {
         }}
       >
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.hostelManagement.hostelAllocation.srNo} {index + 1}
           </TextAtom>
 
           {item?.status === 'Pending for allocation' ? (
             <TouchableAtom
-              style={{
-                backgroundColor: colors.primary,
-                paddingVertical: vh(6),
-                paddingHorizontal: vw(12),
-                borderRadius: vw(6),
-              }}
+              style={styles.allocateBtn}
               onPress={() => {
                 navigation.navigate(screensName.EditTraineeHostelAllocation, {
                   item: item,
@@ -296,27 +293,14 @@ const HostelAllocation = (props: Props) => {
                 });
               }}
             >
-              <TextAtom
-                style={{
-                  color: colors.white,
-                  fontFamily: fonts.Roboto_Medium,
-                  fontSize: vw(14),
-                }}
-              >
-                Allocate
+              <TextAtom style={styles.allocateText}>
+                {strings.hostelManagement.hostelAllocation.allocate}
               </TextAtom>
             </TouchableAtom>
           ) : (
-            <View style={{ flexDirection: 'row', gap: vw(15) }}>
+            <View style={styles.actionRow}>
               <TouchableAtom
-                style={{
-                  borderWidth: vw(1),
-                  borderColor: colors.green,
-                  borderRadius: vw(6),
-                  padding: vw(3),
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                style={styles.editBtn}
                 onPress={() => {
                   navigation.navigate(screensName.EditTraineeHostelAllocation, {
                     item: item,
@@ -325,40 +309,25 @@ const HostelAllocation = (props: Props) => {
                   });
                 }}
               >
-                <ImageAtom
-                  source={images.edit_pencil}
-                  style={{
-                    tintColor: colors.green,
-                    width: vw(15),
-                    height: vw(15),
-                  }}
-                />
+                <ImageAtom source={images.edit_pencil} style={styles.iconSm} />
               </TouchableAtom>
 
               <TouchableAtom
-                style={{
-                  borderWidth: vw(1),
-                  borderColor: colors.red_2,
-                  borderRadius: vw(6),
-                  padding: vw(3),
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                style={styles.deleteBtn}
                 onPress={() => {
                   handleDelete(item.id);
                 }}
               >
-                <ImageAtom
-                  source={images.delete}
-                  style={{ width: vw(15), height: vw(15) }}
-                />
+                <ImageAtom source={images.delete} style={styles.iconSmDelete} />
               </TouchableAtom>
             </View>
           )}
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Training Programme</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocation.trainingProgramme}
+          </TextAtom>
           <TextAtom style={styles.value}>
             {item.nameOfTrainingProgramme || '-'}
             {item.nameOfTrainingProgrammeId
@@ -368,15 +337,19 @@ const HostelAllocation = (props: Props) => {
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Course Start Date</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.hostelAllocation.courseStartDate}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {moment(item.courseStartDate).format('DD-MM-YYYY')}
             </TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Course End Date</TextAtom>
+          <View style={styles.flexEnd}>
+            <TextAtom style={styles.labelRight}>
+              {strings.hostelManagement.hostelAllocation.courseEndDate}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {moment(item.courseEndDate).format('DD-MM-YYYY')}
             </TextAtom>
@@ -421,19 +394,12 @@ const HostelAllocation = (props: Props) => {
   const GuestCard = ({ item, index }: any) => {
     return (
       <View style={styles.card}>
-        <View style={{ flexDirection: 'row', gap: vw(15) }}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+        <View style={styles.actionRow}>
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.hostelManagement.hostelAllocation.srNo} {index + 1}
           </TextAtom>
           <TouchableAtom
-            style={{
-              borderWidth: vw(1),
-              borderColor: colors.green,
-              borderRadius: vw(6),
-              padding: vw(3),
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            style={styles.editBtn}
             onPress={() => {
               navigation.navigate(screensName.EditGuestHostelallocation, {
                 item: item,
@@ -441,48 +407,37 @@ const HostelAllocation = (props: Props) => {
               });
             }}
           >
-            <ImageAtom
-              source={images.edit_pencil}
-              style={{
-                tintColor: colors.green,
-                width: vw(15),
-                height: vw(15),
-              }}
-            />
+            <ImageAtom source={images.edit_pencil} style={styles.iconSm} />
           </TouchableAtom>
 
           <TouchableAtom
-            style={{
-              borderWidth: vw(1),
-              borderColor: colors.red_2,
-              borderRadius: vw(6),
-              padding: vw(3),
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            style={styles.deleteBtn}
             onPress={() => {
               handleDelete(item.id);
             }}
           >
-            <ImageAtom
-              source={images.delete}
-              style={{ width: vw(15), height: vw(15) }}
-            />
+            <ImageAtom source={images.delete} style={styles.iconSmDelete} />
           </TouchableAtom>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>name</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocation.name}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.name || '-'}</TextAtom>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Email</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocation.email}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.officeEmail || '-'}</TextAtom>
         </View>
 
         <View style={styles.rowBetween}>
-          <TextAtom style={styles.label}>Mobile Number</TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelAllocation.mobileNumber}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.mobileNo ?? '-'}</TextAtom>
         </View>
 
@@ -524,13 +479,17 @@ const HostelAllocation = (props: Props) => {
         </View>
 
         <View style={[styles.rowBetween, { marginTop: vh(8) }]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Key</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.hostelAllocation.key}
+            </TextAtom>
             <TextAtom style={styles.value}>{item.keyProvided ?? '-'}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.label}>Yoga Mat</TextAtom>
+          <View style={styles.flexEnd}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.hostelAllocation.yogaMat}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {item.yogaMatProvided ?? '-'}
             </TextAtom>
@@ -542,9 +501,9 @@ const HostelAllocation = (props: Props) => {
 
   const handleDelete = (id: any) => {
     navigation.navigate(screensName.AlertOrganism, {
-      title: 'Delete Confirmation',
-      message: 'Are you sure you want to delete this item?',
-      okText: 'Confirm',
+      title: strings.hostelManagement.hostelAllocation.deleteConfirmation,
+      message: strings.hostelManagement.hostelAllocation.deleteMessage,
+      okText: strings.hostelManagement.hostelAllocation.confirm,
       double: true,
       cancelText: strings.cancel,
       okFunction: () => {
@@ -588,12 +547,12 @@ const HostelAllocation = (props: Props) => {
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Training Detail'}
-        placeholder={'Training Detail'}
+        label={strings.hostelManagement.hostelAllocation.trainingDetail}
+        placeholder={strings.hostelManagement.hostelAllocation.trainingDetail}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Training Detail',
-            Data: trainindDetailList,
+            name: strings.hostelManagement.hostelAllocation.trainingDetail,
+            Data: trainingDetailList,
             selectedData: trainindDetail,
             setSelectedData: (data: any) => {
               setTrainindDetail(data);
@@ -606,11 +565,11 @@ const HostelAllocation = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Allocation Status'}
-        placeholder={'Allocation Status'}
+        label={strings.hostelManagement.hostelAllocation.allocationStatus}
+        placeholder={strings.hostelManagement.hostelAllocation.allocationStatus}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Allocation Status',
+            name: strings.hostelManagement.hostelAllocation.allocationStatus,
             Data: allocationStatusList,
             selectedData: allocationStatus,
             setSelectedData: (data: any) => {
@@ -624,11 +583,11 @@ const HostelAllocation = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Gender'}
-        placeholder={'Gender'}
+        label={strings.hostelManagement.hostelAllocation.gender}
+        placeholder={strings.hostelManagement.hostelAllocation.gender}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Gender',
+            name: strings.hostelManagement.hostelAllocation.gender,
             Data: genderList,
             selectedData: gender,
             setSelectedData: (data: any) => {
@@ -642,11 +601,11 @@ const HostelAllocation = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Hostel'}
-        placeholder={'Hostel'}
+        label={strings.hostelManagement.hostelAllocation.hostel}
+        placeholder={strings.hostelManagement.hostelAllocation.hostel}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Hostel',
+            name: strings.hostelManagement.hostelAllocation.hostel,
             Data: hostelList,
             selectedData: hostel,
             setSelectedData: (data: any) => {
@@ -661,14 +620,14 @@ const HostelAllocation = (props: Props) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.hostelManagement.hostelAllocation.applyFilter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.hostelManagement.hostelAllocation.clearFilter}
           containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
+          bttnTextStyle={styles.colorP}
         />
       </ViewAtom>
     </View>
@@ -911,9 +870,9 @@ const HostelAllocation = (props: Props) => {
         renderItem={renderListRoomDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -999,7 +958,7 @@ const HostelAllocation = (props: Props) => {
                 setIsComingFromDropdown(true);
                 navigation.navigate('DropDownModal', {
                   name: 'Hostel List',
-                  Data: trainindDetailList,
+                  Data: trainingDetailList,
                   selectedData: selectedHostel,
                   setSelectedData: (data: any) => setSelectedHostel(data),
                   typeName: 'name',
@@ -1276,5 +1235,59 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  flex1: {
+    flex: 1,
+  },
+  flexEnd: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  alignedCenter: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  allocateBtn: {
+    backgroundColor: colors.primary,
+    paddingVertical: vh(6),
+    paddingHorizontal: vw(12),
+    borderRadius: vw(6),
+  },
+  allocateText: {
+    color: colors.white,
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: vw(15),
+  },
+  editBtn: {
+    borderWidth: vw(1),
+    borderColor: colors.green,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSm: {
+    tintColor: colors.green,
+    width: vw(15),
+    height: vw(15),
+  },
+  deleteBtn: {
+    borderWidth: vw(1),
+    borderColor: colors.red_2,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSmDelete: {
+    width: vw(15),
+    height: vw(15),
+  },
+  colorP: {
+    color: colors.primary,
   },
 });

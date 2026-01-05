@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, vw, vh } from '../../../../constants';
+import strings from '../../../../constants/strings';
 import TextAtom from '../../../../components/atoms/TextAtom';
 import { useHostelReportDataMutation } from '../../../../injectEndpoints/dashboardEndpoints';
 import Toast from 'react-native-toast-message';
@@ -21,6 +22,190 @@ import { isNullUndefined } from '../../../../utils/CommonFunction';
 import { useCommonDropdownListMutation } from '../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import moment from 'moment';
 import { useFocusEffect } from '@react-navigation/native';
+
+interface ReportCardProps {
+  item: any;
+  index: number;
+}
+
+const ReportCard = ({ item, index }: ReportCardProps) => {
+  return (
+    <View style={styles.card}>
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>{strings.hostelReport.srNo}</TextAtom>
+          <TextAtom style={styles.value}>{index + 1}</TextAtom>
+        </View>
+
+        <View style={[styles.flex1, styles.alignEnd]}>
+          <TextAtom style={styles.label}>
+            {strings.hostelReport.totalBed}
+          </TextAtom>
+          <TextAtom style={styles.valueRight}>{item.totalBeds}</TextAtom>
+        </View>
+      </View>
+
+      <View style={{ flex: 1 }}>
+        <TextAtom style={styles.label}>
+          {strings.hostelReport.hostelGuestHouseName}
+        </TextAtom>
+        <TextAtom style={styles.value}>{item.hostelName}</TextAtom>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelReport.traineeAllocatedBed}
+          </TextAtom>
+          <TextAtom style={styles.value}>{item.allocatedTraineeBeds}</TextAtom>
+        </View>
+
+        <View style={[styles.flex1, styles.alignEnd]}>
+          <TextAtom style={styles.label}>
+            {strings.hostelReport.guestAllocatedBed}
+          </TextAtom>
+          <TextAtom style={styles.valueRight}>
+            {item.allocatedGuestBeds}
+          </TextAtom>
+        </View>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <TextAtom style={styles.label}>
+          {strings.hostelReport.totalAllocatedBed}
+        </TextAtom>
+        <TextAtom style={styles.valueRight}>{item.totalAllocatedBeds}</TextAtom>
+      </View>
+    </View>
+  );
+};
+
+interface FilterFormProps {
+  navigation: any;
+  userTypeList: any[];
+  selectedUserType: any;
+  selectedTraining: any;
+  selectedDesignation: any;
+  trainingList: any[];
+  designationList: any[];
+  startDate: any;
+  endDate: any;
+  setStartDate: (v: any) => void;
+  setEndDate: (v: any) => void;
+  applyFilter: () => void;
+  clearFilter: () => void;
+  handleUserTypeChange: (d: any) => void;
+  setSelectedTraining: (d: any) => void;
+  setSelectedDesignation: (d: any) => void;
+}
+
+const FilterForm = ({
+  navigation,
+  userTypeList,
+  selectedUserType,
+  selectedTraining,
+  selectedDesignation,
+  trainingList,
+  designationList,
+  startDate,
+  endDate,
+  setStartDate,
+  setEndDate,
+  applyFilter,
+  clearFilter,
+  handleUserTypeChange,
+  setSelectedTraining,
+  setSelectedDesignation,
+}: FilterFormProps) => (
+  <View style={styles.filterContainer}>
+    <DropDownOrganism
+      label="User Type"
+      placeholder="User Type"
+      onPress={() =>
+        navigation.navigate('DropDownModal', {
+          name: strings.hostelReport.userType,
+          Data: userTypeList,
+          selectedData: selectedUserType,
+          setSelectedData: handleUserTypeChange,
+          typeName: 'name',
+          typeId: 'id',
+        })
+      }
+      inputText={selectedUserType?.name}
+    />
+
+    {selectedUserType?.id === 'Trainee' && (
+      <>
+        <DropDownOrganism
+          label={strings.hostelReport.training}
+          placeholder={strings.hostelReport.training}
+          onPress={() =>
+            navigation.navigate('DropDownModal', {
+              name: strings.hostelReport.training,
+              Data: trainingList,
+              selectedData: selectedTraining,
+              setSelectedData: setSelectedTraining,
+              typeName: 'name',
+              typeId: 'id',
+            })
+          }
+          inputText={selectedTraining?.name}
+        />
+
+        <DropDownOrganism
+          label={strings.hostelReport.designation}
+          placeholder={strings.hostelReport.designation}
+          onPress={() =>
+            navigation.navigate('DropDownModal', {
+              name: strings.hostelReport.designation,
+              Data: designationList,
+              selectedData: selectedDesignation,
+              setSelectedData: setSelectedDesignation,
+              typeName: 'name',
+              typeId: 'id',
+            })
+          }
+          inputText={selectedDesignation?.name}
+        />
+      </>
+    )}
+
+    {!isNullUndefined(selectedUserType) && (
+      <>
+        <DateInputOrganism
+          label={strings.hostelReport.startDate}
+          placeholder={strings.hostelReport.startDate}
+          value={startDate}
+          onChangeText={setStartDate}
+          fieldName="date"
+          dateFormat="DD-MM-YYYY"
+        />
+        <DateInputOrganism
+          label={strings.hostelReport.endDate}
+          placeholder={strings.hostelReport.endDate}
+          value={endDate}
+          onChangeText={setEndDate}
+          fieldName="date"
+          dateFormat="DD-MM-YYYY"
+        />
+      </>
+    )}
+
+    <ViewAtom style={styles.buttonRow}>
+      <ButtonOrganism
+        onPress={applyFilter}
+        bttnText={strings.hostelReport.applyFilter}
+        containerStyle={styles.applyBtn}
+      />
+      <ButtonOrganism
+        onPress={clearFilter}
+        bttnText={strings.hostelReport.clearFilter}
+        containerStyle={styles.clearBtn}
+        bttnTextStyle={styles.clearBtnText}
+      />
+    </ViewAtom>
+  </View>
+);
 
 const HostelReport = (props: any) => {
   const { navigation } = props;
@@ -53,7 +238,7 @@ const HostelReport = (props: any) => {
     setShowFilter(!showFilter);
   };
 
-  const [userTypeList, setUserTypeList] = useState<any>([
+  const [userTypeList] = useState<any>([
     { id: 'Trainee', name: 'Trainee' },
     { id: 'Guest', name: 'Guest' },
   ]);
@@ -93,7 +278,7 @@ const HostelReport = (props: any) => {
       .catch(() => {
         if (isRefreshing) setRefreshing(false);
         else setLoader(false);
-        Toast.show({ type: 'error', text2: 'Something went wrong' });
+        Toast.show({ type: 'error', text2: strings.something_went_wrong });
       });
   };
 
@@ -154,176 +339,41 @@ const HostelReport = (props: any) => {
       });
   };
 
-  const ReportCard = ({ item, index }: any) => {
-    return (
-      <View style={styles.card}>
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Sr. No</TextAtom>
-            <TextAtom style={styles.value}>{index + 1}</TextAtom>
-          </View>
-
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.label}>Total Bed</TextAtom>
-            <TextAtom style={styles.valueRight}>{item.totalBeds}</TextAtom>
-          </View>
-        </View>
-
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>{'Hostel/Guest House Name'}</TextAtom>
-          <TextAtom style={styles.value}>{item.hostelName}</TextAtom>
-        </View>
-
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Trainee Allocated Bed</TextAtom>
-            <TextAtom style={styles.value}>
-              {item.allocatedTraineeBeds}
-            </TextAtom>
-          </View>
-
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.label}>Guest Allocated Bed</TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {item.allocatedGuestBeds}
-            </TextAtom>
-          </View>
-        </View>
-        <View style={styles.rowBetween}>
-          <TextAtom style={styles.label}>Total Allocated Bed</TextAtom>
-          <TextAtom style={styles.valueRight}>
-            {item.totalAllocatedBeds}
-          </TextAtom>
-        </View>
-      </View>
-    );
-  };
-
   const renderTotalCard = () => (
-    <View style={[styles.card, { backgroundColor: '#E8F0FE' }]}>
+    <View style={[styles.card, styles.summaryCardBg]}>
       <View style={styles.rowBetween}>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Total Bed</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelReport.totalBed}
+          </TextAtom>
           <TextAtom style={styles.value}>{totals.totalBeds}</TextAtom>
         </View>
 
-        <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.label}>Total Allocated Bed</TextAtom>
+        <View style={[styles.flex1, styles.alignEnd]}>
+          <TextAtom style={styles.label}>
+            {strings.hostelReport.totalAllocatedBed}
+          </TextAtom>
           <TextAtom style={styles.valueRight}>{totals.totalAllocated}</TextAtom>
         </View>
       </View>
       <View style={styles.rowBetween}>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Trainee Allocated Bed</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelReport.traineeAllocatedBed}
+          </TextAtom>
           <TextAtom style={styles.value}>{totals.totalTrainee}</TextAtom>
         </View>
 
-        <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.label}>Guest Allocated Bed</TextAtom>
+        <View style={[styles.flex1, styles.alignEnd]}>
+          <TextAtom style={styles.label}>
+            {strings.hostelReport.guestAllocatedBed}
+          </TextAtom>
           <TextAtom style={styles.valueRight}>{totals.totalGuest}</TextAtom>
         </View>
       </View>
     </View>
   );
 
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DropDownOrganism
-        label={'User Type'}
-        placeholder={'User Type'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'User Type',
-            Data: userTypeList,
-            selectedData: selectedUserType,
-            setSelectedData: (data: any) => {
-              handleUserTypeChange(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedUserType?.name}
-      />
-      {selectedUserType?.id === 'Trainee' && (
-        <>
-          <DropDownOrganism
-            label={'Training'}
-            placeholder={'Training'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Training',
-                Data: trainingList,
-                selectedData: selectedTraining,
-                setSelectedData: (data: any) => {
-                  setSelectedTraining(data);
-                },
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={selectedTraining?.name}
-          />
-
-          <DropDownOrganism
-            label={'Designation'}
-            placeholder={'Designation'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Designation',
-                Data: designationList,
-                selectedData: selectedDesignation,
-                setSelectedData: (data: any) => {
-                  setSelectedDesignation(data);
-                },
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={selectedDesignation?.name}
-          />
-        </>
-      )}
-      {!isNullUndefined(selectedUserType) && (
-        <>
-          <DateInputOrganism
-            label={'Start Date'}
-            placeholder={'Start Date'}
-            value={startDate}
-            onChangeText={(val: any) => {
-              setStartDate(val);
-            }}
-            fieldName={'date'}
-            dateFormat="DD-MM-YYYY"
-          />
-          <DateInputOrganism
-            label={'End Date'}
-            placeholder={'End Date'}
-            value={endDate}
-            onChangeText={(val: any) => {
-              setEndDate(val);
-            }}
-            fieldName={'date'}
-            dateFormat="DD-MM-YYYY"
-          />
-        </>
-      )}
-
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText="Apply Filter"
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText="Clear Filter"
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
-        />
-      </ViewAtom>
-    </View>
-  );
   const clearFilter = () => {
     setSelectedUserType({});
     setSelectedTraining({});
@@ -373,7 +423,7 @@ const HostelReport = (props: any) => {
       })
       .catch(() => {
         setLoader(false);
-        Toast.show({ type: 'error', text2: 'Something went wrong' });
+        Toast.show({ type: 'error', text2: strings.something_went_wrong });
       });
   };
 
@@ -382,18 +432,45 @@ const HostelReport = (props: any) => {
       <FullscreenLoading isVisible={loader} />
       <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
         <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+          {showFilter
+            ? strings.hostelReport.hideFilter
+            : strings.hostelReport.showFilter}
         </TextAtom>
       </TouchableAtom>
       <FlatList
         showsVerticalScrollIndicator={false}
         data={reportData}
         keyExtractor={(_, i) => i.toString()}
-        renderItem={ReportCard}
+        renderItem={({ item, index }) => (
+          <ReportCard item={item} index={index} />
+        )}
         ListFooterComponent={renderTotalCard()}
-        ListHeaderComponent={showFilter ? <FilterForm /> : null}
+        ListHeaderComponent={
+          showFilter ? (
+            <FilterForm
+              navigation={navigation}
+              userTypeList={userTypeList}
+              selectedUserType={selectedUserType}
+              selectedTraining={selectedTraining}
+              selectedDesignation={selectedDesignation}
+              trainingList={trainingList}
+              designationList={designationList}
+              startDate={startDate}
+              endDate={endDate}
+              setStartDate={setStartDate}
+              setEndDate={setEndDate}
+              applyFilter={applyFilter}
+              clearFilter={clearFilter}
+              handleUserTypeChange={handleUserTypeChange}
+              setSelectedTraining={setSelectedTraining}
+              setSelectedDesignation={setSelectedDesignation}
+            />
+          ) : null
+        }
         ListEmptyComponent={
-          <TextAtom style={styles.emptyText}>No Data Found</TextAtom>
+          <TextAtom style={styles.emptyText}>
+            {strings.hostelReport.noDataFound}
+          </TextAtom>
         }
         refreshControl={
           <RefreshControl
@@ -451,7 +528,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: vh(10),
-    backgroundColor: '#F5F5F5',
+    backgroundColor: colors.veryLightGray,
     borderRadius: vw(6),
   },
 
@@ -517,5 +594,17 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  flex1: {
+    flex: 1,
+  },
+  alignEnd: {
+    alignItems: 'flex-end',
+  },
+  clearBtnText: {
+    color: colors.primary,
+  },
+  summaryCardBg: {
+    backgroundColor: colors.lightBlue,
   },
 });

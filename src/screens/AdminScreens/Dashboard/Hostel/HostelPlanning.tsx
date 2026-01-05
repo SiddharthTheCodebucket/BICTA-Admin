@@ -8,6 +8,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { colors, fonts, vw, vh, screensName } from '../../../../constants';
+import strings from '../../../../constants/strings';
 import moment from 'moment';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -75,6 +76,27 @@ const HostelPlanning = (props: any) => {
     }, 1000);
   };
 
+  const filterHostelsByDate = (list: any[], date: string) =>
+    list.filter(item => item.reportDate === date);
+
+  const calculateBedSummary = (list: any[]) => {
+    return list.reduce(
+      (acc, h) => {
+        acc.hostelTotal += h.totalTraineeBeds || 0;
+        acc.hostelOccupied += h.occupiedTraineeBeds || 0;
+        acc.guestTotal += h.totalGuestBeds || 0;
+        acc.guestOccupied += h.occupiedGuestBeds || 0;
+        return acc;
+      },
+      {
+        hostelTotal: 0,
+        hostelOccupied: 0,
+        guestTotal: 0,
+        guestOccupied: 0,
+      },
+    );
+  };
+
   const fetchHostelPlanningData = (isRefreshing = false) => {
     if (!isRefreshing) {
       setLoader(true);
@@ -107,29 +129,11 @@ const HostelPlanning = (props: any) => {
         const days = generateMonthDays();
 
         const finalMapped: any = days.map(day => {
-          const filtered = apiList.filter(
-            (item: any) => item.reportDate === day.fullDate,
-          );
-
-          let hostelTotal = 0;
-          let hostelOccupied = 0;
-          let guestTotal = 0;
-          let guestOccupied = 0;
-
-          filtered.forEach((h: any) => {
-            hostelTotal += h.totalTraineeBeds || 0;
-            hostelOccupied += h.occupiedTraineeBeds || 0;
-
-            guestTotal += h.totalGuestBeds || 0;
-            guestOccupied += h.occupiedGuestBeds || 0;
-          });
-
+          const filtered = filterHostelsByDate(apiList, day.fullDate);
+          const summary = calculateBedSummary(filtered);
           return {
             ...day,
-            hostelTotal,
-            hostelOccupied,
-            guestTotal,
-            guestOccupied,
+            ...summary,
           };
         });
 
@@ -142,7 +146,7 @@ const HostelPlanning = (props: any) => {
         else setLoader(false);
         Toast.show({
           type: 'error',
-          text2: err?.data?.message || 'Something went wrong',
+          text2: err?.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -169,22 +173,30 @@ const HostelPlanning = (props: any) => {
         </View>
 
         <View style={styles.infoRow}>
-          <Text style={styles.dataLabel}>Hostel Beds (Total)</Text>
+          <Text style={styles.dataLabel}>
+            {strings.hostelPlanning.hostelBedsTotal}
+          </Text>
           <Text style={styles.dataValue}>{item.hostelTotal}</Text>
         </View>
 
         <View style={styles.infoRow}>
-          <Text style={styles.dataLabel}>Hostel Beds (Occupied)</Text>
+          <Text style={styles.dataLabel}>
+            {strings.hostelPlanning.hostelBedsOccupied}
+          </Text>
           <Text style={styles.dataValue}>{item.hostelOccupied}</Text>
         </View>
 
         <View style={styles.infoRow}>
-          <Text style={styles.dataLabel}>Guest Beds (Total)</Text>
+          <Text style={styles.dataLabel}>
+            {strings.hostelPlanning.guestBedsTotal}
+          </Text>
           <Text style={styles.dataValue}>{item.guestTotal}</Text>
         </View>
 
         <View style={styles.infoRow}>
-          <Text style={styles.dataLabel}>Guest Beds (Occupied)</Text>
+          <Text style={styles.dataLabel}>
+            {strings.hostelPlanning.guestBedsOccupied}
+          </Text>
           <Text style={styles.dataValue}>{item.guestOccupied}</Text>
         </View>
       </TouchableAtom>
@@ -203,7 +215,9 @@ const HostelPlanning = (props: any) => {
       >
         <View style={styles.calendarHeader}>
           <TouchableOpacity onPress={goPrevMonth}>
-            <Text style={styles.calendarArrow}>◀</Text>
+            <Text style={styles.calendarArrow}>
+              {strings.hostelPlanning.arrowLeft}
+            </Text>
           </TouchableOpacity>
 
           <Text style={styles.calendarTitle}>
@@ -211,33 +225,19 @@ const HostelPlanning = (props: any) => {
           </Text>
 
           <TouchableOpacity onPress={goNextMonth}>
-            <Text style={styles.calendarArrow}>▶</Text>
+            <Text style={styles.calendarArrow}>
+              {strings.hostelPlanning.arrowRight}
+            </Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity
           style={[styles.buttonAction, { width: vw(100) }]}
           onPress={() => setCurrentDate(new Date())}
         >
-          <Text style={styles.calendarArrow}>Today</Text>
+          <Text style={styles.calendarArrow}>
+            {strings.hostelPlanning.today}
+          </Text>
         </TouchableOpacity>
-        {/* 
-        <TouchableOpacity
-          style={styles.buttonAction}
-          onPress={() => {
-            navigation.navigate(screensName.BlockedForm);
-          }}
-        >
-          <Text style={styles.calendarArrow}>Block</Text>
-        </TouchableOpacity> */}
-
-        {/* <TouchableOpacity
-          style={styles.buttonAction}
-          onPress={() => {
-            navigation.navigate(screensName.BlockDetails);
-          }}
-        >
-          <Text style={styles.calendarArrow}>Unblock</Text>
-        </TouchableOpacity> */}
       </View>
 
       <FlatList
@@ -247,7 +247,7 @@ const HostelPlanning = (props: any) => {
         numColumns={2}
         columnWrapperStyle={styles.row}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ marginTop: vh(5), paddingBottom: vh(10) }}
+        contentContainerStyle={styles.flatListContent}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     marginVertical: vh(4),
     borderRadius: vw(10),
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: colors.black,
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
@@ -356,5 +356,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.sky_blue,
     borderColor: colors.sky_blue,
     borderWidth: vw(1),
+  },
+  flatListContent: {
+    marginTop: vh(5),
+    paddingBottom: vh(10),
   },
 });

@@ -10,7 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
   LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -34,28 +33,14 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useBedDetailsRoomMutation,
-  useDeleteBedDetailsRoomMutation,
-  useUpdateBedDetailsRoomMutation,
-} from '../../../../../../injectEndpoints/hostelEndpoints';
-import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import {
-  useDeleteFacultyDetailsMutation,
-  useListFacultyDetailsMutation,
-  useListKnowledgeManagementMutation,
-  useUpdateFacultyDetailsMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
 import { useListPatientPrescriptionsMutation } from '../../../../../../injectEndpoints/phcEndpoints';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -97,7 +82,7 @@ const Patients = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Patients Details');
+    Header.setNavigation(navigation, strings.patients_details);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -105,14 +90,14 @@ const Patients = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listFacultyDetails(1, true, '');
+        listPatients(1, true, '');
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listFacultyDetails(1, true, '');
+    listPatients(1, true, '');
   }, [centerSerach]);
 
   useEffect(() => {
@@ -156,7 +141,7 @@ const Patients = (props: Props) => {
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
+    if (centerSerach.name === strings.all_centers) {
       return ['Gaya', 'Patna'];
     }
 
@@ -168,7 +153,7 @@ const Patients = (props: Props) => {
     setShowFilter(!showFilter);
   };
 
-  const listFacultyDetails = (
+  const listPatients = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -222,14 +207,14 @@ const Patients = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listFacultyDetails(1, true, text);
+      listPatients(1, true, text);
     }, 500),
     [],
   );
@@ -241,14 +226,9 @@ const Patients = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listFacultyDetails(1, true, '');
+    listPatients(1, true, '');
   };
   const BedCard = ({ item, index, navigation }: any) => {
-    const thumbnail =
-      item?.thumbnail && item.thumbnail !== null && item.thumbnail !== ''
-        ? { uri: item.thumbnail }
-        : null;
-
     return (
       <TouchableAtom
         style={styles.card}
@@ -260,18 +240,20 @@ const Patients = (props: Props) => {
       >
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+            {strings.sr_no} {index + 1}
           </TextAtom>
         </View>
 
         <View style={[styles.rowBetween]}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Symptom ID</TextAtom>
+            <TextAtom style={styles.label}>{strings.symptom_id}</TextAtom>
             <TextAtom style={styles.value}>{item.symptomId ?? '-'}</TextAtom>
           </View>
 
           <View style={{ flex: 1, alignSelf: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Patient Type</TextAtom>
+            <TextAtom style={styles.labelRight}>
+              {strings.patient_type}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {item.patientType ?? '-'}
             </TextAtom>
@@ -279,7 +261,7 @@ const Patients = (props: Props) => {
         </View>
         <View style={[styles.rowBetween]}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Unique ID</TextAtom>
+            <TextAtom style={styles.label}>{strings.unique_id}</TextAtom>
             <TextAtom style={styles.value}>{item.uniqueId ?? '-'}</TextAtom>
           </View>
         </View>
@@ -294,11 +276,11 @@ const Patients = (props: Props) => {
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Month & Year'}
-        placeholder={'Month & Year'}
+        label={strings.month_year}
+        placeholder={strings.month_year}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Month & Year',
+            name: strings.month_year,
             Data: dateTimeList,
             selectedData: selectedDateTime,
             setSelectedData: (data: any) => {
@@ -314,12 +296,12 @@ const Patients = (props: Props) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.apply_filter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.clear_filter}
           containerStyle={styles.clearBtn}
           bttnTextStyle={{ color: colors.primary }}
         />
@@ -329,7 +311,7 @@ const Patients = (props: Props) => {
 
   const clearFilter = () => {
     setSelectedDateTime({});
-    listFacultyDetails(1, true, search, []);
+    listPatients(1, true, search, []);
   };
 
   const applyFilter = () => {
@@ -341,7 +323,7 @@ const Patients = (props: Props) => {
       exportFlagExcel: true,
     };
 
-    listFacultyDetails(1, true, search, filters, paramsFilter);
+    listPatients(1, true, search, filters, paramsFilter);
   };
 
   return (
@@ -355,22 +337,21 @@ const Patients = (props: Props) => {
       >
         <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
           <TextAtom style={styles.filterText}>
-            {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+            {showFilter ? strings.hide_filter : strings.show_filter}
           </TextAtom>
         </TouchableAtom>
         <TouchableAtom
           style={styles.filterButton}
           onPress={() => {
-            if (!selectedDateTime?.id) {
-              Toast.show({
-                type: 'error',
-                text2: 'Apply Month & Year filter before downloading',
-              });
-              return;
-            } else {
+            if (selectedDateTime?.id) {
               if (exportUrl) {
                 downloadAndOpenFile(exportUrl);
               }
+            } else {
+              Toast.show({
+                type: 'error',
+                text2: strings.apply_month_year_filter_before_downloading,
+              });
             }
           }}
         >
@@ -384,12 +365,12 @@ const Patients = (props: Props) => {
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
-          placeholder={'Center'}
+          placeholder={strings.center}
           onPress={() => {
             navigation.navigate('DropDownModal', {
               name: 'Center',
               Data: [
-                { id: 'All Centers', name: 'All Centers' },
+                { id: strings.all_centers, name: strings.all_centers },
                 { id: 'Gaya', name: 'Gaya' },
                 { id: 'Patna', name: 'Patna' },
               ],
@@ -418,9 +399,11 @@ const Patients = (props: Props) => {
         renderItem={renderListBedDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          initialCall ? null : (
+            <TextAtom style={styles.emptyText}>
+              {strings.no_data_found}
+            </TextAtom>
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -437,24 +420,19 @@ const Patients = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listFacultyDetails(1, false, '');
+              listPatients(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listFacultyDetails(page + 1, false, search)
+            ? listPatients(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };
@@ -521,7 +499,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.light_gray_bg,
     borderRadius: 8,
     marginTop: 6,
   },
@@ -537,13 +515,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.light_green_bg,
+    borderColor: colors.dark_green_border,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.light_red_bg,
+    borderColor: colors.dark_red_border,
   },
 
   statusText: {
@@ -551,8 +529,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.active_green },
+  inActiveText: { color: colors.inactive_red },
 
   dropMenu: {
     marginTop: vh(6),
@@ -606,5 +584,10 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  hardcodedStyle: {
+    backgroundColor: colors.pharmacy_green,
+    borderRadius: 5,
+    padding: 10,
   },
 });

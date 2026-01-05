@@ -14,7 +14,6 @@ import TextAtom from '../../../../components/atoms/TextAtom';
 import { useHostelAllocationDetailsMutation } from '../../../../injectEndpointsTrainee/hostelEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 

@@ -5,6 +5,7 @@ import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { colors, fonts, vh, vw } from '../../../../constants';
+import strings from '../../../../constants/strings';
 import {
   Header,
   NavigationType,
@@ -22,7 +23,6 @@ import ViewAtom from '../../../../components/atoms/ViewAtom';
 import { useDashboardBlockBedMutation } from '../../../../injectEndpoints/dashboardEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -55,7 +55,7 @@ const BlockedForm = (props: Props) => {
   const input2_ref: any = createRef();
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Hostel Block Request');
+    Header.setNavigation(navigation, strings.blockedForm.hostelBlockRequest);
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
 
@@ -70,12 +70,12 @@ const BlockedForm = (props: Props) => {
   }, [form.purpose, form.blockType?.id, form.startDate, form.endDate]);
 
   const schema = Yup.object().shape({
-    purpose: Yup.string().required('Purpose is required'),
+    purpose: Yup.string().required(strings.blockedForm.purposeRequired),
     blockType: Yup.object({
-      id: Yup.string().required('Block Type is required'),
+      id: Yup.string().required(strings.blockedForm.blockTypeRequired),
     }),
-    startDate: Yup.string().required('Start date is required'),
-    endDate: Yup.string().required('End date is required'),
+    startDate: Yup.string().required(strings.blockedForm.startDateRequired),
+    endDate: Yup.string().required(strings.blockedForm.endDateRequired),
   });
 
   const onSubmit = () => {
@@ -83,7 +83,10 @@ const BlockedForm = (props: Props) => {
       schema.validateSync(form);
 
       if (selectedHostels.length === 0) {
-        Toast.show({ type: 'error', text2: 'Please add at least one hostel' });
+        Toast.show({
+          type: 'error',
+          text2: strings.blockedForm.addAtLeastOneHostel,
+        });
         return;
       }
 
@@ -145,12 +148,12 @@ const BlockedForm = (props: Props) => {
 
   const addHostelEntry = () => {
     if (!form.hostel.hostelId) {
-      Toast.show({ type: 'error', text2: 'Select Hostel' });
+      Toast.show({ type: 'error', text2: strings.blockedForm.selectHostel });
       return;
     }
 
     if (!form.count) {
-      Toast.show({ type: 'error', text2: 'Enter Count' });
+      Toast.show({ type: 'error', text2: strings.blockedForm.enterCount });
       return;
     }
 
@@ -159,7 +162,10 @@ const BlockedForm = (props: Props) => {
     );
 
     if (exists) {
-      Toast.show({ type: 'error', text2: 'Hostel already added' });
+      Toast.show({
+        type: 'error',
+        text2: strings.blockedForm.hostelAlreadyAdded,
+      });
       return;
     }
 
@@ -215,7 +221,7 @@ const BlockedForm = (props: Props) => {
       })
       .catch(() => {
         setLoader(false);
-        Toast.show({ type: 'error', text2: 'Something went wrong' });
+        Toast.show({ type: 'error', text2: strings.something_went_wrong });
       });
   };
 
@@ -225,7 +231,7 @@ const BlockedForm = (props: Props) => {
 
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
+        style={styles.scrollView}
         contentContainerStyle={styles.contentScroll}
         enableOnAndroid={true}
         enableAutomaticScroll={true}
@@ -234,8 +240,8 @@ const BlockedForm = (props: Props) => {
       >
         {/* PURPOSE */}
         <TextInputOrganisms
-          label="Purpose"
-          placeholder="Purpose"
+          label={strings.blockedForm.purpose}
+          placeholder={strings.blockedForm.purpose}
           ref={input1_ref}
           onSubmitEditing={() => input2_ref.current.focus()}
           value={form.purpose}
@@ -250,11 +256,11 @@ const BlockedForm = (props: Props) => {
 
         {/* BLOCK TYPE */}
         <DropDownOrganism
-          label="Block Type"
-          placeholder="Block Type"
+          label={strings.blockedForm.blockType}
+          placeholder={strings.blockedForm.blockType}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Block Type',
+              name: strings.blockedForm.blockType,
               Data: form.blockTypeList,
               selectedData: form.blockType,
               setSelectedData: (data: any) => {
@@ -278,8 +284,8 @@ const BlockedForm = (props: Props) => {
 
         {/* START DATE */}
         <DateInputOrganism
-          label="Start Date"
-          placeholder="Start Date"
+          label={strings.blockedForm.startDate}
+          placeholder={strings.blockedForm.startDate}
           value={form.startDate}
           onChangeText={(val: any) => {
             setValue('startDate', val);
@@ -293,8 +299,8 @@ const BlockedForm = (props: Props) => {
 
         {/* END DATE */}
         <DateInputOrganism
-          label="End Date"
-          placeholder="End Date"
+          label={strings.blockedForm.endDate}
+          placeholder={strings.blockedForm.endDate}
           value={form.endDate}
           onChangeText={(val: any) => {
             setValue('endDate', val);
@@ -312,11 +318,11 @@ const BlockedForm = (props: Props) => {
         />
 
         <DropDownOrganism
-          label="Hostel"
-          placeholder="Hostel"
+          label={strings.blockedForm.hostel}
+          placeholder={strings.blockedForm.hostel}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Hostel',
+              name: strings.blockedForm.hostel,
               Data: form.hostelList.filter(
                 (h: any) =>
                   !selectedHostels.some((s: any) => s.hostelId === h.hostelId),
@@ -339,22 +345,15 @@ const BlockedForm = (props: Props) => {
         />
 
         {form.hostel?.vacantBedIds && (
-          <TextAtom
-            style={{
-              color: 'green',
-              marginTop: vh(5),
-              marginBottom: vh(5),
-              fontSize: vw(14),
-              fontFamily: fonts.Roboto_Medium,
-            }}
-          >
-            Available Beds: {form.hostel.vacantBedIds.length}
+          <TextAtom style={styles.availableBedsText}>
+            {strings.blockedForm.availableBeds}{' '}
+            {form.hostel.vacantBedIds.length}
           </TextAtom>
         )}
 
         <TextInputOrganisms
-          label="Count"
-          placeholder="Count"
+          label={strings.blockedForm.count}
+          placeholder={strings.blockedForm.count}
           ref={input2_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
           value={form.count}
@@ -370,54 +369,27 @@ const BlockedForm = (props: Props) => {
         />
 
         <TouchableOpacity
-          style={{
-            marginTop: vh(10),
-            padding: vw(10),
-            backgroundColor: colors.primary,
-            borderRadius: vw(6),
-            alignItems: 'center',
-          }}
+          style={styles.addHostelButton}
           onPress={addHostelEntry}
         >
-          <TextAtom style={{ color: colors.white, fontSize: vw(15) }}>
-            + Add Another Hostel
+          <TextAtom style={styles.addHostelButtonText}>
+            {strings.blockedForm.addAnotherHostel}
           </TextAtom>
         </TouchableOpacity>
 
         {selectedHostels?.map((item: any, index: any) => (
           <ViewAtom
-            key={index}
-            style={{
-              padding: vw(10),
-              borderWidth: 1,
-              borderColor: colors.grey,
-              borderRadius: vw(8),
-              marginTop: vh(10),
-              backgroundColor: colors.white,
-            }}
+            key={index?.toString() + item?.hostelId}
+            style={styles.hostelItemContainer}
           >
-            <TextAtom
-              style={{
-                fontSize: vw(14),
-                fontFamily: fonts.Roboto_Medium,
-                color: colors.grey,
-              }}
-            >
-              {item.hostel}
-            </TextAtom>
+            <TextAtom style={styles.hostelItemText}>{item.hostel}</TextAtom>
 
-            <TextAtom
-              style={{
-                fontSize: vw(14),
-                fontFamily: fonts.Roboto_Medium,
-                color: colors.grey,
-              }}
-            >
-              Count: {item.count}
+            <TextAtom style={styles.hostelItemText}>
+              {strings.blockedForm.countLabel} {item.count}
             </TextAtom>
 
             <TouchableOpacity
-              style={{ position: 'absolute', right: 10, top: 10 }}
+              style={styles.removeButton}
               onPress={() =>
                 setSelectedHostels(
                   selectedHostels.filter(
@@ -426,13 +398,15 @@ const BlockedForm = (props: Props) => {
                 )
               }
             >
-              <TextAtom style={{ color: colors.red }}>Remove</TextAtom>
+              <TextAtom style={styles.removeText}>
+                {strings.blockedForm.remove}
+              </TextAtom>
             </TouchableOpacity>
           </ViewAtom>
         ))}
       </KeyboardAwareScrollView>
 
-      <ButtonOrganism onPress={onSubmit} bttnText="Block" />
+      <ButtonOrganism onPress={onSubmit} bttnText={strings.blockedForm.block} />
     </SafeAreaView>
   );
 };
@@ -448,5 +422,47 @@ const styles = StyleSheet.create({
   },
   contentScroll: {
     paddingBottom: vh(10),
+  },
+  scrollView: {
+    flex: 1,
+  },
+  availableBedsText: {
+    color: 'green',
+    marginTop: vh(5),
+    marginBottom: vh(5),
+    fontSize: vw(14),
+    fontFamily: fonts.Roboto_Medium,
+  },
+  addHostelButton: {
+    marginTop: vh(10),
+    padding: vw(10),
+    backgroundColor: colors.primary,
+    borderRadius: vw(6),
+    alignItems: 'center',
+  },
+  addHostelButtonText: {
+    color: colors.white,
+    fontSize: vw(15),
+  },
+  hostelItemContainer: {
+    padding: vw(10),
+    borderWidth: 1,
+    borderColor: colors.grey,
+    borderRadius: vw(8),
+    marginTop: vh(10),
+    backgroundColor: colors.white,
+  },
+  hostelItemText: {
+    fontSize: vw(14),
+    fontFamily: fonts.Roboto_Medium,
+    color: colors.grey,
+  },
+  removeButton: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+  },
+  removeText: {
+    color: colors.red,
   },
 });

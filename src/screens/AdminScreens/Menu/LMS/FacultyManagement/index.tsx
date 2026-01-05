@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../../constants';
+import { colors, screensName, strings, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -16,30 +16,30 @@ const FacultyManagement = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Management');
+    Header.setNavigation(navigation, strings.lms.facultyManagement.main.title);
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
   }, []);
 
-  const DATA = [
+  const managementMenuItems = [
     {
       id: 1,
-      name: 'Faculty Details',
+      name: strings.lms.facultyManagement.main.facultyDetails,
       onPress: () => {
         navigation.navigate(screensName.FacultyDetails);
       },
     },
     {
       id: 2,
-      name: 'Faculty Confirmation',
+      name: strings.lms.facultyManagement.main.facultyConfirmation,
       onPress: () => {
         navigation.navigate(screensName.FacultyConfirmation);
       },
     },
     {
       id: 3,
-      name: 'Faculty Class Report Feedback',
+      name: strings.lms.facultyManagement.main.facultyFeedback,
       onPress: () => {
         navigation.navigate(screensName.FacultyClassReportFeedback);
       },
@@ -48,8 +48,8 @@ const FacultyManagement = (props: Props) => {
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <View style={{ flex: 1 }}>
-        {DATA.map(item => {
+      <View style={styles.flex1}>
+        {managementMenuItems.map(item => {
           return (
             <TouchableOpacity
               key={item.id.toString()}
@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.backgroundColor,
   },
+  flex1: { flex: 1 },
   logoutBtn: {
     alignSelf: 'center',
     width: '90%',

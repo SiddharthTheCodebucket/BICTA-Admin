@@ -7,7 +7,6 @@ import {
   useCameraDevice,
   useCodeScanner,
 } from 'react-native-vision-camera';
-
 import { useIsFocused } from '@react-navigation/native';
 
 import { colors, fonts, screensName, vh, vw } from '../../../constants';
@@ -15,6 +14,7 @@ import TextAtom from '../../../components/atoms/TextAtom';
 import ViewAtom from '../../../components/atoms/ViewAtom';
 import FullscreenLoading from '../../../components/organisms/FullscreenLoading';
 import { NavigationType } from '../../../components/organisms/HeaderOrganism';
+
 interface Props {
   navigation: NavigationType;
 }

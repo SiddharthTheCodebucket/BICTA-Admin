@@ -1,8 +1,8 @@
-import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Keyboard, StyleSheet } from 'react-native';
 import React, { createRef, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
-import { colors, screensName, strings, vh } from '../../../../constants';
+import { colors, strings, vh } from '../../../../constants';
 import {
   Header,
   NavigationType,
@@ -13,11 +13,9 @@ import FullscreenLoading from '../../../../components/organisms/FullscreenLoadin
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ButtonOrganism from '../../../../components/organisms/ButtonOrganism';
 import Toast from 'react-native-toast-message';
-import { CommonActions } from '@react-navigation/native';
 import { useAddOverallFeedbackResponseMutation } from '../../../../injectEndpointsTrainee/feedbackEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 

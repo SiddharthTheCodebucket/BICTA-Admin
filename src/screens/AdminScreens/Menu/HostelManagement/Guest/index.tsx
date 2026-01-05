@@ -32,7 +32,6 @@ import FullscreenLoading from '../../../../../components/organisms/FullscreenLoa
 import SearchBoxOrganism from '../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
 import FloatingButton from '../../../../../components/organisms/FloatingButton';
-import { useDeleteTripDetailsMutation } from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ImageAtom from '../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
 import {
@@ -40,9 +39,9 @@ import {
   useGuestListMutation,
 } from '../../../../../injectEndpoints/hostelEndpoints';
 import { useAppSelector } from '../../../../../hooks';
+import ViewAtom from '../../../../../components/atoms/ViewAtom';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -55,6 +54,96 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+interface GuestListCardProps {
+  item: any;
+  index: number;
+  navigation: NavigationType;
+  onDelete: (id: any) => void;
+  onEditDone: () => void;
+}
+
+const GuestListCard = ({
+  item,
+  index,
+  navigation,
+  onDelete,
+  onEditDone,
+}: GuestListCardProps) => {
+  const handleDelete = () => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: strings.guest.deleteConfirmation,
+      message: strings.guest.deleteItemConfirmation,
+      okText: strings.guest.confirm,
+      double: true,
+      cancelText: strings.cancel,
+      okFunction: () => onDelete(item.id),
+      cancelFunction: () => {},
+    });
+  };
+
+  return (
+    <ViewAtom style={styles.card}>
+      <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+        <TextAtom style={[styles.label, styles.flex1]}>
+          {strings.guest.srNo} {index + 1}
+        </TextAtom>
+
+        <View style={styles.actionRow}>
+          <TouchableAtom
+            style={styles.editButton}
+            onPress={() =>
+              navigation.navigate(screensName.AddGuest, {
+                item,
+                onDone: onEditDone,
+              })
+            }
+          >
+            <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
+          </TouchableAtom>
+
+          <TouchableAtom style={styles.deleteButton} onPress={handleDelete}>
+            <ImageAtom source={images.delete} style={styles.iconSmall} />
+          </TouchableAtom>
+        </View>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>{strings.guest.guestId}</TextAtom>
+          <TextAtom style={styles.value}>{item.guestId ?? '-'}</TextAtom>
+        </View>
+        <View style={styles.flex1End}>
+          <TextAtom style={styles.labelRight}>{strings.guest.name}</TextAtom>
+          <TextAtom style={styles.valueRight}>{item.name ?? '-'}</TextAtom>
+        </View>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>{strings.guest.mobileNumber}</TextAtom>
+          <TextAtom style={styles.value}>{item.mobileNo}</TextAtom>
+        </View>
+        <View style={styles.flex1End}>
+          <TextAtom style={styles.labelRight}>{strings.guest.gender}</TextAtom>
+          <TextAtom style={styles.valueRight}>{item.gender ?? '-'}</TextAtom>
+        </View>
+      </View>
+
+      <View style={styles.flex1}>
+        <TextAtom style={styles.label}>{strings.guest.officeEmail}</TextAtom>
+        <TextAtom style={styles.value}>{item.officeEmail ?? '-'}</TextAtom>
+      </View>
+
+      <View style={styles.flex1}>
+        <TextAtom style={styles.label}>{strings.guest.designation}</TextAtom>
+        <TextAtom style={styles.value}>{item.designation ?? '-'}</TextAtom>
+      </View>
+    </ViewAtom>
+  );
+};
+
+const GuestItemSeparator = () => <View style={styles.itemSeparator} />;
 
 const Guest = (props: Props) => {
   const { navigation } = props;
@@ -78,7 +167,7 @@ const Guest = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Guest List');
+    Header.setNavigation(navigation, strings.guest.guestList);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -99,8 +188,8 @@ const Guest = (props: Props) => {
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
 
     return [centerSerach.name];
@@ -153,7 +242,7 @@ const Guest = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -175,137 +264,23 @@ const Guest = (props: Props) => {
     guestListDetails(1, true, '');
   };
 
-  const GuestListCard = ({ item, index, navigation }: any) => {
-    const handleDelete = () => {
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Delete Confirmation',
-        message: 'Are you sure you want to delete this item?',
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          deleteGuest(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
+  const deleteGuest = (id: any) => {
+    setInitialCall(true);
 
-    const deleteGuest = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        guestId: id,
-      };
-      deleteGuestApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
+    deleteGuestApi({ guestId: id })
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({ type: 'success', text2: res.data.message });
+        setInitialCall(false);
+        setFirstTimeLoad(true);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || strings.something_went_wrong,
         });
-    };
-
-    return (
-      <TouchableAtom
-        style={styles.card}
-        onPress={() => {
-          // navigation.navigate(screensName.CreateTourDetails, { item: item });
-        }}
-      >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
-          </TextAtom>
-
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
-            <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                navigation.navigate(screensName.AddGuest, {
-                  item: item,
-                  onDone: () => guestListDetails(1, true, search),
-                });
-              }}
-            >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom>
-
-            <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
-            </TouchableAtom>
-          </View>
-        </View>
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Guest ID</TextAtom>
-            <TextAtom style={styles.value}>{item.guestId ?? '-'}</TextAtom>
-          </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Name</TextAtom>
-            <TextAtom style={styles.valueRight}>{item.name ?? '-'}</TextAtom>
-          </View>
-        </View>
-
-        <View style={[styles.rowBetween]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Mobile Number</TextAtom>
-            <TextAtom style={styles.value}>{item.mobileNo}</TextAtom>
-          </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Gender</TextAtom>
-            <TextAtom style={styles.valueRight}>{item.gender ?? '-'}</TextAtom>
-          </View>
-        </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Office Email</TextAtom>
-          <TextAtom style={styles.value}>{item.officeEmail ?? '-'}</TextAtom>
-        </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Designation</TextAtom>
-          <TextAtom style={styles.value}>{item.designation ?? '-'}</TextAtom>
-        </View>
-      </TouchableAtom>
-    );
-  };
-
-  const renderGuestListDetails = ({ item, index }: any) => {
-    return <GuestListCard item={item} index={index} navigation={navigation} />;
+      });
   };
 
   return (
@@ -314,14 +289,23 @@ const Guest = (props: Props) => {
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
-          placeholder={'Centers'}
+          placeholder={strings.dashboardIndex.centers}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Center',
+              name: strings.dashboardIndex.center,
               Data: [
-                { id: 'All Centers', name: 'All Centers' },
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
+                {
+                  id: strings.dashboardIndex.allCenters,
+                  name: strings.dashboardIndex.allCenters,
+                },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
               ],
               selectedData: centerSerach,
               setSelectedData: (data: any) => {
@@ -343,21 +327,31 @@ const Guest = (props: Props) => {
       />
 
       <FlatList
+        keyExtractor={item => String(item.id)}
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderGuestListDetails}
-        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item, index }) => (
+          <GuestListCard
+            item={item}
+            index={index}
+            navigation={navigation}
+            onDelete={deleteGuest}
+            onEditDone={() => guestListDetails(1, true, search)}
+          />
+        )}
         ListEmptyComponent={
-          !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          initialCall ? null : (
+            <TextAtom style={styles.emptyText}>
+              {strings.guest.noDataFound}
+            </TextAtom>
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(15) }}
+            style={styles.loadingContainer}
           />
         }
         refreshControl={
@@ -378,7 +372,7 @@ const Guest = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={GuestItemSeparator}
       />
       <FloatingButton
         onButtonPress={() => {
@@ -453,7 +447,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.lightGray2,
     borderRadius: 8,
     marginTop: 6,
   },
@@ -469,13 +463,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -483,8 +477,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -509,5 +503,47 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: 'transparent',
     zIndex: 998,
+  },
+  flex1: {
+    flex: 1,
+  },
+  flex1End: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: vw(15),
+  },
+  editButton: {
+    borderWidth: vw(1),
+    borderColor: colors.green,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editIcon: {
+    tintColor: colors.green,
+    width: vw(15),
+    height: vw(15),
+  },
+  deleteButton: {
+    borderWidth: vw(1),
+    borderColor: colors.red_2,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSmall: {
+    width: vw(15),
+    height: vw(15),
+  },
+  loadingContainer: {
+    marginTop: vh(15),
+  },
+  itemSeparator: {
+    height: vh(10),
   },
 });

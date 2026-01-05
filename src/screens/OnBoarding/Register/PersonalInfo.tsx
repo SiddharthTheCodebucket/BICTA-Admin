@@ -1,12 +1,11 @@
 import React, { createRef, useState } from 'react';
-import { Keyboard, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
 
 import { colors, fonts, strings, vh, vw } from '../../../constants';
 import { NavigationType } from '../../../components/organisms/HeaderOrganism';
-import FullscreenLoading from '../../../components/organisms/FullscreenLoading';
 import TextInputOrganisms from '../../../components/organisms/TextInputOrganisms';
 import DropDownOrganism from '../../../components/organisms/DropDownOrganism';
 import DateInputOrganism from '../../../components/organisms/DateInputOrganism';
@@ -31,16 +30,11 @@ const PersonalInfo = (props: Props) => {
   const dispatch = useDispatch();
 
   const input1_ref: any = createRef();
-  const input2_ref: any = createRef();
-  const input3_ref: any = createRef();
-  const input4_ref: any = createRef();
 
-  const [loader, setLoader] = useState(false);
   const [errors, setErrors] = useState<any>({});
 
   const {
     trainingName,
-    isAlreadyRegistered,
     trainingCenter,
     name,
     dob,
@@ -168,8 +162,6 @@ const PersonalInfo = (props: Props) => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <FullscreenLoading isVisible={loader} />
-
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         style={styles.scrollView}
@@ -257,7 +249,7 @@ const PersonalInfo = (props: Props) => {
             <TextInputOrganisms
               label={'Name'}
               placeholder={'Name'}
-              ref={input2_ref}
+              ref={input1_ref}
               value={localName}
               onChangeText={(val: any) => {
                 setLocalName(val);
@@ -328,7 +320,6 @@ const PersonalInfo = (props: Props) => {
         />
         {localIsRegistered?.id === 'No' && (
           <>
-            {' '}
             {localGender.id === 'Female' && localMaritalStatus.id === 'M' && (
               <DropDownOrganism
                 label={'Pregnancy Status'}

@@ -3,17 +3,9 @@ import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { pick, types } from '@react-native-documents/picker';
-import {
-  colors,
-  fonts,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -62,9 +54,9 @@ const AddVehicle = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item)
-        ? 'Edit Vehicle Management'
-        : 'Add Vehicle Management',
+      isNullUndefined(item)
+        ? 'Add Vehicle Management'
+        : 'Edit Vehicle Management',
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -240,7 +232,7 @@ const AddVehicle = (props: Props) => {
         allowMultiSelection: false,
       });
 
-      if (result && result[0]) {
+      if (result?.[0]) {
         const file = result[0];
 
         const MAX_SIZE = 3 * 1024 * 1024;

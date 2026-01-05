@@ -1,5 +1,4 @@
 import React, {
-  createRef,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -13,9 +12,6 @@ import {
   RefreshControl,
   LayoutAnimation,
   ScrollView,
-  TextInput,
-  Modal,
-  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -43,22 +39,8 @@ import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganis
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import {
-  downloadAndOpenFile,
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
-import {
-  useAddFileNoTrainingDetailsMutation,
-  useDeleteTrainingDetailsMutation,
-  useDownloadTrainingCategoryMutation,
-  useExtendTrainingEndDateMutation,
-  useListAssignmentResponseReportMutation,
-  useListClassroomTimeTableManageMutation,
-  useListTrainingDetailsMutation,
-  useUpdateTraineeLoginDetailsMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
-import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
+import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
+import { useListAssignmentResponseReportMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
@@ -96,17 +78,16 @@ const AssignmentRessponseDetails = (props: Props) => {
   const [showFilter, setShowFilter] = useState(false);
 
   const [url, setUrl] = useState('');
-  const [selectedItems, setSelectedItems] = useState<any>([]);
-  const [totalCount, setTotalCount] = useState(0);
+  const [selectedItems] = useState<any>([]);
 
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const [centerSerach] = React.useState<any>({});
 
   const [assignmentList, setAssignmentList] = useState<any>([]);
   const [selectedassignment, setSelectedassignment] = useState<any>({});
-  const [bacthList, setBatchList] = useState<any>([]);
+  const [batchList, setBatchList] = useState<any>([]);
   const [selectedBacth, setSelectedBacth] = useState<any>({});
   const [selectedAssignmentStatus, setSelectedAssignmentStatus] = useState<any>(
     {},
@@ -115,7 +96,7 @@ const AssignmentRessponseDetails = (props: Props) => {
   const [endDate, setEndDate] = useState<any>('');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Assignments Response');
+    Header.setNavigation(navigation, strings.lms.assignmentResponse.title);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -123,7 +104,7 @@ const AssignmentRessponseDetails = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listTrainingDetais(1, true, '');
+        listAssignmentResponses(1, true, '');
         getAllAssignment();
         getBatchList();
       }
@@ -132,13 +113,13 @@ const AssignmentRessponseDetails = (props: Props) => {
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listTrainingDetais(1, true, '');
+    listAssignmentResponses(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
     return [centerSerach.name];
   };
@@ -148,7 +129,7 @@ const AssignmentRessponseDetails = (props: Props) => {
     setShowFilter(!showFilter);
   };
 
-  const listTrainingDetais = (
+  const listAssignmentResponses = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -197,7 +178,6 @@ const AssignmentRessponseDetails = (props: Props) => {
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
         setUrl(res.data.exportUrl);
         const totalCountApi = res?.data?.totalCount ?? 0;
-        setTotalCount(totalCountApi);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -212,7 +192,7 @@ const AssignmentRessponseDetails = (props: Props) => {
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listTrainingDetais(1, true, text);
+      listAssignmentResponses(1, true, text);
     }, 500),
     [],
   );
@@ -224,10 +204,10 @@ const AssignmentRessponseDetails = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listTrainingDetais(1, true, '');
+    listAssignmentResponses(1, true, '');
   };
 
-  const TraineeCard = ({ item, index, isSelected }: any) => {
+  const TraineeResponseCard = ({ item, index, isSelected }: any) => {
     return (
       <TouchableAtom
         disabled={item.submissionId === 'Not Submitted'}
@@ -238,42 +218,52 @@ const AssignmentRessponseDetails = (props: Props) => {
         }}
         style={[styles.card, isSelected && styles.selectedCard]}
       >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+        <View style={styles.cardHeader}>
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.lms.assignmentResponse.srNo} {index + 1}
           </TextAtom>
-          <View style={{ flexDirection: 'row', gap: vw(15) }}></View>
+          <View style={styles.actionRow}></View>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Trainee Name</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.assignmentResponse.traineeName}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.traineeName || '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Batch No</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.assignmentResponse.batchNo}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.batchName || '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Assignment Name</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.assignmentResponse.assignmentName}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.assignmentName || '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Submission Date</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.assignmentResponse.submissionDate}
+          </TextAtom>
           <TextAtom style={styles.value}>
             {moment(item.submissionDate).format('DD-MM-YYYY')}
           </TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Assignment Status</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.assignmentResponse.assignmentStatus}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.assignmentStatus}</TextAtom>
         </View>
       </TouchableAtom>
     );
   };
 
-  const renderListRoomDetails = ({ item, index }: any) => {
+  const renderItem = ({ item, index }: any) => {
     return (
-      <TraineeCard
+      <TraineeResponseCard
         item={item}
         index={index}
         navigation={navigation}
@@ -285,11 +275,11 @@ const AssignmentRessponseDetails = (props: Props) => {
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Assignment Name'}
-        placeholder={'Assignment Name'}
+        label={strings.lms.assignmentResponse.assignmentName}
+        placeholder={strings.lms.assignmentResponse.assignmentName}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Assignment Name',
+            name: strings.lms.assignmentResponse.assignmentName,
             Data: assignmentList,
             selectedData: selectedassignment,
             setSelectedData: (data: any) => {
@@ -302,12 +292,12 @@ const AssignmentRessponseDetails = (props: Props) => {
         inputText={selectedassignment?.name}
       />
       <DropDownOrganism
-        label={'Batch'}
-        placeholder={'Batch'}
+        label={strings.lms.assignmentResponse.batch}
+        placeholder={strings.lms.assignmentResponse.batch}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Batch',
-            Data: bacthList,
+            name: strings.lms.assignmentResponse.batch,
+            Data: batchList,
             selectedData: selectedBacth,
             setSelectedData: (data: any) => {
               setSelectedBacth(data);
@@ -319,17 +309,23 @@ const AssignmentRessponseDetails = (props: Props) => {
         inputText={selectedBacth?.name}
       />
       <DropDownOrganism
-        label={'Assignment Status'}
-        placeholder={'Assignment Status'}
+        label={strings.lms.assignmentResponse.assignmentStatus}
+        placeholder={strings.lms.assignmentResponse.assignmentStatus}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Assignment Status',
+            name: strings.lms.assignmentResponse.assignmentStatus,
             Data: [
-              { id: 'Grading done', name: 'Submitted' },
-              { id: 'Not submitted', name: 'Not submitted' },
+              {
+                id: 'Grading done',
+                name: strings.lms.assignmentResponse.submitted,
+              },
+              {
+                id: 'Not submitted',
+                name: strings.lms.assignmentResponse.notSubmitted,
+              },
               {
                 id: 'Submitted waiting for grading',
-                name: 'Submitted waiting for grading',
+                name: strings.lms.assignmentResponse.submittedWaiting,
               },
             ],
             selectedData: selectedAssignmentStatus,
@@ -343,8 +339,8 @@ const AssignmentRessponseDetails = (props: Props) => {
         inputText={selectedAssignmentStatus?.name}
       />
       <DateInputOrganism
-        label={'Start Date'}
-        placeholder={'Start Date'}
+        label={strings.lms.assignmentResponse.startDate}
+        placeholder={strings.lms.assignmentResponse.startDate}
         value={startDate}
         onChangeText={(val: any) => {
           setStartDate(val);
@@ -353,8 +349,8 @@ const AssignmentRessponseDetails = (props: Props) => {
         dateFormat="DD-MM-YYYY"
       />
       <DateInputOrganism
-        label={'End Date'}
-        placeholder={'End Date'}
+        label={strings.lms.assignmentResponse.endDate}
+        placeholder={strings.lms.assignmentResponse.endDate}
         value={endDate}
         onChangeText={(val: any) => {
           setEndDate(val);
@@ -365,14 +361,14 @@ const AssignmentRessponseDetails = (props: Props) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.lms.assignmentResponse.applyFilter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.lms.assignmentResponse.clearFilter}
           containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
+          bttnTextStyle={styles.clearBtnText}
         />
       </ViewAtom>
     </View>
@@ -427,7 +423,7 @@ const AssignmentRessponseDetails = (props: Props) => {
     setSelectedAssignmentStatus({});
     setStartDate('');
     setEndDate('');
-    listTrainingDetais(1, true, search, []);
+    listAssignmentResponses(1, true, search, []);
   };
 
   const applyFilter = (isExport = false) => {
@@ -451,7 +447,7 @@ const AssignmentRessponseDetails = (props: Props) => {
       const formatted = moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
       filters.push(['assignmentEndDate', '>=', formatted]);
     }
-    listTrainingDetais(1, true, search, filters);
+    listAssignmentResponses(1, true, search, filters);
     setShowFilter(false);
   };
 
@@ -459,17 +455,14 @@ const AssignmentRessponseDetails = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={{ height: vh(100) }}>
+      <View style={styles.searchHeader}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'flex-end',
-            }}
-          >
+          <View style={styles.filterRow}>
             <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
               <TextAtom style={styles.filterText}>
-                {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+                {showFilter
+                  ? strings.lms.assignmentResponse.hideFilter
+                  : strings.lms.assignmentResponse.showFilter}
               </TextAtom>
             </TouchableAtom>
             <TouchableAtom
@@ -480,17 +473,14 @@ const AssignmentRessponseDetails = (props: Props) => {
                 }
               }}
             >
-              <ImageAtom
-                source={images.download}
-                style={{ tintColor: colors.black }}
-              />
+              <ImageAtom source={images.download} style={styles.downloadIcon} />
             </TouchableAtom>
           </View>
           <SearchBoxOrganism
             onChangeText={onChangeSearch}
             searchText={search}
             onPressCross={onClearSearch}
-            searchBox={{ marginTop: vh(10) }}
+            searchBox={styles.marginTop10}
           />
         </ScrollView>
       </View>
@@ -498,12 +488,14 @@ const AssignmentRessponseDetails = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListRoomDetails}
+        renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          initialCall ? null : (
+            <TextAtom style={styles.emptyText}>
+              {strings.lms.assignmentResponse.noDataFound}
+            </TextAtom>
+          )
         }
         ListHeaderComponent={showFilter ? <FilterForm /> : null}
         ListFooterComponent={
@@ -511,7 +503,7 @@ const AssignmentRessponseDetails = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(10) }}
+            style={styles.marginTop10}
           />
         }
         refreshControl={
@@ -521,24 +513,19 @@ const AssignmentRessponseDetails = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listTrainingDetais(1, false, '');
+              listAssignmentResponses(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listTrainingDetais(page + 1, false, search)
+            ? listAssignmentResponses(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddTrainingDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };
@@ -560,7 +547,7 @@ const styles = StyleSheet.create({
   tabButton: {
     paddingVertical: vh(8),
     paddingHorizontal: vw(20),
-    backgroundColor: '#EAEAEA',
+    backgroundColor: colors.lightGray2,
     borderRadius: vw(6),
   },
   activeTab: {
@@ -655,10 +642,13 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: colors.white,
   },
+  clearBtnText: {
+    color: colors.primary,
+  },
   selectedCard: {
     borderWidth: 1,
     borderColor: colors.primary,
-    backgroundColor: '#F3F8FF',
+    backgroundColor: colors.selectedCardBg,
   },
   statusBox: {
     marginTop: vh(8),
@@ -672,13 +662,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -686,8 +676,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -757,5 +747,33 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
     color: colors.grey,
     fontFamily: fonts.Roboto_Medium,
+  },
+  searchHeader: {
+    height: vh(100),
+  },
+  filterRow: {
+    flexDirection: 'row',
+    alignSelf: 'flex-end',
+  },
+  downloadIcon: {
+    tintColor: colors.black,
+  },
+  marginTop10: {
+    marginTop: vh(10),
+  },
+  separator: {
+    height: vh(10),
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: vh(10),
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: vw(15),
+  },
+  flex1: {
+    flex: 1,
   },
 });

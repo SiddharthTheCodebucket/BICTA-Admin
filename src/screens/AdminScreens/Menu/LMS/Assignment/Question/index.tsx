@@ -10,8 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -19,7 +17,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
-  images,
   screensName,
   strings,
   vh,
@@ -38,7 +35,6 @@ import DropDownOrganism from '../../../../../../components/organisms/DropDownOrg
 import { useListAssignmentQuestionBankMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -68,7 +64,6 @@ const Question = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
 
   const ITEMS_PER_PAGE = 10;
 
@@ -76,7 +71,7 @@ const Question = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Question Bank Details');
+    Header.setNavigation(navigation, strings.assignment.questionBankDetails);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -97,16 +92,11 @@ const Question = (props: Props) => {
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
 
     return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
   };
 
   const listAssignmentQuestionBank = (
@@ -158,7 +148,7 @@ const Question = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
@@ -180,7 +170,7 @@ const Question = (props: Props) => {
     listAssignmentQuestionBank(1, true, '');
   };
 
-  const BedCard = ({ item, index, navigation }: any) => {
+  const QuestionBankCard = ({ item, index, navigation }: any) => {
     return (
       <TouchableAtom
         style={styles.card}
@@ -190,12 +180,12 @@ const Question = (props: Props) => {
           });
         }}
       >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+        <View style={styles.cardHeader}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+            {strings.lms.assignmentResponse.srNo} {index + 1}
           </TextAtom>
 
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
+          <View style={styles.actionContainer}>
             {/* <TouchableAtom
               style={{
                 borderWidth: vw(1),
@@ -240,46 +230,53 @@ const Question = (props: Props) => {
           </View>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Subject</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>{strings.assignment.subject}</TextAtom>
           <TextAtom style={styles.value}>{item.selectSubject ?? '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Topic</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>{strings.assignment.topic}</TextAtom>
           <TextAtom style={styles.value}>{item.selectTopic ?? '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>No. of Questions</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.assignment.noOfQuestions}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.totalQuestions ?? '-'}</TextAtom>
         </View>
       </TouchableAtom>
     );
   };
 
-  const renderListBedDetails = ({ item, index }: any) => {
-    return <BedCard item={item} index={index} navigation={navigation} />;
+  const renderQuestionBankItem = ({ item, index }: any) => {
+    return (
+      <QuestionBankCard item={item} index={index} navigation={navigation} />
+    );
   };
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      {/* <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-        <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-        </TextAtom>
-      </TouchableAtom>
-      {showFilter && <FilterForm />} */}
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
-          placeholder={'Centers'}
+          placeholder={strings.dashboardIndex.centers}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Center',
+              name: strings.dashboardIndex.center,
               Data: [
-                { id: 'All Centers', name: 'All Centers' },
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
+                {
+                  id: strings.dashboardIndex.allCenters,
+                  name: strings.dashboardIndex.allCenters,
+                },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
               ],
               selectedData: centerSerach,
               setSelectedData: (data: any) => {
@@ -303,12 +300,12 @@ const Question = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListBedDetails}
+        renderItem={renderQuestionBankItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          initialCall ? null : (
+            <TextAtom style={styles.emptyText}>{strings.noDataFound}</TextAtom>
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -336,13 +333,8 @@ const Question = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };
@@ -409,7 +401,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.lightGray2,
     borderRadius: 8,
     marginTop: 6,
   },
@@ -425,13 +417,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -439,8 +431,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -494,5 +486,21 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  separator: {
+    height: vh(10),
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: vh(10),
+  },
+  actionContainer: {
+    flexDirection: 'row',
+    gap: vw(15),
+  },
+  flex1: {
+    flex: 1,
   },
 });

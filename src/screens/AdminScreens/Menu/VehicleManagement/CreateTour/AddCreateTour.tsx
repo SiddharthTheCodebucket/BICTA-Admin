@@ -1,18 +1,11 @@
-import { Keyboard, Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
+
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {
-  colors,
-  fonts,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../constants';
+import { colors, fonts, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -25,7 +18,6 @@ import { isNullUndefined } from '../../../../../utils/CommonFunction';
 import {
   useAddTripDetailsMutation,
   useCommonDropdownListMutation,
-  useUpdateAssignVehicleMutation,
   useUpdateTripDetailsMutation,
 } from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import moment from 'moment';
@@ -53,7 +45,7 @@ const AddCreateTour = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item) ? 'Edit Create Tour' : 'Add Create Tour',
+      isNullUndefined(item) ? 'Add Create Tour' : 'Edit Create Tour',
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);

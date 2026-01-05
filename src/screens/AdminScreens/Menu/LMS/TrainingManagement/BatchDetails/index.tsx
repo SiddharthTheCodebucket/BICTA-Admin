@@ -18,9 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
-  images,
   screensName,
-  strings,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -35,11 +33,9 @@ import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxO
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -242,9 +238,9 @@ const BatchDetails = (props: Props) => {
         renderItem={renderCard}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator

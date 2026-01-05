@@ -141,18 +141,6 @@ const IndemnityBond = (props: Props) => {
         const fileUrl = res?.data?.pdfFileUrl;
 
         if (fileUrl) {
-          // navigation.dispatch(
-          //   CommonActions.reset({
-          //     index: 0,
-          //     routes: [
-          //       {
-          //         name: screensName.MyProfile,
-          //       },
-          //     ],
-          //   }),
-          // );
-          // navigation.replace(screensName.MyProfile);
-
           downloadAndOpenFile(fileUrl);
         } else {
           Toast.show({
@@ -170,6 +158,12 @@ const IndemnityBond = (props: Props) => {
         });
       });
   };
+
+  const witnessFirstSignatureUri =
+    data?.signatureOfWitnessFirst || data?.uploadSignatureOfWitnessFirst?.uri;
+
+  const witnessSecondSignatureUri =
+    data?.signatureOfWitnessSecond || data?.uploadSignatureOfWitnessSecond?.uri;
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
@@ -228,7 +222,10 @@ const IndemnityBond = (props: Props) => {
         </ViewAtom>
         <ViewAtom style={styles.contentPadding}>
           {strings.indemnity_clauses.map((clause: string, index: number) => (
-            <Text style={styles.pointText} key={index}>
+            <Text
+              style={styles.pointText}
+              key={index.toString() + clause?.toString()}
+            >
               {index + 1}. {clause}
             </Text>
           ))}
@@ -280,15 +277,9 @@ const IndemnityBond = (props: Props) => {
               <View style={styles.flex1AlignEnd}>
                 <Text style={styles.text}>{strings.signature_label}</Text>
 
-                {data?.signatureOfWitnessFirst ? (
+                {witnessFirstSignatureUri ? (
                   <Image
-                    source={{ uri: data.signatureOfWitnessFirst }}
-                    style={styles.preview}
-                    resizeMode="cover"
-                  />
-                ) : data?.uploadSignatureOfWitnessFirst?.uri ? (
-                  <Image
-                    source={{ uri: data.uploadSignatureOfWitnessFirst.uri }}
+                    source={{ uri: witnessFirstSignatureUri }}
                     style={styles.preview}
                     resizeMode="cover"
                   />
@@ -316,15 +307,9 @@ const IndemnityBond = (props: Props) => {
 
               <View style={styles.flex1AlignEnd}>
                 <Text style={styles.text}>{strings.signature_label}</Text>
-                {data?.signatureOfWitnessSecond ? (
+                {witnessSecondSignatureUri ? (
                   <Image
-                    source={{ uri: data.signatureOfWitnessSecond }}
-                    style={styles.preview}
-                    resizeMode="cover"
-                  />
-                ) : data?.uploadSignatureOfWitnessSecond?.uri ? (
-                  <Image
-                    source={{ uri: data.uploadSignatureOfWitnessSecond.uri }}
+                    source={{ uri: witnessSecondSignatureUri }}
                     style={styles.preview}
                     resizeMode="cover"
                   />
@@ -339,28 +324,6 @@ const IndemnityBond = (props: Props) => {
           </Text>
         </ViewAtom>
       </ScrollView>
-
-      {/* {profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() === 'yes' &&
-        canDownloadIndemnity() && (
-          <ButtonOrganism
-            onPress={() => {
-              if (
-                profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() ===
-                'yes'
-              ) {
-                downloadDetails();
-              } else {
-                updateTraineeDetails();
-              }
-            }}
-            bttnText={
-              profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() ===
-              'yes'
-                ? strings.download_and_print
-                : strings.submit
-            }
-          />
-        )} */}
 
       {profileData.isTraineeIndemnityBondSubmitted?.toLowerCase() === 'yes' &&
         canDownloadIndemnity() && (

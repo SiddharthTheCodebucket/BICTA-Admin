@@ -15,6 +15,7 @@ import {
   images,
   screensName,
 } from '../../../../constants';
+import strings from '../../../../constants/strings';
 import TextAtom from '../../../../components/atoms/TextAtom';
 import { useHostelDataMutation } from '../../../../injectEndpoints/dashboardEndpoints';
 import Toast from 'react-native-toast-message';
@@ -30,6 +31,97 @@ import {
   isNullUndefined,
 } from '../../../../utils/CommonFunction';
 import { useFocusEffect } from '@react-navigation/native';
+
+interface HostelCardProps {
+  item: any;
+  onPress: (item: any) => void;
+}
+
+const HostelCard = ({ item, onPress }: HostelCardProps) => {
+  return (
+    <TouchableAtom style={styles.card} onPress={() => onPress(item)}>
+      <View style={styles.flex1}>
+        <TextAtom style={styles.label}>
+          {strings.allHostel.hostelName}{' '}
+          <TextAtom style={styles.valueRight}>{item.hostelName}</TextAtom>
+        </TextAtom>
+      </View>
+
+      <ViewAtom style={styles.separator} />
+
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.allHostel.noOfFloors}{' '}
+            <TextAtom style={styles.value}>{item.noOfFloors}</TextAtom>
+          </TextAtom>
+        </View>
+
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.allHostel.noOfBeds}{' '}
+            <TextAtom style={styles.valueRight}>{item.noOfBeds}</TextAtom>
+          </TextAtom>
+        </View>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.allHostel.noOfRooms}{' '}
+            <TextAtom style={styles.value}>{item.noOfRooms}</TextAtom>
+          </TextAtom>
+        </View>
+
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.allHostel.noOfVacant}{' '}
+            <TextAtom style={styles.valueRight}>{item.noOfVacantBeds}</TextAtom>
+          </TextAtom>
+        </View>
+      </View>
+    </TouchableAtom>
+  );
+};
+
+interface FilterFormProps {
+  startDate: any;
+  setStartDate: (val: any) => void;
+  applyFilter: () => void;
+  clearFilter: () => void;
+}
+
+const FilterForm = ({
+  startDate,
+  setStartDate,
+  applyFilter,
+  clearFilter,
+}: FilterFormProps) => (
+  <View style={styles.filterContainer}>
+    <DateInputOrganism
+      label={strings.allHostel.date}
+      placeholder={strings.allHostel.date}
+      value={startDate}
+      onChangeText={setStartDate}
+      fieldName="date"
+      dateFormat="DD-MM-YYYY"
+    />
+
+    <ViewAtom style={styles.buttonRow}>
+      <ButtonOrganism
+        onPress={applyFilter}
+        bttnText={strings.allHostel.applyFilter}
+        containerStyle={styles.applyBtn}
+      />
+      <ButtonOrganism
+        onPress={clearFilter}
+        bttnText={strings.allHostel.clearFilter}
+        containerStyle={styles.clearBtn}
+        bttnTextStyle={styles.clearBtnText}
+      />
+    </ViewAtom>
+  </View>
+);
 
 const AllHostel = (props: any) => {
   const { navigation } = props;
@@ -117,95 +209,44 @@ const AllHostel = (props: any) => {
       });
   };
 
-  const HostelCard = ({ item, index }: any) => {
-    return (
-      <TouchableAtom
-        style={styles.card}
-        onPress={() => {
-          navigation.navigate(screensName.HostelDetailsDashbaord, {
-            item: item,
-          });
-        }}
-      >
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>
-            Hostel Name :{' '}
-            <TextAtom style={styles.valueRight}>{item.hostelName}</TextAtom>
-          </TextAtom>
-        </View>
-        <ViewAtom
-          style={{
-            width: '100%',
-            height: vh(1),
-            backgroundColor: colors.chinese_silver,
-            marginTop: vh(6),
-          }}
-        />
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>
-              No. of Floors :{' '}
-              <TextAtom style={styles.value}>{item.noOfFloors}</TextAtom>
-            </TextAtom>
-          </View>
-
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>
-              No. of Beds :{' '}
-              <TextAtom style={styles.valueRight}>{item.noOfBeds}</TextAtom>
-            </TextAtom>
-          </View>
-        </View>
-
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>
-              No. of Rooms :{' '}
-              <TextAtom style={styles.value}>{item.noOfRooms}</TextAtom>
-            </TextAtom>
-          </View>
-
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>
-              No. of Vacant :{' '}
-              <TextAtom style={styles.valueRight}>
-                {item.noOfVacantBeds}
-              </TextAtom>
-            </TextAtom>
-          </View>
-        </View>
-      </TouchableAtom>
-    );
+  const onHostelPress = (item: any) => {
+    navigation.navigate(screensName.HostelDetailsDashbaord, { item });
   };
 
   const renderTotalCard = () => {
     return (
-      <View style={[styles.card, { backgroundColor: '#E8F0FE' }]}>
-        <View style={[styles.rowBetween, { alignItems: 'flex-start' }]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Total Hostel</TextAtom>
+      <View style={[styles.card, styles.summaryCard]}>
+        <View style={[styles.rowBetween, styles.alignStart]}>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.allHostel.totalHostel}
+            </TextAtom>
             <TextAtom
-              style={[styles.value, { flexShrink: 1 }]}
+              style={[styles.value, styles.flexShrink]}
               numberOfLines={3}
             >
               {summary.totalHostel ?? '-'}
             </TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'center' }}>
-            <TextAtom style={styles.label}>Total Rooms</TextAtom>
+          <View style={[styles.flex1, styles.alignCenter]}>
+            <TextAtom style={styles.label}>
+              {strings.allHostel.totalRooms}
+            </TextAtom>
             <TextAtom
-              style={[styles.value, { flexShrink: 1 }]}
+              style={[styles.value, styles.flexShrink]}
               numberOfLines={3}
             >
               {summary.totalRooms ?? '-'}
             </TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.label}>Total Beds</TextAtom>
+          <View style={[styles.flex1, styles.alignEnd]}>
+            <TextAtom style={styles.label}>
+              {strings.allHostel.totalBeds}
+            </TextAtom>
             <TextAtom
-              style={[styles.value, { flexShrink: 1, textAlign: 'right' }]}
+              style={[styles.value, styles.flexShrinkRight]}
               numberOfLines={3}
             >
               {summary.totalBeds ?? '-'}
@@ -214,21 +255,21 @@ const AllHostel = (props: any) => {
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
+          <View style={styles.flex1}>
             <TextAtom
               numberOfLines={0}
-              style={[styles.label, { width: vw(160) }]}
+              style={[styles.label, styles.labelWidth]}
             >
-              Total Vacant Beds:{' '}
+              {strings.allHostel.totalVacantBeds}{' '}
               <TextAtom style={styles.value}>
                 {summary.totalVacantBeds}
               </TextAtom>
             </TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+          <View style={[styles.flex1, styles.alignEnd]}>
             <TextAtom style={[styles.label]}>
-              Occupied Beds:{' '}
+              {strings.allHostel.occupiedBeds}{' '}
               <TextAtom style={styles.valueRight}>
                 {summary.totalOccupiedBeds}
               </TextAtom>
@@ -239,33 +280,6 @@ const AllHostel = (props: any) => {
     );
   };
 
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DateInputOrganism
-        label={'Date'}
-        placeholder={'Date'}
-        value={startDate}
-        onChangeText={(val: any) => {
-          setStartDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText="Apply Filter"
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText="Clear Filter"
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
-        />
-      </ViewAtom>
-    </View>
-  );
   const clearFilter = () => {
     setStartDate('');
     fetchHostelData();
@@ -316,15 +330,12 @@ const AllHostel = (props: any) => {
     <View style={styles.container}>
       <FullscreenLoading isVisible={loader} />
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignSelf: 'flex-end',
-        }}
-      >
+      <View style={styles.headerContainer}>
         <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
           <TextAtom style={styles.filterText}>
-            {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+            {showFilter
+              ? strings.allHostel.hideFilter
+              : strings.allHostel.showFilter}
           </TextAtom>
         </TouchableAtom>
         <TouchableAtom
@@ -335,25 +346,33 @@ const AllHostel = (props: any) => {
             }
           }}
         >
-          <ImageAtom
-            source={images.download}
-            style={{ tintColor: colors.black }}
-          />
+          <ImageAtom source={images.download} style={styles.downloadIcon} />
         </TouchableAtom>
       </View>
       <FlatList
         showsVerticalScrollIndicator={false}
         data={reportData}
         keyExtractor={(_, i) => i.toString()}
-        renderItem={HostelCard}
+        renderItem={({ item }) => (
+          <HostelCard item={item} onPress={onHostelPress} />
+        )}
         ListHeaderComponent={
           <View>
-            {showFilter && <FilterForm />}
+            {showFilter && (
+              <FilterForm
+                startDate={startDate}
+                setStartDate={setStartDate}
+                applyFilter={applyFilter}
+                clearFilter={clearFilter}
+              />
+            )}
             {renderTotalCard()}
           </View>
         }
         ListEmptyComponent={
-          <TextAtom style={styles.emptyText}>No Data Found</TextAtom>
+          <TextAtom style={styles.emptyText}>
+            {strings.allHostel.noDataFound}
+          </TextAtom>
         }
         refreshControl={
           <RefreshControl
@@ -411,7 +430,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: vh(10),
-    backgroundColor: '#F5F5F5',
+    backgroundColor: colors.veryLightGray,
     borderRadius: vw(6),
   },
 
@@ -446,6 +465,44 @@ const styles = StyleSheet.create({
     color: colors.grey,
     fontFamily: fonts.Roboto_Medium,
   },
+  flex1: {
+    flex: 1,
+  },
+  separator: {
+    width: '100%',
+    height: vh(1),
+    backgroundColor: colors.chinese_silver,
+    marginTop: vh(6),
+  },
+  summaryCard: {
+    backgroundColor: colors.lightBlue,
+  },
+  alignStart: {
+    alignItems: 'flex-start',
+  },
+  alignCenter: {
+    alignItems: 'center',
+  },
+  alignEnd: {
+    alignItems: 'flex-end',
+  },
+  flexShrink: {
+    flexShrink: 1,
+  },
+  flexShrinkRight: {
+    flexShrink: 1,
+    textAlign: 'right',
+  },
+  labelWidth: {
+    width: vw(160),
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignSelf: 'flex-end',
+  },
+  downloadIcon: {
+    tintColor: colors.black,
+  },
 
   filterButton: {
     borderWidth: vw(1),
@@ -475,5 +532,8 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  clearBtnText: {
+    color: colors.primary,
   },
 });

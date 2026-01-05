@@ -1,18 +1,10 @@
-import { Keyboard, Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {
-  colors,
-  fonts,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -54,7 +46,7 @@ const AddAssignVehicle = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item) ? 'Edit Assign Vehicle' : 'Add Assign Vehicle',
+      isNullUndefined(item) ? 'Add Assign Vehicle' : 'Edit Assign Vehicle',
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -225,7 +217,7 @@ const AddAssignVehicle = (props: Props) => {
       vehicleId: form.vehicleRegistrationNumber.id,
       driverId: form.assignDriver.id,
       status: form.status.id,
-      drivingLicence: !isNullUndefined(form.dlFile) ? form.dlFile.url : '',
+      drivingLicence: isNullUndefined(form.dlFile) ? '' : form.dlFile.url,
       trainingDuration: `${
         form.trainingName?.startDate
           ? moment(form.trainingName.startDate).format('DD/MM/YYYY')
@@ -273,7 +265,7 @@ const AddAssignVehicle = (props: Props) => {
       vehicleId: form.vehicleRegistrationNumber.id,
       driverId: form.assignDriver.id,
       status: form.status.id,
-      drivingLicence: !isNullUndefined(form.dlFile) ? form.dlFile.url : '',
+      drivingLicence: isNullUndefined(form.dlFile) ? '' : form.dlFile.url,
       trainingDuration: `${
         form.trainingName?.startDate
           ? moment(form.trainingName.startDate).format('DD/MM/YYYY')

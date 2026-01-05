@@ -18,7 +18,7 @@ const StepHeaderOtherRegistration = ({ currentStep }: any) => {
           const isCompleted = index < currentStep;
 
           return (
-            <View key={index} style={styles.stepContainer}>
+            <View key={`${index}-${label}`} style={styles.stepContainer}>
               {/* Circle */}
               <View
                 style={[

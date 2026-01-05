@@ -1,17 +1,10 @@
-import { Keyboard, Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {
-  colors,
-  fonts,
-  screensName,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -74,7 +67,9 @@ const AddHostelDetails = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      !isNullUndefined(item) ? 'Edit Hostel' : 'Add Hostel',
+      isNullUndefined(item)
+        ? strings.hostelManagement.addHostelDetails.addTitle
+        : strings.hostelManagement.addHostelDetails.editTitle,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -91,11 +86,6 @@ const AddHostelDetails = (props: Props) => {
     getTrainingCenter();
 
     if (!item) return;
-
-    const locationMap: any = {
-      1: { id: 'Gaya', name: 'Gaya' },
-      2: { id: 'Patna', name: 'Patna' },
-    };
 
     const selectedTrainingCenter = {
       id: item.trainingCentre,
@@ -134,18 +124,35 @@ const AddHostelDetails = (props: Props) => {
         })
       : Yup.mixed().notRequired(),
     trainingCenter: Yup.object({
-      name: Yup.string().required('Training center is required'),
+      name: Yup.string().required(
+        strings.hostelManagement.addHostelDetails.required.totalCapacity,
+      ),
     }),
-    totalCapicty: Yup.string().required('Total capicty is required'),
+    totalCapicty: Yup.string().required(
+      strings.hostelManagement.addHostelDetails.required.totalCapacity,
+    ),
     contactNumber: Yup.string()
-      .required('Contact Number is required')
-      .max(10, 'Enter valid contact number')
-      .min(10, 'Enter valid contact number')
-      .matches(mobileRegex, 'Enter valid contact number'),
-    contactPerson: Yup.string().required('Contact person is required'),
-    noOfFloor: Yup.string().required('No of floor is required'),
-    hostelAddress: Yup.string().required('Hostel Address is required'),
-    hostelName: Yup.string().required('Hostel name is required'),
+      .required(
+        strings.hostelManagement.addHostelDetails.required.contactNumber,
+      )
+      .max(10, strings.hostelManagement.addHostelDetails.errors.validContact)
+      .min(10, strings.hostelManagement.addHostelDetails.errors.validContact)
+      .matches(
+        mobileRegex,
+        strings.hostelManagement.addHostelDetails.errors.validContact,
+      ),
+    contactPerson: Yup.string().required(
+      strings.hostelManagement.addHostelDetails.required.contactPerson,
+    ),
+    noOfFloor: Yup.string().required(
+      strings.hostelManagement.addFloorDetails.required.noOfRooms,
+    ),
+    hostelAddress: Yup.string().required(
+      strings.hostelManagement.addHostelDetails.required.hostelAddress,
+    ),
+    hostelName: Yup.string().required(
+      strings.hostelManagement.addBedDetails.required.hostel,
+    ),
   });
 
   const onSubmit = () => {
@@ -191,7 +198,7 @@ const AddHostelDetails = (props: Props) => {
       .catch((err: any) => {
         Toast.show({
           type: 'error',
-          text2: err?.data?.message || 'Something went wrong',
+          text2: err?.data?.message || strings.something_went_wrong,
         });
         setLoader(false);
       });
@@ -227,7 +234,7 @@ const AddHostelDetails = (props: Props) => {
       .catch((err: any) => {
         Toast.show({
           type: 'error',
-          text2: err?.data?.message || 'Something went wrong',
+          text2: err?.data?.message || strings.something_went_wrong,
         });
         setLoader(false);
       });
@@ -263,7 +270,7 @@ const AddHostelDetails = (props: Props) => {
   };
 
   const handleAlternateChange = (text: any, index: any) => {
-    const numeric = text.replace(/[^0-9]/g, '').slice(0, 10);
+    const numeric = text.replaceAll(/\D/g, '').slice(0, 10);
 
     const updated = [...form.alternateContactNo];
     updated[index] = numeric;
@@ -273,7 +280,8 @@ const AddHostelDetails = (props: Props) => {
     if (duplicates.length > 0) {
       Toast.show({
         type: 'error',
-        text2: 'Alternate numbers cannot be same',
+        text2:
+          strings.hostelManagement.addHostelDetails.errors.duplicateAlternate,
       });
       return;
     }
@@ -282,7 +290,7 @@ const AddHostelDetails = (props: Props) => {
     if (numeric && numeric === form.contactNumber) {
       Toast.show({
         type: 'error',
-        text2: 'Alternate number cannot be same as Contact Number',
+        text2: strings.hostelManagement.addHostelDetails.errors.sameAsMain,
       });
       return;
     }
@@ -294,7 +302,7 @@ const AddHostelDetails = (props: Props) => {
     if (form.alternateContactNo.length >= 2) {
       Toast.show({
         type: 'error',
-        text2: 'You can add only 2 alternate contact numbers',
+        text2: strings.hostelManagement.addHostelDetails.errors.maxAlternate,
       });
       return;
     }
@@ -302,7 +310,7 @@ const AddHostelDetails = (props: Props) => {
     if (form.alternateContactNo.includes('')) {
       Toast.show({
         type: 'error',
-        text2: 'Please fill the first alternate number before adding another',
+        text2: strings.hostelManagement.addHostelDetails.errors.fillFirst,
       });
       return;
     }
@@ -317,7 +325,6 @@ const AddHostelDetails = (props: Props) => {
     setValue('alternateContactNo', updated);
   };
 
-  console.log('form', form);
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
@@ -331,8 +338,8 @@ const AddHostelDetails = (props: Props) => {
         extraScrollHeight={vh(120)}
       >
         <TextInputOrganisms
-          label={'Hostel Name'}
-          placeholder={'Hostel Name'}
+          label={strings.hostelManagement.addBedDetails.hostelName}
+          placeholder={strings.hostelManagement.addBedDetails.hostelName}
           ref={input1_ref}
           onSubmitEditing={() => input2_ref.current.focus()}
           value={form.hostelName}
@@ -347,8 +354,8 @@ const AddHostelDetails = (props: Props) => {
         />
 
         <TextInputOrganisms
-          label={'Hostel Address'}
-          placeholder={'Hostel Address'}
+          label={strings.hostelManagement.addHostelDetails.hostelAddress}
+          placeholder={strings.hostelManagement.addHostelDetails.hostelAddress}
           ref={input2_ref}
           onSubmitEditing={() => input3_ref.current.focus()}
           value={form.hostelAddress}
@@ -363,8 +370,8 @@ const AddHostelDetails = (props: Props) => {
         />
 
         <TextInputOrganisms
-          label={'No Of Floor'}
-          placeholder={'No Of Floor'}
+          label={strings.hostelManagement.addHostelDetails.noOfFloor}
+          placeholder={strings.hostelManagement.addHostelDetails.noOfFloor}
           ref={input3_ref}
           onSubmitEditing={() => input4_ref.current.focus()}
           value={form.noOfFloor}
@@ -380,8 +387,8 @@ const AddHostelDetails = (props: Props) => {
         />
 
         <TextInputOrganisms
-          label={'Contact Person'}
-          placeholder={'Contact Person'}
+          label={strings.hostelManagement.addHostelDetails.contactPerson}
+          placeholder={strings.hostelManagement.addHostelDetails.contactPerson}
           ref={input4_ref}
           onSubmitEditing={() => input5_ref.current.focus()}
           value={form.contactPerson}
@@ -396,8 +403,8 @@ const AddHostelDetails = (props: Props) => {
         />
 
         <TextInputOrganisms
-          label={'Contact Number'}
-          placeholder={'Contact Number'}
+          label={strings.hostelManagement.addHostelDetails.contactNumber}
+          placeholder={strings.hostelManagement.addHostelDetails.contactNumber}
           ref={input5_ref}
           onSubmitEditing={() => input6_ref.current.focus()}
           value={form.contactNumber}
@@ -413,8 +420,8 @@ const AddHostelDetails = (props: Props) => {
         />
 
         <TextInputOrganisms
-          label={'Total Capacity'}
-          placeholder={'Total Capacity'}
+          label={strings.hostelManagement.addHostelDetails.totalCapacity}
+          placeholder={strings.hostelManagement.addHostelDetails.totalCapacity}
           ref={input6_ref}
           onSubmitEditing={() => input7_ref.current.focus()}
           returnKeyType={'done'}
@@ -429,11 +436,11 @@ const AddHostelDetails = (props: Props) => {
           keyboardType="numeric"
         />
         <DropDownOrganism
-          label={'Training Center'}
-          placeholder={'Training Center'}
+          label={strings.hostelManagement.addHostelDetails.trainingCenter}
+          placeholder={strings.hostelManagement.addHostelDetails.trainingCenter}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Training Center',
+              name: strings.hostelManagement.addHostelDetails.trainingCenter,
               Data: form.trainingCenterList,
               selectedData: form.trainingCenter,
               setSelectedData: (data: any) => {
@@ -452,14 +459,20 @@ const AddHostelDetails = (props: Props) => {
         {isNullUndefined(item) && (
           <RadioSelectableOrganism
             data={[
-              { id: 'Active', value: 'Active' },
-              { id: 'Inactive', value: 'Inactive' },
+              {
+                id: strings.hostelManagement.addBedDetails.active,
+                value: strings.hostelManagement.addBedDetails.active,
+              },
+              {
+                id: strings.hostelManagement.addBedDetails.inactive,
+                value: strings.hostelManagement.addBedDetails.inactive,
+              },
             ]}
             onSelect={(item: any) => {
               setValue('status', item);
               setErrors({ ...errors, 'status.id': '' });
             }}
-            label={'Status'}
+            label={strings.hostelManagement.addBedDetails.status}
             selectedType={form.status}
             typeName={'value'}
             typeId={'id'}
@@ -470,23 +483,21 @@ const AddHostelDetails = (props: Props) => {
 
         {form?.alternateContactNo?.map((num: any, index: any) => (
           <ViewAtom
-            key={index}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: vw(328),
-              marginBottom: vh(10),
-              marginLeft: vh(10),
-            }}
+            key={index.toString() + num?.toString()}
+            style={styles.alternateRow}
           >
             <TextInputOrganisms
               label={
                 index === 0
-                  ? 'Alternate Contact Number'
-                  : `Alternate Contact Number ${index + 1}`
+                  ? strings.hostelManagement.addHostelDetails.alternateContactNo
+                  : `${
+                      strings.hostelManagement.addHostelDetails
+                        .alternateContactNo
+                    } ${index + 1}`
               }
-              placeholder={'Enter 10 digit number'}
+              placeholder={
+                strings.hostelManagement.addHostelDetails.enterTenDigit
+              }
               value={num}
               keyboardType="numeric"
               maxLength={10}
@@ -498,44 +509,31 @@ const AddHostelDetails = (props: Props) => {
             {index === 0 && form?.alternateContactNo?.length < 2 && (
               <TouchableOpacity
                 onPress={handleAddAlternate}
-                style={{
-                  width: vw(30),
-                  backgroundColor: colors.primary,
-                  height: vh(48),
-                  borderRadius: vw(6),
-                  marginTop: vh(15),
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                style={styles.addBtn}
               >
-                <TextAtom style={{ color: '#fff', fontSize: vw(16) }}>
-                  +
-                </TextAtom>
+                <TextAtom style={styles.btnText}>+</TextAtom>
               </TouchableOpacity>
             )}
             {index === 1 && (
               <TouchableOpacity
                 onPress={() => handleRemoveAlternate(index)}
-                style={{
-                  width: vw(30),
-                  backgroundColor: colors.primary,
-                  height: vh(48),
-                  borderRadius: vw(6),
-                  marginTop: vh(15),
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                style={styles.removeBtn}
               >
-                <TextAtom style={{ color: '#fff', fontSize: vw(16) }}>
-                  –
-                </TextAtom>
+                <TextAtom style={styles.btnText}>–</TextAtom>
               </TouchableOpacity>
             )}
           </ViewAtom>
         ))}
       </KeyboardAwareScrollView>
 
-      <ButtonOrganism onPress={onSubmit} bttnText={item ? 'Update' : 'Add'} />
+      <ButtonOrganism
+        onPress={onSubmit}
+        bttnText={
+          item
+            ? strings.hostelManagement.addBedDetails.update
+            : strings.hostelManagement.addBedDetails.add
+        }
+      />
     </SafeAreaView>
   );
 };
@@ -583,4 +581,31 @@ const styles = StyleSheet.create({
     color: colors.black,
     marginBottom: vh(8),
   },
+  alternateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: vw(328),
+    marginBottom: vh(10),
+    marginLeft: vh(10),
+  },
+  addBtn: {
+    width: vw(30),
+    backgroundColor: colors.primary,
+    height: vh(48),
+    borderRadius: vw(6),
+    marginTop: vh(15),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  removeBtn: {
+    width: vw(30),
+    backgroundColor: colors.primary,
+    height: vh(48),
+    borderRadius: vw(6),
+    marginTop: vh(15),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnText: { color: colors.white, fontSize: vw(16) },
 });

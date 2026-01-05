@@ -10,8 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -19,7 +17,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
-  images,
   screensName,
   strings,
   vh,
@@ -35,15 +32,9 @@ import FullscreenLoading from '../../../../../../components/organisms/Fullscreen
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useListAssessmentAssignmentAssignQueMutation,
-  useListAssignmentQuestionBankMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -65,22 +56,17 @@ const AssignmentResponse = (props: Props) => {
   const [commonApi] = useCommonDropdownListMutation();
 
   const [data, setData] = useState<any>([]);
-  const [page, setPage] = useState(1);
 
-  const [nextPageAvailable, setNextPageAvailable] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
-
-  const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Assignments Response');
+    Header.setNavigation(navigation, strings.lms.assignmentResponse.title);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -88,32 +74,27 @@ const AssignmentResponse = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listAssignmentQuestionBank();
+        listAssignmentTrainingList();
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listAssignmentQuestionBank();
+    listAssignmentTrainingList();
   }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
 
     return [centerSerach.name];
   };
 
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
-  };
-
-  const listAssignmentQuestionBank = () => {
+  const listAssignmentTrainingList = () => {
     setInitialCall(true);
 
     const centreFilter = getCentreFilter();
@@ -152,7 +133,7 @@ const AssignmentResponse = (props: Props) => {
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listAssignmentQuestionBank();
+      listAssignmentTrainingList();
     }, 500),
     [],
   );
@@ -164,10 +145,10 @@ const AssignmentResponse = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listAssignmentQuestionBank();
+    listAssignmentTrainingList();
   };
 
-  const BedCard = ({ item, index, navigation }: any) => {
+  const AssignmentResponseCard = ({ item, index, navigation }: any) => {
     return (
       <TouchableAtom
         style={styles.card}
@@ -177,12 +158,12 @@ const AssignmentResponse = (props: Props) => {
           });
         }}
       >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+        <View style={styles.cardHeader}>
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.lms.assignmentResponse.srNo} {index + 1}
           </TextAtom>
 
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
+          <View style={styles.actionRow}>
             {/* <TouchableAtom
               style={{
                 borderWidth: vw(1),
@@ -227,12 +208,16 @@ const AssignmentResponse = (props: Props) => {
           </View>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Training Name</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.assignmentResponse.trainingName}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Total Assignment</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.assignmentResponse.totalAssignment}
+          </TextAtom>
           <TextAtom style={styles.value}>
             {item.totalAssignment ?? '-'}
           </TextAtom>
@@ -241,30 +226,40 @@ const AssignmentResponse = (props: Props) => {
     );
   };
 
-  const renderListBedDetails = ({ item, index }: any) => {
-    return <BedCard item={item} index={index} navigation={navigation} />;
+  const renderItem = ({ item, index }: any) => {
+    return (
+      <AssignmentResponseCard
+        item={item}
+        index={index}
+        navigation={navigation}
+      />
+    );
   };
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      {/* <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-        <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-        </TextAtom>
-      </TouchableAtom>
-      {showFilter && <FilterForm />} */}
+
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
-          placeholder={'Centers'}
+          placeholder={strings.lms.assignmentResponse.centers}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Center',
+              name: strings.lms.assignmentResponse.center,
               Data: [
-                { id: 'All Centers', name: 'All Centers' },
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
+                {
+                  id: strings.dashboardIndex.allCenters,
+                  name: strings.dashboardIndex.allCenters,
+                },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
               ],
               selectedData: centerSerach,
               setSelectedData: (data: any) => {
@@ -275,32 +270,34 @@ const AssignmentResponse = (props: Props) => {
             });
           }}
           inputText={centerSerach?.name}
-          containerStyle={{ marginBottom: vh(-10) }}
+          containerStyle={styles.centerDropdown}
         />
       )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}
         onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
+        searchBox={styles.marginTop15}
       />
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListBedDetails}
+        renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          initialCall ? null : (
+            <TextAtom style={styles.emptyText}>
+              {strings.lms.assignmentResponse.noDataFound}
+            </TextAtom>
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(15) }}
+            style={styles.marginTop15}
           />
         }
         refreshControl={
@@ -310,12 +307,12 @@ const AssignmentResponse = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listAssignmentQuestionBank();
+              listAssignmentTrainingList();
             }}
           />
         }
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
       {/* <FloatingButton
         onButtonPress={() => {
@@ -388,7 +385,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.lightGray2,
     borderRadius: 8,
     marginTop: 6,
   },
@@ -404,13 +401,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -418,8 +415,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -473,5 +470,24 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  flex1: { flex: 1 },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: vh(10),
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: vw(15),
+  },
+  centerDropdown: {
+    marginBottom: vh(-10),
+  },
+  marginTop15: {
+    marginTop: vh(15),
+  },
+  separator: {
+    height: vh(10),
   },
 });

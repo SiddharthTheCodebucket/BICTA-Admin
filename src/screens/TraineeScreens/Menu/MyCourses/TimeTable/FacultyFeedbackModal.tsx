@@ -190,8 +190,8 @@ const FacultyFeedbackModal = ({ navigation, route }: Props) => {
                   </ViewAtom>
                 )}
 
-                {ratingFields.map((f, idx) => (
-                  <ViewAtom key={idx} style={styles.ratingRow}>
+                {ratingFields.map(f => (
+                  <ViewAtom key={f.key} style={styles.ratingRow}>
                     <TextAtom style={styles.ratingLabel}>{f.label}</TextAtom>
                     <ViewAtom style={styles.starRow}>
                       {[1, 2, 3, 4, 5].map(num => (

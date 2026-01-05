@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, images, screensName, vh, vw } from '../../../../../constants';
+import { colors, screensName, strings, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -16,7 +16,7 @@ const Pharmacy = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Pharmacy');
+    Header.setNavigation(navigation, strings.pharmacy);
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,35 +25,35 @@ const Pharmacy = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Patients',
+      name: strings.patients,
       onPress: () => {
         navigation.navigate(screensName.Patients);
       },
     },
     {
       id: 2,
-      name: 'Pharmacy Master',
+      name: strings.pharmacy_master,
       onPress: () => {
         navigation.navigate(screensName.PharmacyMaster);
       },
     },
     {
       id: 3,
-      name: 'Medicine Type',
+      name: strings.medicine_type,
       onPress: () => {
         navigation.navigate(screensName.MedicineType);
       },
     },
     {
       id: 4,
-      name: 'Update Stock',
+      name: strings.update_stock,
       onPress: () => {
         navigation.navigate(screensName.UpdateStock);
       },
     },
     {
       id: 5,
-      name: 'Stock Report',
+      name: strings.stock_report,
       onPress: () => {
         navigation.navigate(screensName.StockReport);
       },
@@ -99,5 +99,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: vh(15),
+  },
+  hardcodedStyle: {
+    opacity: 0.8,
+    transform: [{ scale: 1.1 }],
   },
 });

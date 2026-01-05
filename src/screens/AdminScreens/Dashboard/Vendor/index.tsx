@@ -5,18 +5,17 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors, fonts, images, vh, vw } from '../../../../constants';
+import strings from '../../../../constants/strings';
 import { NavigationType } from '../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../components/atoms/TouchableAtom';
-
 import {
   useVendorDashboardMutation,
   useVendorListMutation,
@@ -136,7 +135,7 @@ const InvoiceDashboard = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err?.data?.message || 'Something went wrong',
+          text2: err?.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -182,7 +181,7 @@ const InvoiceDashboard = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err?.data?.message || 'Something went wrong',
+          text2: err?.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -207,21 +206,23 @@ const InvoiceDashboard = (props: Props) => {
     return (
       <View style={styles.card}>
         <View style={[styles.rowBetween, { marginBottom: vh(8) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.vendor.srNo} {index + 1}
           </TextAtom>
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Name</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>{strings.vendor.name}</TextAtom>
             <TextAtom numberOfLines={0} style={styles.value}>
               {item.officerName ?? '-'}
             </TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Bipard Campus</TextAtom>
+          <View style={[styles.flex1, styles.alignEnd]}>
+            <TextAtom style={styles.labelRight}>
+              {strings.vendor.bipardCampus}
+            </TextAtom>
             <TextAtom style={styles.centerTag}>{item.bipardCentre}</TextAtom>
           </View>
         </View>
@@ -229,38 +230,50 @@ const InvoiceDashboard = (props: Props) => {
         <View style={styles.divider} />
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Total Invoices</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.vendor.totalInvoices}
+            </TextAtom>
             <TextAtom style={styles.value}>{item.totalInvoices}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Pending Bills</TextAtom>
+          <View style={[styles.flex1, styles.alignEnd]}>
+            <TextAtom style={styles.labelRight}>
+              {strings.vendor.pendingBills}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>{item.total}</TextAtom>
           </View>
         </View>
 
         {/* Row 3 */}
         <View style={[styles.rowBetween, { marginTop: vh(10) }]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>0 – 3 Days</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.vendor.zeroToThreeDays}
+            </TextAtom>
             <TextAtom style={styles.value}>{item['0To3Days']}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>4 – 7 Days</TextAtom>
+          <View style={[styles.flex1, styles.alignEnd]}>
+            <TextAtom style={styles.labelRight}>
+              {strings.vendor.fourToSevenDays}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>{item['4To7Days']}</TextAtom>
           </View>
         </View>
 
         <View style={[styles.rowBetween, { marginTop: vh(10) }]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>8 – 15 Days</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.vendor.eightToFifteenDays}
+            </TextAtom>
             <TextAtom style={styles.value}>{item['8To15Days']}</TextAtom>
           </View>
 
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>More than 15 Days</TextAtom>
+          <View style={[styles.flex1, styles.alignEnd]}>
+            <TextAtom style={styles.labelRight}>
+              {strings.vendor.moreThanFifteenDays}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>{item.moreThan15Days}</TextAtom>
           </View>
         </View>
@@ -302,21 +315,10 @@ const InvoiceDashboard = (props: Props) => {
         >
           <ImageAtom
             source={images.download}
-            style={{
-              tintColor: colors.black,
-              resizeMode: 'contain',
-              width: vw(10),
-              height: vw(10),
-            }}
+            style={styles.downloadIconStyle}
           />
-          <TextAtom
-            style={{
-              color: colors.black,
-              fontFamily: fonts.Roboto_Regular,
-              fontSize: vw(8),
-            }}
-          >
-            Excel
+          <TextAtom style={styles.downloadText}>
+            {strings.vendor.excel}
           </TextAtom>
         </TouchableAtom>
         <TouchableAtom
@@ -329,48 +331,43 @@ const InvoiceDashboard = (props: Props) => {
         >
           <ImageAtom
             source={images.download}
-            style={{
-              tintColor: colors.black,
-              resizeMode: 'contain',
-              width: vw(10),
-              height: vw(10),
-            }}
+            style={styles.downloadIconStyle}
           />
-          <TextAtom
-            style={{
-              color: colors.black,
-              fontFamily: fonts.Roboto_Regular,
-              fontSize: vw(8),
-            }}
-          >
-            Pdf
-          </TextAtom>
+          <TextAtom style={styles.downloadText}>{strings.vendor.pdf}</TextAtom>
         </TouchableAtom>
       </View>
       <View style={styles.summaryWrapper}>
-        <View style={[styles.summaryCard, { borderColor: '#6C7A89' }]}>
-          <TextAtom style={styles.summaryLabel}>Total Invoices</TextAtom>
+        <View style={[styles.summaryCard, styles.borderGray]}>
+          <TextAtom style={styles.summaryLabel}>
+            {strings.vendor.totalInvoices}
+          </TextAtom>
           <TextAtom style={styles.summaryValue}>
             {summary.totalInvoices}
           </TextAtom>
         </View>
 
-        <View style={[styles.summaryCard, { borderColor: '#007bff' }]}>
-          <TextAtom style={styles.summaryLabel}>Total Amount (INR)</TextAtom>
+        <View style={[styles.summaryCard, styles.borderBlue]}>
+          <TextAtom style={styles.summaryLabel}>
+            {strings.vendor.totalAmount}
+          </TextAtom>
           <TextAtom style={styles.summaryValue}>
             {summary.totalAmount?.toLocaleString()}
           </TextAtom>
         </View>
 
-        <View style={[styles.summaryCard, { borderColor: '#28a745' }]}>
-          <TextAtom style={styles.summaryLabel}>Paid Amount (INR)</TextAtom>
+        <View style={[styles.summaryCard, styles.borderGreen]}>
+          <TextAtom style={styles.summaryLabel}>
+            {strings.vendor.paidAmount}
+          </TextAtom>
           <TextAtom style={styles.summaryValue}>
             {summary.paidAmount?.toLocaleString()}
           </TextAtom>
         </View>
 
-        <View style={[styles.summaryCard, { borderColor: '#dc3545' }]}>
-          <TextAtom style={styles.summaryLabel}>Unpaid Amount (INR)</TextAtom>
+        <View style={[styles.summaryCard, styles.borderRed]}>
+          <TextAtom style={styles.summaryLabel}>
+            {strings.vendor.unpaidAmount}
+          </TextAtom>
           <TextAtom style={styles.summaryValue}>
             {summary.unpaidAmount?.toLocaleString()}
           </TextAtom>
@@ -391,7 +388,9 @@ const InvoiceDashboard = (props: Props) => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+            <TextAtom style={styles.emptyText}>
+              {strings.vendor.noDataFound}
+            </TextAtom>
           ) : null
         }
         ListFooterComponent={
@@ -420,7 +419,7 @@ const InvoiceDashboard = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
     </View>
   );
@@ -444,7 +443,7 @@ const styles = StyleSheet.create({
   tabBox: {
     paddingVertical: vh(4),
     paddingHorizontal: vw(13),
-    backgroundColor: '#EAEAEA',
+    backgroundColor: colors.lightGray2,
     borderRadius: vw(6),
   },
   activeTabBox: {
@@ -529,7 +528,7 @@ const styles = StyleSheet.create({
     borderRadius: vw(6),
     borderWidth: 2,
     marginBottom: vh(8),
-    shadowColor: '#000',
+    shadowColor: colors.black,
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
@@ -570,5 +569,37 @@ const styles = StyleSheet.create({
     width: vw(55),
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  flex1: {
+    flex: 1,
+  },
+  alignEnd: {
+    alignItems: 'flex-end',
+  },
+  downloadIconStyle: {
+    tintColor: colors.black,
+    resizeMode: 'contain',
+    width: vw(10),
+    height: vw(10),
+  },
+  downloadText: {
+    color: colors.black,
+    fontFamily: fonts.Roboto_Regular,
+    fontSize: vw(8),
+  },
+  borderGray: {
+    borderColor: colors.slateGray,
+  },
+  borderBlue: {
+    borderColor: colors.infoBlue,
+  },
+  borderGreen: {
+    borderColor: colors.successGreen2,
+  },
+  borderRed: {
+    borderColor: colors.dangerRed,
+  },
+  itemSeparator: {
+    height: vh(10),
   },
 });

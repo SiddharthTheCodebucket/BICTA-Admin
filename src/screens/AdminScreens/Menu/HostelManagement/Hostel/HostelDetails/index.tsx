@@ -43,7 +43,6 @@ import {
 } from '../../../../../../injectEndpoints/hostelEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -56,6 +55,8 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+const HostelItemSeparator = () => <View style={styles.itemSeparator} />;
 
 const HostelDetails = (props: Props) => {
   const { navigation } = props;
@@ -80,7 +81,10 @@ const HostelDetails = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Hostel Details');
+    Header.setNavigation(
+      navigation,
+      strings.hostelManagement.hostelDetails.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -101,8 +105,8 @@ const HostelDetails = (props: Props) => {
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
 
     return [centerSerach.name];
@@ -155,7 +159,7 @@ const HostelDetails = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -178,7 +182,7 @@ const HostelDetails = (props: Props) => {
   };
 
   const HostelCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
+    const [statusValue] = useState(item.status ?? 'Active');
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
     const onSelectStatus = (newStatus: string) => {
@@ -187,9 +191,9 @@ const HostelDetails = (props: Props) => {
       if (newStatus === statusValue) return;
 
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: 'Are you sure you want to change this item?',
-        okText: 'Confirm',
+        title: strings.hostelManagement.statusChangeConfirmation,
+        message: strings.hostelManagement.statusChangeMessage,
+        okText: strings.hostelManagement.confirm,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
@@ -218,16 +222,16 @@ const HostelDetails = (props: Props) => {
           setInitialCall(false);
           Toast.show({
             type: 'error',
-            text2: err.data?.message || 'Something went wrong',
+            text2: err.data?.message || strings.something_went_wrong,
           });
         });
     };
 
     const handleDelete = () => {
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Delete Confirmation',
-        message: 'Are you sure you want to delete this item?',
-        okText: 'Confirm',
+        title: strings.hostelManagement.deleteConfirmation,
+        message: strings.hostelManagement.deleteItemConfirmation,
+        okText: strings.hostelManagement.confirm,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
@@ -256,7 +260,7 @@ const HostelDetails = (props: Props) => {
           setInitialCall(false);
           Toast.show({
             type: 'error',
-            text2: err.data?.message || 'Something went wrong',
+            text2: err.data?.message || strings.something_went_wrong,
           });
         });
     };
@@ -264,20 +268,13 @@ const HostelDetails = (props: Props) => {
     return (
       <View style={styles.card}>
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.hostelManagement.srNo} {index + 1}
           </TextAtom>
 
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
+          <View style={styles.actionRow}>
             <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              style={styles.editButton}
               onPress={() => {
                 navigation.navigate(screensName.AddHostelDetails, {
                   item: item,
@@ -285,78 +282,75 @@ const HostelDetails = (props: Props) => {
                 });
               }}
             >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
+              <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
             </TouchableAtom>
 
             <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              style={styles.deleteButton}
               onPress={() => handleDelete()}
             >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
+              <ImageAtom source={images.delete} style={styles.iconSmall} />
             </TouchableAtom>
           </View>
         </View>
 
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Training Centre</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.hostelDetails.trainingCentre}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {item.trainingCentre ?? '-'}
             </TextAtom>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Hostel Name</TextAtom>
+          <View style={styles.flex1End}>
+            <TextAtom style={styles.labelRight}>
+              {strings.hostelManagement.hostelDetails.hostelName}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {item.hostelName ?? '-'}
             </TextAtom>
           </View>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>No Of Floors</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelDetails.noOfFloors}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.noOfFloors ?? '-'}</TextAtom>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Hostel Address</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.hostelDetails.hostelAddress}
+          </TextAtom>
           <TextAtom numberOfLines={0} style={styles.value}>
             {item.hostelAddress ?? '-'}
           </TextAtom>
         </View>
         <View style={[styles.rowBetween, { marginTop: vh(10) }]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Contact Person</TextAtom>
+          <View style={styles.flex1}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.hostelDetails.contactPerson}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {item.contactPerson ?? '-'}
             </TextAtom>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Contact No</TextAtom>
+          <View style={styles.flex1End}>
+            <TextAtom style={styles.labelRight}>
+              {strings.hostelManagement.hostelDetails.contactNo}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {item.contactNo ?? '-'}
             </TextAtom>
           </View>
         </View>
         {item?.alternateContactNo?.length > 0 && (
-          <View style={{ flex: 1, marginTop: vh(10) }}>
-            <TextAtom style={styles.label}>Alternate Contact No</TextAtom>
+          <View style={styles.flex1MarginTop}>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.hostelDetails.alternateContactNo}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {item?.alternateContactNo?.length > 0
                 ? item.alternateContactNo.join(',')
@@ -371,20 +365,24 @@ const HostelDetails = (props: Props) => {
           />
         )}
 
-        <View style={{ marginTop: vh(15), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Status</TextAtom>
+        <View style={styles.statusContainer}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.status}
+          </TextAtom>
 
           <TouchableAtom
             onPress={() => setShowStatusMenu(!showStatusMenu)}
             style={[
               styles.statusBox,
-              statusValue === 'Active' ? styles.activeBox : styles.inActiveBox,
+              statusValue === strings.hostelManagement.active
+                ? styles.activeBox
+                : styles.inActiveBox,
             ]}
           >
             <TextAtom
               style={[
                 styles.statusText,
-                statusValue === 'Active'
+                statusValue === strings.hostelManagement.active
                   ? styles.activeText
                   : styles.inActiveText,
               ]}
@@ -400,14 +398,20 @@ const HostelDetails = (props: Props) => {
                 style={styles.dropItem}
                 onPress={() => onSelectStatus('Active')}
               >
-                <TextAtom style={{ color: colors.black }}>Active</TextAtom>
+                <TextAtom style={styles.statusTextBlack}>
+                  {strings.hostelManagement.active}
+                </TextAtom>
               </TouchableAtom>
 
               <TouchableAtom
                 style={styles.dropItem}
-                onPress={() => onSelectStatus('In-Active')}
+                onPress={() =>
+                  onSelectStatus(strings.hostelManagement.inActive)
+                }
               >
-                <TextAtom style={{ color: colors.black }}>In-Active</TextAtom>
+                <TextAtom style={styles.statusTextBlack}>
+                  {strings.hostelManagement.inActive}
+                </TextAtom>
               </TouchableAtom>
             </View>
           )}
@@ -426,14 +430,23 @@ const HostelDetails = (props: Props) => {
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
-          placeholder={'Centers'}
+          placeholder={strings.dashboardIndex.centers}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Center',
+              name: strings.dashboardIndex.center,
               Data: [
-                { id: 'All Centers', name: 'All Centers' },
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
+                {
+                  id: strings.dashboardIndex.allCenters,
+                  name: strings.dashboardIndex.allCenters,
+                },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
               ],
               selectedData: centerSerach,
               setSelectedData: (data: any) => {
@@ -460,16 +473,18 @@ const HostelDetails = (props: Props) => {
         renderItem={renderListHostelDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          initialCall ? null : (
+            <TextAtom style={styles.emptyText}>
+              {strings.hostelManagement.noDataFound}
+            </TextAtom>
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(15) }}
+            style={styles.loadingContainer}
           />
         }
         refreshControl={
@@ -490,7 +505,7 @@ const HostelDetails = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={HostelItemSeparator}
       />
       <FloatingButton
         onButtonPress={() => {
@@ -565,7 +580,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: '#eaeaea',
+    backgroundColor: colors.lightGray2,
     borderRadius: 8,
     marginTop: 6,
   },
@@ -581,13 +596,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -595,8 +610,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -621,5 +636,58 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: 'transparent',
     zIndex: 998,
+  },
+  flex1: {
+    flex: 1,
+  },
+  flex1End: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  flex1MarginTop: {
+    flex: 1,
+    marginTop: vh(10),
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: vw(15),
+  },
+  editButton: {
+    borderWidth: vw(1),
+    borderColor: colors.green,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editIcon: {
+    tintColor: colors.green,
+    width: vw(15),
+    height: vw(15),
+  },
+  deleteButton: {
+    borderWidth: vw(1),
+    borderColor: colors.red_2,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSmall: {
+    width: vw(15),
+    height: vw(15),
+  },
+  statusContainer: {
+    marginTop: vh(15),
+    zIndex: 999,
+  },
+  statusTextBlack: {
+    color: colors.black,
+  },
+  loadingContainer: {
+    marginTop: vh(15),
+  },
+  itemSeparator: {
+    height: vh(10),
   },
 });

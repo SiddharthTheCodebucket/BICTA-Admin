@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../../constants';
+import { colors, screensName, strings, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -16,7 +16,10 @@ const ClassLocationManagement = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Class Location Management');
+    Header.setNavigation(
+      navigation,
+      strings.lms.locationDetails.classLocationManagementTitle,
+    );
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,14 +28,14 @@ const ClassLocationManagement = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Location Details',
+      name: strings.lms.locationDetails.title,
       onPress: () => {
         navigation.navigate(screensName.LocationDetails);
       },
     },
     {
       id: 2,
-      name: 'Sub Location Details',
+      name: strings.lms.locationDetails.subLocationDetailsTitle,
       onPress: () => {
         navigation.navigate(screensName.SubLocationDetails);
       },

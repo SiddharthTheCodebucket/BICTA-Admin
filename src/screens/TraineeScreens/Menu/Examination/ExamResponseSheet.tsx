@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from 'react';
-import { StyleSheet, View, FlatList } from 'react-native';
+import { StyleSheet, View, FlatList, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, vh, vw } from '../../../../constants';
 import {
@@ -8,12 +8,13 @@ import {
 } from '../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../components/atoms/TextAtom';
 import RenderHtml from 'react-native-render-html';
-import { useWindowDimensions } from 'react-native';
 
 interface Props {
   route: any;
   navigation: NavigationType;
 }
+
+const ItemSeparator = () => <View style={{ height: vh(10) }} />;
 
 const ExamResponseSheet = (props: Props) => {
   const { navigation } = props;
@@ -78,7 +79,7 @@ const ExamResponseSheet = (props: Props) => {
         ListEmptyComponent={
           <TextAtom style={styles.emptyText}>No responses found</TextAtom>
         }
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={ItemSeparator}
       />
     </SafeAreaView>
   );

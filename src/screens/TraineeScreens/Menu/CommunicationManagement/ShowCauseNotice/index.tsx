@@ -32,9 +32,10 @@ import ViewAtom from '../../../../../components/atoms/ViewAtom';
 import { useListNoticeResponseUserMutation } from '../../../../../injectEndpointsTrainee/dashboardEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
+
+const ItemSeparator = () => <View style={{ height: vh(10) }} />;
 
 const ShowCauseNotice = (props: Props) => {
   const { navigation } = props;
@@ -142,9 +143,9 @@ const ShowCauseNotice = (props: Props) => {
         {item.adminUploadedFile && (
           <TouchableAtom
             style={styles.fileContainer}
-            onPress={() => {
+            onPress={async () => {
               try {
-                Linking.openURL(item.adminUploadedFile);
+                await Linking.openURL(item.adminUploadedFile);
               } catch (e) {
                 Toast.show({
                   type: 'error',
@@ -190,11 +191,11 @@ const ShowCauseNotice = (props: Props) => {
         renderItem={renderShowCaseCard}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.no_notice_found}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -222,7 +223,7 @@ const ShowCauseNotice = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={ItemSeparator}
       />
     </SafeAreaView>
   );

@@ -95,7 +95,7 @@ const ShowCauseNoticeEdit = (props: Props) => {
         allowMultiSelection: false,
       });
 
-      if (result && result[0]) {
+      if (result?.[0]) {
         const file = result[0];
 
         const MAX_SIZE = 3 * 1024 * 1024;
@@ -289,29 +289,27 @@ const ShowCauseNoticeEdit = (props: Props) => {
             </TextAtom>
           </TouchableOpacity>
         ) : (
-          <>
-            <TouchableOpacity
-              style={[
-                styles.uploadBtn,
-                {
-                  borderColor: errors['uploadFile.uri']
-                    ? colors.red
-                    : colors.grey_1,
-                },
-              ]}
-              activeOpacity={0.8}
-              onPress={handleFileUpload}
-            >
-              <TextAtom style={styles.uploadText}>
-                {form.uploadFile?.fileName
-                  ? form.uploadFile?.fileName
-                  : strings.choose_file}
-              </TextAtom>
-              <TextAtom style={styles.instructionText}>
-                {strings.add_pdf}
-              </TextAtom>
-            </TouchableOpacity>
-          </>
+          <TouchableOpacity
+            style={[
+              styles.uploadBtn,
+              {
+                borderColor: errors['uploadFile.uri']
+                  ? colors.red
+                  : colors.grey_1,
+              },
+            ]}
+            activeOpacity={0.8}
+            onPress={handleFileUpload}
+          >
+            <TextAtom style={styles.uploadText}>
+              {form.uploadFile?.fileName
+                ? form.uploadFile?.fileName
+                : strings.choose_file}
+            </TextAtom>
+            <TextAtom style={styles.instructionText}>
+              {strings.add_pdf}
+            </TextAtom>
+          </TouchableOpacity>
         )}
       </KeyboardAwareScrollView>
 

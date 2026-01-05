@@ -32,8 +32,7 @@ const AlertOrganism = (props: Props) => {
     goBack();
     return true;
   };
-  // Remove useEffect to avoid duplicate BackHandler listeners
-  // Rely on useAndroidBackButton for BackHandler logic
+
   useAndroidBackButton(backAction, [navigation]);
 
   if (double) {
@@ -44,7 +43,7 @@ const AlertOrganism = (props: Props) => {
             <TextAtom
               style={{
                 ...styles.titleText,
-                marginTop: !isNullUndefined(title) ? vh(24) : vh(0),
+                marginTop: isNullUndefined(title) ? vh(0) : vh(24),
               }}
             >
               {title}
@@ -92,7 +91,7 @@ const AlertOrganism = (props: Props) => {
           <TextAtom
             style={{
               ...styles.titleText,
-              marginTop: !isNullUndefined(title) ? vh(24) : vh(0),
+              marginTop: isNullUndefined(title) ? vh(0) : vh(24),
             }}
           >
             {title}

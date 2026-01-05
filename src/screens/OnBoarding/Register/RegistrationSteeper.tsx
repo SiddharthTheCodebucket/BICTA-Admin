@@ -25,7 +25,7 @@ import {
   saveRegistrationState,
 } from '../../../featuresTrainee/Registration/registrationSlice';
 import { useCommonDropdownListMutation } from '../../../injectEndpointsTrainee/profileEndpoints';
-import { useAppSelector } from '../../../hooks';
+
 import FullscreenLoading from '../../../components/organisms/FullscreenLoading';
 
 interface Props {
@@ -38,8 +38,6 @@ const RegistrationSteeper = ({ navigation, route }: Props) => {
   const dispatch = useDispatch();
   const [step, setStep] = useState(0);
   const [commonDropdownListApi] = useCommonDropdownListMutation();
-
-  const { trainingCenter } = useAppSelector(state => state.Registration);
 
   useEffect(() => {
     const parts = qrData?.split('/');
@@ -122,7 +120,7 @@ const RegistrationSteeper = ({ navigation, route }: Props) => {
 
   const ScreenComponent = screens[step];
 
-  const getTrainingList = (trainingId: any, centerId: Number) => {
+  const getTrainingList = (trainingId: any, centerId: number) => {
     const params = {
       listType: 'training_list_without_login',
       replacements: [
@@ -315,7 +313,7 @@ const RegistrationSteeper = ({ navigation, route }: Props) => {
           <ButtonOrganism
             containerStyle={{ width: vw(150) }}
             bttnText="Submit"
-            onPress={() => console.log('Submit')}
+            onPress={() => {}}
           />
         )}
       </View> */}

@@ -47,7 +47,6 @@ import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -91,7 +90,10 @@ const RoomDetails = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Room Details');
+    Header.setNavigation(
+      navigation,
+      strings.hostelManagement.roomDetails.title,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -113,7 +115,7 @@ const RoomDetails = (props: Props) => {
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
       return ['Gaya', 'Patna'];
     }
 
@@ -196,10 +198,10 @@ const RoomDetails = (props: Props) => {
   };
 
   const RoomCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
-    const [roomTypeValue, setRoomTypeValue] = useState(item.roomType ?? null);
+    const [statusValue] = useState(item.status ?? 'Active');
+    const [roomTypeValue] = useState(item.roomType ?? null);
     const [showStatusMenu, setShowStatusMenu] = useState(false);
-    const [showRoomTypeMenu, setShowSRoomtypeMenu] = useState(false);
+    const [showRoomTypeMenu, setShowRoomTypeMenu] = useState(false);
 
     const onSelectStatus = (newStatus: string) => {
       setShowStatusMenu(false);
@@ -207,9 +209,9 @@ const RoomDetails = (props: Props) => {
       if (newStatus === statusValue) return;
 
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: 'Are you sure you want to change this item?',
-        okText: 'Confirm',
+        title: strings.hostelManagement.roomDetails.statusChange.title,
+        message: strings.hostelManagement.roomDetails.statusChange.message,
+        okText: strings.hostelManagement.roomDetails.statusChange.confirm,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
@@ -219,14 +221,14 @@ const RoomDetails = (props: Props) => {
       });
     };
     const onSelectRoomType = (roomType: string) => {
-      setShowSRoomtypeMenu(false);
+      setShowRoomTypeMenu(false);
 
       if (roomType === roomTypeValue) return;
 
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Room Type Change Confirmation',
-        message: 'Are you sure you want to change room type this item?',
-        okText: 'Confirm',
+        title: strings.hostelManagement.roomDetails.roomTypeChange.title,
+        message: strings.hostelManagement.roomDetails.roomTypeChange.message,
+        okText: strings.hostelManagement.roomDetails.roomTypeChange.confirm,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
@@ -285,9 +287,9 @@ const RoomDetails = (props: Props) => {
     };
     const handleDelete = () => {
       navigation.navigate(screensName.AlertOrganism, {
-        title: 'Delete Confirmation',
-        message: 'Are you sure you want to delete this item?',
-        okText: 'Confirm',
+        title: strings.hostelManagement.roomDetails.delete.title,
+        message: strings.hostelManagement.roomDetails.delete.message,
+        okText: strings.hostelManagement.roomDetails.delete.confirm,
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
@@ -324,20 +326,13 @@ const RoomDetails = (props: Props) => {
     return (
       <View style={styles.card}>
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
           </TextAtom>
 
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
+          <View style={styles.actionRow}>
             <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              style={styles.editBtn}
               onPress={() => {
                 navigation.navigate(screensName.AddRoomDetails, {
                   item: item,
@@ -356,33 +351,27 @@ const RoomDetails = (props: Props) => {
             </TouchableAtom>
 
             <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              style={styles.deleteBtn}
               onPress={() => handleDelete()}
             >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
+              <ImageAtom source={images.delete} style={styles.iconSmDelete} />
             </TouchableAtom>
           </View>
         </View>
 
         <View style={styles.rowBetween}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Hostel Name</TextAtom>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.roomDetails.hostelName}
+            </TextAtom>
             <TextAtom style={styles.value}>
               {item.selectHostelName ?? '-'}
             </TextAtom>
           </View>
           <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Floor Name</TextAtom>
+            <TextAtom style={styles.labelRight}>
+              {strings.hostelManagement.roomDetails.floorName}
+            </TextAtom>
             <TextAtom style={styles.valueRight}>
               {item.selectFloorName ?? '-'}
             </TextAtom>
@@ -390,12 +379,16 @@ const RoomDetails = (props: Props) => {
         </View>
         <View style={styles.rowBetween}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Room No</TextAtom>
+            <TextAtom style={styles.label}>
+              {strings.hostelManagement.roomDetails.roomNo}
+            </TextAtom>
             <TextAtom style={styles.value}>{item.roomNo ?? '-'}</TextAtom>
           </View>
 
           <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>No Of bed</TextAtom>
+            <TextAtom style={styles.labelRight}>
+              {strings.hostelManagement.roomDetails.noOfBed}
+            </TextAtom>
             <TextAtom numberOfLines={0} style={styles.valueRight}>
               {item.noOfBed ?? '-'}
             </TextAtom>
@@ -409,8 +402,10 @@ const RoomDetails = (props: Props) => {
           />
         )}
 
-        <View style={{ marginTop: vh(0), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Status</TextAtom>
+        <View style={styles.marginTop0}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.roomDetails.status}
+          </TextAtom>
 
           <TouchableAtom
             onPress={() => setShowStatusMenu(!showStatusMenu)}
@@ -438,14 +433,18 @@ const RoomDetails = (props: Props) => {
                 style={styles.dropItem}
                 onPress={() => onSelectStatus('Active')}
               >
-                <TextAtom style={{ color: colors.black }}>Active</TextAtom>
+                <TextAtom style={styles.colorBlack}>
+                  {strings.hostelManagement.roomDetails.active}
+                </TextAtom>
               </TouchableAtom>
 
               <TouchableAtom
                 style={styles.dropItem}
                 onPress={() => onSelectStatus('In-Active')}
               >
-                <TextAtom style={{ color: colors.black }}>In-Active</TextAtom>
+                <TextAtom style={styles.colorBlack}>
+                  {strings.hostelManagement.roomDetails.inactive}
+                </TextAtom>
               </TouchableAtom>
             </View>
           )}
@@ -453,20 +452,22 @@ const RoomDetails = (props: Props) => {
 
         {showRoomTypeMenu && (
           <TouchableOpacity
-            onPress={() => setShowSRoomtypeMenu(false)}
+            onPress={() => setShowRoomTypeMenu(false)}
             style={styles.overlay}
           />
         )}
 
-        <View style={{ marginTop: vh(10), zIndex: 999 }}>
-          <TextAtom style={styles.label}>Room Type</TextAtom>
+        <View style={styles.marginTop10}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.roomDetails.roomType}
+          </TextAtom>
 
           <TouchableAtom
-            onPress={() => setShowSRoomtypeMenu(!showRoomTypeMenu)}
+            onPress={() => setShowRoomTypeMenu(!showRoomTypeMenu)}
             style={[styles.statusBox, { borderColor: colors.primary }]}
           >
             <TextAtom style={[styles.statusText, { color: colors.black }]}>
-              {roomTypeValue ?? 'Room Type'}
+              {roomTypeValue ?? strings.hostelManagement.roomDetails.roomType}
             </TextAtom>
             <ImageAtom source={images.downArrow} />
           </TouchableAtom>
@@ -477,14 +478,18 @@ const RoomDetails = (props: Props) => {
                 style={styles.dropItem}
                 onPress={() => onSelectRoomType('Trainee')}
               >
-                <TextAtom style={{ color: colors.black }}>Trainee</TextAtom>
+                <TextAtom style={styles.colorBlack}>
+                  {strings.hostelManagement.roomDetails.dropdown.trainee}
+                </TextAtom>
               </TouchableAtom>
 
               <TouchableAtom
                 style={styles.dropItem}
                 onPress={() => onSelectRoomType('Guest')}
               >
-                <TextAtom style={{ color: colors.black }}>Guest</TextAtom>
+                <TextAtom style={styles.colorBlack}>
+                  {strings.hostelManagement.roomDetails.dropdown.guest}
+                </TextAtom>
               </TouchableAtom>
             </View>
           )}
@@ -500,11 +505,11 @@ const RoomDetails = (props: Props) => {
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Hostel'}
-        placeholder={'Hostel'}
+        label={strings.hostelManagement.roomDetails.hostel}
+        placeholder={strings.hostelManagement.roomDetails.hostel}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Hostel',
+            name: strings.hostelManagement.roomDetails.hostel,
             Data: hostelList,
             selectedData: selectedHostel,
             setSelectedData: (data: any) => {
@@ -519,11 +524,11 @@ const RoomDetails = (props: Props) => {
       />
 
       <DropDownOrganism
-        label={'Floor'}
-        placeholder={'Floor'}
+        label={strings.hostelManagement.roomDetails.floor}
+        placeholder={strings.hostelManagement.roomDetails.floor}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Floor',
+            name: strings.hostelManagement.roomDetails.floor,
             Data: floorList,
             selectedData: selectedFloor,
             setSelectedData: (data: any) => {
@@ -539,14 +544,14 @@ const RoomDetails = (props: Props) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.hostelManagement.roomDetails.applyFilter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.hostelManagement.roomDetails.clearFilter}
           containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
+          bttnTextStyle={styles.colorP}
         />
       </ViewAtom>
     </View>
@@ -623,21 +628,32 @@ const RoomDetails = (props: Props) => {
       <FullscreenLoading isVisible={initialCall} />
       <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
         <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+          {showFilter
+            ? strings.hostelManagement.roomDetails.hideFilter
+            : strings.hostelManagement.roomDetails.showFilter}
         </TextAtom>
       </TouchableAtom>
       {showFilter && <FilterForm />}
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
-          placeholder={'Centers'}
+          placeholder={strings.dashboardIndex.centers}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Center',
+              name: strings.dashboardIndex.center,
               Data: [
-                { id: 'All Centers', name: 'All Centers' },
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
+                {
+                  id: strings.dashboardIndex.allCenters,
+                  name: strings.dashboardIndex.allCenters,
+                },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
               ],
               selectedData: centerSerach,
               setSelectedData: (data: any) => {
@@ -648,14 +664,14 @@ const RoomDetails = (props: Props) => {
             });
           }}
           inputText={centerSerach?.name}
-          containerStyle={{ marginBottom: vh(-10) }}
+          containerStyle={styles.centerDropdown}
         />
       )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}
         onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
+        searchBox={styles.marginTop15}
       />
 
       <FlatList
@@ -664,16 +680,18 @@ const RoomDetails = (props: Props) => {
         renderItem={renderListRoomDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          !initialCall ? null : (
+            <TextAtom style={styles.emptyText}>
+              {strings.hostelManagement.roomDetails.noDataFound}
+            </TextAtom>
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(15) }}
+            style={styles.marginTop15}
           />
         }
         refreshControl={
@@ -694,7 +712,7 @@ const RoomDetails = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.height10} />}
       />
       <FloatingButton
         onButtonPress={() => {
@@ -854,5 +872,60 @@ const styles = StyleSheet.create({
     borderWidth: vw(1),
     borderColor: colors.primary,
     backgroundColor: colors.white,
+  },
+  flex1: {
+    flex: 1,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: vw(15),
+  },
+  editBtn: {
+    borderWidth: vw(1),
+    borderColor: colors.green,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSm: {
+    tintColor: colors.green,
+    width: vw(15),
+    height: vw(15),
+  },
+  deleteBtn: {
+    borderWidth: vw(1),
+    borderColor: colors.red_2,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSmDelete: {
+    width: vw(15),
+    height: vw(15),
+  },
+  marginTop0: {
+    marginTop: vh(0),
+    zIndex: 999,
+  },
+  colorBlack: {
+    color: colors.black,
+  },
+  marginTop10: {
+    marginTop: vh(10),
+    zIndex: 999,
+  },
+  colorP: {
+    color: colors.primary,
+  },
+  centerDropdown: {
+    marginBottom: vh(-10),
+  },
+  marginTop15: {
+    marginTop: vh(15),
+  },
+  height10: {
+    height: vh(10),
   },
 });

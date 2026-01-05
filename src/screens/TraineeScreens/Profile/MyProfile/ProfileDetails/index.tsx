@@ -19,8 +19,8 @@ import { useAppSelector } from '../../../../../hooks';
 import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
 import { downloadAndOpenFile } from '../../../../../utils/CommonFunction';
 import { useDownlaodRegistrationFormMutation } from '../../../../../injectEndpointsTrainee/profileEndpoints';
-import { usePermission } from '../../../../../hooks/usePermission';
 import { canDownloadProfile } from '../../../../../constants/permissionNameTrainee';
+import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
 
 interface Props {
   navigation: NavigationType;
@@ -132,6 +132,7 @@ const ProfileDetails = ({ navigation }: Props) => {
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
+      <FullscreenLoading isVisible={loader} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}

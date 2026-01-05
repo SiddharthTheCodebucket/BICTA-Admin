@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, vw, vh } from '../../../../constants';
+import strings from '../../../../constants/strings';
 import {
   Header,
   NavigationType,
@@ -24,7 +25,10 @@ const HostelPlanningDetails = (props: Props) => {
   const [loading, setLoading] = useState(true);
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Hostel Details');
+    Header.setNavigation(
+      navigation,
+      strings.hostelPlanningDetails.hostelDetails,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
 
@@ -58,11 +62,19 @@ const HostelPlanningDetails = (props: Props) => {
 
   const renderHeader = () => (
     <View style={styles.tableHeader}>
-      <TextAtom style={[styles.headerCell, { flex: 0.6 }]}>Sr.No</TextAtom>
-      <TextAtom style={[styles.headerCell, { flex: 2 }]}>Hostel Name</TextAtom>
+      <TextAtom style={[styles.headerCell, styles.headerCellSrNo]}>
+        {strings.hostelPlanningDetails.srNo}
+      </TextAtom>
+      <TextAtom style={[styles.headerCell, styles.headerCellHostel]}>
+        {strings.hostelPlanningDetails.hostelName}
+      </TextAtom>
 
-      <TextAtom style={[styles.headerCell, { flex: 1 }]}>Room</TextAtom>
-      <TextAtom style={[styles.headerCell, { flex: 1 }]}>Bed</TextAtom>
+      <TextAtom style={[styles.headerCell, styles.headerCellSmall]}>
+        {strings.hostelPlanningDetails.room}
+      </TextAtom>
+      <TextAtom style={[styles.headerCell, styles.headerCellSmall]}>
+        {strings.hostelPlanningDetails.bed}
+      </TextAtom>
     </View>
   );
 
@@ -75,23 +87,29 @@ const HostelPlanningDetails = (props: Props) => {
 
     return (
       <View style={styles.tableRow}>
-        <TextAtom style={[styles.cell, { flex: 0.6 }]}>{index + 1}</TextAtom>
+        <TextAtom style={[styles.cell, styles.cellSrNo]}>{index + 1}</TextAtom>
 
-        <TextAtom style={[styles.cell, { flex: 2 }]}>
-          {item.hostelName ?? '-'}
+        <TextAtom style={[styles.cell, styles.cellHostel]}>
+          {item.hostelName ?? strings.hostelPlanningDetails.dash}
         </TextAtom>
 
         {activeTab === 'Trainee' ? (
           <>
-            <TextAtom style={[styles.cell, { flex: 1 }]}>
+            <TextAtom style={[styles.cell, styles.cellSmall]}>
               {traineeRoom}
             </TextAtom>
-            <TextAtom style={[styles.cell, { flex: 1 }]}>{traineeBed}</TextAtom>
+            <TextAtom style={[styles.cell, styles.cellSmall]}>
+              {traineeBed}
+            </TextAtom>
           </>
         ) : (
           <>
-            <TextAtom style={[styles.cell, { flex: 1 }]}>{guestRoom}</TextAtom>
-            <TextAtom style={[styles.cell, { flex: 1 }]}>{guestBed}</TextAtom>
+            <TextAtom style={[styles.cell, styles.cellSmall]}>
+              {guestRoom}
+            </TextAtom>
+            <TextAtom style={[styles.cell, styles.cellSmall]}>
+              {guestBed}
+            </TextAtom>
           </>
         )}
       </View>
@@ -101,7 +119,8 @@ const HostelPlanningDetails = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <TextAtom style={styles.title}>
-        Hostel Details On {moment(selectedDate).format('D MMMM YYYY')}
+        {strings.hostelPlanningDetails.hostelDetailsOn}{' '}
+        {moment(selectedDate).format('D MMMM YYYY')}
       </TextAtom>
 
       <View style={styles.tabRow}>
@@ -117,7 +136,9 @@ const HostelPlanningDetails = (props: Props) => {
                 activeTab === tab && styles.activeTabText,
               ]}
             >
-              {tab === 'Trainee' ? 'Training Vacant Beds' : 'Guest Vacant Beds'}
+              {tab === 'Trainee'
+                ? strings.hostelPlanningDetails.trainingVacantBeds
+                : strings.hostelPlanningDetails.guestVacantBeds}
             </TextAtom>
           </TouchableAtom>
         ))}
@@ -131,9 +152,11 @@ const HostelPlanningDetails = (props: Props) => {
         keyExtractor={(_, index) => index.toString()}
         renderItem={renderRow}
         ListEmptyComponent={
-          !loading ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          loading ? null : (
+            <TextAtom style={styles.emptyText}>
+              {strings.hostelPlanningDetails.noDataFound}
+            </TextAtom>
+          )
         }
       />
     </SafeAreaView>
@@ -165,7 +188,7 @@ const styles = StyleSheet.create({
   tabButton: {
     paddingVertical: vh(8),
     paddingHorizontal: vw(20),
-    backgroundColor: '#EAEAEA',
+    backgroundColor: colors.lightGray2,
     borderRadius: vw(6),
   },
 
@@ -184,7 +207,7 @@ const styles = StyleSheet.create({
 
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.offWhite,
     paddingVertical: vh(8),
     paddingHorizontal: vw(10),
     borderRadius: vw(6),
@@ -205,7 +228,7 @@ const styles = StyleSheet.create({
     marginHorizontal: vw(10),
     backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.borderGrayLight,
   },
 
   cell: {
@@ -219,5 +242,23 @@ const styles = StyleSheet.create({
     marginTop: vh(30),
     fontFamily: fonts.Roboto_Medium,
     color: colors.grey,
+  },
+  headerCellSrNo: {
+    flex: 0.6,
+  },
+  headerCellHostel: {
+    flex: 2,
+  },
+  headerCellSmall: {
+    flex: 1,
+  },
+  cellSrNo: {
+    flex: 0.6,
+  },
+  cellHostel: {
+    flex: 2,
+  },
+  cellSmall: {
+    flex: 1,
   },
 });

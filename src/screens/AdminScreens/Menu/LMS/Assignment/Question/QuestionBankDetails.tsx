@@ -1,31 +1,15 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
   ScrollView,
-  ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
-  LayoutAnimation,
   FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -53,7 +37,7 @@ const QuestionBankDetails = (props: Props) => {
   const [refreshing, setRefreshing] = useState(false);
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Question Bank Details');
+    Header.setNavigation(navigation, strings.assignment.questionBankDetails);
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
 
@@ -64,8 +48,8 @@ const QuestionBankDetails = (props: Props) => {
   const stripHtml = (s?: string) => {
     if (!s) return '';
     return s
-      .replace(/<[^>]*>/g, '')
-      .replace(/&nbsp;/g, ' ')
+      .replaceAll(/<[^>]*>/g, '')
+      .replaceAll(/&nbsp;/, ' ')
       .trim();
   };
 
@@ -130,9 +114,6 @@ const QuestionBankDetails = (props: Props) => {
   };
 
   const renderMCQItem = ({ item, index }: { item: any; index: number }) => {
-    const correct = item.correctAnswer; // e.g. "option_2"
-    const correctOptionKey = correct?.replace('option_', 'option'); // "option2" not used but kept
-    // Map correctAnswer to option text easily:
     const optionMap: Record<string, string> = {
       option_1: item._option1 ?? item.option1 ?? '',
       option_2: item._option2 ?? item.option2 ?? '',
@@ -141,18 +122,17 @@ const QuestionBankDetails = (props: Props) => {
     };
 
     return (
-      <View style={[styles.card, { marginBottom: vh(12) }]}>
+      <View style={styles.mcqCard}>
         <View style={styles.rowBetween}>
-          <TextAtom
-            numberOfLines={0}
-            style={[styles.label, { width: vw(240) }]}
-          >
+          <TextAtom numberOfLines={0} style={styles.mcqLabel}>
             {index + 1}. {item._question || stripHtml(item.question)}
           </TextAtom>
-          <TextAtom style={styles.labelRight}>{item.marks} Marks</TextAtom>
+          <TextAtom style={styles.labelRight}>
+            {item.marks} {strings.assignment.marks}
+          </TextAtom>
         </View>
 
-        <View style={{ marginTop: vh(8) }}>
+        <View style={styles.optionsContainer}>
           {['option_1', 'option_2', 'option_3', 'option_4'].map(
             (optKey: string, idx: number) => {
               const optText = optionMap[optKey] ?? '';
@@ -189,15 +169,14 @@ const QuestionBankDetails = (props: Props) => {
     index: number;
   }) => {
     return (
-      <View style={[styles.card, { marginBottom: vh(12) }]}>
+      <View style={styles.subjectiveCard}>
         <View style={styles.rowBetween}>
-          <TextAtom
-            numberOfLines={0}
-            style={[styles.label, { width: vw(240) }]}
-          >
+          <TextAtom numberOfLines={0} style={styles.subjectiveLabel}>
             {index + 1}. {item._question || stripHtml(item.question)}
           </TextAtom>
-          <TextAtom style={styles.labelRight}>{item.marks} Marks</TextAtom>
+          <TextAtom style={styles.labelRight}>
+            {item.marks} {strings.assignment.marks}
+          </TextAtom>
         </View>
       </View>
     );
@@ -209,32 +188,34 @@ const QuestionBankDetails = (props: Props) => {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
+        style={styles.flex1}
         contentContainerStyle={styles.flatListContainer}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         {/* Header info */}
-        <View style={[styles.card, { marginBottom: vh(16) }]}>
+        <View style={styles.headerInfoCard}>
           <TextAtom style={styles.value}>
-            Subject: {data?.selectSubject ?? '-'}
+            {strings.assignment.subject}: {data?.selectSubject ?? '-'}
           </TextAtom>
           <TextAtom style={styles.value}>
-            Topic: {data?.selectTopic ?? '-'}
+            {strings.assignment.topic}: {data?.selectTopic ?? '-'}
           </TextAtom>
           <TextAtom style={styles.value}>
-            Faculty: {data?.selectFaculty ?? '-'}
+            {strings.assignment.faculty}: {data?.selectFaculty ?? '-'}
           </TextAtom>
         </View>
 
         {/* MCQ Section */}
-        <TextAtom style={[styles.sectionHeading, { marginLeft: vw(15) }]}>
-          MCQ
+        <TextAtom style={styles.sectionHeading}>
+          {strings.assignment.mcq}
         </TextAtom>
 
         {mcqQuestions.length === 0 ? (
-          <TextAtom style={styles.emptyText}>No MCQ found</TextAtom>
+          <TextAtom style={styles.emptyText}>
+            {strings.assignment.noMcqFound}
+          </TextAtom>
         ) : (
           <FlatList
             showsVerticalScrollIndicator={false}
@@ -242,23 +223,18 @@ const QuestionBankDetails = (props: Props) => {
             keyExtractor={(_, i) => `mcq_${i}`}
             renderItem={renderMCQItem}
             scrollEnabled={false}
-            contentContainerStyle={{ paddingBottom: vh(8) }}
+            contentContainerStyle={styles.mcqList}
           />
         )}
 
         {/* Subjective Section */}
-        <TextAtom
-          style={[
-            styles.sectionHeading,
-            { marginLeft: vw(15), marginTop: vh(10) },
-          ]}
-        >
-          Subjective
+        <TextAtom style={styles.subjectiveHeading}>
+          {strings.assignment.subjective}
         </TextAtom>
 
         {subjectiveQuestions.length === 0 ? (
           <TextAtom style={styles.emptyText}>
-            No subjective questions found
+            {strings.assignment.noSubjectiveQuestionsFound}
           </TextAtom>
         ) : (
           <FlatList
@@ -267,7 +243,7 @@ const QuestionBankDetails = (props: Props) => {
             keyExtractor={(_, i) => `subj_${i}`}
             renderItem={renderSubjectiveItem}
             scrollEnabled={false}
-            contentContainerStyle={{ paddingBottom: vh(24) }}
+            contentContainerStyle={styles.subjectiveList}
           />
         )}
       </ScrollView>
@@ -365,5 +341,73 @@ const styles = StyleSheet.create({
     height: vw(10),
     borderRadius: vw(5),
     backgroundColor: colors.primary,
+  },
+  flex1: {
+    flex: 1,
+  },
+  mcqCard: {
+    backgroundColor: colors.white,
+    marginHorizontal: vw(15),
+    borderRadius: vw(8),
+    paddingHorizontal: vw(15),
+    paddingVertical: vh(8),
+    shadowColor: colors.black,
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+    marginBottom: vh(12),
+  },
+  mcqLabel: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+    color: colors.black,
+    width: vw(240),
+  },
+  optionsContainer: {
+    marginTop: vh(8),
+  },
+  subjectiveCard: {
+    backgroundColor: colors.white,
+    marginHorizontal: vw(15),
+    borderRadius: vw(8),
+    paddingHorizontal: vw(15),
+    paddingVertical: vh(8),
+    shadowColor: colors.black,
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+    marginBottom: vh(12),
+  },
+  subjectiveLabel: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+    color: colors.black,
+    width: vw(240),
+  },
+  headerInfoCard: {
+    backgroundColor: colors.white,
+    marginHorizontal: vw(15),
+    borderRadius: vw(8),
+    paddingHorizontal: vw(15),
+    paddingVertical: vh(8),
+    shadowColor: colors.black,
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+    marginBottom: vh(16),
+  },
+  mcqList: {
+    paddingBottom: vh(8),
+  },
+  subjectiveHeading: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(16),
+    color: colors.black,
+    marginVertical: vh(6),
+    marginLeft: vw(15),
+    marginTop: vh(10),
+  },
+  subjectiveList: {
+    paddingBottom: vh(24),
   },
 });

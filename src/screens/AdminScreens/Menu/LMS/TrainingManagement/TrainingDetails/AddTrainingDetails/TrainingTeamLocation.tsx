@@ -1,5 +1,5 @@
-import { Keyboard, StyleSheet } from 'react-native';
-import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
@@ -39,17 +39,15 @@ import { useCommonDropdownListMutation } from '../../../../../../../injectEndpoi
 import TextAtom from '../../../../../../../components/atoms/TextAtom';
 import moment from 'moment';
 import { useUpdateTrainingDetailsMutation } from '../../../../../../../injectEndpoints/lmsEndpoints';
-import { isNullUndefined } from '../../../../../../../utils/CommonFunction';
 
 interface Props {
   route: any;
   navigation: NavigationType;
   goBack: any;
-  goNext: any;
 }
 
 const TrainingTeamLocation = (props: Props) => {
-  const { navigation, goBack, goNext } = props;
+  const { navigation, goBack } = props;
   const item = props.route?.params?.item;
   const dispatch = useDispatch();
 
@@ -487,7 +485,7 @@ const TrainingTeamLocation = (props: Props) => {
 
         {trainingTeamLocations.map((item: any, index: number) => (
           <ViewAtom
-            key={index}
+            key={index.toString() + 'loc'}
             style={{
               width: vw(320),
               backgroundColor: colors.white,

@@ -24,7 +24,6 @@ import { useSupportListMutation } from '../../../../injectEndpointsTrainee/suppo
 import FloatingButton from '../../../../components/organisms/FloatingButton';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -37,6 +36,8 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+const ItemSeparator = () => <View style={{ height: vh(10) }} />;
 
 const Support = (props: Props) => {
   const { navigation } = props;
@@ -235,9 +236,9 @@ const Support = (props: Props) => {
         renderItem={renderSupportListCard}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -265,7 +266,7 @@ const Support = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={ItemSeparator}
       />
       <FloatingButton
         onButtonPress={() => {

@@ -50,7 +50,7 @@ const ShowCaseNoticeModal = (props: Props) => {
           contentContainerStyle={{ flexGrow: 1 }}
         >
           {notices.map((item: any, index: any) => (
-            <View key={index} style={styles.noticeCard}>
+            <View key={`${index}-${item?.title}`} style={styles.noticeCard}>
               <Text style={styles.noticeHeader}>
                 Notice #{index + 1} | Date: {item.dateOfNotice}
               </Text>

@@ -1,7 +1,8 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vw, vh, screensName } from '../../../../constants';
+import { colors, fonts, vw, vh } from '../../../../constants';
+import strings from '../../../../constants/strings';
 import {
   Header,
   NavigationType,
@@ -28,7 +29,7 @@ const BlockDetails = ({ route, navigation }: Props) => {
   const [data, setData] = useState([]);
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Hostel Details');
+    Header.setNavigation(navigation, strings.blockDetails.hostelDetails);
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
 
@@ -49,7 +50,7 @@ const BlockDetails = ({ route, navigation }: Props) => {
       })
       .catch(() => {
         setLoader(false);
-        Toast.show({ type: 'error', text2: 'Something went wrong' });
+        Toast.show({ type: 'error', text2: strings.something_went_wrong });
       });
   };
   const unblockedBedData = (item: any) => {
@@ -73,7 +74,7 @@ const BlockDetails = ({ route, navigation }: Props) => {
       })
       .catch(() => {
         setLoader(false);
-        Toast.show({ type: 'error', text2: 'Something went wrong' });
+        Toast.show({ type: 'error', text2: strings.something_went_wrong });
       });
   };
 
@@ -81,41 +82,47 @@ const BlockDetails = ({ route, navigation }: Props) => {
     return (
       <View style={styles.card}>
         <View style={styles.row}>
-          <TextAtom style={styles.label}>Sr.No:</TextAtom>
+          <TextAtom style={styles.label}>{strings.blockDetails.srNo}</TextAtom>
           <TextAtom style={styles.value}>{index + 1}</TextAtom>
         </View>
 
         <View style={styles.row}>
-          <TextAtom style={styles.label}>Purpose:</TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.blockDetails.purpose}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.purpose}</TextAtom>
         </View>
 
         <View style={styles.row}>
-          <TextAtom style={styles.label}>Type:</TextAtom>
+          <TextAtom style={styles.label}>{strings.blockDetails.type}</TextAtom>
           <TextAtom style={styles.value}>{item.type}</TextAtom>
         </View>
 
         <View style={styles.row}>
-          <TextAtom style={styles.label}>Hostel:</TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.blockDetails.hostel}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.hostel}</TextAtom>
         </View>
 
         <View style={styles.row}>
-          <TextAtom style={styles.label}>From:</TextAtom>
+          <TextAtom style={styles.label}>{strings.blockDetails.from}</TextAtom>
           <TextAtom style={styles.value}>
             {moment(item.fromDate).format('YYYY-MM-DD')}
           </TextAtom>
         </View>
 
         <View style={styles.row}>
-          <TextAtom style={styles.label}>To:</TextAtom>
+          <TextAtom style={styles.label}>{strings.blockDetails.to}</TextAtom>
           <TextAtom style={styles.value}>
             {moment(item.toDate).format('YYYY-MM-DD')}
           </TextAtom>
         </View>
 
         <View style={styles.row}>
-          <TextAtom style={styles.label}>Blocked Rooms:</TextAtom>
+          <TextAtom style={styles.label}>
+            {strings.blockDetails.blockedRooms}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.blockedBedIds?.length}</TextAtom>
         </View>
 
@@ -123,7 +130,9 @@ const BlockDetails = ({ route, navigation }: Props) => {
           style={styles.unblockBtn}
           onPress={() => unblockedBedData(item)}
         >
-          <TextAtom style={styles.unblockText}>Unblock</TextAtom>
+          <TextAtom style={styles.unblockText}>
+            {strings.blockDetails.unblock}
+          </TextAtom>
         </TouchableAtom>
       </View>
     );
@@ -133,7 +142,7 @@ const BlockDetails = ({ route, navigation }: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
       <TextAtom style={styles.title}>
-        Hostel Details On {moment().format('D MMMM YYYY')}
+        {strings.blockDetails.hostelDetailsOn} {moment().format('D MMMM YYYY')}
       </TextAtom>
 
       <FlatList
@@ -142,11 +151,13 @@ const BlockDetails = ({ route, navigation }: Props) => {
         renderItem={renderCard}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          !loader ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          loader ? null : (
+            <TextAtom style={styles.emptyText}>
+              {strings.blockDetails.noDataFound}
+            </TextAtom>
+          )
         }
-        contentContainerStyle={{ paddingBottom: vh(30) }}
+        contentContainerStyle={styles.listContent}
       />
     </SafeAreaView>
   );
@@ -174,7 +185,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: vw(8),
     elevation: 3,
-    shadowColor: '#00000020',
+    shadowColor: colors.black_20,
   },
 
   row: {
@@ -213,5 +224,8 @@ const styles = StyleSheet.create({
     marginTop: vh(30),
     fontFamily: fonts.Roboto_Medium,
     color: colors.grey,
+  },
+  listContent: {
+    paddingBottom: vh(30),
   },
 });

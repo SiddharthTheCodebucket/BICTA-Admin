@@ -10,7 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
   LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,9 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
-  images,
   screensName,
-  strings,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -34,18 +31,15 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import { useListPatientSymptomsDetailsMutation } from '../../../../../../injectEndpoints/phcEndpoints';
-import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -80,15 +74,13 @@ const BasicPatientDetails = (props: Props) => {
 
   const [trainingList, setTrainingList] = useState<any>([]);
   const [selectedTraining, setSelectedTraining] = useState<any>({});
-  const [bacthList, setBatchList] = useState<any>([]);
+  const [batchList, setBatchList] = useState<any>([]);
   const [selectedBatch, setSelectedBatch] = useState<any>({});
-  const [patientTypeList, setPatientTypeList] = useState<any>([]);
   const [selectedPatientType, setSelectedPatientType] = useState<any>({});
   const [bloodGroupList, setBloodGroupList] = useState<any>([]);
   const [selectedBloodGroup, setSelectedBloodGroup] = useState<any>({});
   const [doctorList, setDoctorList] = useState<any>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<any>({});
-  const [treatmentTypeList, setTreatmentTypeList] = useState<any>([]);
   const [selectedTreatmentType, setSelectedTreatmentType] = useState<any>({});
   const [toDate, setToDate] = useState('');
   const [fromDate, setFromDate] = useState('');
@@ -285,7 +277,7 @@ const BasicPatientDetails = (props: Props) => {
         onPress={() => {
           navigation.navigate('DropDownModal', {
             name: 'Batch',
-            Data: bacthList,
+            Data: batchList,
             selectedData: selectedBatch,
             setSelectedData: (data: any) => {
               setSelectedBatch(data);
@@ -606,9 +598,9 @@ const BasicPatientDetails = (props: Props) => {
         renderItem={renderListBedDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListHeaderComponent={<View>{showFilter && <FilterForm />}</View>}
         ListFooterComponent={

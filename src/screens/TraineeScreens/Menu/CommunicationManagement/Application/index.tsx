@@ -29,7 +29,6 @@ import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
 import { useCommunicationListApplicationUserMutation } from '../../../../../injectEndpointsTrainee/showCauseNoticeEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -42,6 +41,8 @@ const debounce = (func: any, delay: number) => {
     }, delay);
   };
 };
+
+const ItemSeparator = () => <View style={{ height: vh(10) }} />;
 
 const Application = (props: Props) => {
   const { navigation } = props;
@@ -213,11 +214,11 @@ const Application = (props: Props) => {
         renderItem={renderApplicationCard}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.no_application_found}
             </TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -245,7 +246,7 @@ const Application = (props: Props) => {
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={ItemSeparator}
       />
     </SafeAreaView>
   );

@@ -15,7 +15,6 @@ import {
 } from '../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
-import FloatingButton from '../../../../../components/organisms/FloatingButton';
 import { useListAssignVehicleDriverMutation } from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import moment from 'moment';
 
@@ -23,6 +22,44 @@ interface Props {
   route: any;
   navigation: NavigationType;
 }
+
+const DriverItemSeparator = () => <View style={{ height: vh(10) }} />;
+
+interface DriverCardProps {
+  item: any;
+}
+
+const DriverCard = ({ item }: DriverCardProps) => {
+  return (
+    <View style={styles.card}>
+      <View style={{ marginBottom: vh(8) }}>
+        <TextAtom style={styles.label}>Driver Name</TextAtom>
+        <TextAtom style={styles.value}>{item.driverName ?? '-'}</TextAtom>
+      </View>
+
+      <View style={{ marginBottom: vh(8) }}>
+        <TextAtom style={styles.label}>Driver Email</TextAtom>
+        <TextAtom style={styles.value}>{item.driverEmail ?? '-'}</TextAtom>
+      </View>
+
+      <View style={[styles.rowBetween, { marginTop: vh(5) }]}>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>From Date</TextAtom>
+          <TextAtom style={styles.value}>
+            {item.fromDate ? moment(item.fromDate).format('DD-MM-YYYY') : '-'}
+          </TextAtom>
+        </View>
+
+        <View style={{ flex: 1, alignItems: 'flex-end' }}>
+          <TextAtom style={styles.labelRight}>To Date</TextAtom>
+          <TextAtom style={styles.valueRight}>
+            {item.toDate ? moment(item.toDate).format('DD-MM-YYYY') : '-'}
+          </TextAtom>
+        </View>
+      </View>
+    </View>
+  );
+};
 
 const DriverMovementHistory = (props: Props) => {
   const { navigation } = props;
@@ -98,39 +135,8 @@ const DriverMovementHistory = (props: Props) => {
       });
   };
 
-  const DriverCard = ({ item, index }: any) => {
-    return (
-      <View style={styles.card}>
-        <View style={{ marginBottom: vh(8) }}>
-          <TextAtom style={styles.label}>Driver Name</TextAtom>
-          <TextAtom style={styles.value}>{item.driverName ?? '-'}</TextAtom>
-        </View>
-
-        <View style={{ marginBottom: vh(8) }}>
-          <TextAtom style={styles.label}>Driver Email</TextAtom>
-          <TextAtom style={styles.value}>{item.driverEmail ?? '-'}</TextAtom>
-        </View>
-        <View style={[styles.rowBetween, { marginTop: vh(5) }]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>From Date</TextAtom>
-            <TextAtom style={styles.value}>
-              {item.fromDate ? moment(item.fromDate).format('DD-MM-YYYY') : '-'}
-            </TextAtom>
-          </View>
-
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>To Date</TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {item.toDate ? moment(item.toDate).format('DD-MM-YYYY') : '-'}
-            </TextAtom>
-          </View>
-        </View>
-      </View>
-    );
-  };
-
-  const renderItem = ({ item, index }: any) => {
-    return <DriverCard item={item} index={index} />;
+  const renderItem = ({ item }: any) => {
+    return <DriverCard item={item} />;
   };
 
   return (
@@ -143,9 +149,9 @@ const DriverMovementHistory = (props: Props) => {
         renderItem={renderItem}
         keyExtractor={(_, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          )
         }
         ListFooterComponent={
           pagination ? (
@@ -174,7 +180,7 @@ const DriverMovementHistory = (props: Props) => {
           }
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={DriverItemSeparator}
       />
     </SafeAreaView>
   );

@@ -12,8 +12,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   LayoutAnimation,
-  ScrollView,
-  TextInput,
   Modal,
   Keyboard,
 } from 'react-native';
@@ -23,46 +21,33 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
-  images,
   screensName,
   strings,
   vh,
   vw,
 } from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import { isNullUndefined } from '../../../../../../utils/CommonFunction';
 import {
-  downloadAndOpenFile,
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
-import {
-  useAddFileNoTrainingDetailsMutation,
-  useDeleteTrainingDetailsMutation,
-  useDownloadTrainingCategoryMutation,
   useExtendTrainingEndDateMutation,
   useListClassroomTimeTableManageMutation,
-  useListTrainingDetailsMutation,
-  useUpdateTraineeLoginDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
+
 import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
 }
 
@@ -79,14 +64,13 @@ const debounce = (func: any, delay: number) => {
 const FacultyClassApprove = (props: Props) => {
   const { navigation } = props;
 
-  const { crediantialData } = useAppSelector(state => state.Auth);
   const input1_ref: any = createRef();
-  const [downloadApi] = useDownloadTrainingCategoryMutation();
-  const [listTrainingDetailsApi] = useListClassroomTimeTableManageMutation();
-  const [addFileNoTrainingDetailsApi] = useAddFileNoTrainingDetailsMutation();
-  const [updateTraineeLoginDetailsApi] = useUpdateTraineeLoginDetailsMutation();
-  const [extendTrainingEndDateApi] = useExtendTrainingEndDateMutation();
-  const [deleteTrainingDetailsApi] = useDeleteTrainingDetailsMutation();
+
+  const [listFacultyClassApprovalsApi] =
+    useListClassroomTimeTableManageMutation();
+
+  const [extendFacultyClassApproveEndDateApi] =
+    useExtendTrainingEndDateMutation();
   const [dropDownApi] = useCommonDropdownListMutation();
 
   const [data, setData] = useState<any>([]);
@@ -103,19 +87,17 @@ const FacultyClassApprove = (props: Props) => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  const [selectedItems, setSelectedItems] = useState<any>([]);
-  const [totalCount, setTotalCount] = useState(0);
+  const [selectedItems] = useState<any>([]);
 
   const [startDate, setStartDate] = useState<any>('');
-  const [endDate, setEndDate] = useState<any>('');
 
   const [trainingStartLimit, setTrainingStartLimit] = useState<any>(null);
   const [trainingEndLimit, setTrainingEndLimit] = useState<any>(null);
 
   const ITEMS_PER_PAGE = 10;
 
-  const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const [search] = React.useState('');
+  const [centerSerach] = React.useState<any>({});
 
   const [selectedBipardLocation, setSelectedBipardLocation] = useState<any>({});
   const [trainingNameList, setTrainingNameList] = useState<any>({});
@@ -126,7 +108,10 @@ const FacultyClassApprove = (props: Props) => {
     useState<any>('');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Class Approve');
+    Header.setNavigation(
+      navigation,
+      strings.lms.classRoomManagement.facultyClassApprove,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -134,24 +119,24 @@ const FacultyClassApprove = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listTrainingDetais(1, true, '');
+        listFacultyClassApprovals(1, true, '');
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listTrainingDetais(1, true, '');
+    listFacultyClassApprovals(1, true, '');
   }, [centerSerach]);
 
   useEffect(() => {
-    listTrainingDetais(1, true, search);
+    listFacultyClassApprovals(1, true, search);
   }, []);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
     }
     return [centerSerach.name];
   };
@@ -161,7 +146,7 @@ const FacultyClassApprove = (props: Props) => {
     setShowFilter(!showFilter);
   };
 
-  const listTrainingDetais = (
+  const listFacultyClassApprovals = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -185,7 +170,7 @@ const FacultyClassApprove = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    listTrainingDetailsApi(params)
+    listFacultyClassApprovalsApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -203,9 +188,6 @@ const FacultyClassApprove = (props: Props) => {
 
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
-
-        const totalCountApi = res?.data?.totalCount ?? 0;
-        setTotalCount(totalCountApi);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -213,213 +195,12 @@ const FacultyClassApprove = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
-  const handleSearch = useCallback(
-    debounce((text: string) => {
-      listTrainingDetais(1, true, text);
-    }, 500),
-    [],
-  );
-
-  const onChangeSearch = (text: string) => {
-    setSearch(text);
-    handleSearch(text);
-  };
-
-  const onClearSearch = () => {
-    setSearch('');
-    listTrainingDetais(1, true, '');
-  };
-
-  const handleSelectAll = () => {
-    if (selectedItems.length === totalCount) {
-      setSelectedItems([]);
-      listTrainingDetais(1, true, search);
-    } else {
-      setInitialCall(true);
-
-      const params: any = {
-        search,
-        sort: {
-          attributes: ['created_at'],
-          sorts: ['desc'],
-        },
-        filters: [],
-        pageNo: 1,
-        itemsPerPage: totalCount,
-
-        bipardCentre: getCentreFilter() ?? [],
-      };
-
-      listTrainingDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          const fullData = res.data?.data ?? [];
-          setData(fullData);
-          setSelectedItems(fullData);
-          setNextPageAvailable(false);
-          setInitialCall(false);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    }
-  };
-
-  const downloadTraining = async () => {
-    setInitialCall(true);
-
-    const params: any = {
-      category: selectedItems,
-    };
-
-    downloadApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setInitialCall(false);
-        const fileUrl = res.data?.fileUrl ?? '';
-        if (fileUrl) {
-        }
-        downloadAndOpenFile(fileUrl);
-        setSelectedItems([]);
-        listTrainingDetais(1, true, search);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || 'Something went wrong',
-        });
-      });
-  };
-
-  const TraineeCard = ({ item, index, isSelected }: any) => {
-    const [statusValue, setStatusValue] = useState(item.isLoginAllowed ?? null);
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-    const [fileNo, setFileNo] = useState(item.fileNo || '');
-    const [isEditingFile, setIsEditingFile] = useState(!item.fileNo);
-    const [loadingFileSave, setLoadingFileSave] = useState(false);
-
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
-
-      if (newStatus === statusValue) return;
-
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: `Are you sure you want to change the status to "${newStatus}"?`,
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          updateTraineeLoginDetails(item.id, newStatus);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const updateTraineeLoginDetails = (id: any, newStatus: string) => {
-      setInitialCall(true);
-      const params = {
-        trainingId: id,
-        isLoginAllowed: newStatus,
-      };
-      updateTraineeLoginDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
-
-    const saveFileNo = () => {
-      if (!fileNo?.trim()) {
-        Toast.show({ type: 'error', text2: 'File No cannot be empty!' });
-        return;
-      }
-
-      setLoadingFileSave(true);
-
-      const params = {
-        id: item.id,
-        fileNo: fileNo,
-      };
-
-      addFileNoTrainingDetailsApi(params)
-        .unwrap()
-        .then(res => {
-          Toast.show({ type: 'success', text2: res.data.message });
-          setIsEditingFile(false);
-          setLoadingFileSave(false);
-          listTrainingDetais(1, false, '');
-        })
-        .catch(err => {
-          setLoadingFileSave(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Error updating File No',
-          });
-        });
-    };
-
-    const handleDelete = () => {
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Delete Confirmation',
-        message: 'Are you sure you want to delete this item?',
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          deleteTrainingDetails(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const deleteTrainingDetails = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        course_id: id,
-      };
-      deleteTrainingDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
-
+  const FacultyClassApproveCard = ({ item, index, isSelected }: any) => {
     return (
       <TouchableAtom
         onPress={() => {
@@ -429,124 +210,40 @@ const FacultyClassApprove = (props: Props) => {
         }}
         style={[styles.card, isSelected && styles.selectedCard]}
       >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+        <View style={styles.cardHeader}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
+            {strings.lms.locationDetails.srNo} {index + 1}
           </TextAtom>
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                setSelectedItem(item);
-                setDateExtendedModal(true);
-                setSelectedDate('');
-              }}
-            >
-              <ImageAtom
-                source={images.extended}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                  resizeMode: 'contain',
-                }}
-              />
-            </TouchableAtom> */}
-
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                // navigation.navigate(screensName.AddCreateTour, { item: item });
-              }}
-            >
-              <ImageAtom
-                source={images.link}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                navigation.navigate(screensName.AddTrainingDetails, {
-                  item: item,
-                });
-              }}
-            >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
-            </TouchableAtom> */}
-          </View>
+          <View style={{ flexDirection: 'row', gap: vw(15) }}></View>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Training Name</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.classRoomManagement.trainingName}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.trainingName || '-'}</TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Days</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.classRoomManagement.days}
+          </TextAtom>
           <TextAtom style={styles.value}>
             {moment(item.courseStartDate).format('DD-MM-YYYY')}
           </TextAtom>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Session</TextAtom>
+        <View style={styles.flex1}>
+          <TextAtom style={styles.label}>
+            {strings.lms.classRoomManagement.session}
+          </TextAtom>
           <TextAtom style={styles.value}>{item.selectASession}</TextAtom>
         </View>
       </TouchableAtom>
     );
   };
 
-  const renderListRoomDetails = ({ item, index }: any) => {
+  const renderFacultyClassApproveItem = ({ item, index }: any) => {
     return (
-      <TraineeCard
+      <FacultyClassApproveCard
         item={item}
         index={index}
         navigation={navigation}
@@ -602,7 +299,7 @@ const FacultyClassApprove = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'classroom_management_select_training_duration',
-      bipardCentre: ['Gaya'],
+      bipardCentre: [strings.dashboardIndex.gaya],
       replacements: [id],
     };
     dropDownApi(params)
@@ -633,14 +330,20 @@ const FacultyClassApprove = (props: Props) => {
   const FilterForm = () => (
     <View style={styles.filterContainer}>
       <DropDownOrganism
-        label={'Bipard Location'}
-        placeholder={'Bipard Location'}
+        label={strings.lms.classRoomManagement.bipardLocation}
+        placeholder={strings.lms.classRoomManagement.bipardLocation}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Bipard Location',
+            name: strings.lms.classRoomManagement.bipardLocation,
             Data: [
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
+              {
+                id: strings.dashboardIndex.gaya,
+                name: strings.dashboardIndex.gaya,
+              },
+              {
+                id: strings.dashboardIndex.patna,
+                name: strings.dashboardIndex.patna,
+              },
             ],
             selectedData: selectedBipardLocation,
             setSelectedData: (data: any) => {
@@ -658,11 +361,11 @@ const FacultyClassApprove = (props: Props) => {
         inputText={selectedBipardLocation?.name}
       />
       <DropDownOrganism
-        label={'Training Name'}
-        placeholder={'Training Name'}
+        label={strings.lms.classRoomManagement.trainingName}
+        placeholder={strings.lms.classRoomManagement.trainingName}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Training Name',
+            name: strings.lms.classRoomManagement.trainingName,
             Data: trainingNameList,
             selectedData: selectedTrainingName,
             setSelectedData: (data: any) => {
@@ -680,11 +383,11 @@ const FacultyClassApprove = (props: Props) => {
         inputText={selectedTrainingName?.name}
       />
       <DropDownOrganism
-        label={'Batch Name'}
-        placeholder={'Batch Name'}
+        label={strings.lms.classRoomManagement.batchName}
+        placeholder={strings.lms.classRoomManagement.batchName}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Batch Name',
+            name: strings.lms.classRoomManagement.batchName,
             Data: bacthNameList,
             selectedData: selectedBacthName,
             setSelectedData: (data: any) => {
@@ -697,8 +400,8 @@ const FacultyClassApprove = (props: Props) => {
         inputText={selectedBacthName?.name}
       />
       <DateInputOrganism
-        label={'Start Date'}
-        placeholder={'Start Date'}
+        label={strings.lms.classRoomManagement.startDate}
+        placeholder={strings.lms.classRoomManagement.startDate}
         value={startDate}
         onChangeText={(val: any) => {
           setStartDate(val);
@@ -709,8 +412,8 @@ const FacultyClassApprove = (props: Props) => {
         maxDate={trainingEndLimit}
       />
       <TextInputOrganisms
-        label={'Duration'}
-        placeholder={'Duration'}
+        label={strings.lms.classRoomManagement.duration}
+        placeholder={strings.lms.classRoomManagement.duration}
         ref={input1_ref}
         onSubmitEditing={() => Keyboard.dismiss()}
         value={selectedTrainingDuration}
@@ -723,12 +426,12 @@ const FacultyClassApprove = (props: Props) => {
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
-          bttnText="Apply Filter"
+          bttnText={strings.lms.locationDetails.applyFilter}
           containerStyle={styles.applyBtn}
         />
         <ButtonOrganism
           onPress={clearFilter}
-          bttnText="Clear Filter"
+          bttnText={strings.lms.locationDetails.clearFilter}
           containerStyle={styles.clearBtn}
           bttnTextStyle={{ color: colors.primary }}
         />
@@ -741,7 +444,7 @@ const FacultyClassApprove = (props: Props) => {
     setSelectedBacthName({});
     setStartDate('');
     setSelectedTrainingDuration('');
-    listTrainingDetais(1, true, search, []);
+    listFacultyClassApprovals(1, true, search, []);
   };
 
   const applyFilter = (isExport = false) => {
@@ -757,7 +460,7 @@ const FacultyClassApprove = (props: Props) => {
       const formatted = moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
       filters.push(['date', '=', formatted]);
     }
-    listTrainingDetais(1, true, search, filters);
+    listFacultyClassApprovals(1, true, search, filters);
     setShowFilter(false);
   };
 
@@ -773,75 +476,32 @@ const FacultyClassApprove = (props: Props) => {
           setSelectedItem({});
         }}
       >
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 9999,
-          }}
-        >
-          <View
-            style={{
-              width: '90%',
-              backgroundColor: colors.white,
-              borderRadius: 10,
-              padding: 20,
-              position: 'relative',
-            }}
-          >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
             <TouchableAtom
-              style={{ position: 'absolute', top: 10, right: 10, padding: 5 }}
+              style={styles.modalCloseBtn}
               onPress={() => {
                 setDateExtendedModal(false);
                 setSelectedDate('');
                 setSelectedItem({});
               }}
             >
-              <TextAtom style={{ fontSize: vw(22), color: colors.red_2 }}>
-                ×
-              </TextAtom>
+              <TextAtom style={styles.modalCloseText}>×</TextAtom>
             </TouchableAtom>
 
-            <TextAtom
-              style={{
-                fontSize: vw(16),
-                fontFamily: fonts.Roboto_Bold,
-                marginBottom: vh(15),
-                color: colors.primary,
-                textAlign: 'center',
-              }}
-            >
-              Extended Date
+            <TextAtom style={styles.modalTitle}>
+              {strings.lms.classRoomManagement.extendedDate}
             </TextAtom>
 
             {selectedItem && (
-              <View style={{ marginBottom: vh(12) }}>
-                <TextAtom
-                  numberOfLines={0}
-                  style={{
-                    fontSize: vw(14),
-                    fontFamily: fonts.Roboto_Medium,
-                    color: colors.black,
-                  }}
-                >
-                  Extend Date of: "{selectedItem.trainingFullName}"
+              <View style={styles.modalFieldBox}>
+                <TextAtom numberOfLines={0} style={styles.modalEntityName}>
+                  {strings.lms.classRoomManagement.extendDateOf}: "
+                  {selectedItem.trainingFullName}"
                 </TextAtom>
 
-                <TextAtom
-                  style={{
-                    fontSize: vw(14),
-                    fontFamily: fonts.Roboto_Regular,
-                    color: colors.grey,
-                    marginTop: vh(4),
-                  }}
-                >
-                  Duration:{' '}
+                <TextAtom style={styles.modalDurationText}>
+                  {strings.lms.classRoomManagement.duration}:{' '}
                   {moment(selectedItem?.courseStartDate).format('DD-MMM-YYYY')}
                   {' to '}
                   {moment(selectedItem?.courseEndDate).format('DD-MMM-YYYY')}
@@ -850,8 +510,8 @@ const FacultyClassApprove = (props: Props) => {
             )}
 
             <DateInputOrganism
-              label="Start Date"
-              placeholder="Start Date"
+              label={strings.lms.classRoomManagement.startDate}
+              placeholder={strings.lms.classRoomManagement.startDate}
               value={selectedDate}
               onChangeText={(val: any) => {
                 setSelectedDate(val);
@@ -864,38 +524,22 @@ const FacultyClassApprove = (props: Props) => {
             />
 
             {/* Action Buttons */}
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'flex-end',
-                marginTop: 25,
-              }}
-            >
+            <View style={styles.modalActionRow}>
               <TouchableAtom
-                style={{
-                  paddingVertical: vh(8),
-                  paddingHorizontal: vw(20),
-                  backgroundColor: colors.green,
-                  borderRadius: vw(6),
-                }}
+                style={styles.modalExtendBtn}
                 onPress={() => {
                   if (isNullUndefined(selectedDate)) {
                     Toast.show({
                       type: 'error',
-                      text2: 'Date is required',
+                      text2: strings.lms.classRoomManagement.dateIsRequired,
                     });
                     return;
                   }
                   extendTrainingEndDate(selectedItem.id, selectedDate);
                 }}
               >
-                <TextAtom
-                  style={{
-                    color: colors.white,
-                    fontFamily: fonts.Roboto_Medium,
-                  }}
-                >
-                  Extend
+                <TextAtom style={styles.modalExtendText}>
+                  {strings.lms.classRoomManagement.extend}
                 </TextAtom>
               </TouchableAtom>
             </View>
@@ -911,7 +555,7 @@ const FacultyClassApprove = (props: Props) => {
       trainingId: id,
       newEndDate: moment(date, 'DD-MM-YYYY').format('YYYY-MM-DD'),
     };
-    extendTrainingEndDateApi(params)
+    extendFacultyClassApproveEndDateApi(params)
       .unwrap()
       .then((res: any) => {
         Toast.show({
@@ -925,7 +569,7 @@ const FacultyClassApprove = (props: Props) => {
         setInitialCall(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
@@ -935,98 +579,23 @@ const FacultyClassApprove = (props: Props) => {
       <FullscreenLoading isVisible={initialCall} />
       <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
         <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
+          {showFilter
+            ? strings.lms.classRoomManagement.hideFilter
+            : strings.lms.classRoomManagement.showFilter}
         </TextAtom>
       </TouchableAtom>
-      {/* 
-      <View style={{ height: vh(130) }}>
-        <ScrollView showsVerticalScrollIndicator={false}>
- <View
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'flex-end',
-            }}
-          > 
-        <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-              <TextAtom style={styles.filterText}>
-                {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-              </TextAtom>
-            </TouchableAtom> 
- <TouchableAtom
-              style={styles.filterButton}
-              onPress={handleSelectAll}
-            >
-              <TextAtom style={styles.filterText}>
-                {selectedItems?.length === totalCount
-                  ? 'Unselect All'
-                  : 'Select All'}
-              </TextAtom>
-            </TouchableAtom>
-            <TouchableAtom
-              style={styles.filterButton}
-              onPress={() => {
-                if (selectedItems.length === 0) {
-                  Toast.show({
-                    type: 'error',
-                    text2: 'Select to download',
-                  });
-                  return;
-                }
-                downloadTraining();
-              }}
-            >
-              <ImageAtom
-                source={images.download}
-                style={{ tintColor: colors.black }}
-              />
-            </TouchableAtom>
-          </View>
-          {showFilter && <FilterForm />}
-
-          {crediantialData.user[0].tenantId === 3 && (
-
-
-            <DropDownOrganism
-            label={''}
-            placeholder={'Centers'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Center',
-                Data: [
-                  { id: 'All Centers', name: 'All Centers' },
-                  { id: 'Gaya', name: 'Gaya' },
-                  { id: 'Patna', name: 'Patna' },
-                ],
-                selectedData: centerSerach,
-                setSelectedData: setCenterSerach,
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={centerSerach?.name}
-            containerStyle={{ marginBottom: vh(5) }}
-          />
-
-
-          )}
-          <SearchBoxOrganism
-            onChangeText={onChangeSearch}
-            searchText={search}
-            onPressCross={onClearSearch}
-            searchBox={{ marginTop: vh(10) }}
-          />
-        </ScrollView>
-      </View> */}
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListRoomDetails}
+        renderItem={renderFacultyClassApproveItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          ) : null
+          initialCall ? null : (
+            <TextAtom style={styles.emptyText}>
+              {strings.lms.locationDetails.noDataFound}
+            </TextAtom>
+          )
         }
         ListHeaderComponent={showFilter ? <FilterForm /> : null}
         ListFooterComponent={
@@ -1034,7 +603,7 @@ const FacultyClassApprove = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(10) }}
+            style={styles.paginationLoader}
           />
         }
         refreshControl={
@@ -1044,24 +613,19 @@ const FacultyClassApprove = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listTrainingDetais(1, false, '');
+              listFacultyClassApprovals(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listTrainingDetais(page + 1, false, search)
+            ? listFacultyClassApprovals(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddTrainingDetails);
-        }}
-      /> */}
 
       <DateExtendModal />
     </SafeAreaView>
@@ -1085,7 +649,7 @@ const styles = StyleSheet.create({
   tabButton: {
     paddingVertical: vh(8),
     paddingHorizontal: vw(20),
-    backgroundColor: '#EAEAEA',
+    backgroundColor: colors.lightGray2,
     borderRadius: vw(6),
   },
   activeTab: {
@@ -1183,7 +747,7 @@ const styles = StyleSheet.create({
   selectedCard: {
     borderWidth: 1,
     borderColor: colors.primary,
-    backgroundColor: '#F3F8FF',
+    backgroundColor: colors.lightBlue,
   },
   statusBox: {
     marginTop: vh(8),
@@ -1197,13 +761,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
+    backgroundColor: colors.lightGreenBg,
+    borderColor: colors.darkGreen,
   },
 
   inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
+    backgroundColor: colors.lightRedBg,
+    borderColor: colors.darkRed,
   },
 
   statusText: {
@@ -1211,8 +775,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
 
   dropMenu: {
     marginTop: vh(6),
@@ -1235,7 +799,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'transparent',
+    backgroundColor: colors.transparent,
     zIndex: 998,
   },
   fileInputRow: {
@@ -1283,4 +847,67 @@ const styles = StyleSheet.create({
     color: colors.grey,
     fontFamily: fonts.Roboto_Medium,
   },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: vh(10),
+  },
+  flex1: { flex: 1 },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.transparentBlack,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9999,
+  },
+  modalContent: {
+    width: '90%',
+    backgroundColor: colors.white,
+    borderRadius: 10,
+    padding: 20,
+    position: 'relative',
+  },
+  modalCloseBtn: { position: 'absolute', top: 10, right: 10, padding: 5 },
+  modalCloseText: { fontSize: vw(22), color: colors.red_2 },
+  modalTitle: {
+    fontSize: vw(16),
+    fontFamily: fonts.Roboto_Bold,
+    marginBottom: vh(15),
+    color: colors.primary,
+    textAlign: 'center',
+  },
+  modalFieldBox: { marginBottom: vh(12) },
+  modalEntityName: {
+    fontSize: vw(14),
+    fontFamily: fonts.Roboto_Medium,
+    color: colors.black,
+  },
+  modalDurationText: {
+    fontSize: vw(14),
+    fontFamily: fonts.Roboto_Regular,
+    color: colors.grey,
+    marginTop: vh(4),
+  },
+  modalActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 25,
+  },
+  modalExtendBtn: {
+    paddingVertical: vh(8),
+    paddingHorizontal: vw(20),
+    backgroundColor: colors.green,
+    borderRadius: vw(6),
+  },
+  modalExtendText: {
+    color: colors.white,
+    fontFamily: fonts.Roboto_Medium,
+  },
+  paginationLoader: { marginTop: vh(10) },
+  itemSeparator: { height: vh(10) },
 });

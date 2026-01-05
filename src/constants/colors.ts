@@ -22,4 +22,46 @@ export default {
   grey_3: 'rgba(80, 84, 89, 1)',
   lightGreen: '#DFF6DD',
   sky_blue: 'rgba(227,240,255,1)',
+  selectedCardBg: '#F3F8FF',
+
+  // UI Background Colors
+  lightGray2: '#EAEAEA',
+  veryLightGray: '#F5F5F5',
+  lightBlue: '#E8F0FE',
+  paleBlue: '#DDE8FF',
+  mediumGray: '#E0E0E0',
+  offWhite: '#F3F4F6',
+  borderGrayLight: '#E5E7EB',
+
+  // Status Colors
+  successGreen: '#4CAF50',
+  errorRed: '#FF5252',
+  warningOrange: '#FFB74D',
+
+  // Border/Accent Colors
+  slateGray: '#6C7A89',
+  infoBlue: '#007bff',
+  successGreen2: '#28a745',
+  dangerRed: '#dc3545',
+
+  // Status Background Colors (for Active/Inactive indicators)
+  lightGreenBg: '#ddffdd',
+  darkGreen: '#22aa22',
+  lightRedBg: '#ffdddd',
+  darkRed: '#cc2222',
+  greenText: '#008800',
+  redText: '#bb0000',
+  transparentBlack: 'rgba(0, 0, 0, 0.4)',
+  transparent: 'transparent',
+  pharmacy_blue: '#0000FF',
+  pharmacy_green: '#00FF00',
+  pharmacy_red: '#FF0000',
+  pharmacy_yellow: '#FFFF00',
+  active_green: '#008800',
+  inactive_red: '#bb0000',
+  light_green_bg: '#ddffdd',
+  dark_green_border: '#22aa22',
+  light_red_bg: '#ffdddd',
+  dark_red_border: '#cc2222',
+  light_gray_bg: '#eaeaea',
 };
