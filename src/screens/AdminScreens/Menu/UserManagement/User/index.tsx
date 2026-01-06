@@ -7,6 +7,7 @@ import {
   NavigationType,
 } from '../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../components/atoms/TextAtom';
+import { useAppSelector } from '../../../../../hooks';
 
 interface Props {
   navigation: NavigationType;
@@ -14,7 +15,8 @@ interface Props {
 
 const User = (props: Props) => {
   const { navigation } = props;
-
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const tenantId: any = crediantialData.user[0].tenantId;
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'User');
     navigation.BackButtonPress = () => {
@@ -22,43 +24,36 @@ const User = (props: Props) => {
     };
   }, []);
 
-  const DATA = [
+  const ALL_DATA = [
     {
       id: 1,
       name: 'User Registration',
-      onPress: () => {
-        navigation.navigate(screensName.UserRegistration);
-      },
+      onPress: () => navigation.navigate(screensName.UserRegistration),
     },
     {
       id: 2,
       name: 'Role Management',
-      onPress: () => {
-        navigation.navigate(screensName.RoleManagement);
-      },
+      onPress: () => navigation.navigate(screensName.RoleManagement),
     },
     {
       id: 3,
       name: 'Permission Name List',
-      onPress: () => {
-        navigation.navigate(screensName.PermissionNameList);
-      },
+      onPress: () => navigation.navigate(screensName.PermissionNameList),
     },
     {
       id: 4,
       name: 'Role Permission',
-      onPress: () => {
-        navigation.navigate(screensName.RolePermission);
-      },
+      onPress: () => navigation.navigate(screensName.RolePermission),
     },
     {
       id: 5,
       name: 'View Users Role With Permission',
-      onPress: () => {
-        navigation.navigate(screensName.RoleWithPermission);
-      },
+      onPress: () => navigation.navigate(screensName.RoleWithPermission),
     },
   ];
+
+  const DATA =
+    tenantId === 3 ? ALL_DATA : ALL_DATA.filter(item => item.id === 1);
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
