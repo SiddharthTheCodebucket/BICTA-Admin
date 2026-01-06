@@ -55,11 +55,11 @@ const Menu = ({ navigation }: Props) => {
       name: 'PHC Management System',
       onPress: () => navigation.navigate(screensName.PHCManagement),
     },
-    {
-      id: 4,
-      name: 'Vehicle Management System',
-      onPress: () => navigation.navigate(screensName.VehicleManagement),
-    },
+    // {
+    //   id: 4,
+    //   name: 'Vehicle Management System',
+    //   onPress: () => navigation.navigate(screensName.VehicleManagement),
+    // },
     {
       id: 6,
       name: 'User Management',
