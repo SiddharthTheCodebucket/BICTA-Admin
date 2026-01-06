@@ -134,6 +134,13 @@ import PermissionNameList from '../screens/AdminScreens/Menu/UserManagement/User
 import RolePermission from '../screens/AdminScreens/Menu/UserManagement/User/RolePermission';
 import RoleWithPermission from '../screens/AdminScreens/Menu/UserManagement/User/RoleWithPermission';
 import RoleWithPermissionDetails from '../screens/AdminScreens/Menu/UserManagement/User/RoleWithPermission/RoleWithPermissionDetails';
+import SupportMain from '../screens/AdminScreens/Menu/SupportMain';
+import SupportAdmin from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin';
+import SupportTicketHistory from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory';
+import SupportTicketHistoryDetails from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketHistoryDetails';
+import SupportTicketResponseDetails from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketResponseDetails';
+import SupportTicketMovementDetails from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketMovementDetails';
+import SupportTicketHistoryReply from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketHistoryReply';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -571,6 +578,28 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="RoleWithPermissionDetails"
           component={RoleWithPermissionDetails}
+        />
+        <RootStackScreen.Screen name="SupportMain" component={SupportMain} />
+        <RootStackScreen.Screen name="SupportAdmin" component={SupportAdmin} />
+        <RootStackScreen.Screen
+          name="SupportTicketHistory"
+          component={SupportTicketHistory}
+        />
+        <RootStackScreen.Screen
+          name="SupportTicketHistoryDetails"
+          component={SupportTicketHistoryDetails}
+        />
+        <RootStackScreen.Screen
+          name="SupportTicketResponseDetails"
+          component={SupportTicketResponseDetails}
+        />
+        <RootStackScreen.Screen
+          name="SupportTicketMovementDetails"
+          component={SupportTicketMovementDetails}
+        />
+        <RootStackScreen.Screen
+          name="SupportTicketHistoryReply"
+          component={SupportTicketHistoryReply}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

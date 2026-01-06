@@ -134,6 +134,13 @@ export default {
   RolePermission: 'RolePermission',
   RoleWithPermission: 'RoleWithPermission',
   RoleWithPermissionDetails: 'RoleWithPermissionDetails',
+  SupportMain: 'SupportMain',
+  SupportAdmin: 'SupportAdmin',
+  SupportTicketHistory: 'SupportTicketHistory',
+  SupportTicketHistoryDetails: 'SupportTicketHistoryDetails',
+  SupportTicketResponseDetails: 'SupportTicketResponseDetails',
+  SupportTicketMovementDetails: 'SupportTicketMovementDetails',
+  SupportTicketHistoryReply: 'SupportTicketHistoryReply',
 
   // Trainee Screen
   MyProfile: 'MyProfile',

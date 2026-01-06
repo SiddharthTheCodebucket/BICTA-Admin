@@ -35,4 +35,5 @@ export default {
   assign: require('../assets/images/assign.png'),
   reassign: require('../assets/images/reassign.png'),
   payment: require('../assets/images/payment.png'),
+  reply: require('../assets/images/reply.png'),
 };

@@ -24,6 +24,7 @@ const ACTIVE_MODULES = new Set<string>([
   'Learning Management System',
   'Hostel Management',
   'User Management',
+  'Support',
   'PHC Management System',
   'Vehicle Management',
   'Invoice and Bill Management',
@@ -71,6 +72,11 @@ const Menu = ({ navigation }: Props) => {
       onPress: () => navigation.navigate(screensName.UserManagement),
     },
     {
+      id: 11,
+      name: 'Support',
+      onPress: () => navigation.navigate(screensName.SupportMain),
+    },
+    {
       id: 12,
       name: 'Invoice and Bill Management',
       onPress: () => navigation.navigate(screensName.InvoiceAndBillManagement),
@@ -92,7 +98,6 @@ const Menu = ({ navigation }: Props) => {
     { id: 8, name: 'HRMS' },
     { id: 9, name: 'Visitor Management System' },
     { id: 10, name: 'Conference Management System' },
-    { id: 11, name: 'Support' },
 
     { id: 13, name: 'House Keeping Management' },
     { id: 14, name: 'Budget Management' },
@@ -137,7 +142,7 @@ const Menu = ({ navigation }: Props) => {
               </TextAtom>
               {isDisabled && (
                 <View style={styles.badge}>
-                  <TextAtom style={styles.badgeText}>Coming Soon</TextAtom>{' '}
+                  <TextAtom style={styles.badgeText}>Coming Soon</TextAtom>
                 </View>
               )}
             </TouchableOpacity>
@@ -168,7 +173,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: vh(30),
   },
-  menuText: { color: colors.white, fontSize: vw(14) },
+  menuText: { color: colors.white, fontSize: vw(16) },
   comingSoonCard: {
     backgroundColor: colors.backgroundColor,
     borderStyle: 'dashed',

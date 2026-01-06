@@ -163,4 +163,9 @@ export default {
   list_global_permissions_list: 'user-management/list-global-admin-permissions',
   update_global_permissions_list:
     'user-management/update-global-admin-permissions',
+
+  //Support
+  list_support_raise_complain: 'support/list-support-raise-complain',
+  delete_support_raise_complain: 'support/delete-support-raise-complain',
+  resolve_support_raise_complain: 'support/resolve-support-raised-complain',
 };
