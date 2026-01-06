@@ -132,6 +132,8 @@ import RoleManagement from '../screens/AdminScreens/Menu/UserManagement/User/Rol
 import AddRole from '../screens/AdminScreens/Menu/UserManagement/User/RoleManagement/AddRole';
 import PermissionNameList from '../screens/AdminScreens/Menu/UserManagement/User/PermissionNameList';
 import RolePermission from '../screens/AdminScreens/Menu/UserManagement/User/RolePermission';
+import RoleWithPermission from '../screens/AdminScreens/Menu/UserManagement/User/RoleWithPermission';
+import RoleWithPermissionDetails from '../screens/AdminScreens/Menu/UserManagement/User/RoleWithPermission/RoleWithPermissionDetails';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -561,6 +563,14 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="RolePermission"
           component={RolePermission}
+        />
+        <RootStackScreen.Screen
+          name="RoleWithPermission"
+          component={RoleWithPermission}
+        />
+        <RootStackScreen.Screen
+          name="RoleWithPermissionDetails"
+          component={RoleWithPermissionDetails}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

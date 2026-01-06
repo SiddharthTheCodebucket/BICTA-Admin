@@ -132,6 +132,8 @@ export default {
   AddRole: 'AddRole',
   PermissionNameList: 'PermissionNameList',
   RolePermission: 'RolePermission',
+  RoleWithPermission: 'RoleWithPermission',
+  RoleWithPermissionDetails: 'RoleWithPermissionDetails',
 
   // Trainee Screen
   MyProfile: 'MyProfile',

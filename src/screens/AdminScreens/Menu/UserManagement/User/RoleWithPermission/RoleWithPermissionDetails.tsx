@@ -10,11 +10,9 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import { useFocusEffect } from '@react-navigation/native';
 import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
@@ -23,15 +21,12 @@ import {
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import moment from 'moment';
-import { useListPermissionsNameMutation } from '../../../../../../injectEndpoints/userTypeEndpoints';
+import { useListGlobalPermissionsListMutation } from '../../../../../../injectEndpoints/userTypeEndpoints';
 
 interface Props {
+  route: any;
   navigation: NavigationType;
 }
 
@@ -78,6 +73,7 @@ const ListPermissionCard = ({ item, index }: ListPermissionProps) => {
         <TextAtom style={styles.label}>{'Parent Module'}</TextAtom>
         <TextAtom style={styles.value}>{item.parent ?? '-'}</TextAtom>
       </View>
+
       <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
           <TextAtom style={styles.label}>{'Date of Creation'}</TextAtom>
@@ -97,122 +93,13 @@ const ListPermissionCard = ({ item, index }: ListPermissionProps) => {
   );
 };
 
-interface FilterFormProps {
-  navigation: NavigationType;
-  parentModuleList: any[];
-  selectedParentModule: any;
-  setSelectedParentModule: (d: any) => void;
-  moduleList: any[];
-  selectedModule: any;
-  setSelectedModule: (d: any) => void;
-  statusList: any[];
-  selectedStatus: any;
-  setSelectedStatus: (d: any) => void;
-  applyFilter: () => void;
-  clearFilter: () => void;
-  getSubModuleList: (id: any) => void;
-  hitFilterApi: (parent?: any, module?: any, status?: any) => void;
-}
-
-const FilterForm = ({
-  navigation,
-  parentModuleList,
-  selectedParentModule,
-  setSelectedParentModule,
-  moduleList,
-  selectedModule,
-  setSelectedModule,
-  statusList = [
-    { id: 'Active', name: 'Active' },
-    { id: 'Inactive', name: 'In-Active' },
-  ],
-  selectedStatus,
-  setSelectedStatus,
-  applyFilter,
-  clearFilter,
-  getSubModuleList,
-  hitFilterApi,
-}: FilterFormProps) => (
-  <View style={styles.filterContainer}>
-    <DropDownOrganism
-      label={'Parent Module'}
-      placeholder={'Parent Module'}
-      onPress={() => {
-        navigation.navigate('DropDownModal', {
-          name: 'Parent Module',
-          Data: parentModuleList,
-          selectedData: selectedParentModule,
-          setSelectedData: (data: any) => {
-            setSelectedParentModule(data);
-            getSubModuleList(data.id);
-            hitFilterApi(data, selectedModule, selectedStatus);
-          },
-          typeName: 'name',
-          typeId: 'id',
-        });
-      }}
-      inputText={selectedParentModule?.name}
-    />
-    <DropDownOrganism
-      label={'Module'}
-      placeholder={'Module'}
-      onPress={() => {
-        navigation.navigate('DropDownModal', {
-          name: 'Module',
-          Data: moduleList,
-          selectedData: selectedModule,
-          setSelectedData: (data: any) => {
-            setSelectedModule(data);
-            hitFilterApi(selectedParentModule, data, selectedStatus);
-          },
-          typeName: 'name',
-          typeId: 'id',
-        });
-      }}
-      inputText={selectedModule?.name}
-    />
-    <DropDownOrganism
-      label={'Status'}
-      placeholder={'Status'}
-      onPress={() => {
-        navigation.navigate('DropDownModal', {
-          name: 'Status',
-          Data: statusList,
-          selectedData: selectedStatus,
-          setSelectedData: (data: any) => {
-            setSelectedStatus(data);
-            hitFilterApi(selectedParentModule, selectedModule, data);
-          },
-          typeName: 'name',
-          typeId: 'id',
-        });
-      }}
-      inputText={selectedStatus?.name}
-    />
-
-    <ViewAtom style={styles.buttonRow}>
-      <ButtonOrganism
-        onPress={applyFilter}
-        bttnText={strings.hostelManagement.bedAvailability.applyFilter}
-        containerStyle={styles.applyBtn}
-      />
-      <ButtonOrganism
-        onPress={clearFilter}
-        bttnText={strings.hostelManagement.bedAvailability.clearFilter}
-        containerStyle={styles.clearBtn}
-        bttnTextStyle={{ color: colors.primary }}
-      />
-    </ViewAtom>
-  </View>
-);
-
 const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 
-const PermissionNameList = (props: Props) => {
+const RoleWithPermissionDetails = (props: Props) => {
   const { navigation } = props;
+  const roleId = props.route.params?.roleId;
 
-  const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [listPermissionNameApi] = useListPermissionsNameMutation();
+  const [globalListPermissionApi] = useListGlobalPermissionsListMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -222,41 +109,23 @@ const PermissionNameList = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
-  const [parentModuleList, setParentModuleList] = useState<any>([]);
-  const [selectedParentModule, setSelectedParentModule] = useState<any>({});
-  const [moduleList, setModuleList] = useState<any>([]);
-  const [selectedModule, setSelectedModule] = useState<any>({});
-  const [selectedStatus, setSelectedStatus] = useState<any>({});
 
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Permission Name List');
+    Header.setNavigation(navigation, 'User Role Permission List');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
-  useFocusEffect(
-    useCallback(() => {
-      if (firstTimeLoad && search === '') {
-        getParentModuleList();
-      }
-    }, [firstTimeLoad, search]),
-  );
   useEffect(() => {
     if (firstTimeLoad && search === '') {
       setFirstTimeLoad(false);
       listPermissionName(1, true, search, []);
     }
   }, []);
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
-  };
 
   const listPermissionName = (
     pageNumber: number,
@@ -269,15 +138,15 @@ const PermissionNameList = (props: Props) => {
     const params: any = {
       search: keyword,
       sort: {
-        attributes: ['id'],
+        attributes: ['created_date'],
         sorts: ['desc'],
       },
-      filters: filtersArray,
+      filters: [['roleId', '=', roleId]],
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
     };
 
-    listPermissionNameApi(params)
+    globalListPermissionApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -327,140 +196,10 @@ const PermissionNameList = (props: Props) => {
     <ListPermissionCard item={item} index={index} />
   );
 
-  const clearFilter = () => {
-    setSelectedParentModule({});
-    setSelectedModule({});
-    setSelectedStatus({});
-    listPermissionName(1, true, search, []);
-  };
-
-  const applyFilter = () => {
-    const filters = [];
-
-    if (selectedParentModule?.id) {
-      filters.push(['parent', '=', selectedParentModule.id]);
-    }
-
-    if (selectedModule?.id) {
-      filters.push(['module', '=', selectedModule.id]);
-    }
-
-    if (selectedStatus?.id) {
-      filters.push(['status', '=', selectedStatus.id]);
-    }
-
-    listPermissionName(1, true, search, filters);
-  };
-
-  const getParentModuleList = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'select_global_module',
-      bipardCentre: ['Gaya', 'Patna'],
-      replacements: ['%%'],
-    };
-
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setParentModuleList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
-
-  const getSubModuleList = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'select_global_sub_module',
-      bipardCentre: ['Gaya', 'Patna'],
-      replacements: ['%%', 'HRMS'],
-    };
-
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setModuleList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
-
-  const hitFilterApi = (
-    parent = selectedParentModule,
-    module = selectedModule,
-    status = selectedStatus,
-  ) => {
-    const filters: any[] = [];
-
-    if (parent?.id) {
-      filters.push(['parent', '=', parent.id]);
-    }
-
-    if (module?.id) {
-      filters.push(['module', '=', module.id]);
-    }
-
-    if (status?.id) {
-      filters.push(['status', '=', status.id]);
-    }
-
-    listPermissionName(1, true, search, filters);
-  };
-
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignSelf: 'flex-end',
-        }}
-      >
-        <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-          <TextAtom style={styles.filterText}>
-            {showFilter
-              ? strings.hostelManagement.bedAvailability.hideFilter
-              : strings.hostelManagement.bedAvailability.showFilter}
-          </TextAtom>
-        </TouchableAtom>
-      </View>
-      {showFilter && (
-        <FilterForm
-          navigation={navigation}
-          parentModuleList={parentModuleList}
-          selectedParentModule={selectedParentModule}
-          setSelectedParentModule={setSelectedParentModule}
-          moduleList={moduleList}
-          selectedModule={selectedModule}
-          setSelectedModule={setSelectedModule}
-          statusList={[
-            { id: 'Active', name: 'Active' },
-            { id: 'Inactive', name: 'In-Active' },
-          ]}
-          selectedStatus={selectedStatus}
-          applyFilter={applyFilter}
-          clearFilter={clearFilter}
-          setSelectedStatus={setSelectedStatus}
-          getSubModuleList={getSubModuleList}
-          hitFilterApi={hitFilterApi}
-        />
-      )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}
@@ -512,7 +251,7 @@ const PermissionNameList = (props: Props) => {
   );
 };
 
-export default PermissionNameList;
+export default RoleWithPermissionDetails;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
