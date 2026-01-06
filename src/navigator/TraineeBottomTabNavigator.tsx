@@ -1,11 +1,12 @@
 import React from 'react';
-import { Image, Pressable, StyleSheet } from 'react-native';
+import { Image, Platform, Pressable, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { vh, vw } from '../constants/dimensions';
 import { colors, fonts, images, screensName } from '../constants';
 import Dashboard from '../screens/TraineeScreens/Dashboard';
 import Menu from '../screens/TraineeScreens/Menu';
 import Profile from '../screens/TraineeScreens/Profile';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BottomTab = createBottomTabNavigator();
 
@@ -41,12 +42,23 @@ const renderTabBarButton = (props: any) => {
 };
 
 function TraineeBottomTabNavigator() {
+  const insets = useSafeAreaInsets();
+
+  const isAndroid = Platform.OS === 'android';
+  const bottomInset = isAndroid ? Math.max(insets.bottom, 0) : insets.bottom;
+
   return (
     <BottomTab.Navigator
       screenOptions={{
         tabBarInactiveTintColor: colors.grey,
         tabBarLabelStyle: styles.tabBarLabel,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            height: vh(65) + bottomInset,
+            paddingBottom: bottomInset,
+          },
+        ],
         tabBarButton: renderTabBarButton,
       }}
     >

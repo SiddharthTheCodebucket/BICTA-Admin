@@ -1,6 +1,5 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, images, screensName, vh, vw } from '../../../constants';
 import {
   Header,
@@ -121,7 +120,7 @@ const Menu = ({ navigation }: Props) => {
   });
 
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
+    <View style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -149,7 +148,7 @@ const Menu = ({ navigation }: Props) => {
           );
         })}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
