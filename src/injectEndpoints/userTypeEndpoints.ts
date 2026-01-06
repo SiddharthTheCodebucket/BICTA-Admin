@@ -59,6 +59,20 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listGlobalPermissionsList: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_global_permissions_list,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateGlobalPermissionsList: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_global_permissions_list,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -71,4 +85,6 @@ export const {
   useUpdateAdminRoleMutation,
   useDeleteAdminRoleMutation,
   useListPermissionsNameMutation,
+  useListGlobalPermissionsListMutation,
+  useUpdateGlobalPermissionsListMutation,
 } = apiEndpoints;

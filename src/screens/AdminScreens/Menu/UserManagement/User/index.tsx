@@ -47,7 +47,9 @@ const User = (props: Props) => {
     {
       id: 4,
       name: 'Role Permission',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.RolePermission);
+      },
     },
     {
       id: 5,
