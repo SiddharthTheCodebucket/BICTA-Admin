@@ -34,7 +34,7 @@ const Dashboard = (props: Props) => {
 
   const { crediantialData } = useAppSelector(state => state.Auth);
   const [time, setTime] = useState(new Date());
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
 
   const [activeTab, setActiveTab] = useState<
     'Hostel Dashboard' | 'Vendor Dashboard'
@@ -68,10 +68,25 @@ const Dashboard = (props: Props) => {
       setInnerTab(strings.dashboardIndex.hostelPlanning);
     }
   }, [props.route?.params]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoader(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loader) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.backgroundColor }}>
+        <FullscreenLoading isVisible />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <FullscreenLoading isVisible={loader} />
-
       <View style={styles.tabRow}>
         {[
           'Hostel Dashboard',
