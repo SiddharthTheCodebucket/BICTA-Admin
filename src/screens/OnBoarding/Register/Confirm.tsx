@@ -71,7 +71,7 @@ const Confirm = (props: Props) => {
   const otpRefs: any = [createRef(), createRef(), createRef(), createRef()];
 
   const handleOtpChange = (value: string, index: number) => {
-    const cleaned = value.replaceAll(/[^\D]/g, '');
+    const cleaned = value.replace(/[^\D]/g, '');
     const temp = [...otp];
     temp[index] = cleaned;
     setOtp(temp);

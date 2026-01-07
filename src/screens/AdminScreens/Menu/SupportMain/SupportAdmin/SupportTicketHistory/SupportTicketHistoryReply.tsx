@@ -240,7 +240,7 @@ const SupportTicketHistoryReply = (props: Props) => {
               style={{ marginTop: vh(10) }}
             >
               <TextAtom style={styles.label}>
-                Question - {q.questionName.replaceAll(/<[^>]*>/g, '')}
+                Question - {q.questionName.replace(/<[^>]*>/g, '')}
               </TextAtom>
               <TextAtom style={styles.value}>Answer - {q.answer}</TextAtom>
             </View>

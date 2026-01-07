@@ -270,7 +270,7 @@ const AddHostelDetails = (props: Props) => {
   };
 
   const handleAlternateChange = (text: any, index: any) => {
-    const numeric = text.replaceAll(/\D/g, '').slice(0, 10);
+    const numeric = text.replace(/\D/g, '').slice(0, 10);
 
     const updated = [...form.alternateContactNo];
     updated[index] = numeric;

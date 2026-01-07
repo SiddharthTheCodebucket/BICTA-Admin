@@ -98,7 +98,7 @@ const TraineeRegistration = (props: Props) => {
   const [batchList, setBatchList] = useState<any>([]);
   const [selectedBatch, setSelectedBatch] = useState<any>({});
   const [pregnancyList] = useState<any>([
-    { id: 'Yes', name: 'No' },
+    { id: 'Yes', name: 'Yes' },
     { id: 'No', name: 'No' },
   ]);
   const [selectedPregnancy, setSelectedPregnancy] = useState<any>({});

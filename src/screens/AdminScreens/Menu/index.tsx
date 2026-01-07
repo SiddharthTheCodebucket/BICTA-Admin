@@ -25,7 +25,7 @@ const ACTIVE_MODULES = new Set<string>([
   'User Management',
   'Support',
   'PHC Management System',
-  'Vehicle Management',
+  // 'Vehicle Management',
   'Invoice and Bill Management',
 ]);
 
@@ -85,11 +85,11 @@ const Menu = ({ navigation }: Props) => {
       name: 'PHC Management System',
       onPress: () => navigation.navigate(screensName.PHCManagement),
     },
-    {
-      id: 17,
-      name: 'Vehicle Management',
-      onPress: () => navigation.navigate(screensName.VehicleManagement),
-    },
+    // {
+    //   id: 17,
+    //   name: 'Vehicle Management',
+    //   onPress: () => navigation.navigate(screensName.VehicleManagement),
+    // },
     { id: 1, name: 'Content Management System' },
     { id: 5, name: 'Feedback Management' },
     { id: 6, name: 'Communication Management System' },

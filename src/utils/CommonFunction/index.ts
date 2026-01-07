@@ -42,31 +42,31 @@ export function isNullUndefined(item: any, check: boolean = false): boolean {
 export const removeEmojis = (str: string) => {
   const regex =
     /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g;
-  return str.replaceAll(regex, '');
+  return str.replace(regex, '');
 };
 export const normalizeSpaces = (value: string) => {
   return value.replace('  ', ' ');
 };
 export const normalizeFirstSpace = (value: string) => {
-  return value.replaceAll(/^\s+/g, '');
+  return value.replace(/^\s+/g, '');
 };
 export const removeAlphabet = (value: string) => {
-  return value.replaceAll(/\D/g, '');
+  return value.replace(/\D/g, '');
 };
 export const normalizeNumber = (value: string) => {
-  return value.replaceAll(/\D/g, '');
+  return value.replace(/\D/g, '');
 };
 
 export const normalizeLetters = (value: string) => {
-  return value.replaceAll(/[^a-zA-Z\s\u0900-\u097F]/g, '');
+  return value.replace(/[^a-zA-Z\s\u0900-\u097F]/g, '');
 };
 
 export const normalizeLettersAndNumbers = (value: string) => {
-  return value.replaceAll(/[^a-zA-Z0-9]/g, '');
+  return value.replace(/[^a-zA-Z0-9]/g, '');
 };
 
 export const otpRegex = (value: string) => {
-  return value.replaceAll(/[- #*;,.<>{}[\]\\/]/gi, '');
+  return value.replace(/[- #*;,.<>{}[\]\\/]/gi, '');
 };
 
 export const isIOS = Platform.OS === 'ios';
