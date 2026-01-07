@@ -125,6 +125,7 @@ export default {
   PaymentDetailDetails: 'PaymentDetailDetails',
   AddPaymentDetails: 'AddPaymentDetails',
   UserManagement: 'UserManagement',
+  AddUserRegistration: 'AddUserRegistration',
   User: 'User',
   UserRegistration: 'UserRegistration',
   UserRegistrationDetails: 'UserRegistrationDetails',

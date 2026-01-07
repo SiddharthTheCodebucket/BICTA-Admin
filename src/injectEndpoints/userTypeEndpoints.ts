@@ -73,6 +73,20 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    addUserManagement: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.add_user_management,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    updateUserManagement: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.update_user_management,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -87,4 +101,6 @@ export const {
   useListPermissionsNameMutation,
   useListGlobalPermissionsListMutation,
   useUpdateGlobalPermissionsListMutation,
+  useAddUserManagementMutation,
+  useUpdateUserManagementMutation,
 } = apiEndpoints;

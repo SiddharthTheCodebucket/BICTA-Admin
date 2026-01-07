@@ -121,17 +121,17 @@ const UserRegistrationCard = ({
           {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
         </TextAtom>
         <View style={styles.actionRow}>
-          {/* <TouchableAtom
+          <TouchableAtom
             style={styles.editButton}
             onPress={() => {
-              //    navigation.navigate(screensName.AddBedDetails, {
-              //                 item,
-              //                 onDone: onRefresh,
-              //               })
+              navigation.navigate(screensName.AddUserRegistration, {
+                item,
+                onDone: onRefresh,
+              });
             }}
           >
             <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
-          </TouchableAtom> */}
+          </TouchableAtom>
 
           <TouchableAtom style={styles.deleteButton} onPress={confirmDelete}>
             <ImageAtom source={images.delete} style={styles.iconSmall} />
@@ -508,12 +508,6 @@ const UserRegistration = (props: Props) => {
               : strings.hostelManagement.bedAvailability.showFilter}
           </TextAtom>
         </TouchableAtom>
-        {/* <TouchableAtom style={styles.filterButton} onPress={() => {}}>
-          <ImageAtom
-            source={images.download}
-            style={{ tintColor: colors.black }}
-          />
-        </TouchableAtom> */}
       </View>
       {showFilter && (
         <FilterForm
@@ -605,13 +599,13 @@ const UserRegistration = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={BedItemSeparator}
       />
-      {/* <FloatingButton
+      <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.AddBedDetails, {
+          navigation.navigate(screensName.AddUserRegistration, {
             onDone: () => internalUserList(1, true, search),
           });
         }}
-      /> */}
+      />
     </SafeAreaView>
   );
 };

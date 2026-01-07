@@ -163,6 +163,8 @@ export default {
   list_global_permissions_list: 'user-management/list-global-admin-permissions',
   update_global_permissions_list:
     'user-management/update-global-admin-permissions',
+  add_user_management: 'user-management/add-internal-users',
+  update_user_management: 'user-management/update-internal-users',
 
   //Support
   list_support_raise_complain: 'support/list-support-raise-complain',

@@ -141,6 +141,7 @@ import SupportTicketHistoryDetails from '../screens/AdminScreens/Menu/SupportMai
 import SupportTicketResponseDetails from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketResponseDetails';
 import SupportTicketMovementDetails from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketMovementDetails';
 import SupportTicketHistoryReply from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketHistoryReply';
+import AddUserRegistration from '../screens/AdminScreens/Menu/UserManagement/User/UserRegistration/AddUserRegistration';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -557,6 +558,10 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="UserRegistrationDetails"
           component={UserRegistrationDetails}
+        />
+        <RootStackScreen.Screen
+          name="AddUserRegistration"
+          component={AddUserRegistration}
         />
         <RootStackScreen.Screen
           name="RoleManagement"
