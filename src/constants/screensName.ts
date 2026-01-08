@@ -146,6 +146,8 @@ export default {
   Feedback: 'Feedback',
   FeedbackCategory: 'FeedbackCategory',
   AddFeedbackCategory: 'AddFeedbackCategory',
+  FeedbackTopic: 'FeedbackTopic',
+  AddFeedbackTopic: 'AddFeedbackTopic',
 
   // Trainee Screen
   MyProfile: 'MyProfile',

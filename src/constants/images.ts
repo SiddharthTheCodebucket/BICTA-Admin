@@ -36,4 +36,5 @@ export default {
   reassign: require('../assets/images/reassign.png'),
   payment: require('../assets/images/payment.png'),
   reply: require('../assets/images/reply.png'),
+  copyLink: require('../assets/images/copyLink.png'),
 };

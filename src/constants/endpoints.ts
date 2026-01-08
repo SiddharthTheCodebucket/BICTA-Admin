@@ -176,4 +176,8 @@ export default {
   update_feedback_category: 'feedback/update-feedback-category',
   delete_feedback_category: 'feedback/delete-feedback-category',
   add_feedback_category: 'feedback/add-feedback-category',
+  list_feedback_topic: 'feedback/list-feedback-topic',
+  add_feedback_topic: 'feedback/add-feedback-topic',
+  update_feedback_topic: 'feedback/update-feedback-topic',
+  delete_feedback_topic: 'feedback/delete-feedback-topic',
 };

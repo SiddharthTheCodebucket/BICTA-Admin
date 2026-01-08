@@ -33,7 +33,9 @@ const Feedback = (props: Props) => {
     {
       id: 2,
       name: 'Feedback Topic',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.FeedbackTopic);
+      },
     },
     {
       id: 3,
