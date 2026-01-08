@@ -36,14 +36,15 @@ import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useBedDetailsRoomMutation,
-  useDeleteBedDetailsRoomMutation,
-  useUpdateBedDetailsRoomMutation,
-} from '../../../../../../injectEndpoints/hostelEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
+import moment from 'moment';
+import {
+  useApproveInternalUserStatusMutation,
+  useListInternalUserMutation,
+  useDeleteInternalUserStatusMutation,
+} from '../../../../../../injectEndpoints/userTypeEndpoints';
 
 interface Props {
   navigation: NavigationType;
@@ -59,7 +60,7 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-interface BedCardProps {
+interface UserRegistrationProps {
   item: any;
   index: number;
   navigation: NavigationType;
@@ -68,28 +69,28 @@ interface BedCardProps {
   onUpdateStatus: (id: any) => void;
 }
 
-const BedCard = ({
+const UserRegistrationCard = ({
   item,
   index,
   navigation,
   onRefresh,
   onDelete,
   onUpdateStatus,
-}: BedCardProps) => {
-  const statusValue = item.status ?? strings.hostelManagement.active;
+}: UserRegistrationProps) => {
+  const statusValue =
+    item?.status === 'Active' ? 'Approved' : item?.status || '';
 
   const [showStatusMenu, setShowStatusMenu] = useState(false);
 
   const confirmStatusChange = () => {
     setShowStatusMenu(false);
-
     navigation.navigate(screensName.AlertOrganism, {
       title: strings.hostelManagement.bedDetails.statusChangeConfirmation,
       message: strings.hostelManagement.bedDetails.statusChangeMessage,
       okText: strings.hostelManagement.confirm,
       double: true,
       cancelText: strings.cancel,
-      okFunction: () => onUpdateStatus(item.id),
+      okFunction: () => onUpdateStatus(item.adminUserId),
       cancelFunction: () => {},
     });
   };
@@ -101,13 +102,20 @@ const BedCard = ({
       okText: strings.hostelManagement.confirm,
       double: true,
       cancelText: strings.cancel,
-      okFunction: () => onDelete(item.id),
+      okFunction: () => onDelete(item.adminUserId),
       cancelFunction: () => {},
     });
   };
 
   return (
-    <View style={styles.card}>
+    <TouchableAtom
+      style={styles.card}
+      onPress={() => {
+        navigation.navigate(screensName.UserRegistrationDetails, {
+          data: item,
+        });
+      }}
+    >
       <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
         <TextAtom style={[styles.label, styles.flex1]}>
           {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
@@ -115,12 +123,12 @@ const BedCard = ({
         <View style={styles.actionRow}>
           <TouchableAtom
             style={styles.editButton}
-            onPress={() =>
-              navigation.navigate(screensName.AddBedDetails, {
+            onPress={() => {
+              navigation.navigate(screensName.AddUserRegistration, {
                 item,
                 onDone: onRefresh,
-              })
-            }
+              });
+            }}
           >
             <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
           </TouchableAtom>
@@ -133,36 +141,26 @@ const BedCard = ({
 
       <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.roomDetails.hostelName}
-          </TextAtom>
-          <TextAtom style={styles.value}>
-            {item.selectHostelName ?? '-'}
-          </TextAtom>
+          <TextAtom style={styles.label}>{'Name'}</TextAtom>
+          <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
         </View>
         <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.labelRight}>
-            {strings.hostelManagement.roomDetails.floorName}
-          </TextAtom>
+          <TextAtom style={styles.labelRight}>{'DOB'}</TextAtom>
           <TextAtom style={styles.valueRight}>
-            {item.selectFloorName ?? '-'}
+            {moment(item.pickADob).format('DD-MM-YYYY') ?? '-'}
           </TextAtom>
         </View>
       </View>
       <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.roomDetails.roomNo}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.selectRoomNo ?? '-'}</TextAtom>
+          <TextAtom style={styles.label}>{'Aadhaar No'}</TextAtom>
+          <TextAtom style={styles.value}>{item.aadhaarNo ?? '-'}</TextAtom>
         </View>
 
         <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.labelRight}>
-            {strings.hostelManagement.bedDetails.bedName}
-          </TextAtom>
+          <TextAtom style={styles.labelRight}>{'PAN No'}</TextAtom>
           <TextAtom numberOfLines={0} style={styles.valueRight}>
-            {item.bedName ?? '-'}
+            {item.panNo ?? '-'}
           </TextAtom>
         </View>
       </View>
@@ -172,137 +170,78 @@ const BedCard = ({
           onPress={() => setShowStatusMenu(!showStatusMenu)}
           style={[
             styles.statusBox,
-            statusValue === strings.hostelManagement.active
-              ? styles.activeBox
-              : styles.inActiveBox,
+            statusValue === 'Approved' ? styles.activeBox : styles.inActiveBox,
           ]}
         >
           <TextAtom
             style={[
               styles.statusText,
-              statusValue === strings.hostelManagement.active
+              statusValue === 'Approved'
                 ? styles.activeText
                 : styles.inActiveText,
             ]}
           >
-            {statusValue}
+            {statusValue ?? null}
           </TextAtom>
           <ImageAtom source={images.downArrow} />
         </TouchableAtom>
+
         {showStatusMenu && (
           <View style={styles.dropMenu}>
             <TouchableAtom
               style={styles.dropItem}
-              onPress={confirmStatusChange}
+              onPress={() => confirmStatusChange()}
             >
-              <TextAtom style={styles.statusTextBlack}>
-                {strings.hostelManagement.active}
-              </TextAtom>
+              <TextAtom style={styles.statusTextBlack}>{'Approved'}</TextAtom>
             </TouchableAtom>
 
             <TouchableAtom
               style={styles.dropItem}
-              onPress={confirmStatusChange}
+              onPress={() => confirmStatusChange()}
             >
-              <TextAtom style={styles.statusTextBlack}>
-                {strings.hostelManagement.inActive}
-              </TextAtom>
+              <TextAtom style={styles.statusTextBlack}>{'Pending'}</TextAtom>
             </TouchableAtom>
           </View>
         )}
       </View>
-    </View>
+    </TouchableAtom>
   );
 };
 
 interface FilterFormProps {
   navigation: NavigationType;
-  hostelList: any[];
-  floorList: any[];
-  roomList: any[];
-  selectedHostel: any;
-  selectedFloor: any;
-  selectedRoom: any;
-  setSelectedHostel: (d: any) => void;
-  setSelectedFloor: (d: any) => void;
-  setSelectedRoom: (d: any) => void;
+  userTypeList: any[];
+  selectedUserType: any;
+  setSelectedUserType: (d: any) => void;
   applyFilter: () => void;
   clearFilter: () => void;
-  getFloorName: (id: any) => void;
-  getRoomName: (id: any) => void;
 }
 
 const FilterForm = ({
   navigation,
-  hostelList,
-  floorList,
-  roomList,
-  selectedHostel,
-  selectedFloor,
-  selectedRoom,
-  setSelectedHostel,
-  setSelectedFloor,
-  setSelectedRoom,
+  userTypeList,
+  selectedUserType,
+  setSelectedUserType,
   applyFilter,
   clearFilter,
-  getFloorName,
-  getRoomName,
 }: FilterFormProps) => (
   <View style={styles.filterContainer}>
     <DropDownOrganism
-      label={strings.hostelManagement.roomDetails.hostel}
-      placeholder={strings.hostelManagement.roomDetails.hostel}
+      label={'User Type'}
+      placeholder={'User Type'}
       onPress={() => {
         navigation.navigate('DropDownModal', {
-          name: strings.hostelManagement.roomDetails.hostel,
-          Data: hostelList,
-          selectedData: selectedHostel,
+          name: 'User Type',
+          Data: userTypeList,
+          selectedData: selectedUserType,
           setSelectedData: (data: any) => {
-            setSelectedHostel(data);
-            getFloorName(data.id);
+            setSelectedUserType(data);
           },
           typeName: 'name',
           typeId: 'id',
         });
       }}
-      inputText={selectedHostel?.name}
-    />
-
-    <DropDownOrganism
-      label={strings.hostelManagement.roomDetails.floor}
-      placeholder={strings.hostelManagement.roomDetails.floor}
-      onPress={() => {
-        navigation.navigate('DropDownModal', {
-          name: strings.hostelManagement.roomDetails.floor,
-          Data: floorList,
-          selectedData: selectedFloor,
-          setSelectedData: (data: any) => {
-            setSelectedFloor(data);
-            getRoomName(data.id);
-          },
-          typeName: 'name',
-          typeId: 'id',
-        });
-      }}
-      inputText={selectedFloor?.name}
-    />
-
-    <DropDownOrganism
-      label={strings.hostelPlanningDetails.room}
-      placeholder={strings.hostelPlanningDetails.room}
-      onPress={() => {
-        navigation.navigate('DropDownModal', {
-          name: strings.hostelPlanningDetails.room,
-          Data: roomList,
-          selectedData: selectedRoom,
-          setSelectedData: (data: any) => {
-            setSelectedRoom(data);
-          },
-          typeName: 'name',
-          typeId: 'id',
-        });
-      }}
-      inputText={selectedRoom?.name}
+      inputText={selectedUserType?.name}
     />
     <ViewAtom style={styles.buttonRow}>
       <ButtonOrganism
@@ -322,13 +261,14 @@ const FilterForm = ({
 
 const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 
-const BedDetails = (props: Props) => {
+const UserRegistration = (props: Props) => {
   const { navigation } = props;
+
   const { crediantialData } = useAppSelector(state => state.Auth);
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [bedDetailsApi] = useBedDetailsRoomMutation();
-  const [updatebedDetailsApi] = useUpdateBedDetailsRoomMutation();
-  const [deletebedDetailsRoomApi] = useDeleteBedDetailsRoomMutation();
+  const [internalUserListApi] = useListInternalUserMutation();
+  const [updateStatusApi] = useApproveInternalUserStatusMutation();
+  const [deleteInternalUserApi] = useDeleteInternalUserStatusMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -340,12 +280,8 @@ const BedDetails = (props: Props) => {
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
 
-  const [hostelList, setHostelList] = useState<any>([]);
-  const [floorList, setFloorList] = useState<any>([]);
-  const [roomList, setRoomList] = useState<any>([]);
-  const [selectedHostel, setSelectedHostel] = useState<any>({});
-  const [selectedFloor, setSelectedFloor] = useState<any>({});
-  const [selectedRoom, setSelectedRoom] = useState<any>({});
+  const [userTypeList, setUserTypeList] = useState<any>([]);
+  const [selectedUserType, setSelectedUserType] = useState<any>({});
 
   const ITEMS_PER_PAGE = 10;
 
@@ -353,7 +289,7 @@ const BedDetails = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, strings.hostelManagement.bedDetails.title);
+    Header.setNavigation(navigation, 'User Registration Details');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -361,15 +297,15 @@ const BedDetails = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        bedDetailsList(1, true, '');
-        getHostelName();
+        internalUserList(1, true, '');
+        getUserTypeList();
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    bedDetailsList(1, true, '');
+    internalUserList(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
@@ -387,7 +323,7 @@ const BedDetails = (props: Props) => {
     setShowFilter(!showFilter);
   };
 
-  const bedDetailsList = (
+  const internalUserList = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -411,7 +347,7 @@ const BedDetails = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    bedDetailsApi(params)
+    internalUserListApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -442,7 +378,7 @@ const BedDetails = (props: Props) => {
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      bedDetailsList(1, true, text);
+      internalUserList(1, true, text);
     }, 500),
     [],
   );
@@ -454,23 +390,23 @@ const BedDetails = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    bedDetailsList(1, true, '');
+    internalUserList(1, true, '');
   };
 
-  const updateBedStatus = (id: any) => {
+  const updateStatus = (id: any) => {
     setInitialCall(true);
     const params = {
-      idForChangeStatus: id,
+      adminUserIdForChangeStatus: id,
     };
-    updatebedDetailsApi(params)
+    updateStatusApi(params)
       .unwrap()
       .then((res: any) => {
         Toast.show({
           type: 'success',
-          text2: res.data.message?.message,
+          text2: res.data.message,
         });
         setInitialCall(false);
-        bedDetailsList(1, true, search);
+        internalUserList(1, true, search);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -481,12 +417,12 @@ const BedDetails = (props: Props) => {
       });
   };
 
-  const deleteBedHostelRoom = (id: any) => {
+  const deleteInternalUser = (id: any) => {
     setInitialCall(true);
     const params = {
-      id: id,
+      admin_user_id: id,
     };
-    deletebedDetailsRoomApi(params)
+    deleteInternalUserApi(params)
       .unwrap()
       .then((res: any) => {
         Toast.show({
@@ -494,7 +430,7 @@ const BedDetails = (props: Props) => {
           text2: res.data.message,
         });
         setInitialCall(false);
-        bedDetailsList(1, true, search);
+        internalUserList(1, true, search);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -506,54 +442,44 @@ const BedDetails = (props: Props) => {
   };
 
   const renderListBedDetails = ({ item, index }: any) => (
-    <BedCard
+    <UserRegistrationCard
       item={item}
       index={index}
       navigation={navigation}
-      onRefresh={() => bedDetailsList(1, true, search)}
-      onDelete={deleteBedHostelRoom}
-      onUpdateStatus={updateBedStatus}
+      onRefresh={() => internalUserList(1, true, search)}
+      onDelete={deleteInternalUser}
+      onUpdateStatus={updateStatus}
     />
   );
 
   const clearFilter = () => {
-    setSelectedHostel({});
-    setSelectedFloor({});
-    bedDetailsList(1, true, search, []);
+    setSelectedUserType({});
+    internalUserList(1, true, search, []);
   };
 
   const applyFilter = () => {
     const filters = [];
 
-    if (selectedHostel?.id) {
-      filters.push(['selectHostelNameId', '=', selectedHostel.id]);
+    if (selectedUserType?.id) {
+      filters.push(['userTypeId', '=', selectedUserType.id]);
     }
 
-    if (selectedFloor?.id) {
-      filters.push(['selectFloorNameId', '=', selectedFloor.id]);
-    }
-
-    if (selectedRoom?.id) {
-      filters.push(['selectRoomNoId', '=', selectedRoom.id]);
-    }
-
-    bedDetailsList(1, true, search, filters);
+    internalUserList(1, true, search, filters);
   };
 
-  const getHostelName = () => {
+  const getUserTypeList = () => {
     setInitialCall(true);
     const params = {
+      listType: 'select_user_type',
       bipardCentre: ['Gaya', 'Patna'],
-      listType: 'filter_hostel_name_for_bed_details',
       replacements: ['%%'],
     };
+
     commonDropdownApi(params)
       .unwrap()
       .then((res: any) => {
-        setHostelList(res.data);
+        setUserTypeList(res.data);
         setInitialCall(false);
-        setSelectedFloor({});
-        setSelectedRoom({});
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -565,77 +491,32 @@ const BedDetails = (props: Props) => {
       });
   };
 
-  const getFloorName = (hostelId: any) => {
-    setInitialCall(true);
-    const params = {
-      bipardCentre: ['Gaya', 'Patna'],
-      listType: 'filter_floor_name_for_bed_details',
-      replacements: ['%%', hostelId],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setFloorList(res.data);
-        setInitialCall(false);
-        setSelectedRoom({});
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-        });
-      });
-  };
-
-  const getRoomName = (floorId: any) => {
-    setInitialCall(true);
-    const params = {
-      bipardCentre: ['Gaya', 'Patna'],
-      listType: 'filter_room_no_for_bed_details',
-      replacements: ['%%', selectedHostel.id, floorId],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setRoomList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-        });
-      });
-  };
-
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-        <TextAtom style={styles.filterText}>
-          {showFilter
-            ? strings.hostelManagement.bedAvailability.hideFilter
-            : strings.hostelManagement.bedAvailability.showFilter}
-        </TextAtom>
-      </TouchableAtom>
+
+      <View
+        style={{
+          flexDirection: 'row',
+          alignSelf: 'flex-end',
+        }}
+      >
+        <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
+          <TextAtom style={styles.filterText}>
+            {showFilter
+              ? strings.hostelManagement.bedAvailability.hideFilter
+              : strings.hostelManagement.bedAvailability.showFilter}
+          </TextAtom>
+        </TouchableAtom>
+      </View>
       {showFilter && (
         <FilterForm
           navigation={navigation}
-          hostelList={hostelList}
-          floorList={floorList}
-          roomList={roomList}
-          selectedHostel={selectedHostel}
-          selectedFloor={selectedFloor}
-          selectedRoom={selectedRoom}
-          setSelectedHostel={setSelectedHostel}
-          setSelectedFloor={setSelectedFloor}
-          setSelectedRoom={setSelectedRoom}
+          userTypeList={userTypeList}
+          selectedUserType={selectedUserType}
+          setSelectedUserType={setSelectedUserType}
           applyFilter={applyFilter}
           clearFilter={clearFilter}
-          getFloorName={getFloorName}
-          getRoomName={getRoomName}
         />
       )}
       {crediantialData.user[0].tenantId === 3 && (
@@ -681,9 +562,8 @@ const BedDetails = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        extraData={data}
         renderItem={renderListBedDetails}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           initialCall ? null : (
             <TextAtom style={styles.emptyText}>
@@ -706,14 +586,14 @@ const BedDetails = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              bedDetailsList(1, false, '');
+              internalUserList(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? bedDetailsList(page + 1, false, search)
+            ? internalUserList(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
@@ -721,8 +601,8 @@ const BedDetails = (props: Props) => {
       />
       <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.AddBedDetails, {
-            onDone: () => bedDetailsList(1, true, search),
+          navigation.navigate(screensName.AddUserRegistration, {
+            onDone: () => internalUserList(1, true, search),
           });
         }}
       />
@@ -730,7 +610,7 @@ const BedDetails = (props: Props) => {
   );
 };
 
-export default BedDetails;
+export default UserRegistration;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -813,8 +693,8 @@ const styles = StyleSheet.create({
   },
 
   inActiveBox: {
-    backgroundColor: colors.lightRedBg,
-    borderColor: colors.darkRed,
+    backgroundColor: colors.pharmacy_yellow,
+    borderColor: colors.warningOrange,
   },
 
   statusText: {

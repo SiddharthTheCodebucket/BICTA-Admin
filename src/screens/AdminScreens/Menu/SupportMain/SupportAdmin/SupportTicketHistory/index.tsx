@@ -24,7 +24,6 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -33,17 +32,18 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useBedDetailsRoomMutation,
-  useDeleteBedDetailsRoomMutation,
-  useUpdateBedDetailsRoomMutation,
-} from '../../../../../../injectEndpoints/hostelEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
+import moment from 'moment';
+import {
+  useDeleteSupportRaiseComplainMutation,
+  useListSupportRaiseComplainMutation,
+} from '../../../../../../injectEndpoints/supportEndpoints';
+import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
+import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 
 interface Props {
   navigation: NavigationType;
@@ -59,45 +59,51 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-interface BedCardProps {
+interface FilterArgs {
+  status?: any;
+  category?: any;
+  subCategory?: any;
+  startDate?: any;
+  endDate?: any;
+}
+
+interface ComplainCardProps {
   item: any;
   index: number;
   navigation: NavigationType;
-  onRefresh: () => void;
   onDelete: (id: any) => void;
-  onUpdateStatus: (id: any) => void;
+  onRefresh: () => void;
 }
 
-const BedCard = ({
+const getStatusBgColor = (status?: string) => {
+  switch (status) {
+    case 'New':
+      return '#FFE7A3';
+    case 'In-progress':
+      return '#2F6FDB';
+    case 'Resolved':
+      return '#6FB25D';
+    case 'Re-open':
+      return '#F39C34';
+    case 'Response awaited':
+      return '#8E44AD';
+    default:
+      return '#E0E0E0';
+  }
+};
+
+const ComplainCard = ({
   item,
   index,
   navigation,
-  onRefresh,
   onDelete,
-  onUpdateStatus,
-}: BedCardProps) => {
-  const statusValue = item.status ?? strings.hostelManagement.active;
-
-  const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-  const confirmStatusChange = () => {
-    setShowStatusMenu(false);
-
+  onRefresh,
+}: ComplainCardProps) => {
+  const handleDelete = () => {
     navigation.navigate(screensName.AlertOrganism, {
-      title: strings.hostelManagement.bedDetails.statusChangeConfirmation,
-      message: strings.hostelManagement.bedDetails.statusChangeMessage,
-      okText: strings.hostelManagement.confirm,
-      double: true,
-      cancelText: strings.cancel,
-      okFunction: () => onUpdateStatus(item.id),
-      cancelFunction: () => {},
-    });
-  };
-
-  const confirmDelete = () => {
-    navigation.navigate(screensName.AlertOrganism, {
-      title: strings.hostelManagement.bedDetails.deleteConfirmation,
-      message: strings.hostelManagement.bedDetails.deleteMessage,
+      title: strings.hostelManagement.deleteConfirmation,
+      message:
+        'Are you sure you want to delete this item? This action cannot be undone.',
       okText: strings.hostelManagement.confirm,
       double: true,
       cancelText: strings.cancel,
@@ -107,25 +113,42 @@ const BedCard = ({
   };
 
   return (
-    <View style={styles.card}>
+    <TouchableAtom
+      style={styles.card}
+      onPress={() => {
+        navigation.navigate(screensName.SupportTicketHistoryDetails, {
+          data: item,
+        });
+      }}
+    >
       <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-        <TextAtom style={[styles.label, styles.flex1]}>
+        <TextAtom style={[styles.label]}>
           {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
         </TextAtom>
+
         <View style={styles.actionRow}>
           <TouchableAtom
-            style={styles.editButton}
+            style={styles.deleteButton}
             onPress={() =>
-              navigation.navigate(screensName.AddBedDetails, {
+              navigation.navigate(screensName.SupportTicketHistoryReply, {
                 item,
                 onDone: onRefresh,
               })
             }
           >
-            <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
+            <ImageAtom source={images.reply} style={styles.iconSmall} />
           </TouchableAtom>
-
-          <TouchableAtom style={styles.deleteButton} onPress={confirmDelete}>
+          <TouchableAtom
+            style={styles.deleteButton}
+            onPress={() => {
+              navigation.navigate(screensName.SupportTicketResponseDetails, {
+                item: item,
+              });
+            }}
+          >
+            <ImageAtom source={images.eyeOpen} style={styles.iconSmall} />
+          </TouchableAtom>
+          <TouchableAtom style={styles.deleteButton} onPress={handleDelete}>
             <ImageAtom source={images.delete} style={styles.iconSmall} />
           </TouchableAtom>
         </View>
@@ -133,177 +156,191 @@ const BedCard = ({
 
       <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.roomDetails.hostelName}
-          </TextAtom>
-          <TextAtom style={styles.value}>
-            {item.selectHostelName ?? '-'}
-          </TextAtom>
-        </View>
-        <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.labelRight}>
-            {strings.hostelManagement.roomDetails.floorName}
-          </TextAtom>
-          <TextAtom style={styles.valueRight}>
-            {item.selectFloorName ?? '-'}
-          </TextAtom>
-        </View>
-      </View>
-      <View style={styles.rowBetween}>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.roomDetails.roomNo}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.selectRoomNo ?? '-'}</TextAtom>
+          <TextAtom style={styles.label}>{'Tracking Id'}</TextAtom>
+          <TextAtom style={styles.value}>{item.trackingId ?? '-'}</TextAtom>
         </View>
 
         <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.labelRight}>
-            {strings.hostelManagement.bedDetails.bedName}
-          </TextAtom>
-          <TextAtom numberOfLines={0} style={styles.valueRight}>
-            {item.bedName ?? '-'}
-          </TextAtom>
-        </View>
-      </View>
-
-      <View style={styles.statusContainer}>
-        <TouchableAtom
-          onPress={() => setShowStatusMenu(!showStatusMenu)}
-          style={[
-            styles.statusBox,
-            statusValue === strings.hostelManagement.active
-              ? styles.activeBox
-              : styles.inActiveBox,
-          ]}
-        >
-          <TextAtom
+          <TextAtom style={styles.labelRight}>{'Status'}</TextAtom>
+          <View
             style={[
-              styles.statusText,
-              statusValue === strings.hostelManagement.active
-                ? styles.activeText
-                : styles.inActiveText,
+              styles.statusBadge,
+              { backgroundColor: getStatusBgColor(item.currentStatus) },
             ]}
           >
-            {statusValue}
-          </TextAtom>
-          <ImageAtom source={images.downArrow} />
-        </TouchableAtom>
-        {showStatusMenu && (
-          <View style={styles.dropMenu}>
-            <TouchableAtom
-              style={styles.dropItem}
-              onPress={confirmStatusChange}
-            >
-              <TextAtom style={styles.statusTextBlack}>
-                {strings.hostelManagement.active}
-              </TextAtom>
-            </TouchableAtom>
-
-            <TouchableAtom
-              style={styles.dropItem}
-              onPress={confirmStatusChange}
-            >
-              <TextAtom style={styles.statusTextBlack}>
-                {strings.hostelManagement.inActive}
-              </TextAtom>
-            </TouchableAtom>
+            <TextAtom style={[styles.statusText]}>
+              {item.currentStatus}
+            </TextAtom>
           </View>
-        )}
+        </View>
       </View>
-    </View>
+      <View style={{ flex: 1 }}>
+        <TextAtom style={styles.label}>{'Category'}</TextAtom>
+        <TextAtom style={styles.value}>{item.category ?? '-'}</TextAtom>
+      </View>
+      <View style={{ flex: 1 }}>
+        <TextAtom style={styles.label}>{'Sub Category'}</TextAtom>
+        <TextAtom style={styles.value}>{item.subCategory ?? '-'}</TextAtom>
+      </View>
+
+      <View style={{ flex: 1 }}>
+        <TextAtom style={styles.label}>{'Primary Issue Type'}</TextAtom>
+        <TextAtom style={styles.value}>{item.primaryIssueType ?? '-'}</TextAtom>
+      </View>
+      <View style={{ flex: 1 }}>
+        <TextAtom style={styles.label}>{'Issue Type'}</TextAtom>
+        <TextAtom style={styles.value}>{item.issueType ?? '-'}</TextAtom>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>{'Complainant Name'}</TextAtom>
+          <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
+        </View>
+
+        <View style={{ flex: 1, alignItems: 'flex-end' }}>
+          <TextAtom style={styles.labelRight}>
+            {'Complaint Created Date'}
+          </TextAtom>
+          <TextAtom numberOfLines={0} style={styles.valueRight}>
+            {moment(item.createdAt).format('DD-MM-YYYY hh:mm') ?? '-'}
+          </TextAtom>
+        </View>
+      </View>
+    </TouchableAtom>
   );
 };
 
 interface FilterFormProps {
   navigation: NavigationType;
-  hostelList: any[];
-  floorList: any[];
-  roomList: any[];
-  selectedHostel: any;
-  selectedFloor: any;
-  selectedRoom: any;
-  setSelectedHostel: (d: any) => void;
-  setSelectedFloor: (d: any) => void;
-  setSelectedRoom: (d: any) => void;
+  ticketStatusList: any[];
+  selectedTicketStatus: any;
+  setSelectedTicketStatus: (d: any) => void;
+  categoryList: any[];
+  selectedCategoryList: any;
+  setSelectedCategoryList: (d: any) => void;
+  subCategoryList: any[];
+  selectedSubCategoryList: any;
+  setSelectedSubCategoryList: (d: any) => void;
+  startDate: any;
+  endDate: any;
+  setStartDate: (v: any) => void;
+  setEndDate: (v: any) => void;
   applyFilter: () => void;
   clearFilter: () => void;
-  getFloorName: (id: any) => void;
-  getRoomName: (id: any) => void;
+  getSubCategoryList: (id: any) => void;
+  hitFilterApi: (parent?: any, module?: any, status?: any) => void;
 }
 
 const FilterForm = ({
   navigation,
-  hostelList,
-  floorList,
-  roomList,
-  selectedHostel,
-  selectedFloor,
-  selectedRoom,
-  setSelectedHostel,
-  setSelectedFloor,
-  setSelectedRoom,
+  ticketStatusList,
+  selectedTicketStatus,
+  setSelectedTicketStatus,
+  categoryList,
+  selectedCategoryList,
+  setSelectedCategoryList,
+  subCategoryList,
+  selectedSubCategoryList,
+  setSelectedSubCategoryList,
+  startDate,
+  endDate,
+  setStartDate,
+  setEndDate,
   applyFilter,
   clearFilter,
-  getFloorName,
-  getRoomName,
+  getSubCategoryList,
+  hitFilterApi,
 }: FilterFormProps) => (
   <View style={styles.filterContainer}>
     <DropDownOrganism
-      label={strings.hostelManagement.roomDetails.hostel}
-      placeholder={strings.hostelManagement.roomDetails.hostel}
+      label={'Ticket Status'}
+      placeholder={'Ticket Status'}
       onPress={() => {
         navigation.navigate('DropDownModal', {
-          name: strings.hostelManagement.roomDetails.hostel,
-          Data: hostelList,
-          selectedData: selectedHostel,
+          name: 'Ticket Status',
+          Data: ticketStatusList,
+          selectedData: selectedTicketStatus,
           setSelectedData: (data: any) => {
-            setSelectedHostel(data);
-            getFloorName(data.id);
+            setSelectedTicketStatus(data);
+            hitFilterApi({ status: data });
           },
           typeName: 'name',
           typeId: 'id',
         });
       }}
-      inputText={selectedHostel?.name}
+      inputText={selectedTicketStatus?.name}
+    />
+    <DropDownOrganism
+      label={'Category'}
+      placeholder={'Category'}
+      onPress={() => {
+        navigation.navigate('DropDownModal', {
+          name: 'Category',
+          Data: categoryList,
+          selectedData: selectedCategoryList,
+          setSelectedData: (data: any) => {
+            setSelectedCategoryList(data);
+            getSubCategoryList(data.id);
+            setSelectedSubCategoryList({});
+            hitFilterApi({
+              category: data,
+              subCategory: {},
+            });
+          },
+          typeName: 'name',
+          typeId: 'id',
+        });
+      }}
+      inputText={selectedCategoryList?.name}
+    />
+    <DropDownOrganism
+      label={'Sub Category'}
+      placeholder={'Sub Category'}
+      onPress={() => {
+        navigation.navigate('DropDownModal', {
+          name: 'Sub Category',
+          Data: subCategoryList,
+          selectedData: selectedSubCategoryList,
+          setSelectedData: (data: any) => {
+            setSelectedSubCategoryList(data);
+            hitFilterApi({
+              subCategory: data,
+            });
+          },
+          typeName: 'name',
+          typeId: 'id',
+        });
+      }}
+      inputText={selectedSubCategoryList?.name}
+    />
+    <DateInputOrganism
+      label={strings.hostelReport.startDate}
+      placeholder={strings.hostelReport.startDate}
+      value={startDate}
+      onChangeText={(val: any) => {
+        setStartDate(val);
+        hitFilterApi({
+          startDate: val,
+        });
+      }}
+      fieldName="date"
+      dateFormat="DD-MM-YYYY"
+    />
+    <DateInputOrganism
+      label={strings.hostelReport.endDate}
+      placeholder={strings.hostelReport.endDate}
+      value={endDate}
+      onChangeText={(val: any) => {
+        setEndDate(val);
+        hitFilterApi({
+          endDate: val,
+        });
+      }}
+      fieldName="date"
+      dateFormat="DD-MM-YYYY"
     />
 
-    <DropDownOrganism
-      label={strings.hostelManagement.roomDetails.floor}
-      placeholder={strings.hostelManagement.roomDetails.floor}
-      onPress={() => {
-        navigation.navigate('DropDownModal', {
-          name: strings.hostelManagement.roomDetails.floor,
-          Data: floorList,
-          selectedData: selectedFloor,
-          setSelectedData: (data: any) => {
-            setSelectedFloor(data);
-            getRoomName(data.id);
-          },
-          typeName: 'name',
-          typeId: 'id',
-        });
-      }}
-      inputText={selectedFloor?.name}
-    />
-
-    <DropDownOrganism
-      label={strings.hostelPlanningDetails.room}
-      placeholder={strings.hostelPlanningDetails.room}
-      onPress={() => {
-        navigation.navigate('DropDownModal', {
-          name: strings.hostelPlanningDetails.room,
-          Data: roomList,
-          selectedData: selectedRoom,
-          setSelectedData: (data: any) => {
-            setSelectedRoom(data);
-          },
-          typeName: 'name',
-          typeId: 'id',
-        });
-      }}
-      inputText={selectedRoom?.name}
-    />
     <ViewAtom style={styles.buttonRow}>
       <ButtonOrganism
         onPress={applyFilter}
@@ -322,72 +359,66 @@ const FilterForm = ({
 
 const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 
-const BedDetails = (props: Props) => {
+const SupportTicketHistory = (props: Props) => {
   const { navigation } = props;
-  const { crediantialData } = useAppSelector(state => state.Auth);
+
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [bedDetailsApi] = useBedDetailsRoomMutation();
-  const [updatebedDetailsApi] = useUpdateBedDetailsRoomMutation();
-  const [deletebedDetailsRoomApi] = useDeleteBedDetailsRoomMutation();
+  const [listComplainApi] = useListSupportRaiseComplainMutation();
+  const [deleteComplainApi] = useDeleteSupportRaiseComplainMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
-  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
+
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
 
-  const [hostelList, setHostelList] = useState<any>([]);
-  const [floorList, setFloorList] = useState<any>([]);
-  const [roomList, setRoomList] = useState<any>([]);
-  const [selectedHostel, setSelectedHostel] = useState<any>({});
-  const [selectedFloor, setSelectedFloor] = useState<any>({});
-  const [selectedRoom, setSelectedRoom] = useState<any>({});
+  const [ticketStatusList, setTicketStatusList] = useState<any>([]);
+  const [selectedTicketStatus, setSelectedTicketStatus] = useState<any>({});
+  const [categoryList, setCategoryList] = useState<any>([]);
+  const [selectedCategoryList, setSelectedCategoryList] = useState<any>({});
+  const [subCategoryList, setSubCategoryList] = useState<any>([]);
+  const [selectedSubCategoryList, setSelectedSubCategoryList] = useState<any>(
+    {},
+  );
+  const [startDate, setStartDate] = useState<any>('');
+  const [endDate, setEndDate] = useState<any>('');
+  const [exportUrl, setExportUrl] = useState<any>('');
 
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, strings.hostelManagement.bedDetails.title);
+    Header.setNavigation(navigation, 'Support Ticket History');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
   useFocusEffect(
     useCallback(() => {
-      if (firstTimeLoad && !centerSerach?.name && search === '') {
-        setFirstTimeLoad(false);
-        bedDetailsList(1, true, '');
-        getHostelName();
+      if (firstTimeLoad && search === '') {
+        getTicketStatusList();
+        getCategoryList();
       }
-    }, [firstTimeLoad, centerSerach, search]),
+    }, [firstTimeLoad, search]),
   );
-
   useEffect(() => {
-    if (!centerSerach?.name) return;
-    bedDetailsList(1, true, '');
-  }, [centerSerach]);
-
-  const getCentreFilter = () => {
-    if (!centerSerach?.name) return null;
-
-    if (centerSerach.name === strings.dashboardIndex.allCenters) {
-      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
+    if (firstTimeLoad && search === '') {
+      setFirstTimeLoad(false);
+      listComplain(1, true, search, []);
     }
-
-    return [centerSerach.name];
-  };
+  }, []);
 
   const toggleFilter = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setShowFilter(!showFilter);
   };
 
-  const bedDetailsList = (
+  const listComplain = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -395,23 +426,19 @@ const BedDetails = (props: Props) => {
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
 
-    const centreFilter = getCentreFilter();
     const params: any = {
       search: keyword,
       sort: {
-        attributes: ['created_date'],
+        attributes: ['createdAt'],
         sorts: ['desc'],
       },
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
+      exportFlag: true,
     };
 
-    if (centreFilter) {
-      params.bipardCentre = centreFilter;
-    }
-
-    bedDetailsApi(params)
+    listComplainApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -425,6 +452,7 @@ const BedDetails = (props: Props) => {
         }
 
         setPage(pageNumber);
+        setExportUrl(res.data.exportUrl);
 
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
@@ -442,7 +470,7 @@ const BedDetails = (props: Props) => {
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      bedDetailsList(1, true, text);
+      listComplain(1, true, text);
     }, 500),
     [],
   );
@@ -454,106 +482,69 @@ const BedDetails = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    bedDetailsList(1, true, '');
+    listComplain(1, true, '');
   };
 
-  const updateBedStatus = (id: any) => {
-    setInitialCall(true);
-    const params = {
-      idForChangeStatus: id,
-    };
-    updatebedDetailsApi(params)
-      .unwrap()
-      .then((res: any) => {
-        Toast.show({
-          type: 'success',
-          text2: res.data.message?.message,
-        });
-        setInitialCall(false);
-        bedDetailsList(1, true, search);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || strings.something_went_wrong,
-        });
-      });
-  };
-
-  const deleteBedHostelRoom = (id: any) => {
-    setInitialCall(true);
-    const params = {
-      id: id,
-    };
-    deletebedDetailsRoomApi(params)
-      .unwrap()
-      .then((res: any) => {
-        Toast.show({
-          type: 'success',
-          text2: res.data.message,
-        });
-        setInitialCall(false);
-        bedDetailsList(1, true, search);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || strings.something_went_wrong,
-        });
-      });
-  };
-
-  const renderListBedDetails = ({ item, index }: any) => (
-    <BedCard
+  const renderListComplainDetails = ({ item, index }: any) => (
+    <ComplainCard
       item={item}
       index={index}
       navigation={navigation}
-      onRefresh={() => bedDetailsList(1, true, search)}
-      onDelete={deleteBedHostelRoom}
-      onUpdateStatus={updateBedStatus}
+      onDelete={deleteSupportData}
+      onRefresh={() => listComplain(1, true, search)}
     />
   );
 
   const clearFilter = () => {
-    setSelectedHostel({});
-    setSelectedFloor({});
-    bedDetailsList(1, true, search, []);
+    setSelectedTicketStatus({});
+    setSelectedCategoryList({});
+    setSelectedSubCategoryList({});
+    setStartDate('');
+    setEndDate('');
+    listComplain(1, true, search, []);
   };
 
   const applyFilter = () => {
     const filters = [];
 
-    if (selectedHostel?.id) {
-      filters.push(['selectHostelNameId', '=', selectedHostel.id]);
+    if (selectedTicketStatus?.id) {
+      filters.push(['currentStatusId', '=', selectedTicketStatus.id]);
     }
 
-    if (selectedFloor?.id) {
-      filters.push(['selectFloorNameId', '=', selectedFloor.id]);
+    if (selectedCategoryList?.id) {
+      filters.push(['categoryId', '=', selectedCategoryList.id]);
     }
 
-    if (selectedRoom?.id) {
-      filters.push(['selectRoomNoId', '=', selectedRoom.id]);
+    if (selectedSubCategoryList?.id) {
+      filters.push(['subCategoryId', '=', selectedSubCategoryList.id]);
     }
 
-    bedDetailsList(1, true, search, filters);
+    if (startDate) {
+      const formatted = moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+      filters.push(['createdDate', '>=', formatted]);
+    }
+
+    if (endDate) {
+      const formatted = moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+      filters.push(['createdDate', '<=', formatted]);
+    }
+
+    listComplain(1, true, search, filters);
   };
 
-  const getHostelName = () => {
+  const getTicketStatusList = () => {
     setInitialCall(true);
     const params = {
-      bipardCentre: ['Gaya', 'Patna'],
-      listType: 'filter_hostel_name_for_bed_details',
+      listType: 'select_resolve_complain_current_status',
+      bipardCentre: [],
       replacements: ['%%'],
     };
+
     commonDropdownApi(params)
       .unwrap()
       .then((res: any) => {
-        setHostelList(res.data);
+        setTicketStatusList(res.data);
         setInitialCall(false);
-        setSelectedFloor({});
-        setSelectedRoom({});
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -565,40 +556,41 @@ const BedDetails = (props: Props) => {
       });
   };
 
-  const getFloorName = (hostelId: any) => {
+  const getCategoryList = () => {
     setInitialCall(true);
     const params = {
-      bipardCentre: ['Gaya', 'Patna'],
-      listType: 'filter_floor_name_for_bed_details',
-      replacements: ['%%', hostelId],
+      listType: 'support_category_filter_for_raise_complain',
+      bipardCentre: [],
+      replacements: ['%%'],
     };
+
     commonDropdownApi(params)
       .unwrap()
       .then((res: any) => {
-        setFloorList(res.data);
+        setCategoryList(res.data);
         setInitialCall(false);
-        setSelectedRoom({});
       })
       .catch((err: any) => {
         setInitialCall(false);
         Toast.show({
           type: 'error',
           text2: err.data.message,
+          autoHide: true,
         });
       });
   };
 
-  const getRoomName = (floorId: any) => {
+  const getSubCategoryList = (id: any) => {
     setInitialCall(true);
     const params = {
-      bipardCentre: ['Gaya', 'Patna'],
-      listType: 'filter_room_no_for_bed_details',
-      replacements: ['%%', selectedHostel.id, floorId],
+      listType: 'support_sub_category_filter_for_raise_complain',
+      replacements: [id, '%%'],
     };
+
     commonDropdownApi(params)
       .unwrap()
       .then((res: any) => {
-        setRoomList(res.data);
+        setSubCategoryList(res.data);
         setInitialCall(false);
       })
       .catch((err: any) => {
@@ -606,6 +598,71 @@ const BedDetails = (props: Props) => {
         Toast.show({
           type: 'error',
           text2: err.data.message,
+          autoHide: true,
+        });
+      });
+  };
+
+  const hitFilterApi = ({
+    status = selectedTicketStatus,
+    category = selectedCategoryList,
+    subCategory = selectedSubCategoryList,
+    startDate: sDate = startDate,
+    endDate: eDate = endDate,
+  }: FilterArgs = {}) => {
+    const filters: any[] = [];
+
+    if (status?.id) {
+      filters.push(['currentStatusId', '=', status.id]);
+    }
+
+    if (category?.id) {
+      filters.push(['categoryId', '=', category.id]);
+    }
+
+    if (subCategory?.id) {
+      filters.push(['subCategoryId', '=', subCategory.id]);
+    }
+
+    if (sDate) {
+      filters.push([
+        'createdDate',
+        '>=',
+        moment(sDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+      ]);
+    }
+
+    if (eDate) {
+      filters.push([
+        'createdDate',
+        '<=',
+        moment(eDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+      ]);
+    }
+
+    listComplain(1, true, search, filters);
+  };
+
+  const deleteSupportData = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      id: id,
+    };
+    deleteComplainApi(params)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+        setFirstTimeLoad(true);
+        setInitialCall(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -613,64 +670,35 @@ const BedDetails = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-        <TextAtom style={styles.filterText}>
-          {showFilter
-            ? strings.hostelManagement.bedAvailability.hideFilter
-            : strings.hostelManagement.bedAvailability.showFilter}
-        </TextAtom>
-      </TouchableAtom>
-      {showFilter && (
-        <FilterForm
-          navigation={navigation}
-          hostelList={hostelList}
-          floorList={floorList}
-          roomList={roomList}
-          selectedHostel={selectedHostel}
-          selectedFloor={selectedFloor}
-          selectedRoom={selectedRoom}
-          setSelectedHostel={setSelectedHostel}
-          setSelectedFloor={setSelectedFloor}
-          setSelectedRoom={setSelectedRoom}
-          applyFilter={applyFilter}
-          clearFilter={clearFilter}
-          getFloorName={getFloorName}
-          getRoomName={getRoomName}
-        />
-      )}
-      {crediantialData.user[0].tenantId === 3 && (
-        <DropDownOrganism
-          label={''}
-          placeholder={strings.dashboardIndex.centers}
+
+      <View
+        style={{
+          flexDirection: 'row',
+          alignSelf: 'flex-end',
+        }}
+      >
+        <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
+          <TextAtom style={styles.filterText}>
+            {showFilter
+              ? strings.hostelManagement.bedAvailability.hideFilter
+              : strings.hostelManagement.bedAvailability.showFilter}
+          </TextAtom>
+        </TouchableAtom>
+        <TouchableAtom
+          style={styles.filterButton}
           onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: 'Center',
-              Data: [
-                {
-                  id: strings.dashboardIndex.allCenters,
-                  name: strings.dashboardIndex.allCenters,
-                },
-                {
-                  id: strings.dashboardIndex.gaya,
-                  name: strings.dashboardIndex.gaya,
-                },
-                {
-                  id: strings.dashboardIndex.patna,
-                  name: strings.dashboardIndex.patna,
-                },
-              ],
-              selectedData: centerSerach,
-              setSelectedData: (data: any) => {
-                setCenterSerach(data);
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
+            if (exportUrl) {
+              downloadAndOpenFile(exportUrl);
+            }
           }}
-          inputText={centerSerach?.name}
-          containerStyle={styles.marginBottomNegative}
-        />
-      )}
+        >
+          <ImageAtom
+            source={images.download}
+            style={{ tintColor: colors.black }}
+          />
+        </TouchableAtom>
+      </View>
+
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}
@@ -681,9 +709,8 @@ const BedDetails = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        extraData={data}
-        renderItem={renderListBedDetails}
-        keyExtractor={item => item.id.toString()}
+        renderItem={renderListComplainDetails}
+        keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           initialCall ? null : (
             <TextAtom style={styles.emptyText}>
@@ -691,13 +718,29 @@ const BedDetails = (props: Props) => {
             </TextAtom>
           )
         }
-        ListFooterComponent={
-          <ActivityIndicator
-            size={'small'}
-            color={colors.primary}
-            animating={pagination}
-            style={styles.loadingContainer}
-          />
+        ListHeaderComponent={
+          showFilter ? (
+            <FilterForm
+              navigation={navigation}
+              applyFilter={applyFilter}
+              clearFilter={clearFilter}
+              getSubCategoryList={getSubCategoryList}
+              hitFilterApi={hitFilterApi}
+              ticketStatusList={ticketStatusList}
+              selectedTicketStatus={selectedTicketStatus}
+              setSelectedTicketStatus={setSelectedTicketStatus}
+              categoryList={categoryList}
+              selectedCategoryList={selectedCategoryList}
+              setSelectedCategoryList={setSelectedCategoryList}
+              subCategoryList={subCategoryList}
+              selectedSubCategoryList={selectedSubCategoryList}
+              setSelectedSubCategoryList={setSelectedSubCategoryList}
+              startDate={startDate}
+              endDate={endDate}
+              setStartDate={setStartDate}
+              setEndDate={setEndDate}
+            />
+          ) : null
         }
         refreshControl={
           <RefreshControl
@@ -706,31 +749,32 @@ const BedDetails = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              bedDetailsList(1, false, '');
+              listComplain(1, false, '');
             }}
+          />
+        }
+        ListFooterComponent={
+          <ActivityIndicator
+            size={'small'}
+            color={colors.primary}
+            animating={pagination}
+            style={{ marginTop: vh(10) }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? bedDetailsList(page + 1, false, search)
+            ? listComplain(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={BedItemSeparator}
       />
-      <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddBedDetails, {
-            onDone: () => bedDetailsList(1, true, search),
-          });
-        }}
-      />
     </SafeAreaView>
   );
 };
 
-export default BedDetails;
+export default SupportTicketHistory;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -778,6 +822,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.chinese_silver,
     marginVertical: vh(5),
   },
+  statusBadge: {
+    paddingHorizontal: vw(8),
+    paddingVertical: vh(4),
+    borderRadius: vw(10),
+  },
+
+  statusText: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(12),
+    color: colors.black,
+  },
   emptyText: {
     textAlign: 'center',
     marginTop: vh(50),
@@ -813,13 +868,8 @@ const styles = StyleSheet.create({
   },
 
   inActiveBox: {
-    backgroundColor: colors.lightRedBg,
-    borderColor: colors.darkRed,
-  },
-
-  statusText: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
+    backgroundColor: colors.pharmacy_yellow,
+    borderColor: colors.warningOrange,
   },
 
   activeText: { color: colors.greenText },
@@ -874,7 +924,7 @@ const styles = StyleSheet.create({
   // New StyleSheet Entries
   flex1: { flex: 1 },
   flex1End: { flex: 1, alignItems: 'flex-end' },
-  actionRow: { flexDirection: 'row', gap: vw(15) },
+  actionRow: { flexDirection: 'row', gap: vw(10) },
   editButton: {
     borderWidth: vw(1),
     borderColor: colors.green,
@@ -896,7 +946,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconSmall: { width: vw(15), height: vw(15) },
+  iconSmall: {
+    width: vw(15),
+    height: vw(15),
+    tintColor: colors.primary,
+  },
   statusContainer: { marginTop: vh(0), zIndex: 999 },
   statusTextBlack: { color: colors.black },
   loadingContainer: { marginTop: vh(15) },

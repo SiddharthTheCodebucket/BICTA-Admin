@@ -66,7 +66,7 @@ export default {
   application: 'Application',
   application_review_data: 'Application Review Data',
   no_application_found: 'No application data found',
-  show_cause_notice_details: 'Show cause Notice Details',
+  show_cause_notice_details: 'Show Cause Notice(s)',
   no_notice_found: 'No notice found',
   application_details: 'Application Review Details',
   download_gate_pass: 'Download Gate Pass',

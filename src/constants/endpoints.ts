@@ -150,4 +150,24 @@ export default {
   list_vendor_payment_history: 'vendor/list-vendor-payment-history',
   add_vendor_payment_history: 'vendor/add-vendor-payment-history',
   update_vendor_payment_history: 'vendor/update-vendor-payment-history',
+
+  //User Management
+  list_internal_user: 'user-management/list-internal-users',
+  approve_internal_user_status: 'user-management/approve-internal-users-status',
+  delete_internal_user: 'user-management/delete-internal-users',
+  list_admin_role: 'user-management/list-admin-role',
+  add_admin_role: 'user-management/add-admin-role',
+  update_admin_role: 'user-management/update-admin-role',
+  delete_admin_role: 'user-management/delete-admin-role',
+  list_permissions_name: 'user-management/list-permissions-name',
+  list_global_permissions_list: 'user-management/list-global-admin-permissions',
+  update_global_permissions_list:
+    'user-management/update-global-admin-permissions',
+  add_user_management: 'user-management/add-internal-users',
+  update_user_management: 'user-management/update-internal-users',
+
+  //Support
+  list_support_raise_complain: 'support/list-support-raise-complain',
+  delete_support_raise_complain: 'support/delete-support-raise-complain',
+  resolve_support_raise_complain: 'support/resolve-support-raised-complain',
 };

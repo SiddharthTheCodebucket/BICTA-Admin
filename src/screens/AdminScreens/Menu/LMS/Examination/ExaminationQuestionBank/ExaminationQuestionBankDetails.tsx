@@ -50,8 +50,8 @@ const ExaminationQuestionBankDetails = (props: Props) => {
   const stripHtml = (s?: string) => {
     if (!s) return '';
     return s
-      .replaceAll(/<[^>]*>/g, '')
-      .replaceAll(/&nbsp;/, ' ')
+      .replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;/, ' ')
       .trim();
   };
 

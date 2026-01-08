@@ -124,6 +124,24 @@ import AssignBillForm from '../screens/AdminScreens/Menu/InvoiceAndBillManagemen
 import PaymentDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/PaymentDetails';
 import PaymentDetailDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/PaymentDetailDetails';
 import AddPaymentDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow/AddPaymentDetails';
+import UserManagement from '../screens/AdminScreens/Menu/UserManagement';
+import User from '../screens/AdminScreens/Menu/UserManagement/User';
+import UserRegistration from '../screens/AdminScreens/Menu/UserManagement/User/UserRegistration';
+import UserRegistrationDetails from '../screens/AdminScreens/Menu/UserManagement/User/UserRegistration/UserRegistrationDetails';
+import RoleManagement from '../screens/AdminScreens/Menu/UserManagement/User/RoleManagement';
+import AddRole from '../screens/AdminScreens/Menu/UserManagement/User/RoleManagement/AddRole';
+import PermissionNameList from '../screens/AdminScreens/Menu/UserManagement/User/PermissionNameList';
+import RolePermission from '../screens/AdminScreens/Menu/UserManagement/User/RolePermission';
+import RoleWithPermission from '../screens/AdminScreens/Menu/UserManagement/User/RoleWithPermission';
+import RoleWithPermissionDetails from '../screens/AdminScreens/Menu/UserManagement/User/RoleWithPermission/RoleWithPermissionDetails';
+import SupportMain from '../screens/AdminScreens/Menu/SupportMain';
+import SupportAdmin from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin';
+import SupportTicketHistory from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory';
+import SupportTicketHistoryDetails from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketHistoryDetails';
+import SupportTicketResponseDetails from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketResponseDetails';
+import SupportTicketMovementDetails from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketMovementDetails';
+import SupportTicketHistoryReply from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketHistoryReply';
+import AddUserRegistration from '../screens/AdminScreens/Menu/UserManagement/User/UserRegistration/AddUserRegistration';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -527,6 +545,66 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="AddPaymentDetails"
           component={AddPaymentDetails}
+        />
+        <RootStackScreen.Screen
+          name="UserManagement"
+          component={UserManagement}
+        />
+        <RootStackScreen.Screen name="User" component={User} />
+        <RootStackScreen.Screen
+          name="UserRegistration"
+          component={UserRegistration}
+        />
+        <RootStackScreen.Screen
+          name="UserRegistrationDetails"
+          component={UserRegistrationDetails}
+        />
+        <RootStackScreen.Screen
+          name="AddUserRegistration"
+          component={AddUserRegistration}
+        />
+        <RootStackScreen.Screen
+          name="RoleManagement"
+          component={RoleManagement}
+        />
+        <RootStackScreen.Screen name="AddRole" component={AddRole} />
+        <RootStackScreen.Screen
+          name="PermissionNameList"
+          component={PermissionNameList}
+        />
+        <RootStackScreen.Screen
+          name="RolePermission"
+          component={RolePermission}
+        />
+        <RootStackScreen.Screen
+          name="RoleWithPermission"
+          component={RoleWithPermission}
+        />
+        <RootStackScreen.Screen
+          name="RoleWithPermissionDetails"
+          component={RoleWithPermissionDetails}
+        />
+        <RootStackScreen.Screen name="SupportMain" component={SupportMain} />
+        <RootStackScreen.Screen name="SupportAdmin" component={SupportAdmin} />
+        <RootStackScreen.Screen
+          name="SupportTicketHistory"
+          component={SupportTicketHistory}
+        />
+        <RootStackScreen.Screen
+          name="SupportTicketHistoryDetails"
+          component={SupportTicketHistoryDetails}
+        />
+        <RootStackScreen.Screen
+          name="SupportTicketResponseDetails"
+          component={SupportTicketResponseDetails}
+        />
+        <RootStackScreen.Screen
+          name="SupportTicketMovementDetails"
+          component={SupportTicketMovementDetails}
+        />
+        <RootStackScreen.Screen
+          name="SupportTicketHistoryReply"
+          component={SupportTicketHistoryReply}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

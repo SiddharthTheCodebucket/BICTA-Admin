@@ -375,7 +375,7 @@ const AddSupport = (props: Props) => {
                   color: colors.black,
                 }}
               >
-                {`Question ${index + 1} - ${q.questionName.replaceAll(
+                {`Question ${index + 1} - ${q.questionName.replace(
                   /<[^>]+>/g,
                   '',
                 )}`}
@@ -466,10 +466,6 @@ const AddSupport = (props: Props) => {
           buttonText="Choose File"
           onSelectImage={(file: any) => {
             setValue('file', file);
-            setErrors({
-              ...errors,
-              'file.uri': '',
-            });
           }}
           defaultImage={form?.file?.uri}
         />

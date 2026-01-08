@@ -322,7 +322,7 @@ const AssignmentDetails = (props: Props) => {
           return (
             <ViewAtom key={qId} style={styles.card}>
               <TextAtom numberOfLines={3} style={styles.questionTitle}>
-                Q{index + 1}. {item.question.replaceAll(/<[^>]+>/g, '')}
+                Q{index + 1}. {item.question.replace(/<[^>]+>/g, '')}
               </TextAtom>
 
               <TextAtom style={styles.chooseText}>

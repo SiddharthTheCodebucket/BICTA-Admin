@@ -106,8 +106,8 @@ const AssignmentDetails = (props: Props) => {
               <ViewAtom style={styles.qaWrapper}>
                 {objective.mcqQuestions?.map((q: any, i: number) => {
                   const cleanedQ = q.question
-                    .replaceAll(/<[^>]+>/g, '')
-                    .replaceAll('&nbsp;', ' ');
+                    .replace(/<[^>]+>/g, '')
+                    .replace('&nbsp;', ' ');
 
                   const selected = objective.mcqResponse[i];
                   const correct = q.correctAnswer;
@@ -167,7 +167,7 @@ const AssignmentDetails = (props: Props) => {
                       <RenderHTML
                         contentWidth={vw(300)}
                         source={{
-                          html: `<span class="qText">Q${i + 1}. ${q.replaceAll(
+                          html: `<span class="qText">Q${i + 1}. ${q.replace(
                             /<[^>]+>/g,
                             '',
                           )}</span>`,

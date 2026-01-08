@@ -34,9 +34,11 @@ const Dashboard = (props: Props) => {
 
   const { crediantialData } = useAppSelector(state => state.Auth);
   const [time, setTime] = useState(new Date());
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
 
-  const [activeTab, setActiveTab] = useState<'Hostel' | 'Vendor'>('Hostel');
+  const [activeTab, setActiveTab] = useState<
+    'Hostel Dashboard' | 'Vendor Dashboard'
+  >('Hostel Dashboard');
   const [innerTab, setInnerTab] = useState('Hostel Planning');
   const [centerSerach, setCenterSerach] = useState<any>({});
 
@@ -50,7 +52,7 @@ const Dashboard = (props: Props) => {
     Default: Vendor,
   };
   const ActiveComponent =
-    activeTab === 'Hostel' ? HostelTabs[innerTab] : Vendor;
+    activeTab === 'Hostel Dashboard' ? HostelTabs[innerTab] : Vendor;
 
   useLayoutEffect(() => {
     Header.setDashboardHeader(navigation, { time, logo: images.logo });
@@ -62,19 +64,33 @@ const Dashboard = (props: Props) => {
   }, []);
   useEffect(() => {
     if (props.route?.params?.goToHostelPlanning) {
-      setActiveTab('Hostel');
+      setActiveTab('Hostel Dashboard');
       setInnerTab(strings.dashboardIndex.hostelPlanning);
     }
   }, [props.route?.params]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoader(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loader) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.backgroundColor }}>
+        <FullscreenLoading isVisible />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <FullscreenLoading isVisible={loader} />
-
       <View style={styles.tabRow}>
         {[
-          strings.dashboardIndex.hostel,
-          crediantialData.user[0].tenantId === 3 &&
-            strings.dashboardIndex.vendor,
+          'Hostel Dashboard',
+          crediantialData.user[0].tenantId === 3 && 'Vendor Dashboard',
         ]
           .filter(Boolean)
           .map((tab, index) => (
@@ -87,6 +103,7 @@ const Dashboard = (props: Props) => {
               }}
             >
               <TextAtom
+                numberOfLines={2}
                 style={[
                   styles.tabText,
                   activeTab === tab && styles.activeTabText,
@@ -97,45 +114,46 @@ const Dashboard = (props: Props) => {
             </TouchableAtom>
           ))}
 
-        {activeTab === 'Hostel' && crediantialData.user[0].tenantId === 3 && (
-          <DropDownOrganism
-            label={''}
-            placeholder={strings.dashboardIndex.centers}
-            inputText={centerSerach?.name}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: strings.dashboardIndex.center,
-                Data: [
-                  {
-                    id: strings.dashboardIndex.allCenters,
-                    name: strings.dashboardIndex.allCenters,
-                  },
-                  {
-                    id: strings.dashboardIndex.gaya,
-                    name: strings.dashboardIndex.gaya,
-                  },
-                  {
-                    id: strings.dashboardIndex.patna,
-                    name: strings.dashboardIndex.patna,
-                  },
-                ],
-                selectedData: centerSerach,
-                setSelectedData: setCenterSerach,
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            containerStyle={styles.centerContainer}
-            contentContainerStyle={styles.centerContent}
-            downArrowStyle={styles.centerDownArrow}
-          />
-        )}
+        {activeTab === 'Hostel Dashboard' &&
+          crediantialData.user[0].tenantId === 3 && (
+            <DropDownOrganism
+              label={''}
+              placeholder={strings.dashboardIndex.centers}
+              inputText={centerSerach?.name}
+              onPress={() => {
+                navigation.navigate('DropDownModal', {
+                  name: strings.dashboardIndex.center,
+                  Data: [
+                    {
+                      id: strings.dashboardIndex.allCenters,
+                      name: strings.dashboardIndex.allCenters,
+                    },
+                    {
+                      id: strings.dashboardIndex.gaya,
+                      name: strings.dashboardIndex.gaya,
+                    },
+                    {
+                      id: strings.dashboardIndex.patna,
+                      name: strings.dashboardIndex.patna,
+                    },
+                  ],
+                  selectedData: centerSerach,
+                  setSelectedData: setCenterSerach,
+                  typeName: 'name',
+                  typeId: 'id',
+                });
+              }}
+              containerStyle={styles.centerContainer}
+              contentContainerStyle={styles.centerContent}
+              downArrowStyle={styles.centerDownArrow}
+            />
+          )}
       </View>
 
       <ViewAtom style={styles.separator} />
 
       <ViewAtom style={styles.innerRow}>
-        {activeTab === 'Hostel' && (
+        {activeTab === 'Hostel Dashboard' && (
           <ViewAtom style={styles.innerRow}>
             {HOSTEL_INNER_TABS.map(tab => (
               <TouchableAtom
@@ -201,7 +219,8 @@ const styles = StyleSheet.create({
   tabText: {
     color: colors.black,
     fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
+    fontSize: vw(13),
+    textAlign: 'center',
   },
   activeTabText: {
     color: colors.white,
