@@ -59,6 +59,13 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listOverallTrainingFeedback: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_overallS_training_feedback,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -71,4 +78,5 @@ export const {
   useAddFeedbackTopicMutation,
   useUpdateFeedbackTopicMutation,
   useDeleteFeedbackTopicMutation,
+  useListOverallTrainingFeedbackMutation,
 } = apiEndpoints;

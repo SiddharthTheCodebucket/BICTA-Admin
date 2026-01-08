@@ -180,4 +180,5 @@ export default {
   add_feedback_topic: 'feedback/add-feedback-topic',
   update_feedback_topic: 'feedback/update-feedback-topic',
   delete_feedback_topic: 'feedback/delete-feedback-topic',
+  list_overallS_training_feedback: 'feedback/list-overall-training-feedback',
 };

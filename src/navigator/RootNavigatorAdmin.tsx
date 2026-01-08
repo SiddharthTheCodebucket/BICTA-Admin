@@ -148,6 +148,7 @@ import FeedbackCategory from '../screens/AdminScreens/Menu/FeedbackManagement/Fe
 import AddFeedbackCategory from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackCategory/AddFeedbackCategory';
 import FeedbackTopic from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackTopic';
 import AddFeedbackTopic from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackTopic/AddFeedbackTopic';
+import OverallFeedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/OverallFeedback';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -632,6 +633,10 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="AddFeedbackTopic"
           component={AddFeedbackTopic}
+        />
+        <RootStackScreen.Screen
+          name="OverallFeedback"
+          component={OverallFeedback}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group
