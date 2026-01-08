@@ -142,6 +142,10 @@ export default {
   SupportTicketResponseDetails: 'SupportTicketResponseDetails',
   SupportTicketMovementDetails: 'SupportTicketMovementDetails',
   SupportTicketHistoryReply: 'SupportTicketHistoryReply',
+  FeedbackManagement: 'FeedbackManagement',
+  Feedback: 'Feedback',
+  FeedbackCategory: 'FeedbackCategory',
+  AddFeedbackCategory: 'AddFeedbackCategory',
 
   // Trainee Screen
   MyProfile: 'MyProfile',
@@ -164,7 +168,6 @@ export default {
   ApplicationDetails: 'ApplicationDetails',
   SupportViewAndReply: 'SupportViewAndReply',
   AddSupport: 'AddSupport',
-  Feedback: 'Feedback',
   AddMessFeedback: 'AddMessFeedback',
   OverallFeedback: 'OverallFeedback',
   MessFeedback: 'MessFeedback',

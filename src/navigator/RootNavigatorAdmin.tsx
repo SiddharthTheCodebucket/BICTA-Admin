@@ -142,6 +142,10 @@ import SupportTicketResponseDetails from '../screens/AdminScreens/Menu/SupportMa
 import SupportTicketMovementDetails from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketMovementDetails';
 import SupportTicketHistoryReply from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketHistoryReply';
 import AddUserRegistration from '../screens/AdminScreens/Menu/UserManagement/User/UserRegistration/AddUserRegistration';
+import FeedbackManagement from '../screens/AdminScreens/Menu/FeedbackManagement';
+import Feedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback';
+import FeedbackCategory from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackCategory';
+import AddFeedbackCategory from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackCategory/AddFeedbackCategory';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -605,6 +609,19 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="SupportTicketHistoryReply"
           component={SupportTicketHistoryReply}
+        />
+        <RootStackScreen.Screen
+          name="FeedbackManagement"
+          component={FeedbackManagement}
+        />
+        <RootStackScreen.Screen name="Feedback" component={Feedback} />
+        <RootStackScreen.Screen
+          name="FeedbackCategory"
+          component={FeedbackCategory}
+        />
+        <RootStackScreen.Screen
+          name="AddFeedbackCategory"
+          component={AddFeedbackCategory}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

@@ -170,4 +170,10 @@ export default {
   list_support_raise_complain: 'support/list-support-raise-complain',
   delete_support_raise_complain: 'support/delete-support-raise-complain',
   resolve_support_raise_complain: 'support/resolve-support-raised-complain',
+
+  //Feedback Management
+  list_feedback_category: 'feedback/list-feedback-category',
+  update_feedback_category: 'feedback/update-feedback-category',
+  delete_feedback_category: 'feedback/delete-feedback-category',
+  add_feedback_category: 'feedback/add-feedback-category',
 };
