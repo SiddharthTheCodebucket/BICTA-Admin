@@ -8,12 +8,11 @@ import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import moment from 'moment';
 
 const FEEDBACK_DETAIL_FIELDS = [
-  { label: 'Training Name', key: 'trainingName', fullWidth: true },
+  { label: 'Training Name (ID)', key: 'trainingNameWithId', fullWidth: true },
   { label: 'Batch No', key: 'batchNo' },
-  { label: 'Faculty Name', key: 'facultyName', fullWidth: true },
-  { label: 'Trainee Name (ID)', key: 'traineeNameWithId', fullWidth: true },
+  { label: 'Faculty Name (ID)', key: 'facultyNameWithId', fullWidth: true },
+  { label: 'Observer Name (ID)', key: 'observerNameWithId', fullWidth: true },
   { label: 'Date Of Class', key: 'dateOfClass', type: 'date' },
-  { label: 'Feedback Date', key: 'createdDate', type: 'dateTime' },
   { label: 'Subject Name', key: 'subjectName', fullWidth: true },
   { label: 'Topic Name', key: 'topicName', fullWidth: true },
   { label: 'Session Handled', key: 'sessionHandledId' },
@@ -25,11 +24,11 @@ const FEEDBACK_DETAIL_FIELDS = [
   { label: 'Remarks', key: 'remark', fullWidth: true },
 ];
 
-const FacultyFeedbackByTraineeDetails = ({ route, navigation }: any) => {
+const FacultyFeedbackByObserverDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Feedback Details');
+    Header.setNavigation(navigation, 'Faculty Feedback Observer');
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
 
@@ -37,9 +36,17 @@ const FacultyFeedbackByTraineeDetails = ({ route, navigation }: any) => {
     if (!data) return '-';
 
     switch (field.key) {
-      case 'traineeNameWithId':
-        return data?.traineeName && data?.traineeId
-          ? `${data.traineeName} (${data.traineeId})`
+      case 'trainingNameWithId':
+        return data?.trainingName && data?.trainingId
+          ? `${data.trainingName} (${data.trainingId})`
+          : '-';
+      case 'facultyNameWithId':
+        return data?.facultyName && data?.facultyId
+          ? `${data.facultyName} (${data.facultyId})`
+          : '-';
+      case 'observerNameWithId':
+        return data?.observerName && data?.observerId
+          ? `${data.observerName} (${data.observerId})`
           : '-';
 
       case 'dateOfClass':
@@ -94,7 +101,7 @@ const FacultyFeedbackByTraineeDetails = ({ route, navigation }: any) => {
   );
 };
 
-export default FacultyFeedbackByTraineeDetails;
+export default FacultyFeedbackByObserverDetails;
 
 const styles = StyleSheet.create({
   container: {

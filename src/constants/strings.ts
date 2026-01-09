@@ -14,7 +14,7 @@ export default {
   tryAgain: 'Try again',
   remember_me: 'Remember me',
   bipard: 'Bihar Institute of Public Administration & Rural Development',
-  welcome_to_bipard_erp: 'Welcome to BIPARD ERP!',
+  welcome_to_bipard_erp: 'Welcome to BICTA!',
   sign_in: 'Sign In',
   message_1:
     "Training is a process by which officials' abilities are increased to perform specific tasks. Inspired by the changing global norms as per the social demands, training is an opportunity to move forward on the path of progress and deal with the challenges faced by society, which lacks negativity and is full of positivity. Through training, government talents are integrated into the mainstream of the nation's development by ensuring the necessary security and rights of citizens with transparency. It should be the duty of every public servant to try to incorporate the processes of discipline in his life and use them responsibly in public life - the inclusion of this process in training is necessary.",

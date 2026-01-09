@@ -57,7 +57,9 @@ const Feedback = (props: Props) => {
     {
       id: 6,
       name: 'Faculty Feedback By Observer',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.FacultyFeedbackByObserver);
+      },
     },
     {
       id: 7,

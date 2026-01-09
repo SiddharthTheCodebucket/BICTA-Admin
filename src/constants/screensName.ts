@@ -150,7 +150,8 @@ export default {
   AddFeedbackTopic: 'AddFeedbackTopic',
   FacultyFeedbackByTrainee: 'FacultyFeedbackByTrainee',
   FacultyFeedbackByTraineeDetails: 'FacultyFeedbackByTraineeDetails',
-
+  FacultyFeedbackByObserver: 'FacultyFeedbackByObserver',
+  FacultyFeedbackByObserverDetails: 'FacultyFeedbackByObserverDetails',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',
