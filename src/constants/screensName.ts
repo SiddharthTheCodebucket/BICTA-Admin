@@ -148,6 +148,8 @@ export default {
   AddFeedbackCategory: 'AddFeedbackCategory',
   FeedbackTopic: 'FeedbackTopic',
   AddFeedbackTopic: 'AddFeedbackTopic',
+  FacultyFeedbackByTrainee: 'FacultyFeedbackByTrainee',
+  FacultyFeedbackByTraineeDetails: 'FacultyFeedbackByTraineeDetails',
 
   // Trainee Screen
   MyProfile: 'MyProfile',

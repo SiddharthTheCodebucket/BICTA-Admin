@@ -50,7 +50,9 @@ const Feedback = (props: Props) => {
     {
       id: 5,
       name: 'Faculty Feedback By Trainee',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.FacultyFeedbackByTrainee);
+      },
     },
     {
       id: 6,

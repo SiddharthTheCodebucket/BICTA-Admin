@@ -66,6 +66,20 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listFacultyFeedback: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_faculty_feedback,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    deleteFacultyFeedback: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.delete_faculty_feedback,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -79,4 +93,6 @@ export const {
   useUpdateFeedbackTopicMutation,
   useDeleteFeedbackTopicMutation,
   useListOverallTrainingFeedbackMutation,
+  useListFacultyFeedbackMutation,
+  useDeleteFacultyFeedbackMutation,
 } = apiEndpoints;

@@ -181,4 +181,6 @@ export default {
   update_feedback_topic: 'feedback/update-feedback-topic',
   delete_feedback_topic: 'feedback/delete-feedback-topic',
   list_overallS_training_feedback: 'feedback/list-overall-training-feedback',
+  list_faculty_feedback: 'feedback/list-faculty-feedback',
+  delete_faculty_feedback: 'feedback/delete-faculty-feedback',
 };
