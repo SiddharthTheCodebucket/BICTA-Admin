@@ -43,6 +43,7 @@ import {
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 import { useAppSelector } from '../../../../../../hooks';
+import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
@@ -363,6 +364,7 @@ const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 const HouseKeepingFeedbackResponse = (props: Props) => {
   const { navigation } = props;
   const { crediantialData } = useAppSelector(state => state.Auth);
+  const center = useGetCentre();
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listFeedbackResponseApi] = useListFeedbackResponseMutation();
   const [deleteFeedbackResponseApi] = useDeleteFeedbackResponseMutation();
@@ -590,7 +592,7 @@ const HouseKeepingFeedbackResponse = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'feedback_category',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       replacements: ['%%'],
     };
     commonDropdownApi(params)
@@ -618,7 +620,7 @@ const HouseKeepingFeedbackResponse = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'feedback_sub_category',
-      bipardCentre: getCentreFilter(),
+      bipardCentre: center,
       replacements: ['%%', id],
     };
     commonDropdownApi(params)
@@ -641,7 +643,7 @@ const HouseKeepingFeedbackResponse = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'feedback_topic',
-      bipardCentre: getCentreFilter(),
+      bipardCentre: center,
       replacements: ['%%', id],
     };
     commonDropdownApi(params)
@@ -664,7 +666,7 @@ const HouseKeepingFeedbackResponse = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'select_feedback_response',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       replacements: ['%%'],
     };
     commonDropdownApi(params)
@@ -686,7 +688,7 @@ const HouseKeepingFeedbackResponse = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'filter_hostel_name_for_bed_details',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       replacements: ['%%'],
     };
     commonDropdownApi(params)
@@ -709,7 +711,7 @@ const HouseKeepingFeedbackResponse = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'filter_floor_name_for_bed_details',
-      bipardCentre: getCentreFilter(),
+      bipardCentre: center,
       replacements: ['%%', id],
     };
     commonDropdownApi(params)
@@ -732,7 +734,7 @@ const HouseKeepingFeedbackResponse = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'filter_room_no_for_bed_details',
-      bipardCentre: getCentreFilter(),
+      bipardCentre: center,
       replacements: ['%%', selectedFloor.id, id],
     };
     commonDropdownApi(params)

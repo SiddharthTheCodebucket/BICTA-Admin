@@ -33,6 +33,7 @@ import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
+import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
@@ -237,6 +238,7 @@ const BedAvailability = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
+  const center = useGetCentre();
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [bedDetailsApi] = useBedDetailsRoomMutation();
 
@@ -423,7 +425,7 @@ const BedAvailability = (props: Props) => {
   const getHostelName = () => {
     setInitialCall(true);
     const params = {
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       listType: 'filter_hostel_name_for_bed_details',
       replacements: ['%%'],
     };
@@ -447,7 +449,7 @@ const BedAvailability = (props: Props) => {
   const getFloorName = (hostelId: any) => {
     setInitialCall(true);
     const params = {
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       listType: 'filter_floor_name_for_bed_details',
       replacements: ['%%', hostelId],
     };
@@ -469,7 +471,7 @@ const BedAvailability = (props: Props) => {
   const getRoomName = (floorId: any) => {
     setInitialCall(true);
     const params = {
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       listType: 'filter_room_no_for_bed_details',
       replacements: ['%%', selectedHostel.id, floorId],
     };

@@ -46,6 +46,7 @@ import {
   isNullUndefined,
 } from '../../../../../../utils/CommonFunction';
 import { useAppSelector } from '../../../../../../hooks';
+import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
@@ -328,6 +329,7 @@ const HostelAllocationHistory = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
+  const center = useGetCentre();
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [hostelAllocationDetailsApi] = useHostelAllocationDetailsMutation();
 
@@ -535,7 +537,7 @@ const HostelAllocationHistory = (props: Props) => {
   const getTrainingDetails = () => {
     setInitialCall(true);
     const params = {
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       listType: 'list-all-training',
       replacements: ['%%'],
     };
@@ -558,7 +560,7 @@ const HostelAllocationHistory = (props: Props) => {
   const getHostelDetails = () => {
     setInitialCall(true);
     const params = {
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       listType: 'filter_hostel_name_for_bed_details',
       replacements: ['%%'],
     };

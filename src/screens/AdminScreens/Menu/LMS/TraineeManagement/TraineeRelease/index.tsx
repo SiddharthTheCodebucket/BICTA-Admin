@@ -47,6 +47,7 @@ import {
   useListTrainingBatchDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
@@ -66,6 +67,7 @@ const TraineeRelease = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
+  const center = useGetCentre();
 
   const [downloadApi] = useDownloadTrainingCategoryMutation();
   const [commonListApi] = useCommonDropdownListMutation();
@@ -531,7 +533,7 @@ const TraineeRelease = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'list-all-training',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       replacements: ['%%'],
     };
     commonListApi(params)

@@ -299,7 +299,8 @@ const HostelReport = (props: any) => {
     setLoader(true);
     const params = {
       listType: 'list-all-training',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre:
+        selectedCenter === 'All Centers' ? ['Gaya', 'Patna'] : [selectedCenter],
       replacements: ['%%'],
     };
     commonListApi(params)
@@ -321,7 +322,8 @@ const HostelReport = (props: any) => {
     setLoader(true);
     const params = {
       listType: 'trainee_designation',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre:
+        selectedCenter === 'All Centers' ? ['Gaya', 'Patna'] : [selectedCenter],
       replacements: ['%%'],
     };
     commonListApi(params)

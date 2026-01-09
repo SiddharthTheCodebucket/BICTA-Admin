@@ -43,6 +43,7 @@ import {
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
@@ -206,6 +207,7 @@ const FloorDetails = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
+  const center = useGetCentre();
   const [showFilter, setShowFilter] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [commonDropdownApi] = useCommonDropdownListMutation();
@@ -394,7 +396,7 @@ const FloorDetails = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'filter_hostel_name_for_floor_details',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       replacements: ['%%'],
     };
     commonDropdownApi(params)

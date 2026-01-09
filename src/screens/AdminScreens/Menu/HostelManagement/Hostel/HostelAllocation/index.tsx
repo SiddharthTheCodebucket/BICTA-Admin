@@ -53,6 +53,7 @@ import {
   isNullUndefined,
 } from '../../../../../../utils/CommonFunction';
 import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
+import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
@@ -74,6 +75,7 @@ const HostelAllocation = (props: Props) => {
   const input1_ref: any = createRef();
 
   const { crediantialData } = useAppSelector(state => state.Auth);
+  const center = useGetCentre();
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [hostelAllocationDetailsApi] = useHostelAllocationDetailsMutation();
   const [hostelAllocationDeleteApi] = useHostelAllocationDeleteMutation();
@@ -664,7 +666,7 @@ const HostelAllocation = (props: Props) => {
   const getTrainingDetails = () => {
     setInitialCall(true);
     const params = {
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       listType: 'filter_training_name_for_hostel_allocation_details',
       replacements: ['%%'],
     };
@@ -687,7 +689,7 @@ const HostelAllocation = (props: Props) => {
   const getHostelDetails = () => {
     setInitialCall(true);
     const params = {
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       listType: 'filter_hostel_name_for_bed_details',
       replacements: ['%%'],
     };

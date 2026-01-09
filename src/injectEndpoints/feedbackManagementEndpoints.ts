@@ -94,6 +94,13 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listTrainingWiseFaculty: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_training_wise_faculty,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -111,4 +118,5 @@ export const {
   useDeleteFacultyFeedbackMutation,
   useListFeedbackResponseMutation,
   useDeleteFeedbackResponseMutation,
+  useListTrainingWiseFacultyMutation,
 } = apiEndpoints;

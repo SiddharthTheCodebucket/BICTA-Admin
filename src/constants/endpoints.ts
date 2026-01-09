@@ -185,4 +185,5 @@ export default {
   delete_faculty_feedback: 'feedback/delete-faculty-feedback',
   list_feedback_response: 'feedback/list-feedback-response',
   delete_feedback_response: 'feedback/delete-feedback-response',
+  list_training_wise_faculty: 'list-training-wise-faculty-feedback-report',
 };

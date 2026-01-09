@@ -43,6 +43,7 @@ import {
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 import { useAppSelector } from '../../../../../../hooks';
+import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
@@ -363,6 +364,7 @@ const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 const MessFeedbackResponse = (props: Props) => {
   const { navigation } = props;
   const { crediantialData } = useAppSelector(state => state.Auth);
+  const center = useGetCentre();
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listFeedbackResponseApi] = useListFeedbackResponseMutation();
   const [deleteFeedbackResponseApi] = useDeleteFeedbackResponseMutation();
@@ -590,7 +592,7 @@ const MessFeedbackResponse = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'feedback_category',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       replacements: ['%%'],
     };
     commonDropdownApi(params)
@@ -664,7 +666,7 @@ const MessFeedbackResponse = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'select_feedback_response',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       replacements: ['%%'],
     };
     commonDropdownApi(params)
@@ -686,7 +688,7 @@ const MessFeedbackResponse = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'filter_hostel_name_for_bed_details',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       replacements: ['%%'],
     };
     commonDropdownApi(params)

@@ -45,6 +45,7 @@ import {
   useListInternalUserMutation,
   useDeleteInternalUserStatusMutation,
 } from '../../../../../../injectEndpoints/userTypeEndpoints';
+import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
@@ -265,6 +266,7 @@ const UserRegistration = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
+  const center = useGetCentre();
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [internalUserListApi] = useListInternalUserMutation();
   const [updateStatusApi] = useApproveInternalUserStatusMutation();
@@ -471,7 +473,7 @@ const UserRegistration = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'select_user_type',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       replacements: ['%%'],
     };
 

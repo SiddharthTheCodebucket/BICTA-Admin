@@ -21,6 +21,7 @@ import {
   useListGlobalPermissionsListMutation,
   useUpdateGlobalPermissionsListMutation,
 } from '../../../../../../injectEndpoints/userTypeEndpoints';
+import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
@@ -43,7 +44,7 @@ const RolePermission = ({ navigation }: Props) => {
   const [listGlobalPermissionsListApi] = useListGlobalPermissionsListMutation();
   const [updateGlobalPermissionsListApi] =
     useUpdateGlobalPermissionsListMutation();
-
+  const center = useGetCentre();
   const [loader, setLoader] = useState(false);
   const [form, setForm] = useState<any>(initialForm);
   const [errors, setErrors] = useState<any>({});
@@ -136,7 +137,7 @@ const RolePermission = ({ navigation }: Props) => {
     setLoader(true);
     const params = {
       listType: 'select_global_module',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       replacements: ['%%'],
     };
     commonDropdownApi(params)
