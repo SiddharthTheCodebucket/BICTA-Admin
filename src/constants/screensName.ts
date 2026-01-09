@@ -152,6 +152,10 @@ export default {
   FacultyFeedbackByTraineeDetails: 'FacultyFeedbackByTraineeDetails',
   FacultyFeedbackByObserver: 'FacultyFeedbackByObserver',
   FacultyFeedbackByObserverDetails: 'FacultyFeedbackByObserverDetails',
+  MessFeedbackResponse: 'MessFeedbackResponse',
+  MessFeedbackResponseDetails: 'MessFeedbackResponseDetails',
+  HouseKeepingFeedbackResponse: 'HouseKeepingFeedbackResponse',
+  HouseKeepingFeedbackResponseDetails: 'HouseKeepingFeedbackResponseDetails',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

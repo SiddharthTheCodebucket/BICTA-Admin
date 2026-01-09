@@ -80,6 +80,20 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    listFeedbackResponse: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.list_feedback_response,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    deleteFeedbackResponse: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.delete_feedback_response,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -95,4 +109,6 @@ export const {
   useListOverallTrainingFeedbackMutation,
   useListFacultyFeedbackMutation,
   useDeleteFacultyFeedbackMutation,
+  useListFeedbackResponseMutation,
+  useDeleteFeedbackResponseMutation,
 } = apiEndpoints;

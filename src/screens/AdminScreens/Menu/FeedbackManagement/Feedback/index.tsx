@@ -40,12 +40,16 @@ const Feedback = (props: Props) => {
     {
       id: 3,
       name: 'Mess Feedback Response',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.MessFeedbackResponse);
+      },
     },
     {
       id: 4,
       name: 'House Keeping Feedback Response',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.HouseKeepingFeedbackResponse);
+      },
     },
     {
       id: 5,

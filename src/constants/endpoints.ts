@@ -183,4 +183,6 @@ export default {
   list_overallS_training_feedback: 'feedback/list-overall-training-feedback',
   list_faculty_feedback: 'feedback/list-faculty-feedback',
   delete_faculty_feedback: 'feedback/delete-faculty-feedback',
+  list_feedback_response: 'feedback/list-feedback-response',
+  delete_feedback_response: 'feedback/delete-feedback-response',
 };
