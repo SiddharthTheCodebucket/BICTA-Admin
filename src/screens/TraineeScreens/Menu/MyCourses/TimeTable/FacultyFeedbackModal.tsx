@@ -1,4 +1,4 @@
-import React, { useState, createRef, useEffect } from 'react';
+import React, { useState, createRef, useEffect, useMemo } from 'react';
 import {
   Keyboard,
   StyleSheet,
@@ -20,11 +20,19 @@ import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
 import TextInputOrganisms from '../../../../../components/organisms/TextInputOrganisms';
 import { useFeedbackAddFacultyMutation } from '../../../../../injectEndpointsTrainee/MyCoursesEndpoints';
 import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
+import { useAppSelector } from '../../../../../hooks';
 
 interface Props {
   navigation: NavigationType;
   route: any;
 }
+
+const REQUIRED_PERMISSION = 'LIST FACULTY FEEDBACK WITH RESPONSE REMARK';
+
+const hasValue = (value: any) =>
+  value !== null &&
+  value !== undefined &&
+  !(typeof value === 'string' && value.trim() === '');
 
 const FacultyFeedbackModal = ({ navigation, route }: Props) => {
   const { data, isEdit } = route.params ?? {};
@@ -32,6 +40,17 @@ const FacultyFeedbackModal = ({ navigation, route }: Props) => {
   const input1_ref: any = createRef();
   const isReadOnly = !!data && !isEdit;
   const [feedbackAddFacultyApi] = useFeedbackAddFacultyMutation();
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const permissions = crediantialData?.globalPermissions?.permissions || [];
+
+  const hasResponsePermission = useMemo(() => {
+    return permissions.some(
+      (p: any) =>
+        p.permissionName?.trim().toLowerCase() ===
+        REQUIRED_PERMISSION.toLowerCase(),
+    );
+  }, [permissions]);
 
   const [loader, setLoader] = useState(false);
   const [ratings, setRatings] = useState<any>({
@@ -78,6 +97,12 @@ const FacultyFeedbackModal = ({ navigation, route }: Props) => {
       setRemarks(data.remark ?? '');
     }
   }, [data]);
+
+  const visibleRatingFields = useMemo(() => {
+    if (!isReadOnly || hasResponsePermission) return ratingFields;
+
+    return ratingFields.filter(f => hasValue(data?.[f.idKey]));
+  }, [isReadOnly, hasResponsePermission, data]);
 
   const backAction = () => true;
   useAndroidBackButton(backAction, [navigation]);
@@ -190,7 +215,7 @@ const FacultyFeedbackModal = ({ navigation, route }: Props) => {
                   </ViewAtom>
                 )}
 
-                {ratingFields.map(f => (
+                {visibleRatingFields.map(f => (
                   <ViewAtom key={f.key} style={styles.ratingRow}>
                     <TextAtom style={styles.ratingLabel}>{f.label}</TextAtom>
                     <ViewAtom style={styles.starRow}>

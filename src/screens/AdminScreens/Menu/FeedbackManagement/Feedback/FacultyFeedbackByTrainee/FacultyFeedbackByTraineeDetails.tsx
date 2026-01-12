@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useMemo } from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, vh, vw } from '../../../../../../constants';
@@ -6,6 +6,7 @@ import { Header } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import moment from 'moment';
+import { useAppSelector } from '../../../../../../hooks';
 
 const FEEDBACK_DETAIL_FIELDS = [
   { label: 'Training Name', key: 'trainingName', fullWidth: true },
@@ -25,8 +26,43 @@ const FEEDBACK_DETAIL_FIELDS = [
   { label: 'Remarks', key: 'remark', fullWidth: true },
 ];
 
+const REQUIRED_PERMISSION = 'LIST FACULTY FEEDBACK WITH RESPONSE REMARK';
+
+const RESTRICTED_KEYS = new Set<string>([
+  'sessionHandledId',
+  'subjectKnowledgeId',
+  'communicationId',
+  'methodology',
+  'interaction',
+  'questionHandling',
+  'remark',
+]);
+
 const FacultyFeedbackByTraineeDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const permissions = crediantialData?.globalPermissions?.permissions || [];
+
+  const hasResponsePermission = useMemo(() => {
+    return permissions.some(
+      (p: any) =>
+        p.permissionName?.trim().toLowerCase() ===
+        REQUIRED_PERMISSION.toLowerCase(),
+    );
+  }, [permissions]);
+
+  const visibleFields = useMemo(() => {
+    return FEEDBACK_DETAIL_FIELDS.filter(field => {
+      if (RESTRICTED_KEYS.has(field.key)) {
+        if (hasResponsePermission) return true;
+
+        const value = data?.[field.key];
+        return value !== null && value !== undefined && value !== '';
+      }
+      return true;
+    });
+  }, [hasResponsePermission, data]);
 
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'Faculty Feedback Details');
@@ -69,7 +105,7 @@ const FacultyFeedbackByTraineeDetails = ({ route, navigation }: any) => {
         contentContainerStyle={styles.scrollContainer}
       >
         <ViewAtom style={styles.card}>
-          {FEEDBACK_DETAIL_FIELDS.map((field, index) => (
+          {visibleFields.map((field, index) => (
             <ViewAtom
               key={index.toString() + field.label}
               style={field.fullWidth ? styles.fullWidthBox : styles.row}

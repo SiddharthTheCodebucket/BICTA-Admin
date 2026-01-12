@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -20,6 +20,7 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import { useListFacultyFeedbackMutation } from '../../../../../../injectEndpoints/feedbackManagementEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
+import { useAppSelector } from '../../../../../../hooks';
 
 interface Props {
   navigation: NavigationType;
@@ -28,6 +29,18 @@ interface Props {
 
 const ITEMS_PER_PAGE = 10;
 const BedItemSeparator = () => <View style={styles.itemSeparator} />;
+
+const REQUIRED_PERMISSION = 'LIST FACULTY FEEDBACK WITH RESPONSE REMARK';
+
+const RESTRICTED_KEYS = new Set<string>([
+  'sessionHandledId',
+  'subjectKnowledgeId',
+  'communicationId',
+  'methodology',
+  'interaction',
+  'questionHandling',
+]);
+
 const FeedbackGivenByTraineeList = ({ navigation, route }: Props) => {
   const appliedFilters = route.params?.appliedFilters || [];
   const item = route.params?.item;
@@ -51,6 +64,22 @@ const FeedbackGivenByTraineeList = ({ navigation, route }: Props) => {
       fetchList(1, true);
     }, []),
   );
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const permissions = crediantialData?.globalPermissions?.permissions || [];
+
+  const hasResponsePermission = useMemo(() => {
+    return permissions.some(
+      (p: any) =>
+        p.permissionName?.trim().toLowerCase() ===
+        REQUIRED_PERMISSION.toLowerCase(),
+    );
+  }, [permissions]);
+
+  const hasValue = (value: any) =>
+    value !== null &&
+    value !== undefined &&
+    !(typeof value === 'string' && value.trim() === '');
 
   const getDate = (key: string) => {
     const obj = appliedFilters.find((f: any) => f.name === key);
@@ -100,111 +129,137 @@ const FeedbackGivenByTraineeList = ({ navigation, route }: Props) => {
       });
   };
 
-  const renderItem = ({ item, index }: any) => (
-    <ViewAtom style={styles.card}>
-      <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-        <TextAtom style={[styles.label, styles.flex1]}>
-          {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
-        </TextAtom>
-      </View>
+  const renderItem = ({ item, index }: any) => {
+    const showSession =
+      hasResponsePermission || hasValue(item.sessionHandledId);
 
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>{'Trainee Name (ID)'}</TextAtom>
-        <TextAtom style={styles.value}>
-          {item.traineeName} ({item.traineeId})
-        </TextAtom>
-      </View>
+    const showKnowledge =
+      hasResponsePermission || hasValue(item.subjectKnowledgeId);
 
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>{'Training Name'}</TextAtom>
-        <TextAtom style={[styles.value]}>{item.trainingName ?? '-'}</TextAtom>
-      </View>
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>{'Subject Name'}</TextAtom>
-        <TextAtom style={[styles.value]}>{item.subjectName ?? '-'}</TextAtom>
-      </View>
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>{'Topic Name'}</TextAtom>
-        <TextAtom style={[styles.value]}>{item.topicName ?? '-'}</TextAtom>
-      </View>
-      <View style={styles.rowBetween}>
+    const showCommunication =
+      hasResponsePermission || hasValue(item.communicationId);
+
+    const showMethodology = hasResponsePermission || hasValue(item.methodology);
+
+    const showInteraction = hasResponsePermission || hasValue(item.interaction);
+
+    const showQuestionHandling =
+      hasResponsePermission || hasValue(item.questionHandling);
+
+    return (
+      <ViewAtom style={styles.card}>
+        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
+          </TextAtom>
+        </View>
+
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.labelCount}>{'Batch No'}</TextAtom>
-
-          <TextAtom style={[styles.value]}>{item.batchNo ?? '-'}</TextAtom>
-        </View>
-
-        <View style={{ flex: 1, alignItems: 'center' }}>
-          <TextAtom style={styles.labelCount}>{'Date Of Class'}</TextAtom>
-          <ViewAtom>
-            <TextAtom style={[styles.value, { textAlign: 'center' }]}>
-              {moment(item.dateOfClass).format('DD-MM-YYYY') ?? '-'}
-            </TextAtom>
-          </ViewAtom>
-        </View>
-
-        <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.labelRightCount}>{'Feedback Date'}</TextAtom>
-
-          <TextAtom style={[styles.valueRight]}>
-            {moment(item.createdDate).format('DD-MM-YYYY') ?? '-'}
+          <TextAtom style={styles.label}>{'Trainee Name (ID)'}</TextAtom>
+          <TextAtom style={styles.value}>
+            {item.traineeName} ({item.traineeId})
           </TextAtom>
         </View>
-      </View>
 
-      <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.labelCount}>{'Session'}</TextAtom>
-
-          <TextAtom style={[styles.value]}>
-            {item.sessionHandledId ?? '-'}
-          </TextAtom>
+          <TextAtom style={styles.label}>{'Training Name'}</TextAtom>
+          <TextAtom style={[styles.value]}>{item.trainingName ?? '-'}</TextAtom>
         </View>
-
-        <View style={{ flex: 1, alignItems: 'center' }}>
-          <TextAtom style={styles.labelCount}>{'Knowledge'}</TextAtom>
-          <ViewAtom>
-            <TextAtom style={[styles.value, { textAlign: 'center' }]}>
-              {item.subjectKnowledgeId ?? '-'}
-            </TextAtom>
-          </ViewAtom>
-        </View>
-
-        <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.labelRightCount}>{'Communication'}</TextAtom>
-
-          <TextAtom style={[styles.valueRight]}>
-            {item.communicationId ?? '-'}
-          </TextAtom>
-        </View>
-      </View>
-
-      <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.labelCount}>{'Methodology'}</TextAtom>
-
-          <TextAtom style={[styles.value]}>{item.methodology ?? '-'}</TextAtom>
+          <TextAtom style={styles.label}>{'Subject Name'}</TextAtom>
+          <TextAtom style={[styles.value]}>{item.subjectName ?? '-'}</TextAtom>
         </View>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>{'Topic Name'}</TextAtom>
+          <TextAtom style={[styles.value]}>{item.topicName ?? '-'}</TextAtom>
+        </View>
+        <View style={styles.rowBetween}>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.labelCount}>{'Batch No'}</TextAtom>
 
-        <View style={{ flex: 1, alignItems: 'center' }}>
-          <TextAtom style={styles.labelCount}>{'Interaction'}</TextAtom>
-          <ViewAtom>
-            <TextAtom style={[styles.value, { textAlign: 'center' }]}>
-              {item.interaction ?? '-'}
+            <TextAtom style={[styles.value]}>{item.batchNo ?? '-'}</TextAtom>
+          </View>
+
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <TextAtom style={styles.labelCount}>{'Date Of Class'}</TextAtom>
+            <ViewAtom>
+              <TextAtom style={[styles.value, { textAlign: 'center' }]}>
+                {moment(item.dateOfClass).format('DD-MM-YYYY') ?? '-'}
+              </TextAtom>
+            </ViewAtom>
+          </View>
+
+          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+            <TextAtom style={styles.labelRightCount}>
+              {'Feedback Date'}
             </TextAtom>
-          </ViewAtom>
+
+            <TextAtom style={[styles.valueRight]}>
+              {moment(item.createdDate).format('DD-MM-YYYY') ?? '-'}
+            </TextAtom>
+          </View>
         </View>
 
-        <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.labelRightCount}>{'Q. Handling'}</TextAtom>
+        <View style={styles.rowBetween}>
+          {showSession && (
+            <View style={{ flex: 1 }}>
+              <TextAtom style={styles.labelCount}>{'Session'}</TextAtom>
+              <TextAtom style={styles.value}>{item.sessionHandledId}</TextAtom>
+            </View>
+          )}
 
-          <TextAtom style={[styles.valueRight]}>
-            {item.questionHandling ?? '-'}
-          </TextAtom>
+          {showKnowledge && (
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <TextAtom style={styles.labelCount}>{'Knowledge'}</TextAtom>
+              <TextAtom style={[styles.value, { textAlign: 'center' }]}>
+                {item.subjectKnowledgeId}
+              </TextAtom>
+            </View>
+          )}
+
+          {showCommunication && (
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+              <TextAtom style={styles.labelRightCount}>
+                {'Communication'}
+              </TextAtom>
+              <TextAtom style={styles.valueRight}>
+                {item.communicationId}
+              </TextAtom>
+            </View>
+          )}
         </View>
-      </View>
-    </ViewAtom>
-  );
+
+        <View style={styles.rowBetween}>
+          {showMethodology && (
+            <View style={{ flex: 1 }}>
+              <TextAtom style={styles.labelCount}>{'Methodology'}</TextAtom>
+              <TextAtom style={styles.value}>{item.methodology}</TextAtom>
+            </View>
+          )}
+
+          {showInteraction && (
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <TextAtom style={styles.labelCount}>{'Interaction'}</TextAtom>
+              <TextAtom style={[styles.value, { textAlign: 'center' }]}>
+                {item.interaction}
+              </TextAtom>
+            </View>
+          )}
+
+          {showQuestionHandling && (
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+              <TextAtom style={styles.labelRightCount}>
+                {'Q. Handling'}
+              </TextAtom>
+              <TextAtom style={styles.valueRight}>
+                {item.questionHandling}
+              </TextAtom>
+            </View>
+          )}
+        </View>
+      </ViewAtom>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
