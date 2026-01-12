@@ -157,6 +157,11 @@ import MessFeedbackResponse from '../screens/AdminScreens/Menu/FeedbackManagemen
 import MessFeedbackResponseDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/MessFeedbackResponse/MessFeedbackResponseDetails';
 import HouseKeepingFeedbackResponse from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/HouseKeepingFeedbackResponse';
 import HouseKeepingFeedbackResponseDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/HouseKeepingFeedbackResponse/HouseKeepingFeedbackResponseDetails';
+import FacultyFeedbackTrainingWise from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise';
+import FacultyFeedbackTrainingWiseDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/FacultyFeedbackTrainingWiseDetails';
+import ClassCountList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/ClassCountList';
+import FeedbackCountList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/FeedbackCountList';
+import FeedbackGivenByTraineeList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/FeedbackGivenByTraineeList';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -677,6 +682,26 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="HouseKeepingFeedbackResponseDetails"
           component={HouseKeepingFeedbackResponseDetails}
+        />
+        <RootStackScreen.Screen
+          name="FacultyFeedbackTrainingWise"
+          component={FacultyFeedbackTrainingWise}
+        />
+        <RootStackScreen.Screen
+          name="FacultyFeedbackTrainingWiseDetails"
+          component={FacultyFeedbackTrainingWiseDetails}
+        />
+        <RootStackScreen.Screen
+          name="ClassCountList"
+          component={ClassCountList}
+        />
+        <RootStackScreen.Screen
+          name="FeedbackCountList"
+          component={FeedbackCountList}
+        />
+        <RootStackScreen.Screen
+          name="FeedbackGivenByTraineeList"
+          component={FeedbackGivenByTraineeList}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

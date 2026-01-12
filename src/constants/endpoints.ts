@@ -185,5 +185,10 @@ export default {
   delete_faculty_feedback: 'feedback/delete-faculty-feedback',
   list_feedback_response: 'feedback/list-feedback-response',
   delete_feedback_response: 'feedback/delete-feedback-response',
-  list_training_wise_faculty: 'list-training-wise-faculty-feedback-report',
+  list_training_wise_faculty:
+    'report/list-training-wise-faculty-feedback-report',
+  list_training_wise_faculty_count:
+    'report/list-training-wise-faculty-class-count',
+  list_training_wise_feedback_count:
+    'report/list-training-wise-faculty-feedback-count',
 };

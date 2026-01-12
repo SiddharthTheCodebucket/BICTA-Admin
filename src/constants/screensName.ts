@@ -156,6 +156,11 @@ export default {
   MessFeedbackResponseDetails: 'MessFeedbackResponseDetails',
   HouseKeepingFeedbackResponse: 'HouseKeepingFeedbackResponse',
   HouseKeepingFeedbackResponseDetails: 'HouseKeepingFeedbackResponseDetails',
+  FacultyFeedbackTrainingWise: 'FacultyFeedbackTrainingWise',
+  FacultyFeedbackTrainingWiseDetails: 'FacultyFeedbackTrainingWiseDetails',
+  ClassCountList: 'ClassCountList',
+  FeedbackCountList: 'FeedbackCountList',
+  FeedbackGivenByTraineeList: 'FeedbackGivenByTraineeList',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

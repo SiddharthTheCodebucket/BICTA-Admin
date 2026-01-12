@@ -65,11 +65,13 @@ const Feedback = (props: Props) => {
         navigation.navigate(screensName.FacultyFeedbackByObserver);
       },
     },
-    // {
-    //   id: 7,
-    //   name: 'Faculty Feedback Training Wise',
-    //   onPress: () => {},
-    // },
+    {
+      id: 7,
+      name: 'Faculty Feedback Training Wise',
+      onPress: () => {
+        navigation.navigate(screensName.FacultyFeedbackTrainingWise);
+      },
+    },
     {
       id: 8,
       name: 'Overall Feedback',
