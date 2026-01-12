@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -38,6 +38,7 @@ const debounce = (func: any, delay: number) => {
 };
 
 const ListItemSeparator = () => <View style={{ height: vh(10) }} />;
+const REQUIRED_PERMISSION = 'LIST FEEDBACK RESPONSE WITH RESPONSE REMARK';
 
 const MessFeedback = (props: Props) => {
   const { navigation } = props;
@@ -49,6 +50,16 @@ const MessFeedback = (props: Props) => {
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
+
+  const permissions = crediantialData?.globalPermissions?.permissions || [];
+
+  const hasResponsePermission = useMemo(() => {
+    return permissions.some(
+      (p: any) =>
+        p.permissionName?.trim().toLowerCase() ===
+        REQUIRED_PERMISSION.toLowerCase(),
+    );
+  }, [permissions]);
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
 
@@ -146,103 +157,119 @@ const MessFeedback = (props: Props) => {
     ListfeedbackResponse(1, true, '');
   };
 
-  const renderFeedbackResCard = ({ item, index }: any) => (
-    <ViewAtom style={styles.card}>
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>
-          Sr. No.: <TextAtom style={styles.value}>{index + 1}</TextAtom>
-        </TextAtom>
-      </View>
-      <View
-        style={{
-          width: '100%',
-          height: vh(1),
-          backgroundColor: colors.chinese_silver,
-          marginTop: vh(8),
-        }}
-      />
+  const renderFeedbackResCard = ({ item, index }: any) => {
+    const showResponse =
+      hasResponsePermission ||
+      (item.response !== null &&
+        item.response !== undefined &&
+        item.response !== '');
 
-      <View style={{ marginTop: vh(5) }}>
-        <TextAtom numberOfLines={0} style={styles.label}>
-          Trainee Name:{' '}
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.traineeName || '-'}
-          </TextAtom>
-        </TextAtom>
-      </View>
+    const showRemark =
+      hasResponsePermission ||
+      (item.remark !== null && item.remark !== undefined && item.remark !== '');
 
-      <View style={{ marginTop: vh(8) }}>
-        <TextAtom numberOfLines={0} style={styles.label}>
-          Training Name:{' '}
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.trainingName || '-'}
+    return (
+      <ViewAtom style={styles.card}>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>
+            Sr. No.: <TextAtom style={styles.value}>{index + 1}</TextAtom>
           </TextAtom>
-        </TextAtom>
-      </View>
+        </View>
+        <View
+          style={{
+            width: '100%',
+            height: vh(1),
+            backgroundColor: colors.chinese_silver,
+            marginTop: vh(8),
+          }}
+        />
 
-      <View style={{ marginTop: vh(8) }}>
-        <TextAtom numberOfLines={0} style={styles.label}>
-          Batch Name:{' '}
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.batchName || '-'}
+        <View style={{ marginTop: vh(5) }}>
+          <TextAtom numberOfLines={0} style={styles.label}>
+            Trainee Name:{' '}
+            <TextAtom numberOfLines={0} style={styles.value}>
+              {item.traineeName || '-'}
+            </TextAtom>
           </TextAtom>
-        </TextAtom>
-      </View>
+        </View>
 
-      <View style={{ marginTop: vh(8) }}>
-        <TextAtom numberOfLines={0} style={styles.label}>
-          Category Name:{' '}
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.categoryName || '-'}
+        <View style={{ marginTop: vh(8) }}>
+          <TextAtom numberOfLines={0} style={styles.label}>
+            Training Name:{' '}
+            <TextAtom numberOfLines={0} style={styles.value}>
+              {item.trainingName || '-'}
+            </TextAtom>
           </TextAtom>
-        </TextAtom>
-      </View>
-      <View style={{ marginTop: vh(8) }}>
-        <TextAtom numberOfLines={0} style={styles.label}>
-          Sub Category Name:{' '}
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.subCategoryName || '-'}
-          </TextAtom>
-        </TextAtom>
-      </View>
+        </View>
 
-      <View style={{ marginTop: vh(8) }}>
-        <TextAtom numberOfLines={0} style={styles.label}>
-          Topic Name:{' '}
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.topicName || '-'}
+        <View style={{ marginTop: vh(8) }}>
+          <TextAtom numberOfLines={0} style={styles.label}>
+            Batch Name:{' '}
+            <TextAtom numberOfLines={0} style={styles.value}>
+              {item.batchName || '-'}
+            </TextAtom>
           </TextAtom>
-        </TextAtom>
-      </View>
+        </View>
 
-      <View style={{ marginTop: vh(8) }}>
-        <TextAtom style={styles.label}>
-          Response:{' '}
-          <TextAtom style={styles.value}>{item.response || '-'}</TextAtom>
-        </TextAtom>
-      </View>
-
-      <View style={{ marginTop: vh(8) }}>
-        <TextAtom style={styles.label}>
-          Response Date:{' '}
-          <TextAtom style={styles.value}>
-            {item.responseDate
-              ? moment(item.responseDate).format('DD/MM/YYYY')
-              : '-'}
+        <View style={{ marginTop: vh(8) }}>
+          <TextAtom numberOfLines={0} style={styles.label}>
+            Category Name:{' '}
+            <TextAtom numberOfLines={0} style={styles.value}>
+              {item.categoryName || '-'}
+            </TextAtom>
           </TextAtom>
-        </TextAtom>
-      </View>
-
-      <View style={{ marginTop: vh(8), marginBottom: vh(5) }}>
-        <TextAtom numberOfLines={0} style={styles.label}>
-          Remarks:{' '}
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.remark || '-'}
+        </View>
+        <View style={{ marginTop: vh(8) }}>
+          <TextAtom numberOfLines={0} style={styles.label}>
+            Sub Category Name:{' '}
+            <TextAtom numberOfLines={0} style={styles.value}>
+              {item.subCategoryName || '-'}
+            </TextAtom>
           </TextAtom>
-        </TextAtom>
-      </View>
-    </ViewAtom>
-  );
+        </View>
+
+        <View style={{ marginTop: vh(8) }}>
+          <TextAtom numberOfLines={0} style={styles.label}>
+            Topic Name:{' '}
+            <TextAtom numberOfLines={0} style={styles.value}>
+              {item.topicName || '-'}
+            </TextAtom>
+          </TextAtom>
+        </View>
+
+        <View style={{ marginTop: vh(8) }}>
+          <TextAtom style={styles.label}>
+            Response Date:{' '}
+            <TextAtom style={styles.value}>
+              {item.responseDate
+                ? moment(item.responseDate).format('DD/MM/YYYY')
+                : '-'}
+            </TextAtom>
+          </TextAtom>
+        </View>
+
+        {showResponse && (
+          <View style={{ marginTop: vh(8) }}>
+            <TextAtom style={styles.label}>
+              Response:{' '}
+              <TextAtom style={styles.value}>{item.response || '-'}</TextAtom>
+            </TextAtom>
+          </View>
+        )}
+
+        {showRemark && (
+          <View style={{ marginTop: vh(8), marginBottom: vh(5) }}>
+            <TextAtom numberOfLines={0} style={styles.label}>
+              Remarks:{' '}
+              <TextAtom numberOfLines={0} style={styles.value}>
+                {item.remark || '-'}
+              </TextAtom>
+            </TextAtom>
+          </View>
+        )}
+      </ViewAtom>
+    );
+  };
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>

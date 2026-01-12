@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useMemo } from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import moment from 'moment';
@@ -7,11 +7,8 @@ import { colors, fonts, vh, vw } from '../../../../../../constants';
 import { Header } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
+import { useAppSelector } from '../../../../../../hooks';
 
-/**
- * Fields configuration
- * Keys EXACTLY match API response
- */
 const FEEDBACK_DETAIL_FIELDS = [
   { label: 'Trainee Name', key: 'traineeName', fullWidth: true },
   { label: 'Training Name', key: 'trainingName', fullWidth: true },
@@ -27,17 +24,37 @@ const FEEDBACK_DETAIL_FIELDS = [
   { label: 'Remarks', key: 'remark', fullWidth: true },
 ];
 
+const REQUIRED_PERMISSION = 'LIST FEEDBACK RESPONSE WITH RESPONSE REMARK';
+
 const MessFeedbackResponseDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const permissions = crediantialData?.globalPermissions?.permissions || [];
+
+  const hasResponsePermission = useMemo(() => {
+    return permissions.some(
+      (p: any) => p.permissionName === REQUIRED_PERMISSION,
+    );
+  }, [permissions]);
+
+  const visibleFields = useMemo(() => {
+    return FEEDBACK_DETAIL_FIELDS.filter(field => {
+      if (field.key === 'response' || field.key === 'remark') {
+        if (hasResponsePermission) return true;
+
+        const value = data?.[field.key];
+        return value !== null && value !== undefined && value !== '';
+      }
+      return true;
+    });
+  }, [hasResponsePermission, data]);
 
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'Mess Feedback Response');
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
 
-  /**
-   * Resolve value safely with formatting
-   */
   const resolveValue = (field: any) => {
     if (!data) return '-';
 
@@ -63,7 +80,7 @@ const MessFeedbackResponseDetails = ({ route, navigation }: any) => {
         contentContainerStyle={styles.scrollContainer}
       >
         <ViewAtom style={styles.card}>
-          {FEEDBACK_DETAIL_FIELDS.map((field, index) => (
+          {visibleFields.map((field, index) => (
             <ViewAtom
               key={`${index}-${field.key}`}
               style={field.fullWidth ? styles.fullWidthBox : styles.row}
