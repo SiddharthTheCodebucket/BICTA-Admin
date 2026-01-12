@@ -420,10 +420,8 @@ const HouseKeepingFeedbackResponse = (props: Props) => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
 
-        const defaultFilters =
-          crediantialData.user[0].tenantId === 3
-            ? [['categoryId', '=', 2]]
-            : [];
+        const categoryFilter = getCategoryFilter();
+        const defaultFilters = categoryFilter ? [categoryFilter] : [];
         listFeedbackResponse(1, true, search, defaultFilters);
         getFeedbackCategory();
         getFeedbackResponse();
@@ -445,6 +443,37 @@ const HouseKeepingFeedbackResponse = (props: Props) => {
     }
 
     return [centerSerach.name];
+  };
+
+  const getCategoryFilter = () => {
+    const tenantId = crediantialData.user[0].tenantId;
+
+    if (tenantId === 1) {
+      return ['categoryId', '=', 2];
+    }
+
+    if (tenantId === 2) {
+      return ['categoryId', '=', 5];
+    }
+
+    if (tenantId === 3) {
+      if (
+        !centerSerach?.name ||
+        centerSerach.name === strings.dashboardIndex.allCenters
+      ) {
+        return ['categoryId', 'IN', [2, 5]];
+      }
+
+      if (centerSerach.name === strings.dashboardIndex.gaya) {
+        return ['categoryId', '=', 2];
+      }
+
+      if (centerSerach.name === strings.dashboardIndex.patna) {
+        return ['categoryId', '=', 5];
+      }
+    }
+
+    return null;
   };
 
   const listFeedbackResponse = (
@@ -553,17 +582,18 @@ const HouseKeepingFeedbackResponse = (props: Props) => {
     setSelectedRoom({});
     setSelectedFloor({});
 
-    const defaultFilters =
-      crediantialData.user[0].tenantId === 3 ? [['categoryId', '=', 2]] : [];
+    const categoryFilter = getCategoryFilter();
+    const defaultFilters = categoryFilter ? [categoryFilter] : [];
 
     listFeedbackResponse(1, true, search, defaultFilters);
   };
 
   const applyFilter = () => {
-    const filters = [];
+    const filters: any[] = [];
 
-    if (selectedFeedbackCategory?.id) {
-      filters.push(['categoryId', '=', selectedFeedbackCategory.id]);
+    const categoryFilter = getCategoryFilter();
+    if (categoryFilter) {
+      filters.push(categoryFilter);
     }
 
     if (selectedFeedbackSubCategory?.id) {
@@ -573,18 +603,23 @@ const HouseKeepingFeedbackResponse = (props: Props) => {
     if (selectedFeedbackTopic?.id) {
       filters.push(['topicId', '=', selectedFeedbackTopic.id]);
     }
+
     if (selectedFeedbackResponse?.id) {
       filters.push(['response', '=', selectedFeedbackResponse.id]);
     }
+
     if (selectedHostel?.id) {
       filters.push(['hostelId', '=', selectedHostel.id]);
     }
+
     if (selectedFloor?.id) {
       filters.push(['floorId', '=', selectedFloor.id]);
     }
+
     if (selectedRoom?.id) {
-      filters.push(['floorId', '=', selectedRoom.id]);
+      filters.push(['roomId', '=', selectedRoom.id]);
     }
+
     listFeedbackResponse(1, true, search, filters);
   };
 

@@ -21,6 +21,7 @@ import SearchBoxOrganism from '../../../../../components/organisms/SearchBoxOrga
 import FloatingButton from '../../../../../components/organisms/FloatingButton';
 import ViewAtom from '../../../../../components/atoms/ViewAtom';
 import { useListfeedbackResponseMutation } from '../../../../../injectEndpointsTrainee/feedbackEndpoints';
+import { useAppSelector } from '../../../../../hooks';
 
 interface Props {
   navigation: NavigationType;
@@ -42,6 +43,9 @@ const MessFeedback = (props: Props) => {
   const { navigation } = props;
 
   const [ListfeedbackResponseApi] = useListfeedbackResponseMutation();
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const tenantId = crediantialData.user[0]?.tenantId;
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -67,11 +71,24 @@ const MessFeedback = (props: Props) => {
     }, []),
   );
 
+  const getCategoryFilter = () => {
+    if (tenantId === 1) {
+      return ['categoryId', '=', 1];
+    }
+
+    if (tenantId === 2) {
+      return ['categoryId', '=', 4];
+    }
+
+    return null;
+  };
+
   const ListfeedbackResponse = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
   ) => {
+    const categoryFilter = getCategoryFilter();
     initial ? setInitialCall(true) : setInitialCall(false);
     const params = {
       search: keyword,
@@ -79,7 +96,7 @@ const MessFeedback = (props: Props) => {
         attributes: ['id'],
         sorts: ['desc'],
       },
-      filters: [['categoryId', '=', 1]],
+      filters: categoryFilter ? [categoryFilter] : [],
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
     };
