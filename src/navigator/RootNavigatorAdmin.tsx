@@ -167,6 +167,11 @@ import Communication from '../screens/AdminScreens/Menu/CommunicationManagementS
 import Application from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Application';
 import ApplicationDetails from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Application/ApplicationDetails';
 import ApplicationEdit from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Application/ApplicationEdit';
+import Notice from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Notice';
+import ShowCauseNotification from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/ShowCauseNotification';
+import ShowCauseNoticeResponse from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/ShowCauseNotification/ShowCauseNoticeResponse';
+import LeaveDetails from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/LeaveDetails';
+import LeaveDetailsList from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/LeaveDetails/LeaveDetailsList';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -724,6 +729,20 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="ApplicationEdit"
           component={ApplicationEdit}
+        />
+        <RootStackScreen.Screen name="Notice" component={Notice} />
+        <RootStackScreen.Screen
+          name="ShowCauseNotification"
+          component={ShowCauseNotification}
+        />
+        <RootStackScreen.Screen
+          name="ShowCauseNoticeResponse"
+          component={ShowCauseNoticeResponse}
+        />
+        <RootStackScreen.Screen name="LeaveDetails" component={LeaveDetails} />
+        <RootStackScreen.Screen
+          name="LeaveDetailsList"
+          component={LeaveDetailsList}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

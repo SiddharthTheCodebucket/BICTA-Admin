@@ -197,4 +197,9 @@ export default {
   CommunicationManagementSystem: 'CommunicationManagementSystem',
   Communication: 'Communication',
   ApplicationEdit: 'ApplicationEdit',
+  Notice: 'Notice',
+  ShowCauseNotification: 'ShowCauseNotification',
+  ShowCauseNoticeResponse: 'ShowCauseNoticeResponse',
+  LeaveDetails: 'LeaveDetails',
+  LeaveDetailsList: 'LeaveDetailsList',
 };

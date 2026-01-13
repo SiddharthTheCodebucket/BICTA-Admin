@@ -195,4 +195,12 @@ export default {
   //Communication Management System
   communication_list_application: 'communication/list-application',
   communication_update_application: 'communication/update-application',
+  communication_list_announcement: 'communication/list-announcement',
+  communication_list_scn: 'communication/list-show-cause-notice-details',
+  communication_update_scn: 'communication/update-show-cause-notice',
+  communication_list_notice_res: 'communication/list-notice-response',
+  communication_list_trainee_leave:
+    'communication/trainee-leave-activities-training-name',
+  communication_list_trainee_count:
+    'communication/trainee-leave-activities-count',
 };

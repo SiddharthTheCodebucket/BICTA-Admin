@@ -33,17 +33,23 @@ const Communication = (props: Props) => {
     {
       id: 2,
       name: 'Notice',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.Notice);
+      },
     },
     {
       id: 3,
       name: 'Show Cause Notification',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.ShowCauseNotification);
+      },
     },
     {
       id: 4,
       name: 'Leave Details',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.LeaveDetails);
+      },
     },
   ];
 

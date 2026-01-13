@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { useCallback, useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -14,16 +9,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -31,13 +17,11 @@ import {
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import moment from 'moment';
-import { useCommunicationListApplicationMutation } from '../../../../../../injectEndpoints/communicationManagementEndpoints';
+import { useCommunicationListTraineeCountMutation } from '../../../../../../injectEndpoints/communicationManagementEndpoints';
+import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 
 interface Props {
+  route: any;
   navigation: NavigationType;
 }
 
@@ -51,93 +35,71 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-interface ApplicationCardProps {
+const ListItemSeparator = () => <View style={{ height: vh(10) }} />;
+
+interface LeaveDetailsCardProps {
   item: any;
   index: number;
-  navigation: NavigationType;
-  onRefresh: () => void;
 }
 
-const ApplicationCard = ({
-  item,
-  index,
-  navigation,
-  onRefresh,
-}: ApplicationCardProps) => {
-  return (
-    <TouchableAtom
-      style={styles.card}
-      onPress={() => {
-        navigation.navigate(screensName.ApplicationDetails, {
-          data: item,
-        });
-      }}
-    >
-      <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-        <TextAtom style={[styles.label, styles.flex1]}>
-          {strings.hostelManagement.srNo} {index + 1}
-        </TextAtom>
-
-        <View style={styles.actionRow}>
-          {item.applicationStatus === 'Approved' ? null : (
-            <TouchableAtom
-              style={styles.editButton}
-              onPress={() =>
-                navigation.navigate(screensName.ApplicationEdit, {
-                  item,
-                  onDone: onRefresh,
-                })
-              }
-            >
-              <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
-            </TouchableAtom>
-          )}
-        </View>
-      </View>
-
-      <View style={styles.rowBetween}>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>{'Application Date'}</TextAtom>
-          <TextAtom style={styles.value}>
-            {moment(item.createdAt).format('DD-MM-YYYY') ?? '-'}
+const LeaveDetailsCard: React.FC<LeaveDetailsCardProps> = React.memo(
+  ({ item, index }) => {
+    return (
+      <ViewAtom style={styles.card}>
+        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
           </TextAtom>
         </View>
-        <View style={styles.flex1End}>
-          <TextAtom style={styles.labelRight}>{'Status'}</TextAtom>
-          <TextAtom style={styles.valueRight}>
-            {item.applicationStatus ?? '-'}
-          </TextAtom>
+
+        <View style={styles.rowBetween}>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>Trainee Name</TextAtom>
+            <TextAtom style={styles.value}>
+              {item.traineeName} ({item.traineeId})
+            </TextAtom>
+          </View>
         </View>
-      </View>
 
-      <View>
-        <TextAtom style={styles.label}>{'Training Name'}</TextAtom>
-        <TextAtom style={styles.value}>{item.trainingName ?? '-'}</TextAtom>
-      </View>
+        <View style={styles.rowBetween}>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>Batch No</TextAtom>
+            <TextAtom style={styles.value}>{item.batchNo}</TextAtom>
+          </View>
 
-      <View>
-        <TextAtom style={styles.label}>{'Trainee Name'}</TextAtom>
-        <TextAtom style={styles.value}>{item.traineeName ?? '-'}</TextAtom>
-      </View>
-    </TouchableAtom>
-  );
-};
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.labelRight}>Total Leave</TextAtom>
+            <TextAtom style={styles.valueRight}>{item.totalLeave}</TextAtom>
+          </View>
+        </View>
 
-const FloorItemSeparator = () => <View style={styles.itemSeparator} />;
+        <View style={styles.rowBetween}>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>Approved Leave</TextAtom>
+            <TextAtom style={styles.value}>{item.approved}</TextAtom>
+          </View>
 
-const Application = (props: Props) => {
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.labelRight}>Rejected Leave</TextAtom>
+            <TextAtom style={styles.valueRight}>{item.rejected}</TextAtom>
+          </View>
+        </View>
+      </ViewAtom>
+    );
+  },
+);
+
+const LeaveDetailsList = (props: Props) => {
   const { navigation } = props;
+  const item = props.route.params.item;
 
-  const { crediantialData } = useAppSelector(state => state.Auth);
-  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
-  const [communicationListApplicationApi] =
-    useCommunicationListApplicationMutation();
+  const [listApi] = useCommunicationListTraineeCountMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
-
+  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
@@ -145,38 +107,22 @@ const Application = (props: Props) => {
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Application Review Data');
+    Header.setNavigation(navigation, 'Leave Details List');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
   useFocusEffect(
     useCallback(() => {
-      if (firstTimeLoad && !centerSerach?.name && search === '') {
-        communicationListApplication(1, true, '');
+      if (firstTimeLoad && search === '') {
         setFirstTimeLoad(false);
+        list(1, true, '');
       }
-    }, [centerSerach, search, firstTimeLoad]),
+    }, [firstTimeLoad, search]),
   );
 
-  useEffect(() => {
-    if (!centerSerach?.name) return;
-    communicationListApplication(1, true, '');
-  }, [centerSerach]);
-
-  const getCentreFilter = () => {
-    if (!centerSerach?.name) return null;
-
-    if (centerSerach.name === strings.dashboardIndex.allCenters) {
-      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
-    }
-
-    return [centerSerach.name];
-  };
-
-  const communicationListApplication = (
+  const list = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -184,30 +130,21 @@ const Application = (props: Props) => {
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
 
-    const centreFilter = getCentreFilter();
-
     const params: any = {
+      trainingId: item.id,
       search: keyword,
-      sort: {
-        attributes: ['created_at'],
-        sorts: ['desc'],
-      },
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
     };
-    if (centreFilter) {
-      params.bipardCentre = centreFilter;
-    }
 
-    communicationListApplicationApi(params)
+    listApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
         setInitialCall(false);
         setPagination(false);
         setRefreshing(false);
-
         if (pageNumber !== 1 && data.length > 0) {
           setData((prev: any) => [...prev, ...newData]);
         } else {
@@ -225,14 +162,14 @@ const Application = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || strings.something_went_wrong,
+          text2: err.data?.message || 'Something went wrong',
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      communicationListApplication(1, true, text);
+      list(1, true, text);
     }, 500),
     [],
   );
@@ -244,70 +181,33 @@ const Application = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    communicationListApplication(1, true, '');
+    list(1, true, '');
   };
 
-  const renderListApplicationDetails = ({ item, index }: any) => (
-    <ApplicationCard
-      item={item}
-      index={index}
-      navigation={navigation}
-      onRefresh={() => communicationListApplication(1, true, search)}
-    />
+  const renderListRoomDetails = useCallback(
+    ({ item, index }: any) => <LeaveDetailsCard item={item} index={index} />,
+    [],
   );
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      {crediantialData.user[0].tenantId === 3 && (
-        <DropDownOrganism
-          label={''}
-          placeholder={strings.dashboardIndex.centers}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.dashboardIndex.center,
-              Data: [
-                {
-                  id: strings.dashboardIndex.allCenters,
-                  name: strings.dashboardIndex.allCenters,
-                },
-                {
-                  id: strings.dashboardIndex.gaya,
-                  name: strings.dashboardIndex.gaya,
-                },
-                {
-                  id: strings.dashboardIndex.patna,
-                  name: strings.dashboardIndex.patna,
-                },
-              ],
-              selectedData: centerSerach,
-              setSelectedData: (data: any) => {
-                setCenterSerach(data);
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={centerSerach?.name}
-          containerStyle={{ marginBottom: vh(-10) }}
-        />
-      )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}
         onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
+        searchBox={styles.marginTop15}
       />
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListApplicationDetails}
+        renderItem={renderListRoomDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           initialCall ? null : (
             <TextAtom style={styles.emptyText}>
-              {strings.hostelManagement.noDataFound}
+              {strings.hostelManagement.roomDetails.noDataFound}
             </TextAtom>
           )
         }
@@ -316,7 +216,7 @@ const Application = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={styles.loadingContainer}
+            style={styles.marginTop15}
           />
         }
         refreshControl={
@@ -326,25 +226,24 @@ const Application = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              communicationListApplication(1, false, '');
+              list(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
-
           nextPageAvailable
-            ? communicationListApplication(page + 1, false, search)
+            ? list(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={FloorItemSeparator}
+        ItemSeparatorComponent={ListItemSeparator}
       />
     </SafeAreaView>
   );
 };
 
-export default Application;
+export default LeaveDetailsList;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -403,6 +302,66 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  thumbnail: {
+    width: 70,
+    height: 70,
+    backgroundColor: '#eaeaea',
+    borderRadius: 8,
+    marginTop: 6,
+  },
+  statusBox: {
+    marginTop: vh(8),
+    paddingVertical: vh(8),
+    paddingHorizontal: vw(12),
+    borderRadius: vw(6),
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  activeBox: {
+    backgroundColor: '#ddffdd',
+    borderColor: '#22aa22',
+  },
+
+  inActiveBox: {
+    backgroundColor: '#ffdddd',
+    borderColor: '#cc2222',
+  },
+
+  statusText: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+  },
+
+  activeText: { color: '#008800' },
+  inActiveText: { color: '#bb0000' },
+
+  dropMenu: {
+    marginTop: vh(6),
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.grey,
+    borderRadius: vw(6),
+    overflow: 'hidden',
+  },
+
+  dropItem: {
+    paddingVertical: vh(10),
+    paddingHorizontal: vw(12),
+    borderBottomWidth: 1,
+    borderBottomColor: colors.chinese_silver,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'transparent',
+    zIndex: 998,
+  },
   filterButton: {
     borderWidth: vw(1),
     borderColor: colors.primary,
@@ -435,15 +394,11 @@ const styles = StyleSheet.create({
   flex1: {
     flex: 1,
   },
-  flex1End: {
-    flex: 1,
-    alignItems: 'flex-end',
-  },
   actionRow: {
     flexDirection: 'row',
     gap: vw(15),
   },
-  editButton: {
+  editBtn: {
     borderWidth: vw(1),
     borderColor: colors.green,
     borderRadius: vw(6),
@@ -451,12 +406,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  editIcon: {
+  iconSm: {
     tintColor: colors.green,
     width: vw(15),
     height: vw(15),
   },
-  deleteButton: {
+  deleteBtn: {
     borderWidth: vw(1),
     borderColor: colors.red_2,
     borderRadius: vw(6),
@@ -464,14 +419,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconSmall: {
+  iconSmDelete: {
     width: vw(15),
     height: vw(15),
   },
-  loadingContainer: {
+  marginTop0: {
+    marginTop: vh(0),
+    zIndex: 999,
+  },
+  colorBlack: {
+    color: colors.black,
+  },
+  marginTop10: {
+    marginTop: vh(10),
+    zIndex: 999,
+  },
+  colorP: {
+    color: colors.primary,
+  },
+  centerDropdown: {
+    marginBottom: vh(-10),
+  },
+  marginTop15: {
     marginTop: vh(15),
   },
-  itemSeparator: {
+  height10: {
     height: vh(10),
   },
 });

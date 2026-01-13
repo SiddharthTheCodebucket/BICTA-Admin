@@ -340,7 +340,7 @@ const SubjectTopic = (props: Props) => {
         renderItem={renderSubjectTopicItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? null : (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.lms.curriculumManagement.noDataFound}
             </TextAtom>

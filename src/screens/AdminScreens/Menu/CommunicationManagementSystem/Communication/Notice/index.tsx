@@ -18,7 +18,6 @@ import {
   colors,
   fonts,
   images,
-  screensName,
   strings,
   vh,
   vw,
@@ -32,10 +31,12 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import moment from 'moment';
-import { useCommunicationListApplicationMutation } from '../../../../../../injectEndpoints/communicationManagementEndpoints';
+import { useCommunicationListAnnouncementMutation } from '../../../../../../injectEndpoints/communicationManagementEndpoints';
+import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 
 interface Props {
   navigation: NavigationType;
@@ -65,73 +66,73 @@ const ApplicationCard = ({
   onRefresh,
 }: ApplicationCardProps) => {
   return (
-    <TouchableAtom
-      style={styles.card}
-      onPress={() => {
-        navigation.navigate(screensName.ApplicationDetails, {
-          data: item,
-        });
-      }}
-    >
+    <ViewAtom style={styles.card}>
       <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
         <TextAtom style={[styles.label, styles.flex1]}>
           {strings.hostelManagement.srNo} {index + 1}
         </TextAtom>
 
         <View style={styles.actionRow}>
-          {item.applicationStatus === 'Approved' ? null : (
-            <TouchableAtom
-              style={styles.editButton}
-              onPress={() =>
-                navigation.navigate(screensName.ApplicationEdit, {
-                  item,
-                  onDone: onRefresh,
-                })
-              }
-            >
-              <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
-            </TouchableAtom>
-          )}
+          <TouchableAtom
+            style={styles.editButton}
+            onPress={() => {}}
+            // onPress={() =>
+            //   navigation.navigate(screensName.ApplicationEdit, {
+            //     item,
+            //     onDone: onRefresh,
+            //   })
+            // }
+          >
+            <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
+          </TouchableAtom>
         </View>
+      </View>
+
+      <View>
+        <TextAtom style={styles.label}>{'Category'}</TextAtom>
+        <TextAtom numberOfLines={0} style={styles.value}>
+          {item.category ?? '-'}
+        </TextAtom>
+      </View>
+
+      <View>
+        <TextAtom style={styles.label}>{'Title'}</TextAtom>
+        <TextAtom numberOfLines={0} style={styles.value}>
+          {item.title ?? '-'}
+        </TextAtom>
       </View>
 
       <View style={styles.rowBetween}>
         <View style={styles.flex1}>
-          <TextAtom style={styles.label}>{'Application Date'}</TextAtom>
+          <TextAtom style={styles.label}>{'Start Date'}</TextAtom>
           <TextAtom style={styles.value}>
-            {moment(item.createdAt).format('DD-MM-YYYY') ?? '-'}
+            {moment(item.startDate).format('DD-MM-YYYY') ?? '-'}
+          </TextAtom>
+        </View>
+        <View style={{ alignItems: 'center' }}>
+          <TextAtom style={styles.label}>{'End Date'}</TextAtom>
+          <TextAtom style={styles.value}>
+            {moment(item.endDate).format('DD-MM-YYYY') ?? '-'}
           </TextAtom>
         </View>
         <View style={styles.flex1End}>
           <TextAtom style={styles.labelRight}>{'Status'}</TextAtom>
-          <TextAtom style={styles.valueRight}>
-            {item.applicationStatus ?? '-'}
-          </TextAtom>
+          <TextAtom style={styles.valueRight}>{item.status ?? '-'}</TextAtom>
         </View>
       </View>
-
-      <View>
-        <TextAtom style={styles.label}>{'Training Name'}</TextAtom>
-        <TextAtom style={styles.value}>{item.trainingName ?? '-'}</TextAtom>
-      </View>
-
-      <View>
-        <TextAtom style={styles.label}>{'Trainee Name'}</TextAtom>
-        <TextAtom style={styles.value}>{item.traineeName ?? '-'}</TextAtom>
-      </View>
-    </TouchableAtom>
+    </ViewAtom>
   );
 };
 
 const FloorItemSeparator = () => <View style={styles.itemSeparator} />;
 
-const Application = (props: Props) => {
+const Notice = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
-  const [communicationListApplicationApi] =
-    useCommunicationListApplicationMutation();
+  const [communicationListAnnouncementApi] =
+    useCommunicationListAnnouncementMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -148,14 +149,14 @@ const Application = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Application Review Data');
+    Header.setNavigation(navigation, 'Announcement Data');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
   useFocusEffect(
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
-        communicationListApplication(1, true, '');
+        communicationListAnnouncement(1, true, '');
         setFirstTimeLoad(false);
       }
     }, [centerSerach, search, firstTimeLoad]),
@@ -163,7 +164,7 @@ const Application = (props: Props) => {
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    communicationListApplication(1, true, '');
+    communicationListAnnouncement(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
@@ -176,7 +177,7 @@ const Application = (props: Props) => {
     return [centerSerach.name];
   };
 
-  const communicationListApplication = (
+  const communicationListAnnouncement = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -200,7 +201,7 @@ const Application = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    communicationListApplicationApi(params)
+    communicationListAnnouncementApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -232,7 +233,7 @@ const Application = (props: Props) => {
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      communicationListApplication(1, true, text);
+      communicationListAnnouncement(1, true, text);
     }, 500),
     [],
   );
@@ -244,7 +245,7 @@ const Application = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    communicationListApplication(1, true, '');
+    communicationListAnnouncement(1, true, '');
   };
 
   const renderListApplicationDetails = ({ item, index }: any) => (
@@ -252,7 +253,7 @@ const Application = (props: Props) => {
       item={item}
       index={index}
       navigation={navigation}
-      onRefresh={() => communicationListApplication(1, true, search)}
+      onRefresh={() => communicationListAnnouncement(1, true, search)}
     />
   );
 
@@ -326,7 +327,7 @@ const Application = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              communicationListApplication(1, false, '');
+              communicationListAnnouncement(1, false, '');
             }}
           />
         }
@@ -334,17 +335,18 @@ const Application = (props: Props) => {
           setPagination(true);
 
           nextPageAvailable
-            ? communicationListApplication(page + 1, false, search)
+            ? communicationListAnnouncement(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={FloorItemSeparator}
       />
+      <FloatingButton onButtonPress={() => {}} />
     </SafeAreaView>
   );
 };
 
-export default Application;
+export default Notice;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },

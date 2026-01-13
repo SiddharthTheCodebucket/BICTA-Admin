@@ -32,10 +32,15 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
+import {
+  useCommunicationListScnMutation,
+  useCommunicationUpdateScnMutation,
+} from '../../../../../../injectEndpoints/communicationManagementEndpoints';
 import moment from 'moment';
-import { useCommunicationListApplicationMutation } from '../../../../../../injectEndpoints/communicationManagementEndpoints';
+import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 
 interface Props {
   navigation: NavigationType;
@@ -51,93 +56,171 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-interface ApplicationCardProps {
+const ListItemSeparator = () => <View style={{ height: vh(10) }} />;
+
+interface ShowCauseCardProps {
   item: any;
   index: number;
   navigation: NavigationType;
-  onRefresh: () => void;
+  search: string;
+  refreshList: (page: number, initial: boolean, keyword: string) => void;
+  updateScnApi: any;
+  setInitialCall: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ApplicationCard = ({
-  item,
-  index,
-  navigation,
-  onRefresh,
-}: ApplicationCardProps) => {
-  return (
-    <TouchableAtom
-      style={styles.card}
-      onPress={() => {
-        navigation.navigate(screensName.ApplicationDetails, {
-          data: item,
-        });
-      }}
-    >
-      <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-        <TextAtom style={[styles.label, styles.flex1]}>
-          {strings.hostelManagement.srNo} {index + 1}
-        </TextAtom>
+const ShowCauseCard: React.FC<ShowCauseCardProps> = React.memo(
+  ({
+    item,
+    index,
+    navigation,
+    search,
+    refreshList,
+    updateScnApi,
+    setInitialCall,
+  }) => {
+    const [statusValue] = useState(item.status ?? null);
+    const [showStatusMenu, setShowStatusMenu] = useState(false);
 
-        <View style={styles.actionRow}>
-          {item.applicationStatus === 'Approved' ? null : (
+    const onSelectStatus = (newStatus: string) => {
+      setShowStatusMenu(false);
+
+      if (newStatus === statusValue) return;
+
+      navigation.navigate(screensName.AlertOrganism, {
+        title: strings.hostelManagement.roomDetails.statusChange.title,
+        message: strings.hostelManagement.roomDetails.statusChange.message,
+        okText: strings.hostelManagement.roomDetails.statusChange.confirm,
+        double: true,
+        cancelText: strings.cancel,
+        okFunction: () => {
+          updateScnStatus(item.id);
+        },
+        cancelFunction: () => {},
+      });
+    };
+
+    const updateScnStatus = (id: any) => {
+      setInitialCall(true);
+
+      const formData = new FormData();
+      formData.append('idForChangeStatus', id);
+
+      updateScnApi(formData)
+        .unwrap()
+        .then((res: any) => {
+          Toast.show({
+            type: 'success',
+            text2: res.data.message?.message,
+          });
+          setInitialCall(false);
+          refreshList(1, true, search);
+        })
+        .catch((err: any) => {
+          setInitialCall(false);
+          Toast.show({
+            type: 'error',
+            text2: err.data?.message || 'Something went wrong',
+          });
+        });
+    };
+
+    return (
+      <ViewAtom style={styles.card}>
+        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+          <TextAtom style={[styles.label, styles.flex1]}>
+            {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
+          </TextAtom>
+
+          <View style={styles.actionRow}>
             <TouchableAtom
-              style={styles.editButton}
+              style={styles.editBtn}
               onPress={() =>
-                navigation.navigate(screensName.ApplicationEdit, {
+                navigation.navigate(screensName.ShowCauseNoticeResponse, {
                   item,
-                  onDone: onRefresh,
                 })
               }
             >
-              <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
+              <ImageAtom source={images.eyeOpen} style={styles.iconSm} />
             </TouchableAtom>
+          </View>
+        </View>
+
+        <TextAtom style={styles.label}>Category</TextAtom>
+        <TextAtom style={styles.value}>{item.category ?? '-'}</TextAtom>
+
+        <TextAtom style={styles.label}>Title</TextAtom>
+        <TextAtom style={styles.value}>{item.title ?? '-'}</TextAtom>
+
+        <TextAtom style={styles.label}>Notice Date</TextAtom>
+        <TextAtom style={styles.value}>
+          {moment(item.dateOfNotice).format('DD-MM-YYYY')}
+        </TextAtom>
+
+        <View style={styles.marginTop0}>
+          <TextAtom style={styles.label}>
+            {strings.hostelManagement.roomDetails.status}
+          </TextAtom>
+
+          <TouchableAtom
+            onPress={() => setShowStatusMenu(!showStatusMenu)}
+            style={[
+              styles.statusBox,
+              statusValue === 'Active' ? styles.activeBox : styles.inActiveBox,
+            ]}
+          >
+            <TextAtom
+              style={[
+                styles.statusText,
+                statusValue === 'Active'
+                  ? styles.activeText
+                  : styles.inActiveText,
+              ]}
+            >
+              {statusValue}
+            </TextAtom>
+            <ImageAtom source={images.downArrow} />
+          </TouchableAtom>
+
+          {showStatusMenu && (
+            <View style={styles.dropMenu}>
+              <TouchableAtom
+                style={styles.dropItem}
+                onPress={() => onSelectStatus('Active')}
+              >
+                <TextAtom style={styles.colorBlack}>
+                  {strings.hostelManagement.roomDetails.active}
+                </TextAtom>
+              </TouchableAtom>
+
+              <TouchableAtom
+                style={styles.dropItem}
+                onPress={() => onSelectStatus('In-Active')}
+              >
+                <TextAtom style={styles.colorBlack}>
+                  {strings.hostelManagement.roomDetails.inactive}
+                </TextAtom>
+              </TouchableAtom>
+            </View>
           )}
         </View>
-      </View>
+      </ViewAtom>
+    );
+  },
+);
 
-      <View style={styles.rowBetween}>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>{'Application Date'}</TextAtom>
-          <TextAtom style={styles.value}>
-            {moment(item.createdAt).format('DD-MM-YYYY') ?? '-'}
-          </TextAtom>
-        </View>
-        <View style={styles.flex1End}>
-          <TextAtom style={styles.labelRight}>{'Status'}</TextAtom>
-          <TextAtom style={styles.valueRight}>
-            {item.applicationStatus ?? '-'}
-          </TextAtom>
-        </View>
-      </View>
-
-      <View>
-        <TextAtom style={styles.label}>{'Training Name'}</TextAtom>
-        <TextAtom style={styles.value}>{item.trainingName ?? '-'}</TextAtom>
-      </View>
-
-      <View>
-        <TextAtom style={styles.label}>{'Trainee Name'}</TextAtom>
-        <TextAtom style={styles.value}>{item.traineeName ?? '-'}</TextAtom>
-      </View>
-    </TouchableAtom>
-  );
-};
-
-const FloorItemSeparator = () => <View style={styles.itemSeparator} />;
-
-const Application = (props: Props) => {
+const ShowCauseNotification = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
-  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
-  const [communicationListApplicationApi] =
-    useCommunicationListApplicationMutation();
+
+  const [listApi] = useCommunicationListScnMutation();
+  const [updateScnApi] = useCommunicationUpdateScnMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
-
+  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
@@ -148,35 +231,35 @@ const Application = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Application Review Data');
+    Header.setNavigation(navigation, 'Show Cause Notice');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
   useFocusEffect(
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
-        communicationListApplication(1, true, '');
         setFirstTimeLoad(false);
+        list(1, true, '');
       }
-    }, [centerSerach, search, firstTimeLoad]),
+    }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    communicationListApplication(1, true, '');
+    list(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
     if (centerSerach.name === strings.dashboardIndex.allCenters) {
-      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
+      return ['Gaya', 'Patna'];
     }
 
     return [centerSerach.name];
   };
 
-  const communicationListApplication = (
+  const list = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -185,7 +268,6 @@ const Application = (props: Props) => {
     initial ? setInitialCall(true) : setInitialCall(false);
 
     const centreFilter = getCentreFilter();
-
     const params: any = {
       search: keyword,
       sort: {
@@ -196,18 +278,18 @@ const Application = (props: Props) => {
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
     };
+
     if (centreFilter) {
       params.bipardCentre = centreFilter;
     }
 
-    communicationListApplicationApi(params)
+    listApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
         setInitialCall(false);
         setPagination(false);
         setRefreshing(false);
-
         if (pageNumber !== 1 && data.length > 0) {
           setData((prev: any) => [...prev, ...newData]);
         } else {
@@ -225,14 +307,14 @@ const Application = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || strings.something_went_wrong,
+          text2: err.data?.message || 'Something went wrong',
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      communicationListApplication(1, true, text);
+      list(1, true, text);
     }, 500),
     [],
   );
@@ -244,16 +326,22 @@ const Application = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    communicationListApplication(1, true, '');
+    list(1, true, '');
   };
 
-  const renderListApplicationDetails = ({ item, index }: any) => (
-    <ApplicationCard
-      item={item}
-      index={index}
-      navigation={navigation}
-      onRefresh={() => communicationListApplication(1, true, search)}
-    />
+  const renderListRoomDetails = useCallback(
+    ({ item, index }: any) => (
+      <ShowCauseCard
+        item={item}
+        index={index}
+        navigation={navigation}
+        search={search}
+        refreshList={list}
+        updateScnApi={updateScnApi}
+        setInitialCall={setInitialCall}
+      />
+    ),
+    [navigation, search],
   );
 
   return (
@@ -289,25 +377,25 @@ const Application = (props: Props) => {
             });
           }}
           inputText={centerSerach?.name}
-          containerStyle={{ marginBottom: vh(-10) }}
+          containerStyle={styles.centerDropdown}
         />
       )}
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
         searchText={search}
         onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
+        searchBox={styles.marginTop15}
       />
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListApplicationDetails}
+        renderItem={renderListRoomDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           initialCall ? null : (
             <TextAtom style={styles.emptyText}>
-              {strings.hostelManagement.noDataFound}
+              {strings.hostelManagement.roomDetails.noDataFound}
             </TextAtom>
           )
         }
@@ -316,7 +404,7 @@ const Application = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={styles.loadingContainer}
+            style={styles.marginTop15}
           />
         }
         refreshControl={
@@ -326,25 +414,25 @@ const Application = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              communicationListApplication(1, false, '');
+              list(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
-
           nextPageAvailable
-            ? communicationListApplication(page + 1, false, search)
+            ? list(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={FloorItemSeparator}
+        ItemSeparatorComponent={ListItemSeparator}
       />
+      <FloatingButton onButtonPress={() => {}} />
     </SafeAreaView>
   );
 };
 
-export default Application;
+export default ShowCauseNotification;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -403,6 +491,66 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  thumbnail: {
+    width: 70,
+    height: 70,
+    backgroundColor: '#eaeaea',
+    borderRadius: 8,
+    marginTop: 6,
+  },
+  statusBox: {
+    marginTop: vh(8),
+    paddingVertical: vh(8),
+    paddingHorizontal: vw(12),
+    borderRadius: vw(6),
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  activeBox: {
+    backgroundColor: '#ddffdd',
+    borderColor: '#22aa22',
+  },
+
+  inActiveBox: {
+    backgroundColor: '#ffdddd',
+    borderColor: '#cc2222',
+  },
+
+  statusText: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+  },
+
+  activeText: { color: '#008800' },
+  inActiveText: { color: '#bb0000' },
+
+  dropMenu: {
+    marginTop: vh(6),
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.grey,
+    borderRadius: vw(6),
+    overflow: 'hidden',
+  },
+
+  dropItem: {
+    paddingVertical: vh(10),
+    paddingHorizontal: vw(12),
+    borderBottomWidth: 1,
+    borderBottomColor: colors.chinese_silver,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'transparent',
+    zIndex: 998,
+  },
   filterButton: {
     borderWidth: vw(1),
     borderColor: colors.primary,
@@ -435,15 +583,11 @@ const styles = StyleSheet.create({
   flex1: {
     flex: 1,
   },
-  flex1End: {
-    flex: 1,
-    alignItems: 'flex-end',
-  },
   actionRow: {
     flexDirection: 'row',
     gap: vw(15),
   },
-  editButton: {
+  editBtn: {
     borderWidth: vw(1),
     borderColor: colors.green,
     borderRadius: vw(6),
@@ -451,12 +595,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  editIcon: {
+  iconSm: {
     tintColor: colors.green,
     width: vw(15),
     height: vw(15),
   },
-  deleteButton: {
+  deleteBtn: {
     borderWidth: vw(1),
     borderColor: colors.red_2,
     borderRadius: vw(6),
@@ -464,14 +608,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconSmall: {
+  iconSmDelete: {
     width: vw(15),
     height: vw(15),
   },
-  loadingContainer: {
+  marginTop0: {
+    marginTop: vh(0),
+    zIndex: 999,
+  },
+  colorBlack: {
+    color: colors.black,
+  },
+  marginTop10: {
+    marginTop: vh(10),
+    zIndex: 999,
+  },
+  colorP: {
+    color: colors.primary,
+  },
+  centerDropdown: {
+    marginBottom: vh(-10),
+  },
+  marginTop15: {
     marginTop: vh(15),
   },
-  itemSeparator: {
+  height10: {
     height: vh(10),
   },
 });
