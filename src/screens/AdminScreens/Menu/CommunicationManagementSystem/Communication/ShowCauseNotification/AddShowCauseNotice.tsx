@@ -17,14 +17,12 @@ import FullscreenLoading from '../../../../../../components/organisms/Fullscreen
 import { isNullUndefined } from '../../../../../../utils/CommonFunction';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import RadioSelectableOrganism from '../../../../../../components/organisms/RadioSelectableOrganism';
-import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
-import moment from 'moment';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ImageUploadOrganism from '../../../../../../components/organisms/ImageUploadOrganism';
 import {
-  useCommunicationAddAnnouncementMutation,
-  useCommunicationUpdateAnnouncementMutation,
+  useCommunicationAddScnMutation,
+  useCommunicationUpdateScnMutation,
 } from '../../../../../../injectEndpoints/communicationManagementEndpoints';
 
 interface Props {
@@ -36,18 +34,20 @@ const initialForm = {
   bipardLocationList: [],
   bipardLocation: {},
   trainingList: [],
-  selectedTraining: [],
+  selectedTraining: {},
+  batchList: [],
+  selectedBacth: {},
+  traineeList: [],
+  selecetdTrainee: [],
   categoryList: [],
   selectedCategory: {},
   title: '',
   desc: '',
   file: {},
-  startDate: '',
-  endDate: '',
   status: {},
 };
 
-const AddNotice = (props: Props) => {
+const AddShowCauseNotice = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
 
@@ -57,16 +57,15 @@ const AddNotice = (props: Props) => {
   const input2_ref: any = createRef();
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [addAnnouncementDetailsApi] = useCommunicationAddAnnouncementMutation();
-  const [updateAnnouncementDetailsApi] =
-    useCommunicationUpdateAnnouncementMutation();
+  const [addScnDetailsApi] = useCommunicationAddScnMutation();
+  const [updateScnDetailsApi] = useCommunicationUpdateScnMutation();
 
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
       isNullUndefined(item)
-        ? 'Add Announcement Data'
-        : 'Update Announcement Data',
+        ? 'Add Show Cause Notice'
+        : 'Update Show Cause Notice',
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -91,40 +90,51 @@ const AddNotice = (props: Props) => {
 
     const selectedLocation = locationMap[item.tenantId];
 
-    const trainingArray =
-      item.trainingNameId?.map((id: number, index: number) => ({
-        id,
-        name: item.trainingName?.[index],
-      })) || [];
+    const selectedTraining = {
+      id: item.trainingId,
+      name: item.trainingName,
+    };
 
+    const selectedBatch = {
+      id: item.batchId,
+      name: item.batchNo,
+    };
+
+    const selectedTrainees =
+      item.traineeId?.map((id: number, index: number) => ({
+        id,
+        name: item.traineeName?.[index],
+      })) || [];
+    const centreName = selectedLocation.name;
     setForm((prev: any) => ({
       ...prev,
-
       bipardLocation: selectedLocation,
-      selectedTraining: trainingArray,
+      selectedTraining,
+      selectedBatch,
+      selecetdTrainee: selectedTrainees,
       selectedCategory: {
         id: item.categoryId,
         name: item.category,
       },
       title: item.title,
       desc: item.description,
-      file: item.file
-        ? {
-            uri: item.file,
-            name: item.file.split('/').pop(),
-            type: 'image/*',
-          }
-        : {},
-      startDate: moment(item.startDate).format('DD-MM-YYYY'),
-      endDate: moment(item.endDate).format('DD-MM-YYYY'),
-
       status: {
         id: item.status,
         value: item.status,
       },
+      file: item.adminUploadedFile
+        ? {
+            uri: item.adminUploadedFile,
+            name: item.adminUploadedFile.split('/').pop(),
+            type: 'application/pdf',
+          }
+        : {},
     }));
+
     getTrainingList(selectedLocation.name);
     getCategoryList(selectedLocation.name);
+    getBatchList(item.trainingId, centreName);
+    getTraineeList(item.batchId, centreName);
   }, [item]);
 
   const schema = Yup.object().shape({
@@ -133,36 +143,19 @@ const AddNotice = (props: Props) => {
           id: Yup.string().required('Status is required'),
         })
       : Yup.mixed().notRequired(),
-    endDate: Yup.string()
-      .required('End Date is required')
-      .test('valid-end-date', 'End Date cannot be before today', value =>
-        value
-          ? moment(value, 'DD-MM-YYYY').isSameOrAfter(moment(), 'day')
-          : false,
-      )
-      .when('startDate', (startDate, schema) =>
-        startDate
-          ? schema.test(
-              'after-start-date',
-              'End Date cannot be before Start Date',
-              value =>
-                value
-                  ? moment(value, 'DD-MM-YYYY').isSameOrAfter(
-                      moment(startDate, 'DD-MM-YYYY'),
-                      'day',
-                    )
-                  : false,
-            )
-          : schema,
-      ),
 
-    startDate: Yup.string().required('Start Date is required'),
     selectedCategory: Yup.object({
       id: Yup.string().required('Category is required'),
     }),
-    selectedTraining: Yup.array()
-      .min(1, 'At least one training is required')
-      .required('At least one training is required'),
+    selecetdTrainee: Yup.array()
+      .min(1, 'At least one trainee is required')
+      .required('At least one trainee is required'),
+    selectedBatch: Yup.object({
+      id: Yup.string().required('Batch is required'),
+    }),
+    selectedTraining: Yup.object({
+      id: Yup.string().required('Training Name is required'),
+    }),
     bipardLocation: Yup.object({
       name: Yup.string().required(
         strings.hostelManagement.addBedDetails.required.location,
@@ -174,39 +167,38 @@ const AddNotice = (props: Props) => {
     try {
       schema.validateSync(form);
       if (item) {
-        updateAnnouncementDetails();
+        updateScnDetails();
       } else {
-        addNoticeDetails();
+        addNScnDetails();
       }
     } catch (err: any) {
       setErrors({ [err.path]: err.message });
     }
   };
 
-  const addNoticeDetails = () => {
+  const addNScnDetails = () => {
     setLoader(true);
 
     const formData = new FormData();
+
     formData.append('id', null);
-    formData.append(
-      'trainingName',
-      JSON.stringify(form.selectedTraining.map((t: any) => t.id)),
-    );
+
     formData.append(
       'bipardCentre',
       JSON.stringify([form.bipardLocation?.name]),
     );
+    formData.append('training', form.selectedTraining?.id);
+
+    formData.append('batch_id', form.selectedBatch?.id);
+    formData.append(
+      'trainees',
+      JSON.stringify(form.selecetdTrainee.map((t: any) => t.id)),
+    );
+
     formData.append('category', form.selectedCategory?.id);
+
     formData.append('title', form.title);
     formData.append('description', form.desc);
-    formData.append(
-      'startDate',
-      moment(form.startDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-    );
-    formData.append(
-      'endDate',
-      moment(form.endDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-    );
     formData.append('status', form.status?.id);
     if (form.file?.uri) {
       formData.append('file', {
@@ -215,7 +207,8 @@ const AddNotice = (props: Props) => {
         type: form.file.type || 'application/pdf',
       } as any);
     }
-    addAnnouncementDetailsApi(formData)
+
+    addScnDetailsApi(formData)
       .unwrap()
       .then((res: any) => {
         navigation.goBack();
@@ -235,37 +228,27 @@ const AddNotice = (props: Props) => {
       });
   };
 
-  const updateAnnouncementDetails = () => {
+  const updateScnDetails = () => {
     setLoader(true);
-
     const formData = new FormData();
-
     formData.append('id', item.id);
-
-    formData.append(
-      'trainingName',
-      JSON.stringify(form.selectedTraining.map((t: any) => t.id)),
-    );
 
     formData.append(
       'bipardCentre',
       JSON.stringify([form.bipardLocation?.name]),
     );
+    formData.append('training', form.selectedTraining?.id);
+
+    formData.append('batch_id', form.selectedBatch?.id);
+    formData.append(
+      'trainees',
+      JSON.stringify(form.selecetdTrainee.map((t: any) => t.id)),
+    );
 
     formData.append('category', form.selectedCategory?.id);
+
     formData.append('title', form.title);
     formData.append('description', form.desc);
-
-    formData.append(
-      'startDate',
-      moment(form.startDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-    );
-
-    formData.append(
-      'endDate',
-      moment(form.endDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-    );
-
     formData.append('status', form.status?.id);
 
     if (form.file?.uri) {
@@ -280,7 +263,7 @@ const AddNotice = (props: Props) => {
       }
     }
 
-    updateAnnouncementDetailsApi(formData)
+    updateScnDetailsApi(formData)
       .unwrap()
       .then((res: any) => {
         navigation.goBack();
@@ -380,27 +363,73 @@ const AddNotice = (props: Props) => {
         });
       });
   };
-  const addTraining = (item: any) => {
-    const exists = form.selectedTraining?.some((t: any) => t?.id === item.id);
+  const getBatchList = (trainingId: string, centreId?: string) => {
+    setLoader(true);
+
+    const params = {
+      listType: 'select_batch_for_notice',
+      bipardCentre: [centreId ?? form.bipardLocation.id],
+      replacements: ['%%', trainingId],
+    };
+
+    commonDropdownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        setValue('batchList', res.data);
+        setLoader(false);
+      })
+      .catch((err: any) => {
+        setLoader(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+        });
+      });
+  };
+  const getTraineeList = (batchId: string, centreId?: string) => {
+    setLoader(true);
+
+    const params = {
+      listType: 'select_trainee_for_notice',
+      bipardCentre: [centreId ?? form.bipardLocation.id],
+      replacements: ['%%', batchId],
+    };
+
+    commonDropdownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        setValue('traineeList', res.data);
+        setLoader(false);
+      })
+      .catch((err: any) => {
+        setLoader(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+        });
+      });
+  };
+  const addTrainee = (item: any) => {
+    const exists = form.selecetdTrainee?.some((t: any) => t?.id === item.id);
 
     if (exists) return;
 
-    const updatedTraining = [...form.selectedTraining, item];
+    const updatedTrainee = [...form.selecetdTrainee, item];
 
     setForm((prev: any) => ({
       ...prev,
-      selectedTraining: updatedTraining,
+      selecetdTrainee: updatedTrainee,
     }));
   };
 
-  const removeTraining = (id: number) => {
-    const updatedTraining = form.selectedTraining.filter(
+  const removeTrainee = (id: number) => {
+    const updatedTraining = form.selecetdTrainee.filter(
       (item: any) => item.id !== id,
     );
 
     setForm((prev: any) => ({
       ...prev,
-      selectedTraining: updatedTraining,
+      selecetdTrainee: updatedTraining,
     }));
   };
 
@@ -448,16 +477,22 @@ const AddNotice = (props: Props) => {
         />
 
         <DropDownOrganism
-          label={'Training'}
-          placeholder={'Training'}
+          label={'Training Name'}
+          placeholder={'Training Name'}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Training',
+              name: 'Training Name',
               Data: form.trainingList,
-              selectedData: {},
+              selectedData: form.selectedTraining,
               setSelectedData: (data: any) => {
-                addTraining(data);
-                setErrors({ ...errors, selectedTraining: '' });
+                setForm((prev: any) => ({
+                  ...prev,
+                  selectedTraining: data,
+                  selectedBatch: {},
+                  selectedTrainee: [],
+                }));
+                getBatchList(data.id);
+                setErrors({ ...errors, 'selectedTraining.id': '' });
               },
               typeName: 'name',
               typeId: 'id',
@@ -465,23 +500,69 @@ const AddNotice = (props: Props) => {
           }}
           inputText={form.selectedTraining?.name}
           isMandatory
-          errorMessage={errors.selectedTraining}
+          errorMessage={errors['selectedTraining.id']}
+        />
+        <DropDownOrganism
+          label={'Batch'}
+          placeholder={'Batch'}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Batch',
+              Data: form.batchList,
+              selectedData: form.selectedBatch,
+              setSelectedData: (data: any) => {
+                setForm((prev: any) => ({
+                  ...prev,
+                  selectedBatch: data,
+                  selectedTrainee: [],
+                }));
+                getTraineeList(data.id);
+                setErrors({ ...errors, 'selectedBatch.id': '' });
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={form.selectedBatch?.name}
+          isMandatory
+          errorMessage={errors['selectedBatch.id']}
+        />
+
+        <DropDownOrganism
+          label={'Trainee'}
+          placeholder={'Trainee'}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Trainee',
+              Data: form.traineeList,
+              selectedData: {},
+              setSelectedData: (data: any) => {
+                addTrainee(data);
+                setErrors({ ...errors, selecetdTrainee: '' });
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={form.selecetdTrainee?.name}
+          isMandatory
+          errorMessage={errors.selecetdTrainee}
         />
 
         <ViewAtom style={{ marginTop: vh(0) }}>
-          {form.selectedTraining?.length > 0 && (
+          {form.selecetdTrainee?.length > 0 && (
             <ViewAtom style={styles.permissionScrollWrapper}>
               <KeyboardAwareScrollView
                 showsVerticalScrollIndicator={true}
                 nestedScrollEnabled
               >
                 <ViewAtom style={styles.chipContainer}>
-                  {form.selectedTraining.map((item: any) => (
+                  {form.selecetdTrainee.map((item: any) => (
                     <ViewAtom key={item?.id} style={styles.chip}>
                       <TextAtom style={styles.chipText}>{item?.name}</TextAtom>
 
                       <TouchableOpacity
-                        onPress={() => removeTraining(item.id)}
+                        onPress={() => removeTrainee(item.id)}
                         style={styles.crossBtn}
                       >
                         <TextAtom style={styles.crossText}>✕</TextAtom>
@@ -552,43 +633,6 @@ const AddNotice = (props: Props) => {
           defaultImage={form.file?.uri}
         />
 
-        <DateInputOrganism
-          label={strings.blockedForm.startDate}
-          placeholder={strings.blockedForm.startDate}
-          value={form.startDate}
-          onChangeText={(val: any) => {
-            setValue('startDate', val);
-            setErrors({ ...errors, startDate: '' });
-          }}
-          fieldName="date"
-          dateFormat="DD-MM-YYYY"
-          isMandatory
-          errorMessage={errors.startDate}
-        />
-        <DateInputOrganism
-          label={strings.blockedForm.endDate}
-          placeholder={strings.blockedForm.endDate}
-          value={form.endDate}
-          onChangeText={(val: any) => {
-            setValue('endDate', val);
-            setErrors({ ...errors, endDate: '' });
-          }}
-          fieldName="date"
-          dateFormat="DD-MM-YYYY"
-          minDate={(() => {
-            const today = moment().startOf('day');
-
-            if (form.startDate) {
-              const start = moment(form.startDate, 'DD-MM-YYYY');
-              return moment.max(today, start).toDate();
-            }
-
-            return today.toDate();
-          })()}
-          isMandatory
-          errorMessage={errors.endDate}
-        />
-
         <RadioSelectableOrganism
           data={[
             {
@@ -625,7 +669,7 @@ const AddNotice = (props: Props) => {
   );
 };
 
-export default AddNotice;
+export default AddShowCauseNotice;
 
 const styles = StyleSheet.create({
   container: {

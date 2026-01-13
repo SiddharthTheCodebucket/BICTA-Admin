@@ -135,6 +135,17 @@ const ShowCauseCard: React.FC<ShowCauseCardProps> = React.memo(
             <TouchableAtom
               style={styles.editBtn}
               onPress={() =>
+                navigation.navigate(screensName.AddShowCauseNotice, {
+                  item: item,
+                  onDone: () => refreshList(1, true, search),
+                })
+              }
+            >
+              <ImageAtom source={images.edit_pencil} style={styles.iconSm} />
+            </TouchableAtom>
+            <TouchableAtom
+              style={styles.editBtn}
+              onPress={() =>
                 navigation.navigate(screensName.ShowCauseNoticeResponse, {
                   item,
                 })
@@ -427,7 +438,13 @@ const ShowCauseNotification = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={ListItemSeparator}
       />
-      <FloatingButton onButtonPress={() => {}} />
+      <FloatingButton
+        onButtonPress={() => {
+          navigation.navigate(screensName.AddShowCauseNotice, {
+            onDone: () => list(1, true, search),
+          });
+        }}
+      />
     </SafeAreaView>
   );
 };

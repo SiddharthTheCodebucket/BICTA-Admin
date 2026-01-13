@@ -199,6 +199,7 @@ export default {
   communication_add_announcement: 'communication/add-announcement',
   communication_update_announcement: 'communication/update-announcement',
   communication_list_scn: 'communication/list-show-cause-notice-details',
+  communication_add_scn: 'communication/add-show-cause-notice',
   communication_update_scn: 'communication/update-show-cause-notice',
   communication_list_notice_res: 'communication/list-notice-response',
   communication_list_trainee_leave:

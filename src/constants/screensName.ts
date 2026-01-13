@@ -203,4 +203,5 @@ export default {
   LeaveDetails: 'LeaveDetails',
   LeaveDetailsList: 'LeaveDetailsList',
   AddNotice: 'AddNotice',
+  AddShowCauseNotice: 'AddShowCauseNotice',
 };
