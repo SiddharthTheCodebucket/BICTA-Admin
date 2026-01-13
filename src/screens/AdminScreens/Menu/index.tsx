@@ -23,11 +23,12 @@ const ACTIVE_MODULES = new Set<string>([
   'Learning Management System',
   'Hostel Management',
   'User Management',
-  'Support',
   'Feedback Management',
+  'Communication Management System',
+  'Support',
+  'Invoice and Bill Management',
   'PHC Management System',
   // 'Vehicle Management',
-  'Invoice and Bill Management',
 ]);
 
 const Menu = ({ navigation }: Props) => {
@@ -71,15 +72,22 @@ const Menu = ({ navigation }: Props) => {
       name: 'User Management',
       onPress: () => navigation.navigate(screensName.UserManagement),
     },
-    {
-      id: 11,
-      name: 'Support',
-      onPress: () => navigation.navigate(screensName.SupportMain),
-    },
+
     {
       id: 5,
       name: 'Feedback Management',
       onPress: () => navigation.navigate(screensName.FeedbackManagement),
+    },
+    {
+      id: 6,
+      name: 'Communication Management System',
+      onPress: () =>
+        navigation.navigate(screensName.CommunicationManagementSystem),
+    },
+    {
+      id: 11,
+      name: 'Support',
+      onPress: () => navigation.navigate(screensName.SupportMain),
     },
     {
       id: 12,
@@ -91,6 +99,7 @@ const Menu = ({ navigation }: Props) => {
       name: 'PHC Management System',
       onPress: () => navigation.navigate(screensName.PHCManagement),
     },
+
     // {
     //   id: 17,
     //   name: 'Vehicle Management',

@@ -12,11 +12,11 @@ interface Props {
   navigation: NavigationType;
 }
 
-const FeedbackManagement = (props: Props) => {
+const CommunicationManagementSystem = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Feedback Management');
+    Header.setNavigation(navigation, 'Communication Management');
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,9 +25,9 @@ const FeedbackManagement = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Feedback',
+      name: 'Communication',
       onPress: () => {
-        navigation.navigate(screensName.Feedback);
+        navigation.navigate(screensName.Communication);
       },
     },
   ];
@@ -51,7 +51,7 @@ const FeedbackManagement = (props: Props) => {
   );
 };
 
-export default FeedbackManagement;
+export default CommunicationManagementSystem;
 
 const styles = StyleSheet.create({
   container: {

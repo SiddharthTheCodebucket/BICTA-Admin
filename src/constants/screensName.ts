@@ -194,4 +194,7 @@ export default {
   Confirm: 'Confirm',
   HouseKeepingFeedback: 'HouseKeepingFeedback',
   AddHousekeepingFeedback: 'AddHousekeepingFeedback',
+  CommunicationManagementSystem: 'CommunicationManagementSystem',
+  Communication: 'Communication',
+  ApplicationEdit: 'ApplicationEdit',
 };

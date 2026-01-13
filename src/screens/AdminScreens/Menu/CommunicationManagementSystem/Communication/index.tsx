@@ -1,22 +1,22 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../constants';
+import { colors, screensName, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../components/atoms/TextAtom';
+} from '../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../components/atoms/TextAtom';
 
 interface Props {
   navigation: NavigationType;
 }
 
-const FeedbackManagement = (props: Props) => {
+const Communication = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Feedback Management');
+    Header.setNavigation(navigation, 'Communication');
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,10 +25,25 @@ const FeedbackManagement = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'Feedback',
+      name: 'Application',
       onPress: () => {
-        navigation.navigate(screensName.Feedback);
+        navigation.navigate(screensName.Application);
       },
+    },
+    {
+      id: 2,
+      name: 'Notice',
+      onPress: () => {},
+    },
+    {
+      id: 3,
+      name: 'Show Cause Notification',
+      onPress: () => {},
+    },
+    {
+      id: 4,
+      name: 'Leave Details',
+      onPress: () => {},
     },
   ];
 
@@ -51,7 +66,7 @@ const FeedbackManagement = (props: Props) => {
   );
 };
 
-export default FeedbackManagement;
+export default Communication;
 
 const styles = StyleSheet.create({
   container: {

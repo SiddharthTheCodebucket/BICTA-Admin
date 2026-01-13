@@ -162,6 +162,11 @@ import FacultyFeedbackTrainingWiseDetails from '../screens/AdminScreens/Menu/Fee
 import ClassCountList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/ClassCountList';
 import FeedbackCountList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/FeedbackCountList';
 import FeedbackGivenByTraineeList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/FeedbackGivenByTraineeList';
+import CommunicationManagementSystem from '../screens/AdminScreens/Menu/CommunicationManagementSystem';
+import Communication from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication';
+import Application from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Application';
+import ApplicationDetails from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Application/ApplicationDetails';
+import ApplicationEdit from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Application/ApplicationEdit';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -702,6 +707,23 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="FeedbackGivenByTraineeList"
           component={FeedbackGivenByTraineeList}
+        />
+        <RootStackScreen.Screen
+          name="CommunicationManagementSystem"
+          component={CommunicationManagementSystem}
+        />
+        <RootStackScreen.Screen
+          name="Communication"
+          component={Communication}
+        />
+        <RootStackScreen.Screen name="Application" component={Application} />
+        <RootStackScreen.Screen
+          name="ApplicationDetails"
+          component={ApplicationDetails}
+        />
+        <RootStackScreen.Screen
+          name="ApplicationEdit"
+          component={ApplicationEdit}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

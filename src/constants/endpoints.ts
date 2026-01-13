@@ -191,4 +191,8 @@ export default {
     'report/list-training-wise-faculty-class-count',
   list_training_wise_feedback_count:
     'report/list-training-wise-faculty-feedback-count',
+
+  //Communication Management System
+  communication_list_application: 'communication/list-application',
+  communication_update_application: 'communication/update-application',
 };
