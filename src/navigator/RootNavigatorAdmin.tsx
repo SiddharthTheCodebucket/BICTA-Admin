@@ -172,6 +172,7 @@ import ShowCauseNotification from '../screens/AdminScreens/Menu/CommunicationMan
 import ShowCauseNoticeResponse from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/ShowCauseNotification/ShowCauseNoticeResponse';
 import LeaveDetails from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/LeaveDetails';
 import LeaveDetailsList from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/LeaveDetails/LeaveDetailsList';
+import AddNotice from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Notice/AddNotice';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -744,6 +745,7 @@ const RootNavigatorAdmin = () => {
           name="LeaveDetailsList"
           component={LeaveDetailsList}
         />
+        <RootStackScreen.Screen name="AddNotice" component={AddNotice} />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{

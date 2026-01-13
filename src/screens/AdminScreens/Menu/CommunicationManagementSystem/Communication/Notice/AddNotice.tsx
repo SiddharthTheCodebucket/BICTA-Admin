@@ -1,4 +1,4 @@
-import { Keyboard, StyleSheet } from 'react-native';
+import { Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -16,11 +16,16 @@ import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganis
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import { isNullUndefined } from '../../../../../../utils/CommonFunction';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import {
-  useAddBedDetailsRoomMutation,
-  useUpdateBedDetailsRoomMutation,
-} from '../../../../../../injectEndpoints/hostelEndpoints';
 import RadioSelectableOrganism from '../../../../../../components/organisms/RadioSelectableOrganism';
+import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
+import moment from 'moment';
+import ViewAtom from '../../../../../../components/atoms/ViewAtom';
+import TextAtom from '../../../../../../components/atoms/TextAtom';
+import ImageUploadOrganism from '../../../../../../components/organisms/ImageUploadOrganism';
+import {
+  useCommunicationAddAnnouncementMutation,
+  useCommunicationUpdateAnnouncementMutation,
+} from '../../../../../../injectEndpoints/communicationManagementEndpoints';
 
 interface Props {
   route: any;
@@ -31,7 +36,7 @@ const initialForm = {
   bipardLocationList: [],
   bipardLocation: {},
   trainingList: [],
-  selectedTraining: {},
+  selectedTraining: [],
   categoryList: [],
   selectedCategory: {},
   title: '',
@@ -42,24 +47,26 @@ const initialForm = {
   status: {},
 };
 
-const AddBedDetails = (props: Props) => {
+const AddNotice = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
   const tenantId = crediantialData.user[0].tenantId;
   const input1_ref: any = createRef();
+  const input2_ref: any = createRef();
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [addBedDetailsmApi] = useAddBedDetailsRoomMutation();
-  const [updateBedDetailsApi] = useUpdateBedDetailsRoomMutation();
+  const [addAnnouncementDetailsApi] = useCommunicationAddAnnouncementMutation();
+  const [updateAnnouncementDetailsApi] =
+    useCommunicationUpdateAnnouncementMutation();
 
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
       isNullUndefined(item)
-        ? strings.hostelManagement.addBedDetails.addTitle
-        : strings.hostelManagement.addBedDetails.editTitle,
+        ? 'Add Announcement Data'
+        : 'Update Announcement Data',
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -82,53 +89,42 @@ const AddBedDetails = (props: Props) => {
       2: { id: 'Patna', name: 'Patna' },
     };
 
-    const selectedLocation = locationMap[item.tenantId] || {};
+    const selectedLocation = locationMap[item.tenantId];
+
+    const trainingArray =
+      item.trainingNameId?.map((id: number, index: number) => ({
+        id,
+        name: item.trainingName?.[index],
+      })) || [];
 
     setForm((prev: any) => ({
       ...prev,
+
       bipardLocation: selectedLocation,
-      bedName: item.bedName || '',
+      selectedTraining: trainingArray,
+      selectedCategory: {
+        id: item.categoryId,
+        name: item.category,
+      },
+      title: item.title,
+      desc: item.description,
+      file: item.file
+        ? {
+            uri: item.file,
+            name: item.file.split('/').pop(),
+            type: 'image/*',
+          }
+        : {},
+      startDate: moment(item.startDate).format('DD-MM-YYYY'),
+      endDate: moment(item.endDate).format('DD-MM-YYYY'),
+
       status: {
         id: item.status,
         value: item.status,
       },
     }));
-
-    getHostelName(selectedLocation.name);
-
-    setTimeout(() => {
-      setForm((prev: any) => ({
-        ...prev,
-        hostel: {
-          id: item.selectHostelNameId,
-          name: item.selectHostelName,
-        },
-      }));
-
-      getFloorName(item.selectHostelNameId, selectedLocation.name);
-    }, 300);
-
-    setTimeout(() => {
-      setForm((prev: any) => ({
-        ...prev,
-        floorName: {
-          id: item.selectFloorNameId,
-          name: item.selectFloorName,
-        },
-      }));
-
-      getRoomName(item.selectFloorNameId, selectedLocation.name);
-    }, 600);
-
-    setTimeout(() => {
-      setForm((prev: any) => ({
-        ...prev,
-        room: {
-          id: item.selectRoomNoId,
-          name: item.selectRoomNo,
-        },
-      }));
-    }, 900);
+    getTrainingList(selectedLocation.name);
+    getCategoryList(selectedLocation.name);
   }, [item]);
 
   const schema = Yup.object().shape({
@@ -137,24 +133,36 @@ const AddBedDetails = (props: Props) => {
           id: Yup.string().required('Status is required'),
         })
       : Yup.mixed().notRequired(),
-    bedName: Yup.string().required(
-      strings.hostelManagement.addBedDetails.required.bedName,
-    ),
-    room: Yup.object({
-      id: Yup.string().required(
-        strings.hostelManagement.addBedDetails.required.room,
+    endDate: Yup.string()
+      .required('End Date is required')
+      .test('valid-end-date', 'End Date cannot be before today', value =>
+        value
+          ? moment(value, 'DD-MM-YYYY').isSameOrAfter(moment(), 'day')
+          : false,
+      )
+      .when('startDate', (startDate, schema) =>
+        startDate
+          ? schema.test(
+              'after-start-date',
+              'End Date cannot be before Start Date',
+              value =>
+                value
+                  ? moment(value, 'DD-MM-YYYY').isSameOrAfter(
+                      moment(startDate, 'DD-MM-YYYY'),
+                      'day',
+                    )
+                  : false,
+            )
+          : schema,
       ),
+
+    startDate: Yup.string().required('Start Date is required'),
+    selectedCategory: Yup.object({
+      id: Yup.string().required('Category is required'),
     }),
-    floorName: Yup.object({
-      id: Yup.string().required(
-        strings.hostelManagement.addBedDetails.required.floor,
-      ),
-    }),
-    hostel: Yup.object({
-      id: Yup.string().required(
-        strings.hostelManagement.addBedDetails.required.hostel,
-      ),
-    }),
+    selectedTraining: Yup.array()
+      .min(1, 'At least one training is required')
+      .required('At least one training is required'),
     bipardLocation: Yup.object({
       name: Yup.string().required(
         strings.hostelManagement.addBedDetails.required.location,
@@ -168,29 +176,46 @@ const AddBedDetails = (props: Props) => {
       if (item) {
         updateBedDetails();
       } else {
-        addBedDetails();
+        addNoticeDetails();
       }
     } catch (err: any) {
       setErrors({ [err.path]: err.message });
     }
   };
 
-  const addBedDetails = () => {
+  const addNoticeDetails = () => {
     setLoader(true);
-    let params = {
-      id: null,
-      bipardCentre: [form.bipardLocation?.name],
-      selectHostelName: form.hostel.id,
-      selectFloorName: form.floorName.id,
-      selectRoomNo: form.room.id,
-      selectHostelNameShow: '',
-      selectFloorNameShow: '',
-      selectRoomNoShow: '',
-      bedName: form.bedName,
-      status: form.status.id,
-    };
 
-    addBedDetailsmApi(params)
+    const formData = new FormData();
+    formData.append('id', null);
+    formData.append(
+      'trainingName',
+      JSON.stringify(form.selectedTraining.map((t: any) => t.id)),
+    );
+    formData.append(
+      'bipardCentre',
+      JSON.stringify([form.bipardLocation?.name]),
+    );
+    formData.append('category', form.selectedCategory?.id);
+    formData.append('title', form.title);
+    formData.append('description', form.desc);
+    formData.append(
+      'startDate',
+      moment(form.startDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+    );
+    formData.append(
+      'endDate',
+      moment(form.endDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+    );
+    formData.append('status', form.status?.id);
+    if (form.file?.uri) {
+      formData.append('file', {
+        uri: form.file.uri,
+        name: form.file.name || 'upload.pdf',
+        type: form.file.type || 'application/pdf',
+      } as any);
+    }
+    addAnnouncementDetailsApi(formData)
       .unwrap()
       .then((res: any) => {
         navigation.goBack();
@@ -209,22 +234,53 @@ const AddBedDetails = (props: Props) => {
         setLoader(false);
       });
   };
+
   const updateBedDetails = () => {
     setLoader(true);
-    let params = {
-      id: item.id,
-      bipardCentre: [form.bipardLocation?.name],
-      selectHostelName: form.hostel.id,
-      selectFloorName: form.floorName.id,
-      selectRoomNo: form.room.id,
-      selectHostelNameShow: '',
-      selectFloorNameShow: '',
-      selectRoomNoShow: '',
-      bedName: form.bedName,
-      status: form.status.id,
-    };
 
-    updateBedDetailsApi(params)
+    const formData = new FormData();
+
+    formData.append('id', item.id);
+
+    formData.append(
+      'trainingName',
+      JSON.stringify(form.selectedTraining.map((t: any) => t.id)),
+    );
+
+    formData.append(
+      'bipardCentre',
+      JSON.stringify([form.bipardLocation?.name]),
+    );
+
+    formData.append('category', form.selectedCategory?.id);
+    formData.append('title', form.title);
+    formData.append('description', form.desc);
+
+    formData.append(
+      'startDate',
+      moment(form.startDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+    );
+
+    formData.append(
+      'endDate',
+      moment(form.endDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+    );
+
+    formData.append('status', form.status?.id);
+
+    if (form.file?.uri) {
+      if (form.file.uri.startsWith('http')) {
+        formData.append('file', form.file.uri);
+      } else {
+        formData.append('file', {
+          uri: form.file.uri,
+          name: form.file.name || 'upload.png',
+          type: form.file.type || 'image/png',
+        } as any);
+      }
+    }
+
+    updateAnnouncementDetailsApi(formData)
       .unwrap()
       .then((res: any) => {
         navigation.goBack();
@@ -243,6 +299,7 @@ const AddBedDetails = (props: Props) => {
         setLoader(false);
       });
   };
+
   const getBipardCenter = () => {
     setLoader(true);
     const params = {
@@ -256,10 +313,12 @@ const AddBedDetails = (props: Props) => {
         if (!item) {
           if (tenantId === 1) {
             setValue('bipardLocation', { id: 'Gaya', name: 'Gaya' });
-            getHostelName('Gaya');
+            getTrainingList('Gaya');
+            getCategoryList('Gaya');
           } else if (tenantId === 2) {
             setValue('bipardLocation', { id: 'Patna', name: 'Patna' });
-            getHostelName('Patna');
+            getTrainingList('Patna');
+            getCategoryList('Patna');
           }
         }
 
@@ -275,17 +334,17 @@ const AddBedDetails = (props: Props) => {
       });
   };
 
-  const getHostelName = (id: any) => {
+  const getTrainingList = (id: any) => {
     setLoader(true);
     const params = {
+      listType: 'select_training_for_announcement',
       bipardCentre: [id],
-      listType: 'select_hostel_name_for_bed_details',
       replacements: ['%%'],
     };
     commonDropdownApi(params)
       .unwrap()
       .then((res: any) => {
-        setValue('hostelList', res.data);
+        setValue('trainingList', res.data);
         setLoader(false);
       })
       .catch((err: any) => {
@@ -298,19 +357,19 @@ const AddBedDetails = (props: Props) => {
       });
   };
 
-  const getFloorName = (hostelId: any, centreName: string) => {
+  const getCategoryList = (id: string) => {
     setLoader(true);
 
     const params = {
-      bipardCentre: [centreName],
-      listType: 'select_floor_name_for_bed_details',
-      replacements: ['%%', hostelId],
+      listType: 'communication_announcement_category',
+      bipardCentre: [id],
+      replacements: ['%%'],
     };
 
     commonDropdownApi(params)
       .unwrap()
       .then((res: any) => {
-        setValue('floorNameList', res.data);
+        setValue('categoryList', res.data);
         setLoader(false);
       })
       .catch((err: any) => {
@@ -321,29 +380,28 @@ const AddBedDetails = (props: Props) => {
         });
       });
   };
+  const addTraining = (item: any) => {
+    const exists = form.selectedTraining?.some((t: any) => t?.id === item.id);
 
-  const getRoomName = (floorId: any, centreName: string) => {
-    setLoader(true);
+    if (exists) return;
 
-    const params = {
-      bipardCentre: [centreName],
-      listType: 'select_room_no_for_bed_details',
-      replacements: ['%%', form.hostel.id, floorId],
-    };
+    const updatedTraining = [...form.selectedTraining, item];
 
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setValue('roomList', res.data);
-        setLoader(false);
-      })
-      .catch((err: any) => {
-        setLoader(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-        });
-      });
+    setForm((prev: any) => ({
+      ...prev,
+      selectedTraining: updatedTraining,
+    }));
+  };
+
+  const removeTraining = (id: number) => {
+    const updatedTraining = form.selectedTraining.filter(
+      (item: any) => item.id !== id,
+    );
+
+    setForm((prev: any) => ({
+      ...prev,
+      selectedTraining: updatedTraining,
+    }));
   };
 
   return (
@@ -373,11 +431,9 @@ const AddBedDetails = (props: Props) => {
                 setForm((prev: any) => ({
                   ...prev,
                   bipardLocation: data,
-                  hostel: {},
-                  floorName: {},
-                  room: {},
                 }));
-                getHostelName(data.name);
+                getTrainingList(data.name);
+                getCategoryList(data.name);
 
                 setErrors({ ...errors, 'bipardLocation.name': '' });
               },
@@ -400,110 +456,161 @@ const AddBedDetails = (props: Props) => {
               Data: form.trainingList,
               selectedData: {},
               setSelectedData: (data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  hostel: data,
-                  floorName: {},
-                  room: {},
-                }));
-                getFloorName(data.id, form.bipardLocation.name);
-                setErrors({ ...errors, 'hostel.id': '' });
+                addTraining(data);
+                setErrors({ ...errors, selectedTraining: '' });
               },
               typeName: 'name',
               typeId: 'id',
             });
           }}
-          inputText={form.hostel?.name}
+          inputText={form.selectedTraining?.name}
           isMandatory
-          errorMessage={errors['hostel.id']}
+          errorMessage={errors.selectedTraining}
         />
+
+        <ViewAtom style={{ marginTop: vh(0) }}>
+          {form.selectedTraining?.length > 0 && (
+            <ViewAtom style={styles.permissionScrollWrapper}>
+              <KeyboardAwareScrollView
+                showsVerticalScrollIndicator={true}
+                nestedScrollEnabled
+              >
+                <ViewAtom style={styles.chipContainer}>
+                  {form.selectedTraining.map((item: any) => (
+                    <ViewAtom key={item?.id} style={styles.chip}>
+                      <TextAtom style={styles.chipText}>{item?.name}</TextAtom>
+
+                      <TouchableOpacity
+                        onPress={() => removeTraining(item.id)}
+                        style={styles.crossBtn}
+                      >
+                        <TextAtom style={styles.crossText}>✕</TextAtom>
+                      </TouchableOpacity>
+                    </ViewAtom>
+                  ))}
+                </ViewAtom>
+              </KeyboardAwareScrollView>
+            </ViewAtom>
+          )}
+        </ViewAtom>
+
         <DropDownOrganism
           label={'Category'}
           placeholder={'Category'}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: strings.hostelManagement.addBedDetails.floorName,
-              Data: form.floorNameList,
-              selectedData: form.floorName,
+              name: 'Category',
+              Data: form.categoryList,
+              selectedData: form.selectedCategory,
               setSelectedData: (data: any) => {
                 setForm((prev: any) => ({
                   ...prev,
-                  floorName: data,
+                  selectedCategory: data,
                 }));
-                getRoomName(data.id, form.bipardLocation.name);
-                setErrors({ ...errors, 'floorName.id': '' });
+                setErrors({ ...errors, 'selectedCategory.id': '' });
               },
               typeName: 'name',
               typeId: 'id',
             });
           }}
-          inputText={form.floorName?.name}
+          inputText={form.selectedCategory?.name}
           isMandatory
-          errorMessage={errors['floorName.id']}
+          errorMessage={errors['selectedCategory.id']}
         />
 
-        <DropDownOrganism
-          label={strings.hostelManagement.addBedDetails.room}
-          placeholder={strings.hostelManagement.addBedDetails.room}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.hostelManagement.addBedDetails.room,
-              Data: form.roomList,
-              selectedData: form.room,
-              setSelectedData: (data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  room: data,
-                }));
-                setErrors({ ...errors, 'room.id': '' });
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
+        <TextInputOrganisms
+          label={'Title'}
+          placeholder={'Title'}
+          ref={input1_ref}
+          onSubmitEditing={() => input2_ref.current?.focus()}
+          value={form.title}
+          autoCapitalize={'none'}
+          returnKeyType={'next'}
+          onChangeText={(val: string) => {
+            setValue('title', val);
           }}
-          inputText={form.room?.name}
-          isMandatory
-          errorMessage={errors['room.id']}
         />
         <TextInputOrganisms
-          label={strings.hostelManagement.addBedDetails.bedName}
-          placeholder={strings.hostelManagement.addBedDetails.bedName}
-          ref={input1_ref}
+          label={'Description'}
+          placeholder={'Description'}
+          ref={input2_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
-          value={form.bedName}
+          value={form.desc}
           autoCapitalize={'none'}
           returnKeyType={'done'}
           onChangeText={(val: string) => {
-            setValue('bedName', val);
-            setErrors({ ...errors, bedName: '' });
+            setValue('desc', val);
           }}
-          isMandatory
-          errorMessage={errors.bedName}
         />
-        {isNullUndefined(item) && (
-          <RadioSelectableOrganism
-            data={[
-              {
-                id: strings.hostelManagement.addBedDetails.active,
-                value: strings.hostelManagement.addBedDetails.active,
-              },
-              {
-                id: strings.hostelManagement.addBedDetails.inactive,
-                value: strings.hostelManagement.addBedDetails.inactive,
-              },
-            ]}
-            onSelect={(item: any) => {
-              setValue('status', item);
-              setErrors({ ...errors, 'status.id': '' });
-            }}
-            label={strings.hostelManagement.addBedDetails.status}
-            selectedType={form.status}
-            typeName={'value'}
-            typeId={'id'}
-            isMandatory
-            errorMessage={errors['status.id']}
-          />
-        )}
+
+        <ImageUploadOrganism
+          label={'File'}
+          buttonText={strings.choose_file}
+          onSelectImage={(file: any) => {
+            setValue('file', file);
+          }}
+          defaultImage={form.file?.uri}
+        />
+
+        <DateInputOrganism
+          label={strings.blockedForm.startDate}
+          placeholder={strings.blockedForm.startDate}
+          value={form.startDate}
+          onChangeText={(val: any) => {
+            setValue('startDate', val);
+            setErrors({ ...errors, startDate: '' });
+          }}
+          fieldName="date"
+          dateFormat="DD-MM-YYYY"
+          isMandatory
+          errorMessage={errors.startDate}
+        />
+        <DateInputOrganism
+          label={strings.blockedForm.endDate}
+          placeholder={strings.blockedForm.endDate}
+          value={form.endDate}
+          onChangeText={(val: any) => {
+            setValue('endDate', val);
+            setErrors({ ...errors, endDate: '' });
+          }}
+          fieldName="date"
+          dateFormat="DD-MM-YYYY"
+          minDate={(() => {
+            const today = moment().startOf('day');
+
+            if (form.startDate) {
+              const start = moment(form.startDate, 'DD-MM-YYYY');
+              return moment.max(today, start).toDate();
+            }
+
+            return today.toDate();
+          })()}
+          isMandatory
+          errorMessage={errors.endDate}
+        />
+
+        <RadioSelectableOrganism
+          data={[
+            {
+              id: strings.hostelManagement.addBedDetails.active,
+              value: strings.hostelManagement.addBedDetails.active,
+            },
+            {
+              id: strings.hostelManagement.addBedDetails.inactive,
+              value: strings.hostelManagement.addBedDetails.inactive,
+            },
+          ]}
+          onSelect={(item: any) => {
+            setValue('status', item);
+            setErrors({ ...errors, 'status.id': '' });
+          }}
+          label={strings.hostelManagement.addBedDetails.status}
+          selectedType={form.status}
+          typeName={'value'}
+          typeId={'id'}
+          isMandatory
+          errorMessage={errors['status.id']}
+        />
       </KeyboardAwareScrollView>
 
       <ButtonOrganism
@@ -518,7 +625,7 @@ const AddBedDetails = (props: Props) => {
   );
 };
 
-export default AddBedDetails;
+export default AddNotice;
 
 const styles = StyleSheet.create({
   container: {
@@ -563,5 +670,57 @@ const styles = StyleSheet.create({
   },
   flex1: {
     flex: 1,
+  },
+  permissionScrollWrapper: {
+    maxHeight: vh(160),
+    width: vw(328),
+    alignSelf: 'center',
+    marginTop: vh(6),
+    borderWidth: 1,
+    borderColor: colors.lightGrey,
+    borderRadius: vw(6),
+    marginHorizontal: vw(6),
+  },
+  crossText: {
+    color: colors.white,
+    fontSize: vw(12),
+    fontWeight: 'bold',
+  },
+  chipContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: vw(328),
+    alignSelf: 'center',
+    marginTop: vh(5),
+    marginBottom: vh(8),
+  },
+
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: vw(14),
+    paddingVertical: vh(6),
+    paddingHorizontal: vh(12),
+    marginRight: vw(8),
+    marginTop: vh(6),
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: colors.white,
+    marginLeft: vh(3),
+  },
+
+  chipText: {
+    color: colors.primary,
+    fontSize: vw(12),
+    marginRight: vw(6),
+  },
+
+  crossBtn: {
+    width: vw(18),
+    height: vw(18),
+    borderRadius: vw(9),
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

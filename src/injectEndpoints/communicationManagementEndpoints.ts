@@ -24,6 +24,20 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    communicationAddAnnouncement: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.communication_add_announcement,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    communicationUpdateAnnouncement: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.communication_update_announcement,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
     communicationListScn: builder.mutation<any, any>({
       query: requestParams => ({
         url: endpoints.communication_list_scn,
@@ -66,6 +80,8 @@ export const {
   useCommunicationListApplicationMutation,
   useCommunicationUpdateApplicationMutation,
   useCommunicationListAnnouncementMutation,
+  useCommunicationAddAnnouncementMutation,
+  useCommunicationUpdateAnnouncementMutation,
   useCommunicationListScnMutation,
   useCommunicationUpdateScnMutation,
   useCommunicationListNoticeResMutation,

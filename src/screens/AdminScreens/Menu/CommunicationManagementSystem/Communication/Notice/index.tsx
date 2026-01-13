@@ -18,6 +18,7 @@ import {
   colors,
   fonts,
   images,
+  screensName,
   strings,
   vh,
   vw,
@@ -75,13 +76,12 @@ const ApplicationCard = ({
         <View style={styles.actionRow}>
           <TouchableAtom
             style={styles.editButton}
-            onPress={() => {}}
-            // onPress={() =>
-            //   navigation.navigate(screensName.ApplicationEdit, {
-            //     item,
-            //     onDone: onRefresh,
-            //   })
-            // }
+            onPress={() =>
+              navigation.navigate(screensName.AddNotice, {
+                item,
+                onDone: onRefresh,
+              })
+            }
           >
             <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
           </TouchableAtom>
@@ -341,7 +341,13 @@ const Notice = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={FloorItemSeparator}
       />
-      <FloatingButton onButtonPress={() => {}} />
+      <FloatingButton
+        onButtonPress={() => {
+          navigation.navigate(screensName.AddNotice, {
+            onDone: () => communicationListAnnouncement(1, true, search),
+          });
+        }}
+      />
     </SafeAreaView>
   );
 };

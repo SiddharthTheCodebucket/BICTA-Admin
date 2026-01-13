@@ -107,7 +107,7 @@ const Menu = ({ navigation }: Props) => {
     // },
     { id: 1, name: 'Content Management System' },
 
-    { id: 6, name: 'Communication Management System' },
+    // { id: 6, name: 'Communication Management System' },
     { id: 7, name: 'Report' },
     { id: 8, name: 'HRMS' },
     { id: 9, name: 'Visitor Management System' },

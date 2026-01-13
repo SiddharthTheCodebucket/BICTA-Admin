@@ -202,4 +202,5 @@ export default {
   ShowCauseNoticeResponse: 'ShowCauseNoticeResponse',
   LeaveDetails: 'LeaveDetails',
   LeaveDetailsList: 'LeaveDetailsList',
+  AddNotice: 'AddNotice',
 };

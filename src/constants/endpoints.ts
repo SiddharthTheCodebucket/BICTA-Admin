@@ -196,6 +196,8 @@ export default {
   communication_list_application: 'communication/list-application',
   communication_update_application: 'communication/update-application',
   communication_list_announcement: 'communication/list-announcement',
+  communication_add_announcement: 'communication/add-announcement',
+  communication_update_announcement: 'communication/update-announcement',
   communication_list_scn: 'communication/list-show-cause-notice-details',
   communication_update_scn: 'communication/update-show-cause-notice',
   communication_list_notice_res: 'communication/list-notice-response',
