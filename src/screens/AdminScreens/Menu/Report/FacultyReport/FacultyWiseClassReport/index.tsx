@@ -227,7 +227,6 @@ const FacultyWiseClassReport = (props: Props) => {
   const [selectedFaculty, setSelectedFaculty] = useState<any>({});
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [exportUrl, setExportUrl] = useState<any>('');
 
   const ITEMS_PER_PAGE = 10;
 
@@ -276,6 +275,7 @@ const FacultyWiseClassReport = (props: Props) => {
     initial: boolean,
     keyword: string,
     filtersArray: any[] = [],
+    extraParams: any = {},
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
     const centreFilter = getCentreFilter();
@@ -290,9 +290,8 @@ const FacultyWiseClassReport = (props: Props) => {
       filters: finalFilters,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
-      exportFlag: true,
-      facultyDataFlag: true,
       bipardCentre: [],
+      ...extraParams,
     };
 
     if (centreFilter) {
@@ -312,7 +311,13 @@ const FacultyWiseClassReport = (props: Props) => {
         }
 
         setPage(pageNumber);
-        setExportUrl(res.data.exportUrlPdf);
+        if (res?.data?.exportUrlExcelFacultyWiseClassReport) {
+          downloadAndOpenFile(res.data.exportUrlExcelFacultyWiseClassReport);
+        }
+
+        if (res?.data?.exportUrlPdfFacultyWiseClassReport) {
+          downloadAndOpenFile(res.data.exportUrlPdfFacultyWiseClassReport);
+        }
 
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
@@ -441,6 +446,26 @@ const FacultyWiseClassReport = (props: Props) => {
     listReportFaculty(1, true, search, filters);
   };
 
+  const downloadExcel = () => {
+    const filters = buildFilters();
+
+    listReportFaculty(1, true, search, filters, {
+      facultyDataFlag: true,
+      exportFlagPdfFacultyWiseClassReport: false,
+      exportFlagExcelFacultyWiseClassReport: true,
+    });
+  };
+
+  const downloadPdf = () => {
+    const filters = buildFilters();
+
+    listReportFaculty(1, true, search, filters, {
+      facultyDataFlag: true,
+      exportFlagPdfFacultyWiseClassReport: true,
+      exportFlagExcelFacultyWiseClassReport: false,
+    });
+  };
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
@@ -458,18 +483,58 @@ const FacultyWiseClassReport = (props: Props) => {
               : strings.hostelManagement.bedAvailability.showFilter}
           </TextAtom>
         </TouchableAtom>
+
         <TouchableAtom
           style={styles.filterButton}
           onPress={() => {
-            if (exportUrl) {
-              downloadAndOpenFile(exportUrl);
-            }
+            downloadExcel();
           }}
         >
           <ImageAtom
             source={images.download}
-            style={{ tintColor: colors.black }}
+            style={{
+              tintColor: colors.black,
+              resizeMode: 'contain',
+              width: vw(10),
+              height: vw(10),
+              alignSelf: 'center',
+            }}
           />
+          <TextAtom
+            style={{
+              color: colors.black,
+              fontFamily: fonts.Roboto_Regular,
+              fontSize: vw(8),
+            }}
+          >
+            Excel
+          </TextAtom>
+        </TouchableAtom>
+        <TouchableAtom
+          style={styles.filterButton}
+          onPress={() => {
+            downloadPdf();
+          }}
+        >
+          <ImageAtom
+            source={images.download}
+            style={{
+              tintColor: colors.black,
+              resizeMode: 'contain',
+              width: vw(10),
+              height: vw(10),
+              alignSelf: 'center',
+            }}
+          />
+          <TextAtom
+            style={{
+              color: colors.black,
+              fontFamily: fonts.Roboto_Regular,
+              fontSize: vw(8),
+            }}
+          >
+            Pdf
+          </TextAtom>
         </TouchableAtom>
       </View>
       {crediantialData.user[0].tenantId === 3 && (
