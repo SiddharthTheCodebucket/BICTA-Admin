@@ -178,6 +178,8 @@ import Report from '../screens/AdminScreens/Menu/Report';
 import FacultyReport from '../screens/AdminScreens/Menu/Report/FacultyReport';
 import CourseWise from '../screens/AdminScreens/Menu/Report/FacultyReport/CourseWise';
 import CourseWiseDetails from '../screens/AdminScreens/Menu/Report/FacultyReport/CourseWise/CourseWiseDetails';
+import FacultyWiseClassReport from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyWiseClassReport';
+import FacultyWiseClassReportDetails from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyWiseClassReport/FacultyWiseClassReportDetails';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -764,6 +766,14 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="CourseWiseDetails"
           component={CourseWiseDetails}
+        />
+        <RootStackScreen.Screen
+          name="FacultyWiseClassReport"
+          component={FacultyWiseClassReport}
+        />
+        <RootStackScreen.Screen
+          name="FacultyWiseClassReportDetails"
+          component={FacultyWiseClassReportDetails}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

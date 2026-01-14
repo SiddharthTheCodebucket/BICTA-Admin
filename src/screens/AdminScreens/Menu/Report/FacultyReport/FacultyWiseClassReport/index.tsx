@@ -39,7 +39,7 @@ import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganis
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 import { useAppSelector } from '../../../../../../hooks';
-import { useReportListFacultyMutation } from '../../../../../../injectEndpoints/reportEndpoints';
+import { useReportListFacultyClassMutation } from '../../../../../../injectEndpoints/reportEndpoints';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
 
@@ -80,7 +80,7 @@ const ListPermissionCard = ({
     <TouchableAtom
       style={styles.card}
       onPress={() => {
-        navigation.navigate(screensName.CourseWiseDetails, {
+        navigation.navigate(screensName.FacultyWiseClassReportDetails, {
           data: item,
         });
       }}
@@ -114,12 +114,6 @@ const ListPermissionCard = ({
 
 interface FilterFormProps {
   navigation: NavigationType;
-  trainingList: any[];
-  selectedTraining: any;
-  setSelectedTraining: (d: any) => void;
-  batchList: any[];
-  selectedBatch: any;
-  setSelectedBatch: (d: any) => void;
   facultyList: any[];
   selectedFaculty: any;
   setSelectedFaculty: (d: any) => void;
@@ -129,18 +123,11 @@ interface FilterFormProps {
   setEndDate: (val: string) => void;
   applyFilter: () => void;
   clearFilter: () => void;
-  getBatchList: (id: any) => void;
   hitFilterApi: (parent?: any, module?: any, status?: any) => void;
 }
 
 const FilterForm = ({
   navigation,
-  trainingList,
-  selectedTraining,
-  setSelectedTraining,
-  batchList,
-  selectedBatch,
-  setSelectedBatch,
   facultyList,
   selectedFaculty,
   setSelectedFaculty,
@@ -150,51 +137,9 @@ const FilterForm = ({
   setEndDate,
   applyFilter,
   clearFilter,
-  getBatchList,
   hitFilterApi,
 }: FilterFormProps) => (
   <View style={styles.filterContainer}>
-    <DropDownOrganism
-      label={'Training'}
-      placeholder={'Training'}
-      onPress={() => {
-        navigation.navigate('DropDownModal', {
-          name: 'Training',
-          Data: trainingList,
-          selectedData: selectedTraining,
-          setSelectedData: (data: any) => {
-            setSelectedTraining(data);
-            setSelectedBatch({});
-            getBatchList(data.id);
-            hitFilterApi({ training: data });
-          },
-          typeName: 'name',
-          typeId: 'id',
-        });
-      }}
-      inputText={selectedTraining?.name}
-    />
-
-    <DropDownOrganism
-      label={'Batch'}
-      placeholder={'Batch'}
-      onPress={() => {
-        navigation.navigate('DropDownModal', {
-          name: 'Batch',
-          Data: batchList,
-          selectedData: selectedBatch,
-          setSelectedData: (data: any) => {
-            setSelectedBatch(data);
-            hitFilterApi({
-              batch: data,
-            });
-          },
-          typeName: 'name',
-          typeId: 'id',
-        });
-      }}
-      inputText={selectedBatch?.name}
-    />
     <DropDownOrganism
       label={'Faculty'}
       placeholder={'Faculty'}
@@ -259,12 +204,12 @@ const FilterForm = ({
 
 const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 
-const CourseWise = (props: Props) => {
+const FacultyWiseClassReport = (props: Props) => {
   const { navigation } = props;
   const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [listReportFacultyApi] = useReportListFacultyMutation();
+  const [listReportFacultyApi] = useReportListFacultyClassMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -277,10 +222,7 @@ const CourseWise = (props: Props) => {
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
-  const [trainingList, setTrainingList] = useState<any>([]);
-  const [selectedTraining, setSelectedTraining] = useState<any>({});
-  const [batchList, setBatchList] = useState<any>([]);
-  const [selectedBatch, setSelectedBatch] = useState<any>({});
+
   const [facultyList, setFacultyList] = useState<any>([]);
   const [selectedFaculty, setSelectedFaculty] = useState<any>({});
   const [startDate, setStartDate] = useState('');
@@ -292,7 +234,7 @@ const CourseWise = (props: Props) => {
   const [search, setSearch] = React.useState('');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Course Wise Report');
+    Header.setNavigation(navigation, 'Faculty Wise Report Details');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -307,7 +249,6 @@ const CourseWise = (props: Props) => {
         setFirstTimeLoad(false);
 
         listReportFaculty(1, true, search, []);
-        getTrainingList();
         getFacultyList();
       }
     }, [firstTimeLoad, centerSerach, search]),
@@ -317,6 +258,8 @@ const CourseWise = (props: Props) => {
     if (!centerSerach?.name) return;
     listReportFaculty(1, true, '');
   }, [centerSerach]);
+
+  const DEFAULT_FILTER = ['isPaymentSheetApproved', '=', 'Yes'];
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
@@ -336,17 +279,19 @@ const CourseWise = (props: Props) => {
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
     const centreFilter = getCentreFilter();
+
+    const finalFilters = [[DEFAULT_FILTER], ...filtersArray];
     const params: any = {
       search: keyword,
       sort: {
         attributes: ['createdAt'],
         sorts: ['desc'],
       },
-      filters: filtersArray,
+      filters: finalFilters,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
       exportFlag: true,
-      exportFlagPaymentVoucherForMultipleClass: false,
+      facultyDataFlag: true,
       bipardCentre: [],
     };
 
@@ -405,8 +350,6 @@ const CourseWise = (props: Props) => {
   );
 
   const clearFilter = () => {
-    setSelectedTraining({});
-    setSelectedBatch({});
     setSelectedFaculty({});
     setStartDate('');
     setEndDate('');
@@ -415,14 +358,6 @@ const CourseWise = (props: Props) => {
 
   const buildFilters = () => {
     const filters: any[] = [];
-
-    if (selectedTraining?.id) {
-      filters.push(['trainingId', '=', selectedTraining.id]);
-    }
-
-    if (selectedBatch?.id) {
-      filters.push(['batchId', '=', selectedBatch.id]);
-    }
 
     if (selectedFaculty?.id) {
       filters.push(['facultyId', '=', selectedFaculty.id]);
@@ -444,66 +379,6 @@ const CourseWise = (props: Props) => {
     const filters = buildFilters();
     listReportFaculty(1, true, search, filters);
     setShowFilter(false);
-  };
-
-  const getTrainingList = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'faculty_report_training_name',
-      bipardCentre: [],
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        let resData = res.data || [];
-        let data = resData?.map((item: any) => {
-          return {
-            ...item,
-            name: `${item.id},${item.name}`,
-          };
-        });
-        setTrainingList(data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
-
-  const getBatchList = (id: any) => {
-    setInitialCall(true);
-    const params = {
-      listType: 'faculty_report_batch_name',
-      bipardCentre: [],
-      replacements: [[[id]], '%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        let resData = res.data || [];
-        let data = resData?.map((item: any) => {
-          return {
-            ...item,
-            name: `${item.trainingId},${item.name}`,
-          };
-        });
-        setBatchList(data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
   };
 
   const getFacultyList = () => {
@@ -537,21 +412,11 @@ const CourseWise = (props: Props) => {
   };
 
   const hitFilterApi = ({
-    training = selectedTraining,
-    batch = selectedBatch,
     faculty = selectedFaculty,
     startDate: sDate = startDate,
     endDate: eDate = endDate,
   }: FilterArgs = {}) => {
     const filters: any[] = [];
-
-    if (training?.id) {
-      filters.push(['trainingId', 'IN', [training.id]]);
-    }
-
-    if (batch?.id) {
-      filters.push(['batchId', '=', batch.id]);
-    }
 
     if (faculty?.id) {
       filters.push(['facultyId', '=', faculty.id]);
@@ -674,12 +539,6 @@ const CourseWise = (props: Props) => {
               navigation={navigation}
               applyFilter={applyFilter}
               clearFilter={clearFilter}
-              trainingList={trainingList}
-              selectedTraining={selectedTraining}
-              setSelectedTraining={setSelectedTraining}
-              batchList={batchList}
-              selectedBatch={selectedBatch}
-              setSelectedBatch={setSelectedBatch}
               facultyList={facultyList}
               selectedFaculty={selectedFaculty}
               setSelectedFaculty={setSelectedFaculty}
@@ -687,7 +546,6 @@ const CourseWise = (props: Props) => {
               setStartDate={setStartDate}
               endDate={endDate}
               setEndDate={setEndDate}
-              getBatchList={getBatchList}
               hitFilterApi={hitFilterApi}
             />
           ) : null
@@ -716,7 +574,7 @@ const CourseWise = (props: Props) => {
   );
 };
 
-export default CourseWise;
+export default FacultyWiseClassReport;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },

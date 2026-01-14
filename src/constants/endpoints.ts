@@ -210,4 +210,5 @@ export default {
   //Report
   report_list_faculty: 'report/list-faculty-class-report',
   report_upload_honorarium: 'report/upload-verified-honorarium-payment-letter',
+  report_list_faculty_class: 'report/list-faculty-class-report',
 };
