@@ -40,7 +40,9 @@ const FacultyReport = (props: Props) => {
     {
       id: 3,
       name: 'Faculty Calculation Sheet',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.FacultyCalculationSheet);
+      },
     },
     {
       id: 4,

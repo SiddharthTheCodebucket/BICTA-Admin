@@ -44,7 +44,7 @@ const FacultyWiseClassReportDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Wise Class Report');
+    Header.setNavigation(navigation, 'Faculty Wise Report');
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
 

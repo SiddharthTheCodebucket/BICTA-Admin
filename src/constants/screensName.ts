@@ -167,6 +167,7 @@ export default {
   CourseWiseDetails: 'CourseWiseDetails',
   FacultyWiseClassReport: 'FacultyWiseClassReport',
   FacultyWiseClassReportDetails: 'FacultyWiseClassReportDetails',
+  FacultyCalculationSheet: 'FacultyCalculationSheet',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',
