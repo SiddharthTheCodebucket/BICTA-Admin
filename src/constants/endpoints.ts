@@ -206,4 +206,8 @@ export default {
     'communication/trainee-leave-activities-training-name',
   communication_list_trainee_count:
     'communication/trainee-leave-activities-count',
+
+  //Report
+  report_list_faculty: 'report/list-faculty-class-report',
+  report_upload_honorarium: 'report/upload-verified-honorarium-payment-letter',
 };

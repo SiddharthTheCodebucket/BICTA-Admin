@@ -174,6 +174,10 @@ import LeaveDetails from '../screens/AdminScreens/Menu/CommunicationManagementSy
 import LeaveDetailsList from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/LeaveDetails/LeaveDetailsList';
 import AddNotice from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Notice/AddNotice';
 import AddShowCauseNotice from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/ShowCauseNotification/AddShowCauseNotice';
+import Report from '../screens/AdminScreens/Menu/Report';
+import FacultyReport from '../screens/AdminScreens/Menu/Report/FacultyReport';
+import CourseWise from '../screens/AdminScreens/Menu/Report/FacultyReport/CourseWise';
+import CourseWiseDetails from '../screens/AdminScreens/Menu/Report/FacultyReport/CourseWise/CourseWiseDetails';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -750,6 +754,16 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="AddShowCauseNotice"
           component={AddShowCauseNotice}
+        />
+        <RootStackScreen.Screen name="Report" component={Report} />
+        <RootStackScreen.Screen
+          name="FacultyReport"
+          component={FacultyReport}
+        />
+        <RootStackScreen.Screen name="CourseWise" component={CourseWise} />
+        <RootStackScreen.Screen
+          name="CourseWiseDetails"
+          component={CourseWiseDetails}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

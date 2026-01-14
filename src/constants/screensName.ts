@@ -161,6 +161,10 @@ export default {
   ClassCountList: 'ClassCountList',
   FeedbackCountList: 'FeedbackCountList',
   FeedbackGivenByTraineeList: 'FeedbackGivenByTraineeList',
+  Report: 'Report',
+  FacultyReport: 'FacultyReport',
+  CourseWise: 'CourseWise',
+  CourseWiseDetails: 'CourseWiseDetails',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',
