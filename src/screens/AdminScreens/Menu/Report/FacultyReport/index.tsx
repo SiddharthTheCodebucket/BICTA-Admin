@@ -52,7 +52,9 @@ const FacultyReport = (props: Props) => {
     {
       id: 5,
       name: 'Faculty Class Report Training Wise',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.FacultyClassReportTrainingWise);
+      },
     },
     {
       id: 6,

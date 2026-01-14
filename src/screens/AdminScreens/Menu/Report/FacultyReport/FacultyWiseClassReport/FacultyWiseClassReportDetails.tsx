@@ -7,7 +7,7 @@ import { Header } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 
-const FIELDS = [
+const DEFAULT_FIELDS = [
   { label: 'Faculty U.ID', key: 'facultyUniqueId', type: 'row' },
   { label: 'Faculty Name', key: 'facultyName', type: 'row' },
   { label: 'IFSC Code', key: 'ifscCode', type: 'row' },
@@ -17,9 +17,7 @@ const FIELDS = [
   { label: 'PAN No.', key: 'pan', type: 'row' },
   { label: 'Category', key: 'category', type: 'row' },
   { label: 'State', key: 'state', type: 'row' },
-
   { label: 'Remuneration', key: 'remuneration', type: 'full' },
-
   { label: 'Total Class Count', key: 'totalClassCount', type: 'full' },
   { label: 'Gross Amount', key: 'totalAmountPerFaculty', type: 'full' },
   {
@@ -40,8 +38,30 @@ const FIELDS = [
   },
 ];
 
+const CLASS_REPORT_FIELDS = [
+  { label: 'Faculty U.ID', key: 'facultyUniqueId', type: 'row' },
+  { label: 'Faculty Name', key: 'facultyName', type: 'row' },
+  { label: 'Training Name', key: 'trainingName', type: 'row' },
+  { label: 'Batch Name', key: 'batchName', type: 'row' },
+  { label: 'IFSC Code', key: 'ifscCode', type: 'row' },
+  { label: 'Bank Name', key: 'bankName', type: 'row' },
+  { label: 'Branch Name', key: 'branchName', type: 'full' },
+  { label: 'Account No', key: 'accountNo', type: 'row' },
+  { label: 'PAN No.', key: 'pan', type: 'row' },
+  { label: 'Category', key: 'category', type: 'row' },
+  { label: 'State', key: 'state', type: 'row' },
+  { label: 'Remuneration', key: 'remuneration', type: 'row' },
+  { label: 'Total Class Count', key: 'totalClassCount', type: 'row' },
+  { label: 'Total Amount', key: 'totalAmountPerFaculty', type: 'row' },
+];
+
 const FacultyWiseClassReportDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
+  const isFromClassReport = route?.params?.isFromClassReport || false;
+
+  const fieldsToRender = isFromClassReport
+    ? CLASS_REPORT_FIELDS
+    : DEFAULT_FIELDS;
 
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'Faculty Wise Report');
@@ -63,7 +83,7 @@ const FacultyWiseClassReportDetails = ({ route, navigation }: any) => {
         contentContainerStyle={styles.scrollContainer}
       >
         <ViewAtom style={styles.card}>
-          {FIELDS.map((item, index) => {
+          {fieldsToRender.map((item, index) => {
             if (item.type === 'full') {
               return (
                 <ViewAtom

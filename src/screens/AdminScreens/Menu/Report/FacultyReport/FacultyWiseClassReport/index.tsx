@@ -39,7 +39,7 @@ import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganis
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 import { useAppSelector } from '../../../../../../hooks';
-import { useReportListFacultyClassMutation } from '../../../../../../injectEndpoints/reportEndpoints';
+import { useReportListFacultyMutation } from '../../../../../../injectEndpoints/reportEndpoints';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
 
@@ -209,7 +209,7 @@ const FacultyWiseClassReport = (props: Props) => {
   const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [listReportFacultyApi] = useReportListFacultyClassMutation();
+  const [listReportFacultyApi] = useReportListFacultyMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);

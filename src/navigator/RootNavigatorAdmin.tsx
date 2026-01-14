@@ -181,6 +181,7 @@ import CourseWiseDetails from '../screens/AdminScreens/Menu/Report/FacultyReport
 import FacultyWiseClassReport from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyWiseClassReport';
 import FacultyWiseClassReportDetails from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyWiseClassReport/FacultyWiseClassReportDetails';
 import FacultyCalculationSheet from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyCalculationSheet';
+import FacultyClassReportTrainingWise from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyClassReportTrainingWise';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -779,6 +780,10 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="FacultyCalculationSheet"
           component={FacultyCalculationSheet}
+        />
+        <RootStackScreen.Screen
+          name="FacultyClassReportTrainingWise"
+          component={FacultyClassReportTrainingWise}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

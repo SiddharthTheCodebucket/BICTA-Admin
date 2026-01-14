@@ -81,6 +81,7 @@ const ListPermissionCard = ({
       style={styles.card}
       onPress={() => {
         navigation.navigate(screensName.FacultyWiseClassReportDetails, {
+          isFromClassReport: true,
           data: item,
         });
       }}
@@ -112,22 +113,11 @@ const ListPermissionCard = ({
   );
 };
 
-const dateTypeList = [
-  { id: 'Approval', name: 'Approval' },
-  { id: 'Download Approval', name: 'Download Approval' },
-];
-
 interface FilterFormProps {
   navigation: NavigationType;
   trainingList: any[];
   selectedTraining: any;
   setSelectedTraining: (d: any) => void;
-  batchList: any[];
-  selectedBatch: any;
-  setSelectedBatch: (d: any) => void;
-  dateTypeList: any[];
-  selectedDateType: any;
-  setSelectedDateType: (d: any) => void;
   facultyList: any[];
   selectedFaculty: any;
   setSelectedFaculty: (d: any) => void;
@@ -137,7 +127,6 @@ interface FilterFormProps {
   setEndDate: (val: string) => void;
   applyFilter: () => void;
   clearFilter: () => void;
-  getBatchList: (id: any) => void;
   hitFilterApi: (parent?: any, module?: any, status?: any) => void;
 }
 
@@ -146,12 +135,6 @@ const FilterForm = ({
   trainingList,
   selectedTraining,
   setSelectedTraining,
-  batchList,
-  selectedBatch,
-  setSelectedBatch,
-  dateTypeList,
-  selectedDateType,
-  setSelectedDateType,
   facultyList,
   selectedFaculty,
   setSelectedFaculty,
@@ -161,7 +144,6 @@ const FilterForm = ({
   setEndDate,
   applyFilter,
   clearFilter,
-  getBatchList,
   hitFilterApi,
 }: FilterFormProps) => (
   <View style={styles.filterContainer}>
@@ -175,8 +157,6 @@ const FilterForm = ({
           selectedData: selectedTraining,
           setSelectedData: (data: any) => {
             setSelectedTraining(data);
-            setSelectedBatch({});
-            getBatchList(data.id);
             hitFilterApi({ training: data });
           },
           typeName: 'name',
@@ -185,87 +165,6 @@ const FilterForm = ({
       }}
       inputText={selectedTraining?.name}
     />
-
-    <DropDownOrganism
-      label={'Batch'}
-      placeholder={'Batch'}
-      onPress={() => {
-        navigation.navigate('DropDownModal', {
-          name: 'Batch',
-          Data: batchList,
-          selectedData: selectedBatch,
-          setSelectedData: (data: any) => {
-            setSelectedBatch(data);
-            hitFilterApi({
-              batch: data,
-            });
-          },
-          typeName: 'name',
-          typeId: 'id',
-        });
-      }}
-      inputText={selectedBatch?.name}
-    />
-
-    <DropDownOrganism
-      label={'Date Filter Type'}
-      placeholder={'Date Filter Type'}
-      onPress={() => {
-        navigation.navigate('DropDownModal', {
-          name: 'Date Filter Type',
-          Data: dateTypeList,
-          selectedData: selectedDateType,
-          setSelectedData: (data: any) => {
-            setSelectedDateType(data);
-          },
-          typeName: 'name',
-          typeId: 'id',
-        });
-      }}
-      inputText={selectedDateType?.name}
-    />
-
-    {selectedDateType?.id === 'Approval' && (
-      <DateInputOrganism
-        label={'Date'}
-        placeholder={'Date'}
-        value={startDate}
-        onChangeText={(val: any) => {
-          setStartDate(val);
-          hitFilterApi({ startDate: val });
-        }}
-        fieldName="date"
-        dateFormat="DD-MM-YYYY"
-      />
-    )}
-
-    {selectedDateType?.id === 'Download Approval' && (
-      <>
-        <DateInputOrganism
-          label={'From Date'}
-          placeholder={'From Date'}
-          value={startDate}
-          onChangeText={(val: any) => {
-            setStartDate(val);
-            hitFilterApi({ startDate: val });
-          }}
-          fieldName="date"
-          dateFormat="DD-MM-YYYY"
-        />
-
-        <DateInputOrganism
-          label={'To Date'}
-          placeholder={'To Date'}
-          value={endDate}
-          onChangeText={(val: any) => {
-            setEndDate(val);
-            hitFilterApi({ endDate: val });
-          }}
-          fieldName="date"
-          dateFormat="DD-MM-YYYY"
-        />
-      </>
-    )}
     <DropDownOrganism
       label={'Faculty'}
       placeholder={'Faculty'}
@@ -287,6 +186,30 @@ const FilterForm = ({
       inputText={selectedFaculty?.name}
     />
 
+    <DateInputOrganism
+      label={'Start Date'}
+      placeholder={'Start Date'}
+      value={startDate}
+      onChangeText={(val: any) => {
+        setStartDate(val);
+        hitFilterApi({ startDate: val });
+      }}
+      fieldName="date"
+      dateFormat="DD-MM-YYYY"
+    />
+
+    <DateInputOrganism
+      label={'End Date'}
+      placeholder={'End Date'}
+      value={endDate}
+      onChangeText={(val: any) => {
+        setEndDate(val);
+        hitFilterApi({ endDate: val });
+      }}
+      fieldName="date"
+      dateFormat="DD-MM-YYYY"
+    />
+
     <ViewAtom style={styles.buttonRow}>
       <ButtonOrganism
         onPress={applyFilter}
@@ -305,7 +228,7 @@ const FilterForm = ({
 
 const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 
-const FacultyCalculationSheet = (props: Props) => {
+const FacultyClassReportTrainingWise = (props: Props) => {
   const { navigation } = props;
   const { crediantialData } = useAppSelector(state => state.Auth);
 
@@ -326,9 +249,6 @@ const FacultyCalculationSheet = (props: Props) => {
   const [trainingList, setTrainingList] = useState<any>([]);
   const [selectedTraining, setSelectedTraining] = useState<any>({});
 
-  const [batchList, setBatchList] = useState<any>([]);
-  const [selectedBatch, setSelectedBatch] = useState<any>({});
-  const [selectedDateType, setSelectedDateType] = useState<any>({});
   const [facultyList, setFacultyList] = useState<any>([]);
   const [selectedFaculty, setSelectedFaculty] = useState<any>({});
   const [startDate, setStartDate] = useState('');
@@ -341,7 +261,7 @@ const FacultyCalculationSheet = (props: Props) => {
   const [search, setSearch] = React.useState('');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Calculation Sheet');
+    Header.setNavigation(navigation, 'Faculty Class Report');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -395,17 +315,16 @@ const FacultyCalculationSheet = (props: Props) => {
       },
       filters: filtersArray,
       pageNo: pageNumber,
-      itemsPerPage: ITEMS_PER_PAGE,
-      bipardCentre: [],
-      facultyDataFlag: true,
+      facultyDataFlag: false,
       exportFlagPaymentSheetGeneration: false,
-      trainingBatchWiseFacultyFlag: false,
+      itemsPerPage: ITEMS_PER_PAGE,
+      trainingBatchWiseFacultyFlag: true,
       exportFlagTrainingBatchWiseFaculty: false,
       exportFlagPaymentSheetGenerationExcel: false,
       isPaymentSheetApproved: 'No',
+      bipardCentre: [],
       ...extraParams,
     };
-
     if (centreFilter) {
       params.bipardCentre = centreFilter;
     }
@@ -423,12 +342,9 @@ const FacultyCalculationSheet = (props: Props) => {
         }
 
         setPage(pageNumber);
-        if (res?.data?.exportUrlExcelFacultyWiseClassReport) {
-          downloadAndOpenFile(res.data.exportUrlExcelFacultyWiseClassReport);
-        }
 
-        if (res?.data?.exportUrlPdfFacultyWiseClassReport) {
-          downloadAndOpenFile(res.data.exportUrlPdfFacultyWiseClassReport);
+        if (res?.data?.exportUrlPdfTrainingBatchWiseFaculty) {
+          downloadAndOpenFile(res.data.exportUrlPdfTrainingBatchWiseFaculty);
         }
         setTotalCount(res?.data?.totalClassCountAllFaculties ?? 0);
         setTotalAmount(res?.data?.grandTotalAmountAllFaculties ?? 0);
@@ -469,9 +385,7 @@ const FacultyCalculationSheet = (props: Props) => {
 
   const clearFilter = () => {
     setSelectedTraining({});
-    setSelectedBatch({});
     setSelectedFaculty({});
-    setSelectedDateType({});
     setStartDate('');
     setEndDate('');
     listReportFaculty(1, true, search, []);
@@ -484,44 +398,24 @@ const FacultyCalculationSheet = (props: Props) => {
       filters.push(['trainingId', '=', selectedTraining.id]);
     }
 
-    if (selectedBatch?.id) {
-      filters.push(['batchId', '=', selectedBatch.id]);
-    }
-
     if (selectedFaculty?.id) {
       filters.push(['facultyId', '=', selectedFaculty.id]);
     }
 
-    if (selectedDateType?.id === 'Approval') {
-      if (startDate) {
-        filters.push([
-          'date',
-          '=',
-          moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-        ]);
-      }
-
-      filters.push(['isPaymentSheetApproved', '=', 'No']);
+    if (startDate) {
+      filters.push([
+        'date',
+        '>=',
+        moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+      ]);
     }
 
-    if (selectedDateType?.id === 'Download Approval') {
-      if (startDate) {
-        filters.push([
-          'date',
-          '>=',
-          moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-        ]);
-      }
-
-      if (endDate) {
-        filters.push([
-          'date',
-          '<=',
-          moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-        ]);
-      }
-
-      filters.push(['isPaymentSheetApproved', '=', 'Yes']);
+    if (endDate) {
+      filters.push([
+        'date',
+        '<=',
+        moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+      ]);
     }
 
     return filters;
@@ -544,43 +438,7 @@ const FacultyCalculationSheet = (props: Props) => {
       .unwrap()
       .then((res: any) => {
         let resData = res.data || [];
-        let data = resData?.map((item: any) => {
-          return {
-            ...item,
-            name: `${item.id},${item.name}`,
-          };
-        });
-        setTrainingList(data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
-
-  const getBatchList = (id: any) => {
-    setInitialCall(true);
-    const params = {
-      listType: 'faculty_report_batch_name',
-      bipardCentre: [],
-      replacements: [[[id]], '%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        let resData = res.data || [];
-        let data = resData?.map((item: any) => {
-          return {
-            ...item,
-            name: `${item.trainingId},${item.name}`,
-          };
-        });
-        setBatchList(data);
+        setTrainingList(resData);
         setInitialCall(false);
       })
       .catch((err: any) => {
@@ -604,13 +462,8 @@ const FacultyCalculationSheet = (props: Props) => {
       .unwrap()
       .then((res: any) => {
         let resData = res.data || [];
-        let data = resData?.map((item: any) => {
-          return {
-            ...item,
-            name: `${item.name},${item.id}`,
-          };
-        });
-        setFacultyList(data);
+
+        setFacultyList(resData);
         setInitialCall(false);
       })
       .catch((err: any) => {
@@ -624,12 +477,16 @@ const FacultyCalculationSheet = (props: Props) => {
   };
 
   const hitFilterApi = ({
+    training = selectedTraining,
     faculty = selectedFaculty,
     startDate: sDate = startDate,
     endDate: eDate = endDate,
   }: FilterArgs = {}) => {
     const filters: any[] = [];
 
+    if (training?.id) {
+      filters.push(['trainingId', '=', [training.id]]);
+    }
     if (faculty?.id) {
       filters.push(['facultyId', '=', faculty.id]);
     }
@@ -653,69 +510,12 @@ const FacultyCalculationSheet = (props: Props) => {
     listReportFaculty(1, true, search, filters);
   };
 
-  const downloadExcel = () => {
-    if (!selectedTraining?.id) {
-      Toast.show({
-        type: 'info',
-        text2: 'Select Training before download',
-      });
-      return;
-    }
-
-    if (selectedDateType?.id !== 'Download Approval') {
-      Toast.show({
-        type: 'info',
-        text2: 'Select "Download Approval" to download',
-      });
-      return;
-    }
-
-    if (!startDate || !endDate) {
-      Toast.show({
-        type: 'error',
-        text2: 'Select From Date and To Date',
-      });
-      return;
-    }
-    const filters = buildFilters();
-
-    listReportFaculty(1, true, search, filters, {
-      facultyDataFlag: true,
-      exportFlagPaymentSheetGeneration: false,
-      exportFlagPaymentSheetGenerationExcel: true,
-    });
-  };
-
   const downloadPdf = () => {
-    if (!selectedTraining?.id) {
-      Toast.show({
-        type: 'info',
-        text2: 'Select Training before download',
-      });
-      return;
-    }
-
-    if (selectedDateType?.id !== 'Download Approval') {
-      Toast.show({
-        type: 'info',
-        text2: 'Select "Download Approval" to download',
-      });
-      return;
-    }
-
-    if (!startDate || !endDate) {
-      Toast.show({
-        type: 'error',
-        text2: 'Select From Date and To Date',
-      });
-      return;
-    }
     const filters = buildFilters();
 
     listReportFaculty(1, true, search, filters, {
       facultyDataFlag: true,
-      exportFlagPaymentSheetGeneration: true,
-      exportFlagPaymentSheetGenerationExcel: false,
+      exportFlagTrainingBatchWiseFaculty: true,
     });
   };
 
@@ -736,62 +536,33 @@ const FacultyCalculationSheet = (props: Props) => {
               : strings.hostelManagement.bedAvailability.showFilter}
           </TextAtom>
         </TouchableAtom>
-        {selectedDateType?.id === 'Download Approval' && (
-          <>
-            <TouchableAtom
-              style={styles.filterButton}
-              onPress={() => {
-                downloadExcel();
-              }}
-            >
-              <ImageAtom
-                source={images.download}
-                style={{
-                  tintColor: colors.black,
-                  resizeMode: 'contain',
-                  width: vw(10),
-                  height: vw(10),
-                  alignSelf: 'center',
-                }}
-              />
-              <TextAtom
-                style={{
-                  color: colors.black,
-                  fontFamily: fonts.Roboto_Regular,
-                  fontSize: vw(8),
-                }}
-              >
-                Excel
-              </TextAtom>
-            </TouchableAtom>
-            <TouchableAtom
-              style={styles.filterButton}
-              onPress={() => {
-                downloadPdf();
-              }}
-            >
-              <ImageAtom
-                source={images.download}
-                style={{
-                  tintColor: colors.black,
-                  resizeMode: 'contain',
-                  width: vw(10),
-                  height: vw(10),
-                  alignSelf: 'center',
-                }}
-              />
-              <TextAtom
-                style={{
-                  color: colors.black,
-                  fontFamily: fonts.Roboto_Regular,
-                  fontSize: vw(8),
-                }}
-              >
-                Pdf
-              </TextAtom>
-            </TouchableAtom>
-          </>
-        )}
+
+        <TouchableAtom
+          style={styles.filterButton}
+          onPress={() => {
+            downloadPdf();
+          }}
+        >
+          <ImageAtom
+            source={images.download}
+            style={{
+              tintColor: colors.black,
+              resizeMode: 'contain',
+              width: vw(10),
+              height: vw(10),
+              alignSelf: 'center',
+            }}
+          />
+          <TextAtom
+            style={{
+              color: colors.black,
+              fontFamily: fonts.Roboto_Regular,
+              fontSize: vw(8),
+            }}
+          >
+            Pdf
+          </TextAtom>
+        </TouchableAtom>
       </View>
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
@@ -876,12 +647,6 @@ const FacultyCalculationSheet = (props: Props) => {
               trainingList={trainingList}
               selectedTraining={selectedTraining}
               setSelectedTraining={setSelectedTraining}
-              batchList={batchList}
-              selectedBatch={selectedBatch}
-              setSelectedBatch={setSelectedBatch}
-              dateTypeList={dateTypeList}
-              selectedDateType={selectedDateType}
-              setSelectedDateType={setSelectedDateType}
               facultyList={facultyList}
               selectedFaculty={selectedFaculty}
               setSelectedFaculty={setSelectedFaculty}
@@ -889,7 +654,6 @@ const FacultyCalculationSheet = (props: Props) => {
               setStartDate={setStartDate}
               endDate={endDate}
               setEndDate={setEndDate}
-              getBatchList={getBatchList}
               hitFilterApi={hitFilterApi}
             />
           ) : null
@@ -918,7 +682,7 @@ const FacultyCalculationSheet = (props: Props) => {
   );
 };
 
-export default FacultyCalculationSheet;
+export default FacultyClassReportTrainingWise;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },

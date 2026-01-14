@@ -17,18 +17,10 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
-    reportListFacultyClass: builder.mutation<any, any>({
-      query: requestParams => ({
-        url: endpoints.report_list_faculty_class,
-        method: 'POST',
-        body: requestParams,
-      }),
-    }),
   }),
   overrideExisting: false,
 });
 export const {
   useReportListFacultyMutation,
   useReportUploadHonorariumMutation,
-  useReportListFacultyClassMutation,
 } = apiEndpoints;
