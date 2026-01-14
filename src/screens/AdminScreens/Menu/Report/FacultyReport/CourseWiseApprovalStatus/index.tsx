@@ -19,7 +19,6 @@ import {
   colors,
   fonts,
   images,
-  screensName,
   strings,
   vh,
   vw,
@@ -65,8 +64,7 @@ interface ListPermissionProps {
 
 interface FilterArgs {
   training?: any;
-  batch?: any;
-  faculty?: any;
+  approvalStatus?: any;
   startDate?: any;
   endDate?: any;
 }
@@ -77,39 +75,51 @@ const ListPermissionCard = ({
   navigation,
 }: ListPermissionProps) => {
   return (
-    <TouchableAtom
-      style={styles.card}
-      onPress={() => {
-        navigation.navigate(screensName.FacultyWiseClassReportDetails, {
-          isFromClassReport: true,
-          data: item,
-        });
-      }}
-    >
+    <ViewAtom style={styles.card}>
       <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
         <TextAtom style={[styles.label, styles.flex1]}>
           {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
         </TextAtom>
-      </View>
-      <View style={styles.rowBetween}>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>{'Faculty U.ID'}</TextAtom>
-          <TextAtom style={styles.value}>
-            {item.facultyUniqueId ?? '-'}
+
+        <View
+          style={[
+            styles.statusCircle,
+            item.approvalStatus === 'Approved'
+              ? styles.approvedCircle
+              : styles.pendingCircle,
+          ]}
+        >
+          <TextAtom style={styles.statusIcon}>
+            {item.approvalStatus === 'Approved' ? '✓' : '✕'}
           </TextAtom>
         </View>
-        <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.labelRight}>{'Faculty Id'}</TextAtom>
-          <TextAtom style={styles.valueRight}>{item.facultyId ?? '-'}</TextAtom>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>{'Training Name'}</TextAtom>
+          <TextAtom style={styles.value}>{item.trainingName ?? '-'}</TextAtom>
         </View>
       </View>
       <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>{'Faculty Name'}</TextAtom>
-          <TextAtom style={styles.value}>{item.facultyName ?? '-'}</TextAtom>
+          <TextAtom style={styles.label}>{'Batch Name'}</TextAtom>
+          <TextAtom style={styles.value}>{item.batchName ?? '-'}</TextAtom>
         </View>
       </View>
-    </TouchableAtom>
+      <View style={styles.rowBetween}>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>{'Class Date'}</TextAtom>
+          <TextAtom style={styles.value}>{item.classDate ?? '-'}</TextAtom>
+        </View>
+        <View style={{ flex: 1, alignItems: 'flex-end' }}>
+          <TextAtom style={styles.labelRight}>{'YP Name'}</TextAtom>
+          <TextAtom style={styles.valueRight}>
+            {item.youngProfessionalName ?? '-'}
+          </TextAtom>
+        </View>
+      </View>
+    </ViewAtom>
   );
 };
 
@@ -118,9 +128,9 @@ interface FilterFormProps {
   trainingList: any[];
   selectedTraining: any;
   setSelectedTraining: (d: any) => void;
-  facultyList: any[];
-  selectedFaculty: any;
-  setSelectedFaculty: (d: any) => void;
+  approvalStatusList: any[];
+  selectedApprovalStatus: any;
+  setSelectedApprovalStatus: (d: any) => void;
   startDate: string;
   setStartDate: (val: string) => void;
   endDate: string;
@@ -135,9 +145,9 @@ const FilterForm = ({
   trainingList,
   selectedTraining,
   setSelectedTraining,
-  facultyList,
-  selectedFaculty,
-  setSelectedFaculty,
+  approvalStatusList,
+  selectedApprovalStatus,
+  setSelectedApprovalStatus,
   startDate,
   setStartDate,
   endDate,
@@ -166,15 +176,15 @@ const FilterForm = ({
       inputText={selectedTraining?.name}
     />
     <DropDownOrganism
-      label={'Faculty'}
-      placeholder={'Faculty'}
+      label={'Approval Status'}
+      placeholder={'Approval Status'}
       onPress={() => {
         navigation.navigate('DropDownModal', {
-          name: 'Faculty',
-          Data: facultyList,
-          selectedData: selectedFaculty,
+          name: 'Approval Status',
+          Data: approvalStatusList,
+          selectedData: selectedApprovalStatus,
           setSelectedData: (data: any) => {
-            setSelectedFaculty(data);
+            setSelectedApprovalStatus(data);
             hitFilterApi({
               faculty: data,
             });
@@ -183,7 +193,7 @@ const FilterForm = ({
           typeId: 'id',
         });
       }}
-      inputText={selectedFaculty?.name}
+      inputText={selectedApprovalStatus?.name}
     />
 
     <DateInputOrganism
@@ -228,7 +238,7 @@ const FilterForm = ({
 
 const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 
-const FacultyClassReportTrainingWise = (props: Props) => {
+const CourseWiseApprovalStatus = (props: Props) => {
   const { navigation } = props;
   const { crediantialData } = useAppSelector(state => state.Auth);
 
@@ -248,20 +258,19 @@ const FacultyClassReportTrainingWise = (props: Props) => {
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [trainingList, setTrainingList] = useState<any>([]);
   const [selectedTraining, setSelectedTraining] = useState<any>({});
-
-  const [facultyList, setFacultyList] = useState<any>([]);
-  const [selectedFaculty, setSelectedFaculty] = useState<any>({});
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [totalCount, setTotalCount] = useState<number>(0);
-  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [approvalStatusList, setApprovalStatusList] = useState<any>([]);
+  const [selectedApprovalStatus, setSelectedApprovalStatus] = useState<any>({});
+  const [startDate, setStartDate] = useState(
+    moment().subtract(1, 'day').format('DD-MM-YYYY'),
+  );
+  const [endDate, setEndDate] = useState(moment().format('DD-MM-YYYY'));
 
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Faculty Class Report Training');
+    Header.setNavigation(navigation, 'Course Wise Approval Status');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -277,7 +286,7 @@ const FacultyClassReportTrainingWise = (props: Props) => {
 
         listReportFaculty(1, true, search, []);
         getTrainingList();
-        getFacultyList();
+        getApprovalStatusList();
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
@@ -306,25 +315,22 @@ const FacultyClassReportTrainingWise = (props: Props) => {
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
     const centreFilter = getCentreFilter();
-
+    const finalFilters =
+      filtersArray.length > 0 ? filtersArray : buildFilters();
     const params: any = {
       search: keyword,
       sort: {
         attributes: ['createdAt'],
         sorts: ['desc'],
       },
-      filters: filtersArray,
+      filters: finalFilters,
       pageNo: pageNumber,
-      facultyDataFlag: false,
-      exportFlagPaymentSheetGeneration: false,
+      trainingBatchClassDateWiseDataFlag: true,
       itemsPerPage: ITEMS_PER_PAGE,
-      trainingBatchWiseFacultyFlag: true,
-      exportFlagTrainingBatchWiseFaculty: false,
-      exportFlagPaymentSheetGenerationExcel: false,
-      isPaymentSheetApproved: 'No',
       bipardCentre: [],
       ...extraParams,
     };
+
     if (centreFilter) {
       params.bipardCentre = centreFilter;
     }
@@ -340,14 +346,10 @@ const FacultyClassReportTrainingWise = (props: Props) => {
         } else {
           setData(newData);
         }
-
-        setPage(pageNumber);
-
         if (res?.data?.exportUrlPdfTrainingBatchWiseFaculty) {
           downloadAndOpenFile(res.data.exportUrlPdfTrainingBatchWiseFaculty);
         }
-        setTotalCount(res?.data?.totalClassCountAllFaculties ?? 0);
-        setTotalAmount(res?.data?.grandTotalAmountAllFaculties ?? 0);
+        setPage(pageNumber);
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
       })
@@ -385,9 +387,9 @@ const FacultyClassReportTrainingWise = (props: Props) => {
 
   const clearFilter = () => {
     setSelectedTraining({});
-    setSelectedFaculty({});
-    setStartDate('');
-    setEndDate('');
+    setSelectedApprovalStatus({});
+    setStartDate(moment().subtract(1, 'day').format('DD-MM-YYYY'));
+    setEndDate(moment().format('DD-MM-YYYY'));
     listReportFaculty(1, true, search, []);
   };
 
@@ -398,8 +400,8 @@ const FacultyClassReportTrainingWise = (props: Props) => {
       filters.push(['trainingId', '=', selectedTraining.id]);
     }
 
-    if (selectedFaculty?.id) {
-      filters.push(['facultyId', '=', selectedFaculty.id]);
+    if (selectedApprovalStatus?.id) {
+      filters.push(['approvalStatus', '=', selectedApprovalStatus.id]);
     }
 
     if (startDate) {
@@ -451,10 +453,10 @@ const FacultyClassReportTrainingWise = (props: Props) => {
       });
   };
 
-  const getFacultyList = () => {
+  const getApprovalStatusList = () => {
     setInitialCall(true);
     const params = {
-      listType: 'faculty_report_faculty_name',
+      listType: 'select_approval_status_filter_for_payment_sheet',
       bipardCentre: [],
       replacements: ['%%'],
     };
@@ -462,8 +464,7 @@ const FacultyClassReportTrainingWise = (props: Props) => {
       .unwrap()
       .then((res: any) => {
         let resData = res.data || [];
-
-        setFacultyList(resData);
+        setApprovalStatusList(resData);
         setInitialCall(false);
       })
       .catch((err: any) => {
@@ -478,7 +479,7 @@ const FacultyClassReportTrainingWise = (props: Props) => {
 
   const hitFilterApi = ({
     training = selectedTraining,
-    faculty = selectedFaculty,
+    approvalStatus = selectedApprovalStatus,
     startDate: sDate = startDate,
     endDate: eDate = endDate,
   }: FilterArgs = {}) => {
@@ -487,8 +488,8 @@ const FacultyClassReportTrainingWise = (props: Props) => {
     if (training?.id) {
       filters.push(['trainingId', '=', [training.id]]);
     }
-    if (faculty?.id) {
-      filters.push(['facultyId', '=', faculty.id]);
+    if (approvalStatus?.id) {
+      filters.push(['approvalStatus', '=', approvalStatus.id]);
     }
 
     if (sDate) {
@@ -511,10 +512,22 @@ const FacultyClassReportTrainingWise = (props: Props) => {
   };
 
   const downloadPdf = () => {
+    if (
+      selectedTraining?.id ||
+      selectedApprovalStatus?.id ||
+      startDate ||
+      endDate
+    ) {
+      Toast.show({
+        type: 'info',
+        text2: 'Select at least one filter to download report',
+      });
+      return;
+    }
+
     const filters = buildFilters();
 
     listReportFaculty(1, true, search, filters, {
-      facultyDataFlag: true,
       exportFlagTrainingBatchWiseFaculty: true,
     });
   };
@@ -604,19 +617,6 @@ const FacultyClassReportTrainingWise = (props: Props) => {
         onPressCross={onClearSearch}
         searchBox={{ marginTop: vh(15) }}
       />
-      <View style={styles.summaryContainer}>
-        <View style={[styles.summaryCard, styles.amountCard]}>
-          <TextAtom style={styles.summaryLabel}>Total Amount</TextAtom>
-          <TextAtom style={styles.summaryValue}>
-            ₹ {Number(totalAmount).toLocaleString('en-IN')}
-          </TextAtom>
-        </View>
-
-        <View style={[styles.summaryCard, styles.countCard]}>
-          <TextAtom style={styles.summaryLabel}>Total Count</TextAtom>
-          <TextAtom style={styles.summaryValue}>{totalCount}</TextAtom>
-        </View>
-      </View>
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -647,9 +647,9 @@ const FacultyClassReportTrainingWise = (props: Props) => {
               trainingList={trainingList}
               selectedTraining={selectedTraining}
               setSelectedTraining={setSelectedTraining}
-              facultyList={facultyList}
-              selectedFaculty={selectedFaculty}
-              setSelectedFaculty={setSelectedFaculty}
+              approvalStatusList={approvalStatusList}
+              selectedApprovalStatus={selectedApprovalStatus}
+              setSelectedApprovalStatus={setSelectedApprovalStatus}
               startDate={startDate}
               setStartDate={setStartDate}
               endDate={endDate}
@@ -682,7 +682,7 @@ const FacultyClassReportTrainingWise = (props: Props) => {
   );
 };
 
-export default FacultyClassReportTrainingWise;
+export default CourseWiseApprovalStatus;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -920,5 +920,26 @@ const styles = StyleSheet.create({
     fontFamily: fonts.Roboto_Bold,
     fontSize: vw(10),
     marginTop: vh(2),
+  },
+  statusCircle: {
+    width: vw(18),
+    height: vw(18),
+    borderRadius: vw(9),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  approvedCircle: {
+    backgroundColor: colors.green,
+  },
+
+  pendingCircle: {
+    backgroundColor: colors.red_2,
+  },
+
+  statusIcon: {
+    color: colors.white,
+    fontFamily: fonts.Roboto_Bold,
+    fontSize: vw(10),
   },
 });

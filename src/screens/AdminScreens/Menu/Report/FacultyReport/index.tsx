@@ -47,7 +47,9 @@ const FacultyReport = (props: Props) => {
     {
       id: 4,
       name: 'Course Wise Approval Status',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.CourseWiseApprovalStatus);
+      },
     },
     {
       id: 5,
