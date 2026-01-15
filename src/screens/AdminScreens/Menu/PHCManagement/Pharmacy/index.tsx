@@ -25,16 +25,9 @@ const Pharmacy = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: strings.patients,
+      name: 'Priscribed Medicine to Patinets',
       onPress: () => {
         navigation.navigate(screensName.Patients);
-      },
-    },
-    {
-      id: 2,
-      name: strings.pharmacy_master,
-      onPress: () => {
-        navigation.navigate(screensName.PharmacyMaster);
       },
     },
     {
@@ -42,6 +35,13 @@ const Pharmacy = (props: Props) => {
       name: strings.medicine_type,
       onPress: () => {
         navigation.navigate(screensName.MedicineType);
+      },
+    },
+    {
+      id: 2,
+      name: strings.pharmacy_master,
+      onPress: () => {
+        navigation.navigate(screensName.PharmacyMaster);
       },
     },
     {

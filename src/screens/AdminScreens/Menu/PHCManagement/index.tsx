@@ -16,7 +16,7 @@ const PHCManagement = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'PHC Management System');
+    Header.setNavigation(navigation, 'Health Centre Management');
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
