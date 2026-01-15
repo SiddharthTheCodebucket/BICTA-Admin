@@ -142,6 +142,26 @@ import SupportTicketResponseDetails from '../screens/AdminScreens/Menu/SupportMa
 import SupportTicketMovementDetails from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketMovementDetails';
 import SupportTicketHistoryReply from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketHistoryReply';
 import AddUserRegistration from '../screens/AdminScreens/Menu/UserManagement/User/UserRegistration/AddUserRegistration';
+import FeedbackManagement from '../screens/AdminScreens/Menu/FeedbackManagement';
+import Feedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback';
+import FeedbackCategory from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackCategory';
+import AddFeedbackCategory from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackCategory/AddFeedbackCategory';
+import FeedbackTopic from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackTopic';
+import AddFeedbackTopic from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackTopic/AddFeedbackTopic';
+import OverallFeedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/OverallFeedback';
+import FacultyFeedbackByTrainee from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackByTrainee';
+import FacultyFeedbackByTraineeDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackByTrainee/FacultyFeedbackByTraineeDetails';
+import FacultyFeedbackByObserver from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackByObserver';
+import FacultyFeedbackByObserverDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackByObserver/FacultyFeedbackByObserverDetails';
+import MessFeedbackResponse from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/MessFeedbackResponse';
+import MessFeedbackResponseDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/MessFeedbackResponse/MessFeedbackResponseDetails';
+import HouseKeepingFeedbackResponse from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/HouseKeepingFeedbackResponse';
+import HouseKeepingFeedbackResponseDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/HouseKeepingFeedbackResponse/HouseKeepingFeedbackResponseDetails';
+import FacultyFeedbackTrainingWise from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise';
+import FacultyFeedbackTrainingWiseDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/FacultyFeedbackTrainingWiseDetails';
+import ClassCountList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/ClassCountList';
+import FeedbackCountList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/FeedbackCountList';
+import FeedbackGivenByTraineeList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/FeedbackGivenByTraineeList';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -605,6 +625,83 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="SupportTicketHistoryReply"
           component={SupportTicketHistoryReply}
+        />
+        <RootStackScreen.Screen
+          name="FeedbackManagement"
+          component={FeedbackManagement}
+        />
+        <RootStackScreen.Screen name="Feedback" component={Feedback} />
+        <RootStackScreen.Screen
+          name="FeedbackCategory"
+          component={FeedbackCategory}
+        />
+        <RootStackScreen.Screen
+          name="AddFeedbackCategory"
+          component={AddFeedbackCategory}
+        />
+        <RootStackScreen.Screen
+          name="FeedbackTopic"
+          component={FeedbackTopic}
+        />
+        <RootStackScreen.Screen
+          name="AddFeedbackTopic"
+          component={AddFeedbackTopic}
+        />
+        <RootStackScreen.Screen
+          name="OverallFeedback"
+          component={OverallFeedback}
+        />
+        <RootStackScreen.Screen
+          name="FacultyFeedbackByTrainee"
+          component={FacultyFeedbackByTrainee}
+        />
+        <RootStackScreen.Screen
+          name="FacultyFeedbackByTraineeDetails"
+          component={FacultyFeedbackByTraineeDetails}
+        />
+        <RootStackScreen.Screen
+          name="FacultyFeedbackByObserver"
+          component={FacultyFeedbackByObserver}
+        />
+        <RootStackScreen.Screen
+          name="FacultyFeedbackByObserverDetails"
+          component={FacultyFeedbackByObserverDetails}
+        />
+        <RootStackScreen.Screen
+          name="MessFeedbackResponse"
+          component={MessFeedbackResponse}
+        />
+        <RootStackScreen.Screen
+          name="MessFeedbackResponseDetails"
+          component={MessFeedbackResponseDetails}
+        />
+        <RootStackScreen.Screen
+          name="HouseKeepingFeedbackResponse"
+          component={HouseKeepingFeedbackResponse}
+        />
+        <RootStackScreen.Screen
+          name="HouseKeepingFeedbackResponseDetails"
+          component={HouseKeepingFeedbackResponseDetails}
+        />
+        <RootStackScreen.Screen
+          name="FacultyFeedbackTrainingWise"
+          component={FacultyFeedbackTrainingWise}
+        />
+        <RootStackScreen.Screen
+          name="FacultyFeedbackTrainingWiseDetails"
+          component={FacultyFeedbackTrainingWiseDetails}
+        />
+        <RootStackScreen.Screen
+          name="ClassCountList"
+          component={ClassCountList}
+        />
+        <RootStackScreen.Screen
+          name="FeedbackCountList"
+          component={FeedbackCountList}
+        />
+        <RootStackScreen.Screen
+          name="FeedbackGivenByTraineeList"
+          component={FeedbackGivenByTraineeList}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

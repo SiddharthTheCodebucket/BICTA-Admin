@@ -168,7 +168,12 @@ const Dashboard = (props: Props) => {
         <Text style={styles.heading}>{strings.dg_message}</Text>
 
         <View style={styles.headerBlock}>
-          <ImageAtom source={images.DG} style={styles.image} />
+          <ImageAtom
+            source={{
+              uri: 'https://prod-1.static.codebuckets.in/file/codebucket-production-public/bipard-website-updated/person/image_1.jpeg',
+            }}
+            style={styles.image}
+          />
           <Text style={styles.nameText}>{strings.dg_name}</Text>
           <Text style={styles.designationText}>{strings.dg_designation}</Text>
         </View>
@@ -246,7 +251,12 @@ const Dashboard = (props: Props) => {
               </Text>
 
               <View style={styles.headerBlock}>
-                <ImageAtom source={images.DG} style={styles.image} />
+                <ImageAtom
+                  source={{
+                    uri: 'https://prod-1.static.codebuckets.in/file/codebucket-production-public/bipard-website-updated/person/image_1.jpeg',
+                  }}
+                  style={styles.image}
+                />
                 <Text style={styles.nameText}>{strings.dg_name}</Text>
                 <Text style={styles.designationText}>
                   {strings.dg_designation}

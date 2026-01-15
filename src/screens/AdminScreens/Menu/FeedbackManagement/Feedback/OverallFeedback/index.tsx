@@ -19,12 +19,10 @@ import {
   colors,
   fonts,
   images,
-  screensName,
   strings,
   vh,
   vw,
 } from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -33,19 +31,13 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import moment from 'moment';
-import {
-  useApproveInternalUserStatusMutation,
-  useListInternalUserMutation,
-  useDeleteInternalUserStatusMutation,
-} from '../../../../../../injectEndpoints/userTypeEndpoints';
-import { useGetCentre } from '../../../../../../hooks/useGetCentre';
+import { useListOverallTrainingFeedbackMutation } from '../../../../../../injectEndpoints/feedbackManagementEndpoints';
+import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 
 interface Props {
   navigation: NavigationType;
@@ -61,189 +53,130 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-interface UserRegistrationProps {
+interface ListPermissionProps {
   item: any;
   index: number;
-  navigation: NavigationType;
-  onRefresh: () => void;
-  onDelete: (id: any) => void;
-  onUpdateStatus: (id: any) => void;
 }
 
-const UserRegistrationCard = ({
-  item,
-  index,
-  navigation,
-  onRefresh,
-  onDelete,
-  onUpdateStatus,
-}: UserRegistrationProps) => {
-  const statusValue =
-    item?.status === 'Active' ? 'Approved' : item?.status || '';
-
-  const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-  const confirmStatusChange = () => {
-    setShowStatusMenu(false);
-    navigation.navigate(screensName.AlertOrganism, {
-      title: strings.hostelManagement.bedDetails.statusChangeConfirmation,
-      message: strings.hostelManagement.bedDetails.statusChangeMessage,
-      okText: strings.hostelManagement.confirm,
-      double: true,
-      cancelText: strings.cancel,
-      okFunction: () => onUpdateStatus(item.adminUserId),
-      cancelFunction: () => {},
-    });
-  };
-
-  const confirmDelete = () => {
-    navigation.navigate(screensName.AlertOrganism, {
-      title: strings.hostelManagement.bedDetails.deleteConfirmation,
-      message: strings.hostelManagement.bedDetails.deleteMessage,
-      okText: strings.hostelManagement.confirm,
-      double: true,
-      cancelText: strings.cancel,
-      okFunction: () => onDelete(item.adminUserId),
-      cancelFunction: () => {},
-    });
-  };
-
+const ListPermissionCard = ({ item, index }: ListPermissionProps) => {
   return (
-    <TouchableAtom
-      style={styles.card}
-      onPress={() => {
-        navigation.navigate(screensName.UserRegistrationDetails, {
-          data: item,
-        });
-      }}
-    >
+    <ViewAtom style={styles.card}>
       <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
         <TextAtom style={[styles.label, styles.flex1]}>
           {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
         </TextAtom>
-        <View style={styles.actionRow}>
-          <TouchableAtom
-            style={styles.editButton}
-            onPress={() => {
-              navigation.navigate(screensName.AddUserRegistration, {
-                item,
-                onDone: onRefresh,
-              });
-            }}
-          >
-            <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
-          </TouchableAtom>
-
-          <TouchableAtom style={styles.deleteButton} onPress={confirmDelete}>
-            <ImageAtom source={images.delete} style={styles.iconSmall} />
-          </TouchableAtom>
-        </View>
       </View>
-
+      <View style={{ flex: 1 }}>
+        <TextAtom style={styles.label}>{'Trainee Name'}</TextAtom>
+        <TextAtom style={styles.value}>{item.traineeName ?? '-'}</TextAtom>
+      </View>
+      <View style={{ flex: 1 }}>
+        <TextAtom style={styles.label}>{'Training Name'}</TextAtom>
+        <TextAtom style={styles.value}>{item.trainingName ?? '-'}</TextAtom>
+      </View>
       <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>{'Name'}</TextAtom>
-          <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
+          <TextAtom style={styles.label}>{'Batch Number'}</TextAtom>
+          <TextAtom style={styles.value}>{item.batchNo ?? '-'}</TextAtom>
         </View>
         <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.labelRight}>{'DOB'}</TextAtom>
+          <TextAtom style={styles.labelRight}>
+            {'Course Content Rating'}
+          </TextAtom>
           <TextAtom style={styles.valueRight}>
-            {moment(item.pickADob).format('DD-MM-YYYY') ?? '-'}
+            {item.courseContentRating ?? '-'}
           </TextAtom>
         </View>
       </View>
       <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>{'Aadhaar No'}</TextAtom>
-          <TextAtom style={styles.value}>{item.aadhaarNo ?? '-'}</TextAtom>
+          <TextAtom style={styles.label}>{'facultyRating'}</TextAtom>
+          <TextAtom style={styles.value}>{item.facultyRating ?? '-'}</TextAtom>
         </View>
 
         <View style={{ flex: 1, alignItems: 'flex-end' }}>
-          <TextAtom style={styles.labelRight}>{'PAN No'}</TextAtom>
+          <TextAtom style={styles.labelRight}>{'Mess Rating'}</TextAtom>
           <TextAtom numberOfLines={0} style={styles.valueRight}>
-            {item.panNo ?? '-'}
+            {item.messRating ?? '-'}
           </TextAtom>
         </View>
       </View>
-
-      <View style={styles.statusContainer}>
-        <TouchableAtom
-          onPress={() => setShowStatusMenu(!showStatusMenu)}
-          style={[
-            styles.statusBox,
-            statusValue === 'Approved' ? styles.activeBox : styles.inActiveBox,
-          ]}
-        >
-          <TextAtom
-            style={[
-              styles.statusText,
-              statusValue === 'Approved'
-                ? styles.activeText
-                : styles.inActiveText,
-            ]}
-          >
-            {statusValue ?? null}
-          </TextAtom>
-          <ImageAtom source={images.downArrow} />
-        </TouchableAtom>
-
-        {showStatusMenu && (
-          <View style={styles.dropMenu}>
-            <TouchableAtom
-              style={styles.dropItem}
-              onPress={() => confirmStatusChange()}
-            >
-              <TextAtom style={styles.statusTextBlack}>{'Approved'}</TextAtom>
-            </TouchableAtom>
-
-            <TouchableAtom
-              style={styles.dropItem}
-              onPress={() => confirmStatusChange()}
-            >
-              <TextAtom style={styles.statusTextBlack}>{'Pending'}</TextAtom>
-            </TouchableAtom>
-          </View>
-        )}
+      <View style={{ flex: 1 }}>
+        <TextAtom style={styles.label}>{'Suggestions'}</TextAtom>
+        <TextAtom numberOfLines={0} style={styles.value}>
+          {item.suggestions ?? '-'}
+        </TextAtom>
       </View>
-    </TouchableAtom>
+    </ViewAtom>
   );
 };
 
 interface FilterFormProps {
   navigation: NavigationType;
-  userTypeList: any[];
-  selectedUserType: any;
-  setSelectedUserType: (d: any) => void;
+  trainingList: any[];
+  selectedTrainingList: any;
+  setSelectedTrainingList: (d: any) => void;
+  batchList: any[];
+  selectedBatchList: any;
+  setSelectedBatchList: (d: any) => void;
   applyFilter: () => void;
   clearFilter: () => void;
+  getBatchList: (id: any) => void;
+  hitFilterApi: (parent?: any, module?: any, status?: any) => void;
 }
 
 const FilterForm = ({
   navigation,
-  userTypeList,
-  selectedUserType,
-  setSelectedUserType,
+  trainingList,
+  selectedTrainingList,
+  setSelectedTrainingList,
+  batchList,
+  selectedBatchList,
+  setSelectedBatchList,
   applyFilter,
   clearFilter,
+  getBatchList,
+  hitFilterApi,
 }: FilterFormProps) => (
   <View style={styles.filterContainer}>
     <DropDownOrganism
-      label={'User Type'}
-      placeholder={'User Type'}
+      label={'Training'}
+      placeholder={'Training'}
       onPress={() => {
         navigation.navigate('DropDownModal', {
-          name: 'User Type',
-          Data: userTypeList,
-          selectedData: selectedUserType,
+          name: 'Training',
+          Data: trainingList,
+          selectedData: selectedTrainingList,
           setSelectedData: (data: any) => {
-            setSelectedUserType(data);
+            setSelectedTrainingList(data);
+            getBatchList(data.id);
+            hitFilterApi(data, selectedTrainingList);
           },
           typeName: 'name',
           typeId: 'id',
         });
       }}
-      inputText={selectedUserType?.name}
+      inputText={selectedTrainingList?.name}
     />
+    <DropDownOrganism
+      label={'Batch'}
+      placeholder={'Batch'}
+      onPress={() => {
+        navigation.navigate('DropDownModal', {
+          name: 'Batch',
+          Data: batchList,
+          selectedData: selectedBatchList,
+          setSelectedData: (data: any) => {
+            setSelectedBatchList(data);
+            hitFilterApi(selectedTrainingList, data);
+          },
+          typeName: 'name',
+          typeId: 'id',
+        });
+      }}
+      inputText={selectedBatchList?.name}
+    />
+
     <ViewAtom style={styles.buttonRow}>
       <ButtonOrganism
         onPress={applyFilter}
@@ -262,70 +195,58 @@ const FilterForm = ({
 
 const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 
-const UserRegistration = (props: Props) => {
+const OverallFeedback = (props: Props) => {
   const { navigation } = props;
 
-  const { crediantialData } = useAppSelector(state => state.Auth);
-  const center = useGetCentre();
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [internalUserListApi] = useListInternalUserMutation();
-  const [updateStatusApi] = useApproveInternalUserStatusMutation();
-  const [deleteInternalUserApi] = useDeleteInternalUserStatusMutation();
+  const [listOverallTrainingFeedbackApi] =
+    useListOverallTrainingFeedbackMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
-  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
+
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-
-  const [userTypeList, setUserTypeList] = useState<any>([]);
-  const [selectedUserType, setSelectedUserType] = useState<any>({});
+  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
+  const [trainingList, setTrainingList] = useState<any>([]);
+  const [selectedTrainingList, setSelectedTrainingList] = useState<any>({});
+  const [batchList, setBatchList] = useState<any>([]);
+  const [selectedBatchList, setSelectedBatchList] = useState<any>({});
+  const [exportUrl, setExportUrl] = useState<any>('');
 
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'User Registration Details');
+    Header.setNavigation(navigation, 'Overall Feedback Response');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
   useFocusEffect(
     useCallback(() => {
-      if (firstTimeLoad && !centerSerach?.name && search === '') {
-        setFirstTimeLoad(false);
-        internalUserList(1, true, '');
-        getUserTypeList();
+      if (firstTimeLoad && search === '') {
+        getTrainingList();
       }
-    }, [firstTimeLoad, centerSerach, search]),
+    }, [firstTimeLoad, search]),
   );
-
   useEffect(() => {
-    if (!centerSerach?.name) return;
-    internalUserList(1, true, '');
-  }, [centerSerach]);
-
-  const getCentreFilter = () => {
-    if (!centerSerach?.name) return null;
-
-    if (centerSerach.name === strings.dashboardIndex.allCenters) {
-      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
+    if (firstTimeLoad && search === '') {
+      setFirstTimeLoad(false);
+      listOverallTrainingFeedback(1, true, search, []);
     }
-
-    return [centerSerach.name];
-  };
+  }, []);
 
   const toggleFilter = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setShowFilter(!showFilter);
   };
 
-  const internalUserList = (
+  const listOverallTrainingFeedback = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -333,23 +254,19 @@ const UserRegistration = (props: Props) => {
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
 
-    const centreFilter = getCentreFilter();
     const params: any = {
       search: keyword,
       sort: {
-        attributes: ['created_date'],
+        attributes: ['created_at'],
         sorts: ['desc'],
       },
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
+      exportFlag: true,
     };
 
-    if (centreFilter) {
-      params.bipardCentre = centreFilter;
-    }
-
-    internalUserListApi(params)
+    listOverallTrainingFeedbackApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -363,6 +280,7 @@ const UserRegistration = (props: Props) => {
         }
 
         setPage(pageNumber);
+        setExportUrl(res.data.exportUrl);
 
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
@@ -380,7 +298,7 @@ const UserRegistration = (props: Props) => {
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      internalUserList(1, true, text);
+      listOverallTrainingFeedback(1, true, text);
     }, 500),
     [],
   );
@@ -392,95 +310,45 @@ const UserRegistration = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    internalUserList(1, true, '');
+    listOverallTrainingFeedback(1, true, '');
   };
 
-  const updateStatus = (id: any) => {
-    setInitialCall(true);
-    const params = {
-      adminUserIdForChangeStatus: id,
-    };
-    updateStatusApi(params)
-      .unwrap()
-      .then((res: any) => {
-        Toast.show({
-          type: 'success',
-          text2: res.data.message,
-        });
-        setInitialCall(false);
-        internalUserList(1, true, search);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || strings.something_went_wrong,
-        });
-      });
-  };
-
-  const deleteInternalUser = (id: any) => {
-    setInitialCall(true);
-    const params = {
-      admin_user_id: id,
-    };
-    deleteInternalUserApi(params)
-      .unwrap()
-      .then((res: any) => {
-        Toast.show({
-          type: 'success',
-          text2: res.data.message,
-        });
-        setInitialCall(false);
-        internalUserList(1, true, search);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || strings.something_went_wrong,
-        });
-      });
-  };
-
-  const renderListBedDetails = ({ item, index }: any) => (
-    <UserRegistrationCard
-      item={item}
-      index={index}
-      navigation={navigation}
-      onRefresh={() => internalUserList(1, true, search)}
-      onDelete={deleteInternalUser}
-      onUpdateStatus={updateStatus}
-    />
+  const renderListPermissionDetails = ({ item, index }: any) => (
+    <ListPermissionCard item={item} index={index} />
   );
 
   const clearFilter = () => {
-    setSelectedUserType({});
-    internalUserList(1, true, search, []);
+    setSelectedTrainingList({});
+    setSelectedBatchList({});
+
+    listOverallTrainingFeedback(1, true, search, []);
   };
 
   const applyFilter = () => {
     const filters = [];
 
-    if (selectedUserType?.id) {
-      filters.push(['userTypeId', '=', selectedUserType.id]);
+    if (selectedTrainingList?.id) {
+      filters.push(['trainingId', '=', selectedTrainingList.id]);
     }
 
-    internalUserList(1, true, search, filters);
+    if (selectedBatchList?.id) {
+      filters.push(['batchId', '=', selectedBatchList.id]);
+    }
+
+    listOverallTrainingFeedback(1, true, search, filters);
   };
 
-  const getUserTypeList = () => {
+  const getTrainingList = () => {
     setInitialCall(true);
     const params = {
-      listType: 'select_user_type',
-      bipardCentre: center,
+      listType: 'classroom_management_select_training_name',
+      bipardCentre: [],
       replacements: ['%%'],
     };
-
     commonDropdownApi(params)
       .unwrap()
       .then((res: any) => {
-        setUserTypeList(res.data);
+        setTrainingList(res.data);
         setInitialCall(false);
       })
       .catch((err: any) => {
@@ -491,6 +359,47 @@ const UserRegistration = (props: Props) => {
           autoHide: true,
         });
       });
+  };
+
+  const getBatchList = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      listType: 'classroom_management_select_batch_name',
+      bipardCentre: [],
+      replacements: ['%%', id],
+    };
+
+    commonDropdownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        setBatchList(res.data);
+        setInitialCall(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+          autoHide: true,
+        });
+      });
+  };
+
+  const hitFilterApi = (
+    training = selectedTrainingList,
+    batch = selectedBatchList,
+  ) => {
+    const filters: any[] = [];
+
+    if (training?.id) {
+      filters.push(['trainingId', '=', training.id]);
+    }
+
+    if (batch?.id) {
+      filters.push(['batchId', '=', batch.id]);
+    }
+
+    listOverallTrainingFeedback(1, true, search, filters);
   };
 
   return (
@@ -510,48 +419,33 @@ const UserRegistration = (props: Props) => {
               : strings.hostelManagement.bedAvailability.showFilter}
           </TextAtom>
         </TouchableAtom>
+        <TouchableAtom
+          style={styles.filterButton}
+          onPress={() => {
+            if (exportUrl) {
+              downloadAndOpenFile(exportUrl);
+            }
+          }}
+        >
+          <ImageAtom
+            source={images.download}
+            style={{ tintColor: colors.black }}
+          />
+        </TouchableAtom>
       </View>
       {showFilter && (
         <FilterForm
           navigation={navigation}
-          userTypeList={userTypeList}
-          selectedUserType={selectedUserType}
-          setSelectedUserType={setSelectedUserType}
+          trainingList={trainingList}
+          selectedTrainingList={selectedTrainingList}
+          setSelectedTrainingList={setSelectedTrainingList}
+          batchList={batchList}
+          selectedBatchList={selectedBatchList}
+          setSelectedBatchList={setSelectedBatchList}
           applyFilter={applyFilter}
           clearFilter={clearFilter}
-        />
-      )}
-      {crediantialData.user[0].tenantId === 3 && (
-        <DropDownOrganism
-          label={''}
-          placeholder={strings.dashboardIndex.centers}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: 'Center',
-              Data: [
-                {
-                  id: strings.dashboardIndex.allCenters,
-                  name: strings.dashboardIndex.allCenters,
-                },
-                {
-                  id: strings.dashboardIndex.gaya,
-                  name: strings.dashboardIndex.gaya,
-                },
-                {
-                  id: strings.dashboardIndex.patna,
-                  name: strings.dashboardIndex.patna,
-                },
-              ],
-              selectedData: centerSerach,
-              setSelectedData: (data: any) => {
-                setCenterSerach(data);
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={centerSerach?.name}
-          containerStyle={styles.marginBottomNegative}
+          getBatchList={getBatchList}
+          hitFilterApi={hitFilterApi}
         />
       )}
       <SearchBoxOrganism
@@ -564,7 +458,7 @@ const UserRegistration = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListBedDetails}
+        renderItem={renderListPermissionDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           initialCall ? null : (
@@ -588,31 +482,24 @@ const UserRegistration = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              internalUserList(1, false, '');
+              listOverallTrainingFeedback(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? internalUserList(page + 1, false, search)
+            ? listOverallTrainingFeedback(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={BedItemSeparator}
       />
-      <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddUserRegistration, {
-            onDone: () => internalUserList(1, true, search),
-          });
-        }}
-      />
     </SafeAreaView>
   );
 };
 
-export default UserRegistration;
+export default OverallFeedback;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },

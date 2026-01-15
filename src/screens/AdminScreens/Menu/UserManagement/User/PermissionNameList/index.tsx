@@ -30,6 +30,7 @@ import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import moment from 'moment';
 import { useListPermissionsNameMutation } from '../../../../../../injectEndpoints/userTypeEndpoints';
+import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
@@ -213,7 +214,7 @@ const PermissionNameList = (props: Props) => {
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listPermissionNameApi] = useListPermissionsNameMutation();
-
+  const center = useGetCentre();
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
 
@@ -356,7 +357,7 @@ const PermissionNameList = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'select_global_module',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       replacements: ['%%'],
     };
 
@@ -380,7 +381,7 @@ const PermissionNameList = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'select_global_sub_module',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       replacements: ['%%', 'HRMS'],
     };
 

@@ -18,6 +18,7 @@ import FullscreenLoading from '../../../../../components/organisms/FullscreenLoa
 import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
 import { useCommonDropdownListMutation } from '../../../../../injectEndpointsTrainee/profileEndpoints';
 import { useAddFeedbackResponseMutation } from '../../../../../injectEndpointsTrainee/feedbackEndpoints';
+import { useAppSelector } from '../../../../../hooks';
 
 interface Props {
   route: any;
@@ -27,6 +28,10 @@ interface Props {
 const AddHousekeepingFeedback = (props: Props) => {
   const { navigation } = props;
   const input1_ref: any = createRef();
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const tenantId = crediantialData.user[0]?.tenantId;
+
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'Add Housekeeping Feedback');
     navigation.BackButtonPress = () => navigation.goBack();
@@ -86,10 +91,12 @@ const AddHousekeepingFeedback = (props: Props) => {
 
   const getCategoryList = () => {
     setLoader(true);
+
     const params = {
       listType: 'feedback_category',
       replacements: ['%%'],
     };
+
     commonDropdownListApi(params)
       .unwrap()
       .then((res: any) => {
@@ -97,19 +104,27 @@ const AddHousekeepingFeedback = (props: Props) => {
         setValue('feedbackCategoryList', categoryList);
         setLoader(false);
 
-        const housekeepingCategory = categoryList.find(
-          (item: any) => item.id === 2,
+        let defaultCategoryId: number | null = null;
+
+        if (tenantId === 1) {
+          defaultCategoryId = 2;
+        } else if (tenantId === 2) {
+          defaultCategoryId = 5;
+        }
+
+        const defaultCategory = categoryList.find(
+          (item: any) => item.id === defaultCategoryId,
         );
 
-        if (housekeepingCategory) {
+        if (defaultCategory) {
           setForm((prev: any) => ({
             ...prev,
-            feedbackCategory: housekeepingCategory,
+            feedbackCategory: defaultCategory,
             feedbackSubCategory: {},
             feedbackTopic: {},
           }));
 
-          getSubCategoryList(housekeepingCategory.id);
+          getSubCategoryList(defaultCategory.id);
         }
       })
       .catch((err: any) => {

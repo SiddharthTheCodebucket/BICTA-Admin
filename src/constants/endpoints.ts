@@ -170,4 +170,25 @@ export default {
   list_support_raise_complain: 'support/list-support-raise-complain',
   delete_support_raise_complain: 'support/delete-support-raise-complain',
   resolve_support_raise_complain: 'support/resolve-support-raised-complain',
+
+  //Feedback Management
+  list_feedback_category: 'feedback/list-feedback-category',
+  update_feedback_category: 'feedback/update-feedback-category',
+  delete_feedback_category: 'feedback/delete-feedback-category',
+  add_feedback_category: 'feedback/add-feedback-category',
+  list_feedback_topic: 'feedback/list-feedback-topic',
+  add_feedback_topic: 'feedback/add-feedback-topic',
+  update_feedback_topic: 'feedback/update-feedback-topic',
+  delete_feedback_topic: 'feedback/delete-feedback-topic',
+  list_overallS_training_feedback: 'feedback/list-overall-training-feedback',
+  list_faculty_feedback: 'feedback/list-faculty-feedback',
+  delete_faculty_feedback: 'feedback/delete-faculty-feedback',
+  list_feedback_response: 'feedback/list-feedback-response',
+  delete_feedback_response: 'feedback/delete-feedback-response',
+  list_training_wise_faculty:
+    'report/list-training-wise-faculty-feedback-report',
+  list_training_wise_faculty_count:
+    'report/list-training-wise-faculty-class-count',
+  list_training_wise_feedback_count:
+    'report/list-training-wise-faculty-feedback-count',
 };

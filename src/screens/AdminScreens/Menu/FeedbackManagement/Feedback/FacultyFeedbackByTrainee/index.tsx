@@ -21,6 +21,7 @@ import {
   fonts,
   images,
   screensName,
+  strings,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -38,15 +39,13 @@ import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
-import {
-  useDownloadTraineeDetailsMutation,
-  useDownloadTraineeRegFormMutation,
-  useDownloadTrainingCategoryMutation,
-  useListTraineeDetailsMutation,
-  useListTrainingBatchDetailsMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import { useGetCentre } from '../../../../../../hooks/useGetCentre';
+import {
+  useDeleteFacultyFeedbackMutation,
+  useListFacultyFeedbackMutation,
+} from '../../../../../../injectEndpoints/feedbackManagementEndpoints';
+import moment from 'moment';
+import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 
 interface Props {
   navigation: NavigationType;
@@ -62,24 +61,25 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const TraineeDetails = (props: Props) => {
+interface FilterArgs {
+  training?: any;
+  batch?: any;
+  faculty?: any;
+  startDate?: any;
+  endDate?: any;
+}
+
+const FacultyFeedbackByTrainee = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
-  const center = useGetCentre();
 
-  const [downloadApi] = useDownloadTrainingCategoryMutation();
   const [commonListApi] = useCommonDropdownListMutation();
-  const [listTrainingBatchDetailsApi] = useListTrainingBatchDetailsMutation();
-  const [listTraineeDetailsApi] = useListTraineeDetailsMutation();
-  const [downloadTraineeRegFormApi] = useDownloadTraineeRegFormMutation();
-  const [downloadTrainingDetailsApi] = useDownloadTraineeDetailsMutation();
+  const [listTraineeDetailsApi] = useListFacultyFeedbackMutation();
+  const [deleteTraineeDetailsApi] = useDeleteFacultyFeedbackMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
-
-  const [isFilterApplied, setIsFilterApplied] = useState(false);
-  const [currentAppliedFilters, setCurrentAppliedFilters] = useState([]);
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
@@ -87,18 +87,16 @@ const TraineeDetails = (props: Props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-  const [isForExcel, setIsForExcel] = useState(false);
-
-  const [selectedItems, setSelectedItems] = useState<any>([]);
-  const [totalCount, setTotalCount] = useState(0);
 
   const [trainingList, setTrainingList] = useState<any>([]);
   const [selectedTraining, setSelectedTraining] = useState<any>({});
   const [batchList, setBatchList] = useState<any>([]);
   const [selectedBatch, setSelectedBatch] = useState<any>({});
-
-  const [selectedPregnancy, setSelectedPregnancy] = useState<any>({});
-  const [selectedIndeminityBond, setSelectedIndeminityBond] = useState<any>({});
+  const [facultyList, setFacultyList] = useState<any>([]);
+  const [selectedFaculty, setSelectedFaculty] = useState<any>({});
+  const [startDate, setStartDate] = useState<any>('');
+  const [endDate, setEndDate] = useState<any>('');
+  const [exportUrl, setExportUrl] = useState('');
 
   const ITEMS_PER_PAGE = 10;
 
@@ -110,7 +108,7 @@ const TraineeDetails = (props: Props) => {
   >('Current Course');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Trainee Details');
+    Header.setNavigation(navigation, 'Faculty Feedback By Trainee');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -130,11 +128,12 @@ const TraineeDetails = (props: Props) => {
 
   useEffect(() => {
     getTrainingList();
+    listFaculty();
     listTrainingDetais(1, true, search);
   }, [activeTab]);
 
   const getCentreFilter = () => {
-    if (!centerSerach?.name) return null;
+    if (!centerSerach?.name) return [];
     if (centerSerach.name === 'All Centers') {
       return ['Gaya', 'Patna'];
     }
@@ -151,6 +150,7 @@ const TraineeDetails = (props: Props) => {
     initial: boolean,
     keyword: string,
     filtersArray: any[] = [],
+    exportFlag: boolean = false,
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
 
@@ -158,14 +158,14 @@ const TraineeDetails = (props: Props) => {
     const params: any = {
       search: keyword,
       sort: {
-        attributes: ['batchNo'],
+        attributes: ['id'],
         sorts: ['desc'],
       },
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
-
       bipardCentre: [],
+      exportFlag,
     };
 
     if (centreFilter) {
@@ -197,8 +197,13 @@ const TraineeDetails = (props: Props) => {
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
 
-        const totalCountApi = res?.data?.totalCount ?? 0;
-        setTotalCount(totalCountApi);
+        if (exportFlag && res.data?.exportUrl) {
+          setExportUrl(res.data.exportUrl);
+          Toast.show({
+            type: 'success',
+            text2: 'Report generated successfully',
+          });
+        }
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -228,276 +233,123 @@ const TraineeDetails = (props: Props) => {
     listTrainingDetais(1, true, '');
   };
 
-  const handleSelectAll = () => {
-    if (!isFilterApplied) {
-      Toast.show({
-        type: 'error',
-        text2: 'Please apply filter first',
+  const TraineeCard = ({ item, index }: any) => {
+    const handleDelete = () => {
+      navigation.navigate(screensName.AlertOrganism, {
+        title: strings.hostelManagement.roomDetails.delete.title,
+        message: strings.hostelManagement.roomDetails.delete.message,
+        okText: strings.hostelManagement.roomDetails.delete.confirm,
+        double: true,
+        cancelText: strings.cancel,
+        okFunction: () => {
+          deleteFeedbackCategory(item.id);
+        },
+        cancelFunction: () => {},
       });
-      return;
-    }
-
-    if (selectedItems.length === totalCount) {
-      setSelectedItems([]);
-      return;
-    }
-
-    const params: any = {
-      search,
-      sort: {
-        attributes: ['batchNo'],
-        sorts: ['desc'],
-      },
-      filters: currentAppliedFilters,
-      pageNo: 1,
-      itemsPerPage: totalCount,
-      bipardCentre: getCentreFilter() ?? [],
     };
 
-    if (activeTab === 'Complete Course') params.isCourseActive = false;
-    else params.isCourseActive = true;
-
-    listTraineeDetailsApi(params)
-      .unwrap()
-      .then(res => {
-        const fullData = res.data?.data ?? [];
-        setSelectedItems(fullData);
-      });
-  };
-
-  const handleSelectExcel = () => {
-    if (selectedItems.length === totalCount) {
-      setSelectedItems([]);
-      return;
-    }
-
-    const params: any = {
-      search,
-      sort: {
-        attributes: ['batchNo'],
-        sorts: ['desc'],
-      },
-      filters: currentAppliedFilters,
-      pageNo: 1,
-      itemsPerPage: totalCount,
-      bipardCentre: getCentreFilter() ?? [],
-    };
-
-    if (activeTab === 'Complete Course') params.isCourseActive = false;
-    else params.isCourseActive = true;
-
-    listTraineeDetailsApi(params)
-      .unwrap()
-      .then(res => {
-        const fullData = res.data?.data ?? [];
-        setSelectedItems(fullData);
-      });
-  };
-
-  const downloadTraining = async () => {
-    if (selectedItems.length === 0) {
-      Toast.show({
-        type: 'error',
-        text2: 'Please select trainees first',
-      });
-      return;
-    }
-
-    setInitialCall(true);
-
-    const traineeIds = selectedItems.map((x: any) => x.traineeId);
-
-    const trainingId = selectedItems[0]?.nameOfTrainingProgrammeId;
-
-    const params: any = {
-      trainingId: trainingId,
-      search: '',
-      sort: {
-        attributes: ['created_at'],
-        sorts: ['desc'],
-      },
-      filters: [['traineeId', 'IN', traineeIds]],
-      pageNo: 1,
-      itemsPerPage: traineeIds.length,
-    };
-
-    downloadApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setInitialCall(false);
-
-        const fileUrl = res.data?.fileUrl ?? '';
-        const zipUrl = res.data?.zipFileUrl ?? '';
-
-        downloadAndOpenFile(fileUrl || zipUrl);
-
-        setSelectedItems([]);
-        listTrainingDetais(1, true, search);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+    const deleteFeedbackCategory = (id: any) => {
+      setInitialCall(true);
+      const params = {
+        id: id,
+      };
+      deleteTraineeDetailsApi(params)
+        .unwrap()
+        .then((res: any) => {
+          Toast.show({
+            type: 'success',
+            text2: res.data.message,
+          });
+          setInitialCall(false);
+          listTrainingDetais(1, true, search);
+        })
+        .catch((err: any) => {
+          setInitialCall(false);
+          Toast.show({
+            type: 'error',
+            text2: err.data?.message || 'Something went wrong',
+          });
         });
-      });
-  };
-
-  const downloadTraineeRegForm = async (item: any) => {
-    setInitialCall(true);
-    const params: any = {
-      trainingId: item.nameOfTrainingProgrammeId,
-      search: '',
-      sort: {
-        attributes: ['created_at'],
-        sorts: ['desc'],
-      },
-      filters: [['traineeId', 'IN', [item.traineeId]]],
-      pageNo: 1,
-      itemsPerPage: 10,
     };
-    downloadTraineeRegFormApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setInitialCall(false);
-        const pdfFileUrl = res.data?.pdfFileUrl ?? '';
-        const zipFileUrl = res.data?.zipFileUrl ?? '';
-        if (pdfFileUrl) {
-          downloadAndOpenFile(pdfFileUrl);
-        } else {
-          downloadAndOpenFile(zipFileUrl);
-        }
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || 'Something went wrong',
-        });
-      });
-  };
-  const toggleSelect = (item: any) => {
-    const exists = selectedItems.some(
-      (x: any) => x.traineeId === item.traineeId,
-    );
 
-    if (exists) {
-      setSelectedItems((prev: any) =>
-        prev.filter((x: any) => x.traineeId !== item.traineeId),
-      );
-    } else {
-      setSelectedItems((prev: any) => [...prev, item]);
-    }
-  };
-
-  const TraineeCard = ({ item, index, isSelected }: any) => {
     return (
       <TouchableAtom
-        onPress={() => toggleSelect(item)}
-        onLongPress={() => {
-          navigation.navigate(screensName.TraineeFullDetails, {
+        onPress={() => {
+          navigation.navigate(screensName.FacultyFeedbackByTraineeDetails, {
             data: item,
           });
         }}
-        delayLongPress={180}
-        style={[styles.card, isSelected && styles.selectedCard]}
+        style={[styles.card]}
       >
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
             Sr. No: {index + 1}
           </TextAtom>
-          <TextAtom style={[styles.label, { flex: 1, textAlign: 'right' }]}>
-            Training Id: {item.traineeId || '-'}
-          </TextAtom>
+          <TouchableAtom
+            style={{
+              borderWidth: vw(1),
+              borderColor: colors.red_2,
+              borderRadius: vw(6),
+              padding: vw(3),
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => {
+              handleDelete();
+            }}
+          >
+            <ImageAtom
+              source={images.delete}
+              style={{ width: vw(15), height: vw(15) }}
+            />
+          </TouchableAtom>
         </View>
 
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Name Of Training Programme</TextAtom>
+          <TextAtom style={styles.label}>Training Name</TextAtom>
           <TextAtom numberOfLines={0} style={styles.value}>
-            {item.nameOfTrainingProgramme || '-'}
+            {item.trainingName || '-'}
           </TextAtom>
         </View>
 
         <View style={styles.rowBetween}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Name</TextAtom>
-            <TextAtom style={styles.value}>{item.name}</TextAtom>
+            <TextAtom style={styles.label}>Batch No</TextAtom>
+            <TextAtom style={styles.value}>{item.batchNo}</TextAtom>
           </View>
           <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Batch No</TextAtom>
-            <TextAtom style={styles.valueRight}>{item.batchName}</TextAtom>
+            <TextAtom style={styles.labelRight}>Faculty Name</TextAtom>
+            <TextAtom style={styles.valueRight}>{item.facultyName}</TextAtom>
           </View>
         </View>
-        <View style={[styles.rowBetween]}>
-          <TouchableAtom
-            style={[
-              styles.filterButton,
-              {
-                borderColor:
-                  item.isTraineeIndemnityBondSubmitted === 'No'
-                    ? colors.red
-                    : colors.green,
-              },
-            ]}
-            onPress={() => {
-              if (item.isTraineeIndemnityBondSubmitted === 'No') {
-                Toast.show({
-                  type: 'error',
-                  text2: 'Indemnity bond not filled',
-                });
-              } else {
-                navigation.navigate(screensName.IndemnityBond, { item: item });
-              }
-            }}
-          >
-            <TextAtom
-              style={{
-                color:
-                  item.isTraineeIndemnityBondSubmitted === 'No'
-                    ? colors.red
-                    : colors.green,
-                fontFamily: fonts.Roboto_Medium,
-                fontSize: vw(12),
-              }}
-            >
-              Indemnity Bond
-            </TextAtom>
-          </TouchableAtom>
 
-          <TouchableAtom
-            style={styles.filterButton}
-            onPress={() => {
-              downloadTraineeRegForm(item);
-            }}
-          >
-            <ImageAtom
-              source={images.download}
-              style={{ tintColor: colors.black, width: vw(14), height: vw(14) }}
-            />
-          </TouchableAtom>
+        <View style={styles.rowBetween}>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>Trainee name (ID)</TextAtom>
+            <TextAtom style={styles.value}>
+              {item.traineeName}({item.traineeId})
+            </TextAtom>
+          </View>
+          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+            <TextAtom style={styles.labelRight}>Date Of Class</TextAtom>
+            <TextAtom style={styles.valueRight}>
+              {moment(item.dateOfClass).format('DD-MM-YYYY')}
+            </TextAtom>
+          </View>
         </View>
       </TouchableAtom>
     );
   };
 
   const renderListRoomDetails = ({ item, index }: any) => {
-    return (
-      <TraineeCard
-        item={item}
-        index={index}
-        navigation={navigation}
-        isSelected={selectedItems.some(
-          (x: any) => x.traineeId === item.traineeId,
-        )}
-      />
-    );
+    return <TraineeCard item={item} index={index} navigation={navigation} />;
   };
 
   const getTrainingList = () => {
     setInitialCall(true);
     const params = {
-      listType: 'list-all-training',
-      bipardCentre: center,
+      listType: 'training_name_filter',
+      bipardCentre: getCentreFilter(),
       replacements: ['%%'],
     };
     commonListApi(params)
@@ -518,20 +370,14 @@ const TraineeDetails = (props: Props) => {
   const listTrainingBatchDetails = (id: any) => {
     setInitialCall(true);
     const params = {
-      search: '',
-      sort: {
-        attributes: ['created_date'],
-        sorts: ['asc'],
-      },
-      filters: ['trainingNameId', '=', id],
-      pageNo: 1,
-      itemsPerPage: null,
-      bipardCentre: [],
+      listType: 'trainee_batch_no_filter',
+      bipardCentre: getCentreFilter(),
+      replacements: ['%%', id],
     };
-    listTrainingBatchDetailsApi(params)
+    commonListApi(params)
       .unwrap()
       .then((res: any) => {
-        setBatchList(res.data.data);
+        setBatchList(res.data);
         setInitialCall(false);
       })
       .catch((err: any) => {
@@ -542,29 +388,25 @@ const TraineeDetails = (props: Props) => {
         });
       });
   };
-  const downloadExcel = async () => {
-    if (selectedItems.length === 0) {
-      Toast.show({
-        type: 'error',
-        text2: 'Please select',
-      });
-      return;
-    }
 
+  const listFaculty = () => {
     setInitialCall(true);
-    let parmas = {
-      trainee: selectedItems,
+    const params = {
+      listType: 'filter_by_faculty_in_feedback',
+      bipardCentre: getCentreFilter(),
+      replacements: ['%%'],
     };
-    downloadTrainingDetailsApi(parmas)
+    commonListApi(params)
       .unwrap()
       .then((res: any) => {
-        setInitialCall(false);
+        let data = res.data;
+        const mappedDate = data.map((item: any) => ({
+          ...item,
+          name: `${item.id},${item.name}`,
+        }));
 
-        const fileUrl = res?.data?.fileUrl;
-        if (fileUrl) {
-          downloadAndOpenFile(fileUrl);
-        }
-        setIsForExcel(false);
+        setFacultyList(mappedDate);
+        setInitialCall(false);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -573,6 +415,13 @@ const TraineeDetails = (props: Props) => {
           text2: err.data?.message || 'Something went wrong',
         });
       });
+  };
+
+  const generateReport = () => {
+    const filters = buildFilters();
+    setExportUrl('');
+    listTrainingDetais(1, true, search, filters, true);
+    setShowFilter(false);
   };
 
   const FilterForm = () => (
@@ -589,6 +438,7 @@ const TraineeDetails = (props: Props) => {
               setSelectedTraining(data);
               setSelectedBatch({});
               listTrainingBatchDetails(data.id);
+              hitFilterApi({ training: data });
             },
             typeName: 'name',
             typeId: 'id',
@@ -607,123 +457,180 @@ const TraineeDetails = (props: Props) => {
             selectedData: selectedBatch,
             setSelectedData: (data: any) => {
               setSelectedBatch(data);
+              hitFilterApi({
+                batch: data,
+              });
             },
-            typeName: 'batchName',
+            typeName: 'name',
             typeId: 'id',
           });
         }}
-        inputText={selectedBatch?.batchName}
+        inputText={selectedBatch?.name}
       />
 
       <DropDownOrganism
-        label={'Pregnancy'}
-        placeholder={'Pregnancy'}
+        label={'Faculty'}
+        placeholder={'Faculty'}
         onPress={() => {
           navigation.navigate('DropDownModal', {
-            name: 'Pregnancy',
-            Data: [
-              { id: 'Yes', name: 'Yes' },
-              { id: 'No', name: 'No' },
-            ],
-            selectedData: selectedPregnancy,
+            name: 'Faculty',
+            Data: facultyList,
+            selectedData: selectedFaculty,
             setSelectedData: (data: any) => {
-              setSelectedPregnancy(data);
+              setSelectedFaculty(data);
+              hitFilterApi({
+                faculty: data,
+              });
             },
             typeName: 'name',
             typeId: 'id',
           });
         }}
-        inputText={selectedPregnancy?.name}
+        inputText={selectedFaculty?.name}
       />
-      <DropDownOrganism
-        label={'Indeminity Bond'}
-        placeholder={'Indeminity Bond'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Indeminity Bond',
-            Data: [
-              { id: 'Yes', name: 'Yes' },
-              { id: 'No', name: 'No' },
-            ],
-            selectedData: selectedIndeminityBond,
-            setSelectedData: (data: any) => {
-              setSelectedIndeminityBond(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
+      <DateInputOrganism
+        label={strings.hostelReport.startDate}
+        placeholder={strings.hostelReport.startDate}
+        value={startDate}
+        onChangeText={(val: any) => {
+          setStartDate(val);
+          hitFilterApi({
+            startDate: val,
           });
         }}
-        inputText={selectedIndeminityBond?.name}
+        fieldName="date"
+        dateFormat="DD-MM-YYYY"
+      />
+      <DateInputOrganism
+        label={strings.hostelReport.endDate}
+        placeholder={strings.hostelReport.endDate}
+        value={endDate}
+        onChangeText={(val: any) => {
+          setEndDate(val);
+          hitFilterApi({
+            endDate: val,
+          });
+        }}
+        fieldName="date"
+        dateFormat="DD-MM-YYYY"
       />
 
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
+          onPress={generateReport}
+          bttnText="Generate Report"
+          containerStyle={styles.generateBtn}
+          bttnTextStyle={{ color: colors.primary, fontSize: vw(9.8) }}
+        />
+
+        <ButtonOrganism
           onPress={applyFilter}
           bttnText="Apply Filter"
           containerStyle={styles.applyBtn}
+          bttnTextStyle={{ fontSize: vw(12) }}
         />
+
         <ButtonOrganism
           onPress={clearFilter}
           bttnText="Clear Filter"
           containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
+          bttnTextStyle={{ color: colors.primary, fontSize: vw(12) }}
         />
       </ViewAtom>
     </View>
   );
+
   const clearFilter = () => {
     setSelectedTraining({});
     setSelectedBatch({});
-    setSelectedPregnancy({});
-    setSelectedIndeminityBond({});
-    setIsFilterApplied(false);
+    setSelectedFaculty({});
+    setStartDate('');
+    setEndDate('');
     listTrainingDetais(1, true, search, []);
   };
 
-  const applyFilter = () => {
-    const filters: any = [];
+  const buildFilters = () => {
+    const filters: any[] = [];
 
     if (selectedTraining?.id) {
-      filters.push(['nameOfTrainingProgrammeId', '=', selectedTraining.id]);
+      filters.push(['trainingId', '=', selectedTraining.id]);
     }
+
     if (selectedBatch?.id) {
-      filters.push(['batchNoId', '=', selectedBatch.id]);
-    }
-    if (selectedPregnancy?.id) {
-      filters.push(['pregnancyStatus', '=', selectedPregnancy.id]);
-    }
-    if (selectedIndeminityBond?.id) {
-      filters.push([
-        'isTraineeIndemnityBondSubmitted',
-        '=',
-        selectedIndeminityBond.id,
-      ]);
+      filters.push(['batchId', '=', selectedBatch.id]);
     }
 
-    setCurrentAppliedFilters(filters);
-    setIsFilterApplied(true);
+    if (selectedFaculty?.id) {
+      filters.push(['facultyId', '=', selectedFaculty.id]);
+    }
+    if (startDate) {
+      const sd = moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+      filters.push(['dateOfClass', '>=', sd]);
+    }
 
+    if (endDate) {
+      const ed = moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+      filters.push(['dateOfClass', '<=', ed]);
+    }
+
+    return filters;
+  };
+
+  const applyFilter = () => {
+    const filters = buildFilters();
     listTrainingDetais(1, true, search, filters);
+    setShowFilter(false);
   };
 
   const handleDownloadClick = () => {
-    if (!isFilterApplied) {
+    if (exportUrl) {
+      downloadAndOpenFile(exportUrl);
+    } else {
       Toast.show({
         type: 'error',
-        text2: 'Please apply filter before downloading',
+        text2: 'First Click On "Generate Report" In Filter Section',
       });
-      return;
+    }
+  };
+
+  const hitFilterApi = ({
+    training = selectedTraining,
+    batch = selectedBatch,
+    faculty = selectedFaculty,
+    startDate: sDate = startDate,
+    endDate: eDate = endDate,
+  }: FilterArgs = {}) => {
+    const filters: any[] = [];
+
+    if (training?.id) {
+      filters.push(['trainingId', '=', training.id]);
     }
 
-    if (selectedItems.length === 0) {
-      Toast.show({
-        type: 'error',
-        text2: 'Please select items to download',
-      });
-      return;
+    if (batch?.id) {
+      filters.push(['batchId', '=', batch.id]);
     }
 
-    downloadTraining();
+    if (faculty?.id) {
+      filters.push(['facultyId', '=', faculty.id]);
+    }
+
+    if (sDate) {
+      filters.push([
+        'dateOfClass',
+        '>=',
+        moment(sDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+      ]);
+    }
+
+    if (eDate) {
+      filters.push([
+        'dateOfClass',
+        '<=',
+        moment(eDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+      ]);
+    }
+
+    listTrainingDetais(1, true, search, filters);
   };
 
   return (
@@ -743,58 +650,7 @@ const TraineeDetails = (props: Props) => {
                 {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
               </TextAtom>
             </TouchableAtom>
-            <TouchableAtom
-              style={styles.filterButton}
-              onPress={() => {
-                if (isForExcel) {
-                  handleSelectExcel();
-                } else {
-                  handleSelectAll();
-                }
-              }}
-            >
-              <TextAtom style={styles.filterText}>
-                {selectedItems?.length === totalCount
-                  ? 'Unselect All'
-                  : 'Select All'}
-              </TextAtom>
-            </TouchableAtom>
 
-            <TouchableAtom
-              style={styles.filterButton}
-              onPress={() => {
-                if (selectedItems.length === 0) {
-                  setIsForExcel(true);
-                  Toast.show({
-                    type: 'error',
-                    text2: 'Please select',
-                  });
-                  return null;
-                } else {
-                  downloadExcel();
-                }
-              }}
-            >
-              <ImageAtom
-                source={images.download}
-                style={{
-                  tintColor: colors.black,
-                  resizeMode: 'contain',
-                  width: vw(10),
-                  height: vw(10),
-                  alignSelf: 'center',
-                }}
-              />
-              <TextAtom
-                style={{
-                  color: colors.black,
-                  fontFamily: fonts.Roboto_Regular,
-                  fontSize: vw(8),
-                }}
-              >
-                Excel
-              </TextAtom>
-            </TouchableAtom>
             <TouchableAtom
               style={styles.filterButton}
               onPress={handleDownloadClick}
@@ -898,7 +754,7 @@ const TraineeDetails = (props: Props) => {
   );
 };
 
-export default TraineeDetails;
+export default FacultyFeedbackByTrainee;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -1002,9 +858,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: vh(5),
   },
-  applyBtn: { width: vw(150), height: vh(35) },
+  generateBtn: {
+    width: vw(105),
+    height: vh(35),
+    borderWidth: vw(1),
+    borderColor: colors.primary,
+    backgroundColor: colors.white,
+  },
+  applyBtn: {
+    width: vw(105),
+    height: vh(35),
+  },
   clearBtn: {
-    width: vw(150),
+    width: vw(105),
     height: vh(35),
     borderWidth: vw(1),
     borderColor: colors.primary,

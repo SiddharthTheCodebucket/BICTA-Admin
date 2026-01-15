@@ -45,6 +45,7 @@ import {
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
+import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
@@ -66,6 +67,8 @@ const RoomDetails = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
+  const center = useGetCentre();
+
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [roomDetailsApi] = useHostelRoomDetailsMutation();
   const [updateHostelRoomApi] = useUpdateHostelRoomMutation();
@@ -582,7 +585,7 @@ const RoomDetails = (props: Props) => {
   const getHostelName = () => {
     setInitialCall(true);
     const params = {
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       listType: 'filter_hostel_name_for_room_details',
       replacements: ['%%'],
     };
@@ -606,7 +609,7 @@ const RoomDetails = (props: Props) => {
   const getFloorName = (hostelId: any) => {
     setInitialCall(true);
     const params = {
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       listType: 'filter_floor_name_for_room_details',
       replacements: ['%%', hostelId],
     };

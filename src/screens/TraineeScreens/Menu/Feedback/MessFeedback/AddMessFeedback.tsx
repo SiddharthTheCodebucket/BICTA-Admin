@@ -18,6 +18,7 @@ import FullscreenLoading from '../../../../../components/organisms/FullscreenLoa
 import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
 import { useCommonDropdownListMutation } from '../../../../../injectEndpointsTrainee/profileEndpoints';
 import { useAddFeedbackResponseMutation } from '../../../../../injectEndpointsTrainee/feedbackEndpoints';
+import { useAppSelector } from '../../../../../hooks';
 
 interface Props {
   route: any;
@@ -27,6 +28,10 @@ interface Props {
 const AddMessFeedback = (props: Props) => {
   const { navigation } = props;
   const input1_ref: any = createRef();
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
+  const tenantId = crediantialData.user[0]?.tenantId;
+
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'Add Mess Feedback');
     navigation.BackButtonPress = () => navigation.goBack();
@@ -86,10 +91,12 @@ const AddMessFeedback = (props: Props) => {
 
   const getCategoryList = () => {
     setLoader(true);
+
     const params = {
       listType: 'feedback_category',
       replacements: ['%%'],
     };
+
     commonDropdownListApi(params)
       .unwrap()
       .then((res: any) => {
@@ -97,18 +104,27 @@ const AddMessFeedback = (props: Props) => {
         setValue('feedbackCategoryList', categoryList);
         setLoader(false);
 
-        const messCategory = categoryList.find((item: any) => item.id === 1);
+        let defaultCategoryId: number | null = null;
 
-        if (messCategory) {
+        if (tenantId === 1) {
+          defaultCategoryId = 1;
+        } else if (tenantId === 2) {
+          defaultCategoryId = 4;
+        }
+
+        const defaultCategory = categoryList.find(
+          (item: any) => item?.id === defaultCategoryId,
+        );
+
+        if (defaultCategory) {
           setForm((prev: any) => ({
             ...prev,
-            feedbackCategory: messCategory,
+            feedbackCategory: defaultCategory,
             feedbackSubCategory: {},
             feedbackTopic: {},
           }));
 
-          // 👉 Call sub category based on Mess
-          getSubCategoryList(messCategory.id);
+          getSubCategoryList(defaultCategory.id);
         }
       })
       .catch((err: any) => {

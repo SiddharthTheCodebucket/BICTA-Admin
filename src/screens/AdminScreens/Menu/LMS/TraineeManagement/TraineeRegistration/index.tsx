@@ -53,6 +53,7 @@ import FloatingButton from '../../../../../../components/organisms/FloatingButto
 import { useDeleteTraineeRegistrationMutation } from '../../../../../../injectEndpoints/profileEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ImageUploadOrganism from '../../../../../../components/organisms/ImageUploadOrganism';
+import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
@@ -72,6 +73,7 @@ const TraineeRegistration = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
+  const center = useGetCentre();
 
   const [commonListApi] = useCommonDropdownListMutation();
   const [listTraineeDetailsApi] = useListTraineeRegistrationMutation();
@@ -462,7 +464,7 @@ const TraineeRegistration = (props: Props) => {
     setInitialCall(true);
     const params = {
       listType: 'list-all-training',
-      bipardCentre: ['Gaya', 'Patna'],
+      bipardCentre: center,
       replacements: ['%%'],
     };
     commonListApi(params)
