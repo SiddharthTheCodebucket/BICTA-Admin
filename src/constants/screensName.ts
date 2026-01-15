@@ -172,6 +172,9 @@ export default {
   CourseWiseApprovalStatus: 'CourseWiseApprovalStatus',
   FacultyUpcomingClassReport: 'FacultyUpcomingClassReport',
   FacultyUpcomingClassTimeTable: 'FacultyUpcomingClassTimeTable',
+  CourseReportManagement: 'CourseReportManagement',
+  CourseReportManagementMain: 'CourseReportManagementMain',
+  CourseReport: 'CourseReport',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

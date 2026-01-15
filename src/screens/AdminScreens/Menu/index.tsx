@@ -29,6 +29,7 @@ const ACTIVE_MODULES = new Set<string>([
   'Support',
   'Invoice and Bill Management',
   'PHC Management System',
+  'Course Report Management',
   // 'Vehicle Management',
 ]);
 
@@ -105,7 +106,11 @@ const Menu = ({ navigation }: Props) => {
       name: 'PHC Management System',
       onPress: () => navigation.navigate(screensName.PHCManagement),
     },
-
+    {
+      id: 16,
+      name: 'Course Report Management',
+      onPress: () => navigation.navigate(screensName.CourseReportManagement),
+    },
     // {
     //   id: 17,
     //   name: 'Vehicle Management',
@@ -121,8 +126,6 @@ const Menu = ({ navigation }: Props) => {
 
     { id: 13, name: 'House Keeping Management' },
     { id: 14, name: 'Budget Management' },
-
-    { id: 16, name: 'Course Report Management' },
 
     { id: 18, name: 'Mess Management' },
   ];

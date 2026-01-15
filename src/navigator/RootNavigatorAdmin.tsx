@@ -185,6 +185,9 @@ import FacultyClassReportTrainingWise from '../screens/AdminScreens/Menu/Report/
 import CourseWiseApprovalStatus from '../screens/AdminScreens/Menu/Report/FacultyReport/CourseWiseApprovalStatus';
 import FacultyUpcomingClassReport from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyUpcomingClassReport';
 import FacultyUpcomingClassTimeTable from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyUpcomingClassReport/FacultyUpcomingClassTimeTable';
+import CourseReportManagement from '../screens/AdminScreens/Menu/CourseReportManagement';
+import CourseReportManagementMain from '../screens/AdminScreens/Menu/CourseReportManagement/CourseReportManagementMain';
+import CourseReport from '../screens/AdminScreens/Menu/CourseReportManagement/CourseReportManagementMain/CourseReport';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -800,6 +803,15 @@ const RootNavigatorAdmin = () => {
           name="FacultyUpcomingClassTimeTable"
           component={FacultyUpcomingClassTimeTable}
         />
+        <RootStackScreen.Screen
+          name="CourseReportManagement"
+          component={CourseReportManagement}
+        />
+        <RootStackScreen.Screen
+          name="CourseReportManagementMain"
+          component={CourseReportManagementMain}
+        />
+        <RootStackScreen.Screen name="CourseReport" component={CourseReport} />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{
