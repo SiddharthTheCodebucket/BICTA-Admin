@@ -685,7 +685,7 @@ const RoomDetails = (props: Props) => {
         renderItem={renderListRoomDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
-          !initialCall ? null : (
+          initialCall ? null : (
             <TextAtom style={styles.emptyText}>
               {strings.hostelManagement.roomDetails.noDataFound}
             </TextAtom>

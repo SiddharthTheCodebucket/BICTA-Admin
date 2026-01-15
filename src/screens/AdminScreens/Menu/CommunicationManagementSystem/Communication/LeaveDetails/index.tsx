@@ -10,12 +10,19 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import { colors, fonts, vh, vw, strings } from '../../../../../../constants';
+import {
+  colors,
+  fonts,
+  images,
+  screensName,
+  strings,
+  vh,
+  vw,
+} from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -25,12 +32,10 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-
-import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import { useCommunicationListTraineeLeaveMutation } from '../../../../../../injectEndpoints/communicationManagementEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import { useListKnowledgeManagementSubTopicMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 
 interface Props {
   navigation: NavigationType;
@@ -46,13 +51,57 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const SubjectTopic = (props: Props) => {
+const ListItemSeparator = () => <View style={{ height: vh(10) }} />;
+
+interface LeaveDetailsCardProps {
+  item: any;
+  index: number;
+  navigation: NavigationType;
+}
+const LeaveDetailsCard: React.FC<LeaveDetailsCardProps> = ({
+  item,
+  index,
+  navigation,
+}) => {
+  return (
+    <ViewAtom style={styles.card}>
+      <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+        <TextAtom style={[styles.label, styles.flex1]}>
+          {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
+        </TextAtom>
+
+        <View style={styles.actionRow}>
+          <TouchableAtom
+            style={styles.editBtn}
+            onPress={() => {
+              navigation.navigate(screensName.LeaveDetailsList, {
+                item,
+              });
+            }}
+          >
+            <ImageAtom source={images.eyeOpen} style={styles.iconSm} />
+          </TouchableAtom>
+        </View>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Training Name</TextAtom>
+          <TextAtom numberOfLines={0} style={styles.value}>
+            {item.name} ({item.id})
+          </TextAtom>
+        </View>
+      </View>
+    </ViewAtom>
+  );
+};
+
+const LeaveDetails = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
-  const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [listSubjectTopicsApi] = useListKnowledgeManagementSubTopicMutation();
+  const [listApi] = useCommunicationListTraineeLeaveMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -62,10 +111,6 @@ const SubjectTopic = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
-
-  const [userTypesList, setUserTypesList] = useState<any>([]);
-  const [selectedUserType, setSelectedUserType] = useState<any>({});
 
   const ITEMS_PER_PAGE = 10;
 
@@ -73,10 +118,7 @@ const SubjectTopic = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(
-      navigation,
-      strings.lms.curriculumManagement.subjectTopicDetails,
-    );
+    Header.setNavigation(navigation, 'Leave Details');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -84,33 +126,27 @@ const SubjectTopic = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listSubjectTopics(1, true, '');
-        getUserTypes();
+        list(1, true, '');
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listSubjectTopics(1, true, '');
+    list(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
     if (centerSerach.name === strings.dashboardIndex.allCenters) {
-      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
+      return ['Gaya', 'Patna'];
     }
 
     return [centerSerach.name];
   };
 
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
-  };
-
-  const listSubjectTopics = (
+  const list = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -122,20 +158,19 @@ const SubjectTopic = (props: Props) => {
     const params: any = {
       search: keyword,
       sort: {
-        attributes: ['id'],
+        attributes: ['created_at'],
         sorts: ['desc'],
       },
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
-      bipardCentre: [],
     };
 
     if (centreFilter) {
       params.bipardCentre = centreFilter;
     }
 
-    listSubjectTopicsApi(params)
+    listApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -159,14 +194,14 @@ const SubjectTopic = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || strings.something_went_wrong_,
+          text2: err.data?.message || 'Something went wrong',
         });
       });
   };
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listSubjectTopics(1, true, text);
+      list(1, true, text);
     }, 500),
     [],
   );
@@ -178,129 +213,26 @@ const SubjectTopic = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listSubjectTopics(1, true, '');
-  };
-  const SubjectTopicCard = ({ item, index, navigation }: any) => {
-    return (
-      <TouchableAtom style={styles.card} onPress={() => {}}>
-        <View style={styles.cardHeader}>
-          <TextAtom style={styles.flex1Label}>
-            {strings.lms.curriculumManagement.srNo} {index + 1}
-          </TextAtom>
-        </View>
-
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.curriculumManagement.subject}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.subject ?? '-'}</TextAtom>
-        </View>
-
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.curriculumManagement.description}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.description ?? '-'}</TextAtom>
-        </View>
-      </TouchableAtom>
-    );
+    list(1, true, '');
   };
 
-  const renderSubjectTopicItem = ({ item, index }: any) => {
-    return (
-      <SubjectTopicCard item={item} index={index} navigation={navigation} />
-    );
-  };
-
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DropDownOrganism
-        label={strings.lms.curriculumManagement.userType}
-        placeholder={strings.lms.curriculumManagement.userType}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.curriculumManagement.userType,
-            Data: userTypesList,
-            selectedData: selectedUserType,
-            setSelectedData: (data: any) => {
-              setSelectedUserType(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedUserType?.name}
-      />
-
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText={strings.lms.curriculumManagement.applyFilter}
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText={strings.lms.curriculumManagement.clearFilter}
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={styles.clearBtnText}
-        />
-      </ViewAtom>
-    </View>
+  const renderListRoomDetails = useCallback(
+    ({ item, index }: any) => (
+      <LeaveDetailsCard item={item} index={index} navigation={navigation} />
+    ),
+    [],
   );
-
-  const clearFilter = () => {
-    setSelectedUserType({});
-    listSubjectTopics(1, true, search, []);
-  };
-
-  const applyFilter = () => {
-    const filters = [];
-
-    if (selectedUserType?.id) {
-      filters.push(['userTypeId', '=', selectedUserType.id]);
-    }
-    listSubjectTopics(1, true, search, filters);
-  };
-
-  const getUserTypes = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'select_user_type',
-      bipardCentre: getCentreFilter(),
-      replacements: [],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setUserTypesList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-        <TextAtom style={styles.filterText}>
-          {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-        </TextAtom>
-      </TouchableAtom>
-      {showFilter && <FilterForm />}
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
-          placeholder={strings.lms.locationDetails.centers}
+          placeholder={strings.dashboardIndex.centers}
           onPress={() => {
             navigation.navigate('DropDownModal', {
-              name: 'Center',
+              name: strings.dashboardIndex.center,
               Data: [
                 {
                   id: strings.dashboardIndex.allCenters,
@@ -331,18 +263,18 @@ const SubjectTopic = (props: Props) => {
         onChangeText={onChangeSearch}
         searchText={search}
         onPressCross={onClearSearch}
-        searchBox={styles.searchBox}
+        searchBox={styles.marginTop15}
       />
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderSubjectTopicItem}
+        renderItem={renderListRoomDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           initialCall ? null : (
             <TextAtom style={styles.emptyText}>
-              {strings.lms.curriculumManagement.noDataFound}
+              {strings.hostelManagement.roomDetails.noDataFound}
             </TextAtom>
           )
         }
@@ -351,7 +283,7 @@ const SubjectTopic = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={styles.paginationLoader}
+            style={styles.marginTop15}
           />
         }
         refreshControl={
@@ -361,24 +293,24 @@ const SubjectTopic = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listSubjectTopics(1, false, '');
+              list(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listSubjectTopics(page + 1, false, search)
+            ? list(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
+        ItemSeparatorComponent={ListItemSeparator}
       />
     </SafeAreaView>
   );
 };
 
-export default SubjectTopic;
+export default LeaveDetails;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -440,7 +372,7 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: 70,
     height: 70,
-    backgroundColor: colors.lightGray2,
+    backgroundColor: '#eaeaea',
     borderRadius: 8,
     marginTop: 6,
   },
@@ -456,13 +388,13 @@ const styles = StyleSheet.create({
   },
 
   activeBox: {
-    backgroundColor: colors.lightGreenBg,
-    borderColor: colors.darkGreen,
+    backgroundColor: '#ddffdd',
+    borderColor: '#22aa22',
   },
 
   inActiveBox: {
-    backgroundColor: colors.lightRedBg,
-    borderColor: colors.darkRed,
+    backgroundColor: '#ffdddd',
+    borderColor: '#cc2222',
   },
 
   statusText: {
@@ -470,8 +402,8 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
   },
 
-  activeText: { color: colors.greenText },
-  inActiveText: { color: colors.redText },
+  activeText: { color: '#008800' },
+  inActiveText: { color: '#bb0000' },
 
   dropMenu: {
     marginTop: vh(6),
@@ -526,22 +458,59 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: colors.white,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: vh(10),
-  },
-  flex1Label: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
+  flex1: {
     flex: 1,
   },
-  flex1: { flex: 1 },
-  paginationLoader: { marginTop: vh(15) },
-  itemSeparator: { height: vh(10) },
-  clearBtnText: { color: colors.primary },
-  centerDropdown: { marginBottom: vh(-10) },
-  searchBox: { marginTop: vh(15) },
+  actionRow: {
+    flexDirection: 'row',
+    gap: vw(15),
+  },
+  editBtn: {
+    borderWidth: vw(1),
+    borderColor: colors.green,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSm: {
+    tintColor: colors.green,
+    width: vw(15),
+    height: vw(15),
+  },
+  deleteBtn: {
+    borderWidth: vw(1),
+    borderColor: colors.red_2,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSmDelete: {
+    width: vw(15),
+    height: vw(15),
+  },
+  marginTop0: {
+    marginTop: vh(0),
+    zIndex: 999,
+  },
+  colorBlack: {
+    color: colors.black,
+  },
+  marginTop10: {
+    marginTop: vh(10),
+    zIndex: 999,
+  },
+  colorP: {
+    color: colors.primary,
+  },
+  centerDropdown: {
+    marginBottom: vh(-10),
+  },
+  marginTop15: {
+    marginTop: vh(15),
+  },
+  height10: {
+    height: vh(10),
+  },
 });

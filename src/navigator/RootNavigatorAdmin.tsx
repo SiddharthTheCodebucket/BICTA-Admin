@@ -162,6 +162,18 @@ import FacultyFeedbackTrainingWiseDetails from '../screens/AdminScreens/Menu/Fee
 import ClassCountList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/ClassCountList';
 import FeedbackCountList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/FeedbackCountList';
 import FeedbackGivenByTraineeList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/FeedbackGivenByTraineeList';
+import CommunicationManagementSystem from '../screens/AdminScreens/Menu/CommunicationManagementSystem';
+import Communication from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication';
+import Application from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Application';
+import ApplicationDetails from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Application/ApplicationDetails';
+import ApplicationEdit from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Application/ApplicationEdit';
+import Notice from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Notice';
+import ShowCauseNotification from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/ShowCauseNotification';
+import ShowCauseNoticeResponse from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/ShowCauseNotification/ShowCauseNoticeResponse';
+import LeaveDetails from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/LeaveDetails';
+import LeaveDetailsList from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/LeaveDetails/LeaveDetailsList';
+import AddNotice from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Notice/AddNotice';
+import AddShowCauseNotice from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/ShowCauseNotification/AddShowCauseNotice';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -702,6 +714,42 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="FeedbackGivenByTraineeList"
           component={FeedbackGivenByTraineeList}
+        />
+        <RootStackScreen.Screen
+          name="CommunicationManagementSystem"
+          component={CommunicationManagementSystem}
+        />
+        <RootStackScreen.Screen
+          name="Communication"
+          component={Communication}
+        />
+        <RootStackScreen.Screen name="Application" component={Application} />
+        <RootStackScreen.Screen
+          name="ApplicationDetails"
+          component={ApplicationDetails}
+        />
+        <RootStackScreen.Screen
+          name="ApplicationEdit"
+          component={ApplicationEdit}
+        />
+        <RootStackScreen.Screen name="Notice" component={Notice} />
+        <RootStackScreen.Screen
+          name="ShowCauseNotification"
+          component={ShowCauseNotification}
+        />
+        <RootStackScreen.Screen
+          name="ShowCauseNoticeResponse"
+          component={ShowCauseNoticeResponse}
+        />
+        <RootStackScreen.Screen name="LeaveDetails" component={LeaveDetails} />
+        <RootStackScreen.Screen
+          name="LeaveDetailsList"
+          component={LeaveDetailsList}
+        />
+        <RootStackScreen.Screen name="AddNotice" component={AddNotice} />
+        <RootStackScreen.Screen
+          name="AddShowCauseNotice"
+          component={AddShowCauseNotice}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

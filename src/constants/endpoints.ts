@@ -191,4 +191,19 @@ export default {
     'report/list-training-wise-faculty-class-count',
   list_training_wise_feedback_count:
     'report/list-training-wise-faculty-feedback-count',
+
+  //Communication Management System
+  communication_list_application: 'communication/list-application',
+  communication_update_application: 'communication/update-application',
+  communication_list_announcement: 'communication/list-announcement',
+  communication_add_announcement: 'communication/add-announcement',
+  communication_update_announcement: 'communication/update-announcement',
+  communication_list_scn: 'communication/list-show-cause-notice-details',
+  communication_add_scn: 'communication/add-show-cause-notice',
+  communication_update_scn: 'communication/update-show-cause-notice',
+  communication_list_notice_res: 'communication/list-notice-response',
+  communication_list_trainee_leave:
+    'communication/trainee-leave-activities-training-name',
+  communication_list_trainee_count:
+    'communication/trainee-leave-activities-count',
 };
