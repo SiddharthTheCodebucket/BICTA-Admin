@@ -170,6 +170,8 @@ export default {
   FacultyCalculationSheet: 'FacultyCalculationSheet',
   FacultyClassReportTrainingWise: 'FacultyClassReportTrainingWise',
   CourseWiseApprovalStatus: 'CourseWiseApprovalStatus',
+  FacultyUpcomingClassReport: 'FacultyUpcomingClassReport',
+  FacultyUpcomingClassTimeTable: 'FacultyUpcomingClassTimeTable',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

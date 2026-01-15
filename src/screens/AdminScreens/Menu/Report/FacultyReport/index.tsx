@@ -61,7 +61,9 @@ const FacultyReport = (props: Props) => {
     {
       id: 6,
       name: 'Faculty Upcomimg Class Report',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.FacultyUpcomingClassReport);
+      },
     },
   ];
 

@@ -210,4 +210,7 @@ export default {
   //Report
   report_list_faculty: 'report/list-faculty-class-report',
   report_upload_honorarium: 'report/upload-verified-honorarium-payment-letter',
+  report_list_faculty_future_class_count:
+    'report/list-faculty-future-class-count-report',
+  report_list_time_table: 'lms/list-classroom-management-time-table',
 };

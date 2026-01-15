@@ -17,10 +17,26 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    reportListFacultyFutureClassCount: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.report_list_faculty_future_class_count,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    reportListTimeTable: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.report_list_time_table,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 export const {
   useReportListFacultyMutation,
   useReportUploadHonorariumMutation,
+  useReportListFacultyFutureClassCountMutation,
+  useReportListTimeTableMutation,
 } = apiEndpoints;

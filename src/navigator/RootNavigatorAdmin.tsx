@@ -183,6 +183,8 @@ import FacultyWiseClassReportDetails from '../screens/AdminScreens/Menu/Report/F
 import FacultyCalculationSheet from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyCalculationSheet';
 import FacultyClassReportTrainingWise from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyClassReportTrainingWise';
 import CourseWiseApprovalStatus from '../screens/AdminScreens/Menu/Report/FacultyReport/CourseWiseApprovalStatus';
+import FacultyUpcomingClassReport from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyUpcomingClassReport';
+import FacultyUpcomingClassTimeTable from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyUpcomingClassReport/FacultyUpcomingClassTimeTable';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -789,6 +791,14 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="CourseWiseApprovalStatus"
           component={CourseWiseApprovalStatus}
+        />
+        <RootStackScreen.Screen
+          name="FacultyUpcomingClassReport"
+          component={FacultyUpcomingClassReport}
+        />
+        <RootStackScreen.Screen
+          name="FacultyUpcomingClassTimeTable"
+          component={FacultyUpcomingClassTimeTable}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group
