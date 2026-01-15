@@ -188,6 +188,14 @@ import FacultyUpcomingClassTimeTable from '../screens/AdminScreens/Menu/Report/F
 import CourseReportManagement from '../screens/AdminScreens/Menu/CourseReportManagement';
 import CourseReportManagementMain from '../screens/AdminScreens/Menu/CourseReportManagement/CourseReportManagementMain';
 import CourseReport from '../screens/AdminScreens/Menu/CourseReportManagement/CourseReportManagementMain/CourseReport';
+import BudgetManagement from '../screens/AdminScreens/Menu/BudgetManagement';
+import BudgetMangementMain from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain';
+import CreateTraining from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/CreateTraining';
+import Particulars from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/Particulars';
+import Budget from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/Budget';
+import EstimatedBudgetList from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/Budget/EstimatedBudgetList';
+import AddCreateTraining from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/CreateTraining/AddCreateTraining';
+import AddParticulars from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/Particulars/AddParticulars';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -812,6 +820,32 @@ const RootNavigatorAdmin = () => {
           component={CourseReportManagementMain}
         />
         <RootStackScreen.Screen name="CourseReport" component={CourseReport} />
+        <RootStackScreen.Screen
+          name="BudgetManagement"
+          component={BudgetManagement}
+        />
+        <RootStackScreen.Screen
+          name="BudgetMangementMain"
+          component={BudgetMangementMain}
+        />
+        <RootStackScreen.Screen
+          name="CreateTraining"
+          component={CreateTraining}
+        />
+        <RootStackScreen.Screen name="Particulars" component={Particulars} />
+        <RootStackScreen.Screen name="Budget" component={Budget} />
+        <RootStackScreen.Screen
+          name="EstimatedBudgetList"
+          component={EstimatedBudgetList}
+        />
+        <RootStackScreen.Screen
+          name="AddCreateTraining"
+          component={AddCreateTraining}
+        />
+        <RootStackScreen.Screen
+          name="AddParticulars"
+          component={AddParticulars}
+        />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{

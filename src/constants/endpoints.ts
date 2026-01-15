@@ -219,4 +219,16 @@ export default {
   courseReport_delete_basic_info:
     'course-report/delete-course-report-basic-info',
   courseReport_download: 'course-report/download-course-report',
+
+  //Budget Mangement
+  budget_list_training: 'budget/list-budget-training-details',
+  budget_add_training: 'budget/add-budget-training-details',
+  budget_update_training: 'budget/update-budget-training-details',
+  budget_delete_training: 'budget/delete-budget-training-details',
+  budget_list_particulars: 'budget/list-budget-particulars',
+  budget_add_particulars: 'budget/add-budget-particulars',
+  budget_update_particulars: 'budget/update-budget-particulars',
+  budget_delete_particulars: 'budget/delete-budget-particulars',
+  budget_list_details: 'budget/list-budget-details',
+  budget_delete_details: 'budget/delete-budget-details',
 };
