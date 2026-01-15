@@ -206,4 +206,17 @@ export default {
     'communication/trainee-leave-activities-training-name',
   communication_list_trainee_count:
     'communication/trainee-leave-activities-count',
+
+  //Report
+  report_list_faculty: 'report/list-faculty-class-report',
+  report_upload_honorarium: 'report/upload-verified-honorarium-payment-letter',
+  report_list_faculty_future_class_count:
+    'report/list-faculty-future-class-count-report',
+  report_list_time_table: 'lms/list-classroom-management-time-table',
+
+  //Course Report Mangement
+  courseReport_list_basic_info: 'course-report/list-course-report-basic-info',
+  courseReport_delete_basic_info:
+    'course-report/delete-course-report-basic-info',
+  courseReport_download: 'course-report/download-course-report',
 };

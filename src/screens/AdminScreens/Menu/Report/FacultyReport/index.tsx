@@ -1,22 +1,22 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../constants';
+import { colors, screensName, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../components/atoms/TextAtom';
+} from '../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../components/atoms/TextAtom';
 
 interface Props {
   navigation: NavigationType;
 }
 
-const PHCManagement = (props: Props) => {
+const FacultyReport = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Health Centre Management');
+    Header.setNavigation(navigation, 'Faculty Report');
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,23 +25,44 @@ const PHCManagement = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'PHC Management',
+      name: 'Course Wise',
       onPress: () => {
-        navigation.navigate(screensName.PHCManagemnetMain);
+        navigation.navigate(screensName.CourseWise);
       },
     },
     {
       id: 2,
-      name: 'Pharmacy',
+      name: 'Faculty Wise Class Report',
       onPress: () => {
-        navigation.navigate(screensName.Pharmacy);
+        navigation.navigate(screensName.FacultyWiseClassReport);
       },
     },
     {
       id: 3,
-      name: 'Trainee BMI',
+      name: 'Faculty Calculation Sheet',
       onPress: () => {
-        navigation.navigate(screensName.TraineeBMI);
+        navigation.navigate(screensName.FacultyCalculationSheet);
+      },
+    },
+    {
+      id: 4,
+      name: 'Course Wise Approval Status',
+      onPress: () => {
+        navigation.navigate(screensName.CourseWiseApprovalStatus);
+      },
+    },
+    {
+      id: 5,
+      name: 'Faculty Class Report Training Wise',
+      onPress: () => {
+        navigation.navigate(screensName.FacultyClassReportTrainingWise);
+      },
+    },
+    {
+      id: 6,
+      name: 'Faculty Upcomimg Class Report',
+      onPress: () => {
+        navigation.navigate(screensName.FacultyUpcomingClassReport);
       },
     },
   ];
@@ -65,7 +86,7 @@ const PHCManagement = (props: Props) => {
   );
 };
 
-export default PHCManagement;
+export default FacultyReport;
 
 const styles = StyleSheet.create({
   container: {

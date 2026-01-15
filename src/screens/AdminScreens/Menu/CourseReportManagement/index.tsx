@@ -12,11 +12,11 @@ interface Props {
   navigation: NavigationType;
 }
 
-const PHCManagement = (props: Props) => {
+const CourseReportManagement = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Health Centre Management');
+    Header.setNavigation(navigation, 'Course Report Management');
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,23 +25,9 @@ const PHCManagement = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'PHC Management',
+      name: 'Course Report Management',
       onPress: () => {
-        navigation.navigate(screensName.PHCManagemnetMain);
-      },
-    },
-    {
-      id: 2,
-      name: 'Pharmacy',
-      onPress: () => {
-        navigation.navigate(screensName.Pharmacy);
-      },
-    },
-    {
-      id: 3,
-      name: 'Trainee BMI',
-      onPress: () => {
-        navigation.navigate(screensName.TraineeBMI);
+        navigation.navigate(screensName.CourseReportManagementMain);
       },
     },
   ];
@@ -65,7 +51,7 @@ const PHCManagement = (props: Props) => {
   );
 };
 
-export default PHCManagement;
+export default CourseReportManagement;
 
 const styles = StyleSheet.create({
   container: {

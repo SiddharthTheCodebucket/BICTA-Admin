@@ -1,22 +1,22 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../constants';
+import { colors, screensName, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../components/atoms/TextAtom';
+} from '../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../components/atoms/TextAtom';
 
 interface Props {
   navigation: NavigationType;
 }
 
-const PHCManagement = (props: Props) => {
+const CourseReportManagementMain = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Health Centre Management');
+    Header.setNavigation(navigation, 'Course Report');
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,23 +25,9 @@ const PHCManagement = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'PHC Management',
+      name: 'Course Report',
       onPress: () => {
-        navigation.navigate(screensName.PHCManagemnetMain);
-      },
-    },
-    {
-      id: 2,
-      name: 'Pharmacy',
-      onPress: () => {
-        navigation.navigate(screensName.Pharmacy);
-      },
-    },
-    {
-      id: 3,
-      name: 'Trainee BMI',
-      onPress: () => {
-        navigation.navigate(screensName.TraineeBMI);
+        navigation.navigate(screensName.CourseReport);
       },
     },
   ];
@@ -65,7 +51,7 @@ const PHCManagement = (props: Props) => {
   );
 };
 
-export default PHCManagement;
+export default CourseReportManagementMain;
 
 const styles = StyleSheet.create({
   container: {

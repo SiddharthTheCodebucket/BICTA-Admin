@@ -25,9 +25,11 @@ const ACTIVE_MODULES = new Set<string>([
   'User Management',
   'Feedback Management',
   'Communication Management System',
+  'Report',
   'Support',
   'Invoice and Bill Management',
-  'PHC Management System',
+  'Health Centre Management',
+  'Course Report Management',
   // 'Vehicle Management',
 ]);
 
@@ -85,6 +87,11 @@ const Menu = ({ navigation }: Props) => {
         navigation.navigate(screensName.CommunicationManagementSystem),
     },
     {
+      id: 7,
+      name: 'Report',
+      onPress: () => navigation.navigate(screensName.Report),
+    },
+    {
       id: 11,
       name: 'Support',
       onPress: () => navigation.navigate(screensName.SupportMain),
@@ -96,10 +103,14 @@ const Menu = ({ navigation }: Props) => {
     },
     {
       id: 15,
-      name: 'PHC Management System',
+      name: 'Health Centre Management',
       onPress: () => navigation.navigate(screensName.PHCManagement),
     },
-
+    {
+      id: 16,
+      name: 'Course Report Management',
+      onPress: () => navigation.navigate(screensName.CourseReportManagement),
+    },
     // {
     //   id: 17,
     //   name: 'Vehicle Management',
@@ -108,15 +119,13 @@ const Menu = ({ navigation }: Props) => {
     { id: 1, name: 'Content Management System' },
 
     // { id: 6, name: 'Communication Management System' },
-    { id: 7, name: 'Report' },
+
     { id: 8, name: 'HRMS' },
     { id: 9, name: 'Visitor Management System' },
     { id: 10, name: 'Conference Management System' },
 
     { id: 13, name: 'House Keeping Management' },
     { id: 14, name: 'Budget Management' },
-
-    { id: 16, name: 'Course Report Management' },
 
     { id: 18, name: 'Mess Management' },
   ];

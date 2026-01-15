@@ -174,6 +174,20 @@ import LeaveDetails from '../screens/AdminScreens/Menu/CommunicationManagementSy
 import LeaveDetailsList from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/LeaveDetails/LeaveDetailsList';
 import AddNotice from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Notice/AddNotice';
 import AddShowCauseNotice from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/ShowCauseNotification/AddShowCauseNotice';
+import Report from '../screens/AdminScreens/Menu/Report';
+import FacultyReport from '../screens/AdminScreens/Menu/Report/FacultyReport';
+import CourseWise from '../screens/AdminScreens/Menu/Report/FacultyReport/CourseWise';
+import CourseWiseDetails from '../screens/AdminScreens/Menu/Report/FacultyReport/CourseWise/CourseWiseDetails';
+import FacultyWiseClassReport from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyWiseClassReport';
+import FacultyWiseClassReportDetails from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyWiseClassReport/FacultyWiseClassReportDetails';
+import FacultyCalculationSheet from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyCalculationSheet';
+import FacultyClassReportTrainingWise from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyClassReportTrainingWise';
+import CourseWiseApprovalStatus from '../screens/AdminScreens/Menu/Report/FacultyReport/CourseWiseApprovalStatus';
+import FacultyUpcomingClassReport from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyUpcomingClassReport';
+import FacultyUpcomingClassTimeTable from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyUpcomingClassReport/FacultyUpcomingClassTimeTable';
+import CourseReportManagement from '../screens/AdminScreens/Menu/CourseReportManagement';
+import CourseReportManagementMain from '../screens/AdminScreens/Menu/CourseReportManagement/CourseReportManagementMain';
+import CourseReport from '../screens/AdminScreens/Menu/CourseReportManagement/CourseReportManagementMain/CourseReport';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -751,6 +765,53 @@ const RootNavigatorAdmin = () => {
           name="AddShowCauseNotice"
           component={AddShowCauseNotice}
         />
+        <RootStackScreen.Screen name="Report" component={Report} />
+        <RootStackScreen.Screen
+          name="FacultyReport"
+          component={FacultyReport}
+        />
+        <RootStackScreen.Screen name="CourseWise" component={CourseWise} />
+        <RootStackScreen.Screen
+          name="CourseWiseDetails"
+          component={CourseWiseDetails}
+        />
+        <RootStackScreen.Screen
+          name="FacultyWiseClassReport"
+          component={FacultyWiseClassReport}
+        />
+        <RootStackScreen.Screen
+          name="FacultyWiseClassReportDetails"
+          component={FacultyWiseClassReportDetails}
+        />
+        <RootStackScreen.Screen
+          name="FacultyCalculationSheet"
+          component={FacultyCalculationSheet}
+        />
+        <RootStackScreen.Screen
+          name="FacultyClassReportTrainingWise"
+          component={FacultyClassReportTrainingWise}
+        />
+        <RootStackScreen.Screen
+          name="CourseWiseApprovalStatus"
+          component={CourseWiseApprovalStatus}
+        />
+        <RootStackScreen.Screen
+          name="FacultyUpcomingClassReport"
+          component={FacultyUpcomingClassReport}
+        />
+        <RootStackScreen.Screen
+          name="FacultyUpcomingClassTimeTable"
+          component={FacultyUpcomingClassTimeTable}
+        />
+        <RootStackScreen.Screen
+          name="CourseReportManagement"
+          component={CourseReportManagement}
+        />
+        <RootStackScreen.Screen
+          name="CourseReportManagementMain"
+          component={CourseReportManagementMain}
+        />
+        <RootStackScreen.Screen name="CourseReport" component={CourseReport} />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{
