@@ -196,6 +196,11 @@ import Budget from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangemen
 import EstimatedBudgetList from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/Budget/EstimatedBudgetList';
 import AddCreateTraining from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/CreateTraining/AddCreateTraining';
 import AddParticulars from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/Particulars/AddParticulars';
+import HouseKeepingManagement from '../screens/AdminScreens/Menu/HouseKeepingManagement';
+import HouseKeepingManagementMain from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain';
+import TaskMaster from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskMaster';
+import TaskMasterDetails from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskMaster/TaskMasterDetails';
+import AddTaskMaster from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskMaster/AddTaskMaster';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -845,6 +850,23 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="AddParticulars"
           component={AddParticulars}
+        />
+        <RootStackScreen.Screen
+          name="HouseKeepingManagement"
+          component={HouseKeepingManagement}
+        />
+        <RootStackScreen.Screen
+          name="HouseKeepingManagementMain"
+          component={HouseKeepingManagementMain}
+        />
+        <RootStackScreen.Screen name="TaskMaster" component={TaskMaster} />
+        <RootStackScreen.Screen
+          name="TaskMasterDetails"
+          component={TaskMasterDetails}
+        />
+        <RootStackScreen.Screen
+          name="AddTaskMaster"
+          component={AddTaskMaster}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

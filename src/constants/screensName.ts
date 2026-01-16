@@ -183,6 +183,11 @@ export default {
   EstimatedBudgetList: 'EstimatedBudgetList',
   AddCreateTraining: 'AddCreateTraining',
   AddParticulars: 'AddParticulars',
+  HouseKeepingManagement: 'HouseKeepingManagement',
+  HouseKeepingManagementMain: 'HouseKeepingManagementMain',
+  TaskMaster: 'TaskMaster',
+  TaskMasterDetails: 'TaskMasterDetails',
+  AddTaskMaster: 'AddTaskMaster',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

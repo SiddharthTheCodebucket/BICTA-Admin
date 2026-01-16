@@ -231,4 +231,10 @@ export default {
   budget_delete_particulars: 'budget/delete-budget-particulars',
   budget_list_details: 'budget/list-budget-details',
   budget_delete_details: 'budget/delete-budget-details',
+
+  //House Keeping Master
+  house_keeping_list_task_master: 'house-keeping/list-task-master',
+  house_keeping_delete_task_master: 'house-keeping/delete-task-master',
+  house_keeping_update_task_master: 'house-keeping/update-task-master',
+  house_keeping_add_task_master: 'house-keeping/add-task-master',
 };

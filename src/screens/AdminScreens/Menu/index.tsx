@@ -28,6 +28,7 @@ const ACTIVE_MODULES = new Set<string>([
   'Report',
   'Support',
   'Invoice and Bill Management',
+  'House Keeping Management',
   'Budget Management',
   'Health Centre Management',
   'Course Report Management',
@@ -103,6 +104,11 @@ const Menu = ({ navigation }: Props) => {
       onPress: () => navigation.navigate(screensName.InvoiceAndBillManagement),
     },
     {
+      id: 13,
+      name: 'House Keeping Management',
+      onPress: () => navigation.navigate(screensName.HouseKeepingManagement),
+    },
+    {
       id: 14,
       name: 'Budget Management',
       onPress: () => navigation.navigate(screensName.BudgetManagement),
@@ -129,8 +135,6 @@ const Menu = ({ navigation }: Props) => {
     { id: 8, name: 'HRMS' },
     { id: 9, name: 'Visitor Management System' },
     { id: 10, name: 'Conference Management System' },
-
-    { id: 13, name: 'House Keeping Management' },
 
     { id: 18, name: 'Mess Management' },
   ];
