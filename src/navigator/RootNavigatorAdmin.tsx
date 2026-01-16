@@ -201,6 +201,9 @@ import HouseKeepingManagementMain from '../screens/AdminScreens/Menu/HouseKeepin
 import TaskMaster from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskMaster';
 import TaskMasterDetails from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskMaster/TaskMasterDetails';
 import AddTaskMaster from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskMaster/AddTaskMaster';
+import TaskDetails from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskDetails';
+import TaskDetailDetails from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskDetails/TaskDetailDetails';
+import TransferTask from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskDetails/TransferTask';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -868,6 +871,12 @@ const RootNavigatorAdmin = () => {
           name="AddTaskMaster"
           component={AddTaskMaster}
         />
+        <RootStackScreen.Screen name="TaskDetails" component={TaskDetails} />
+        <RootStackScreen.Screen
+          name="TaskDetailDetails"
+          component={TaskDetailDetails}
+        />
+        <RootStackScreen.Screen name="TransferTask" component={TransferTask} />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{

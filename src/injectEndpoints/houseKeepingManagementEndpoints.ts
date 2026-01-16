@@ -31,6 +31,41 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    houseKeepingListTaskAssignment: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.house_keeping_list_task_assignment,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    houseKeepingUpdateTaskAssignment: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.house_keeping_update_task_assignment,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    houseKeepingDeleteTaskAssignment: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.house_keeping_delete_task_assignment,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    houseKeepingUploadTaskAssignedPhoto: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.house_keeping_upload_task_assigned_photo,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    houseKeepingTransferAssignedTask: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.house_keeping_transfer_assigned_task,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -39,4 +74,9 @@ export const {
   useHouseKeepingDeleteTaskMasterMutation,
   useHouseKeepingAddTaskMasterMutation,
   useHouseKeepingUpdateTaskMasterMutation,
+  useHouseKeepingListTaskAssignmentMutation,
+  useHouseKeepingUpdateTaskAssignmentMutation,
+  useHouseKeepingDeleteTaskAssignmentMutation,
+  useHouseKeepingUploadTaskAssignedPhotoMutation,
+  useHouseKeepingTransferAssignedTaskMutation,
 } = apiEndpoints;

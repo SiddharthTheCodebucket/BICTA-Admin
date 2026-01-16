@@ -188,6 +188,9 @@ export default {
   TaskMaster: 'TaskMaster',
   TaskMasterDetails: 'TaskMasterDetails',
   AddTaskMaster: 'AddTaskMaster',
+  TaskDetails: 'TaskDetails',
+  TaskDetailDetails: 'TaskDetailDetails',
+  TransferTask: 'TransferTask',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

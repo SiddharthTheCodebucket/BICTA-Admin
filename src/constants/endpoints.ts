@@ -237,4 +237,11 @@ export default {
   house_keeping_delete_task_master: 'house-keeping/delete-task-master',
   house_keeping_update_task_master: 'house-keeping/update-task-master',
   house_keeping_add_task_master: 'house-keeping/add-task-master',
+  house_keeping_list_task_assignment: 'house-keeping/list-task-assignment',
+  house_keeping_update_task_assignment: 'house-keeping/update-task-assignment',
+  house_keeping_delete_task_assignment: 'house-keeping/delete-task-assignment',
+  house_keeping_upload_task_assigned_photo:
+    'house-keeping/upload-task-assigned-photo',
+  house_keeping_transfer_assigned_task:
+    'house-keeping/transfer-assigned-task-to-another-staff',
 };

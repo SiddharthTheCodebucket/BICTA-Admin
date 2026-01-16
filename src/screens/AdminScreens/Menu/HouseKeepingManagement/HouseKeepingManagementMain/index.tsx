@@ -33,7 +33,9 @@ const HouseKeepingManagementMain = (props: Props) => {
     {
       id: 2,
       name: 'Task Details',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.TaskDetails);
+      },
     },
   ];
 
