@@ -204,6 +204,16 @@ import AddTaskMaster from '../screens/AdminScreens/Menu/HouseKeepingManagement/H
 import TaskDetails from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskDetails';
 import TaskDetailDetails from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskDetails/TaskDetailDetails';
 import TransferTask from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskDetails/TransferTask';
+import MessManagement from '../screens/AdminScreens/Menu/MessManagement';
+import MessMaster from '../screens/AdminScreens/Menu/MessManagement/MessMaster';
+import StockDetails from '../screens/AdminScreens/Menu/MessManagement/StockDetails';
+import MessReport from '../screens/AdminScreens/Menu/MessManagement/MessReport';
+import ItemBrand from '../screens/AdminScreens/Menu/MessManagement/MessMaster/ItemBrand';
+import AddItemBrand from '../screens/AdminScreens/Menu/MessManagement/MessMaster/ItemBrand/AddItemBrand';
+import AddItemType from '../screens/AdminScreens/Menu/MessManagement/MessMaster/ItemType/AddItemType';
+import ItemType from '../screens/AdminScreens/Menu/MessManagement/MessMaster/ItemType';
+import Item from '../screens/AdminScreens/Menu/MessManagement/MessMaster/Item/inde';
+import AddItem from '../screens/AdminScreens/Menu/MessManagement/MessMaster/Item/AddItem';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -877,6 +887,19 @@ const RootNavigatorAdmin = () => {
           component={TaskDetailDetails}
         />
         <RootStackScreen.Screen name="TransferTask" component={TransferTask} />
+        <RootStackScreen.Screen
+          name="MessManagement"
+          component={MessManagement}
+        />
+        <RootStackScreen.Screen name="MessMaster" component={MessMaster} />
+        <RootStackScreen.Screen name="StockDetails" component={StockDetails} />
+        <RootStackScreen.Screen name="MessReport" component={MessReport} />
+        <RootStackScreen.Screen name="ItemBrand" component={ItemBrand} />
+        <RootStackScreen.Screen name="AddItemBrand" component={AddItemBrand} />
+        <RootStackScreen.Screen name="ItemType" component={ItemType} />
+        <RootStackScreen.Screen name="AddItemType" component={AddItemType} />
+        <RootStackScreen.Screen name="Item" component={Item} />
+        <RootStackScreen.Screen name="AddItem" component={AddItem} />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{

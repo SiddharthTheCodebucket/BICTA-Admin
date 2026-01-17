@@ -32,6 +32,7 @@ const ACTIVE_MODULES = new Set<string>([
   'Budget Management',
   'Health Centre Management',
   'Course Report Management',
+  'Mess Management',
   // 'Vehicle Management',
 ]);
 
@@ -123,6 +124,11 @@ const Menu = ({ navigation }: Props) => {
       name: 'Course Report Management',
       onPress: () => navigation.navigate(screensName.CourseReportManagement),
     },
+    {
+      id: 18,
+      name: 'Mess Management',
+      onPress: () => navigation.navigate(screensName.MessManagement),
+    },
     // {
     //   id: 17,
     //   name: 'Vehicle Management',
@@ -135,8 +141,6 @@ const Menu = ({ navigation }: Props) => {
     { id: 8, name: 'HRMS' },
     { id: 9, name: 'Visitor Management System' },
     { id: 10, name: 'Conference Management System' },
-
-    { id: 18, name: 'Mess Management' },
   ];
 
   const DATA: MenuItem[] = ALL_MODULES.map(item => ({

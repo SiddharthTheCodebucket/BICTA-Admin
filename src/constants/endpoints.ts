@@ -244,4 +244,18 @@ export default {
     'house-keeping/upload-task-assigned-photo',
   house_keeping_transfer_assigned_task:
     'house-keeping/transfer-assigned-task-to-another-staff',
+
+  //Mess Management
+  mess_management_list_item_brand: 'mess-management/list-item-brand',
+  mess_management_add_item_brand: 'mess-management/add-item-brand',
+  mess_management_update_item_brand: 'mess-management/update-item-brand',
+  mess_management_delete_item_brand: 'mess-management/delete-item-brand',
+  mess_management_list_item_type: 'mess-management/list-item-type',
+  mess_management_add_item_type: 'mess-management/add-item-type',
+  mess_management_update_item_type: 'mess-management/update-item-type',
+  mess_management_delete_item_type: 'mess-management/delete-item-type',
+  mess_management_list_item: 'mess-management/list-item',
+  mess_management_add_item: 'mess-management/add-item',
+  mess_management_update_item: 'mess-management/update-item',
+  mess_management_delete_item: 'mess-management/delete-item',
 };
