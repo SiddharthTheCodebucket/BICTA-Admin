@@ -260,4 +260,16 @@ export default {
   mess_management_delete_item: 'mess-management/delete-item',
   mess_management_list_mess: 'mess-management/list-mess',
   mess_management_mess_stock_report: 'mess-management/mess-stock-report',
+  mess_management_list_stock_details: 'mess-management/list-stock-details',
+  mess_management_add_stock_details: 'mess-management/add-stock-details',
+  mess_management_update_stock_details: 'mess-management/update-stock-details',
+  mess_management_delete_stock_details: 'mess-management/delete-stock-details',
+  mess_management_list_stock_consumption:
+    'mess-management/list-stock-consumption',
+  mess_management_add_stock_consumption:
+    'mess-management/add-stock-consumption',
+  mess_management_update_stock_consumption:
+    'mess-management/update-stock-consumption',
+  mess_management_delete_stock_consumption:
+    'mess-management/delete-stock-consumption',
 };

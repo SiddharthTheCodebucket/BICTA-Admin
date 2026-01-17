@@ -101,6 +101,62 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    messManagementListStockDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_list_stock_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementAddStockDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_add_stock_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementUpdateStockDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_update_stock_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementDeleteStockDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_delete_stock_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementListStockConsumption: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_list_stock_consumption,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementAddStockConsumption: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_add_stock_consumption,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementUpdateStockConsumption: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_update_stock_consumption,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementDeleteStockConsumption: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_delete_stock_consumption,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -119,4 +175,12 @@ export const {
   useMessManagementDeleteItemMutation,
   useMessManagementListMessMutation,
   useMessManagementMessStockReportMutation,
+  useMessManagementListStockDetailsMutation,
+  useMessManagementAddStockDetailsMutation,
+  useMessManagementUpdateStockDetailsMutation,
+  useMessManagementDeleteStockDetailsMutation,
+  useMessManagementListStockConsumptionMutation,
+  useMessManagementAddStockConsumptionMutation,
+  useMessManagementUpdateStockConsumptionMutation,
+  useMessManagementDeleteStockConsumptionMutation,
 } = apiEndpoints;

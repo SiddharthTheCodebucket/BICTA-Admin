@@ -203,6 +203,10 @@ export default {
   AddItem: 'AddItem',
   StockReportMess: 'StockReportMess',
   StockReportDetails: 'StockReportDetails',
+  Stock: 'Stock',
+  AddStock: 'AddStock',
+  StockConsumption: 'StockConsumption',
+  AddStockConsumption: 'AddStockConsumption',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

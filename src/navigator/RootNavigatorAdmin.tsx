@@ -216,6 +216,10 @@ import Item from '../screens/AdminScreens/Menu/MessManagement/MessMaster/Item/in
 import AddItem from '../screens/AdminScreens/Menu/MessManagement/MessMaster/Item/AddItem';
 import StockReportMess from '../screens/AdminScreens/Menu/MessManagement/MessReport/StockReportMess';
 import StockReportDetails from '../screens/AdminScreens/Menu/MessManagement/MessReport/StockReportMess/StockReportDetails';
+import Stock from '../screens/AdminScreens/Menu/MessManagement/StockDetails/Stock';
+import AddStock from '../screens/AdminScreens/Menu/MessManagement/StockDetails/Stock/AddStock';
+import StockConsumption from '../screens/AdminScreens/Menu/MessManagement/StockDetails/StockConsumption';
+import AddStockConsumption from '../screens/AdminScreens/Menu/MessManagement/StockDetails/StockConsumption/AddStockConsumption';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -909,6 +913,16 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="StockReportDetails"
           component={StockReportDetails}
+        />
+        <RootStackScreen.Screen name="Stock" component={Stock} />
+        <RootStackScreen.Screen name="AddStock" component={AddStock} />
+        <RootStackScreen.Screen
+          name="StockConsumption"
+          component={StockConsumption}
+        />
+        <RootStackScreen.Screen
+          name="AddStockConsumption"
+          component={AddStockConsumption}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

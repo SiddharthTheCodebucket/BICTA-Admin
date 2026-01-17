@@ -26,12 +26,16 @@ const StockDetails = (props: Props) => {
     {
       id: 1,
       name: 'Stock',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.Stock);
+      },
     },
     {
       id: 2,
       name: 'Stock Consumption',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.StockConsumption);
+      },
     },
   ];
 
