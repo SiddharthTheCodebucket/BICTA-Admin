@@ -258,4 +258,6 @@ export default {
   mess_management_add_item: 'mess-management/add-item',
   mess_management_update_item: 'mess-management/update-item',
   mess_management_delete_item: 'mess-management/delete-item',
+  mess_management_list_mess: 'mess-management/list-mess',
+  mess_management_mess_stock_report: 'mess-management/mess-stock-report',
 };

@@ -214,6 +214,8 @@ import AddItemType from '../screens/AdminScreens/Menu/MessManagement/MessMaster/
 import ItemType from '../screens/AdminScreens/Menu/MessManagement/MessMaster/ItemType';
 import Item from '../screens/AdminScreens/Menu/MessManagement/MessMaster/Item/inde';
 import AddItem from '../screens/AdminScreens/Menu/MessManagement/MessMaster/Item/AddItem';
+import StockReportMess from '../screens/AdminScreens/Menu/MessManagement/MessReport/StockReportMess';
+import StockReportDetails from '../screens/AdminScreens/Menu/MessManagement/MessReport/StockReportMess/StockReportDetails';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -900,6 +902,14 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen name="AddItemType" component={AddItemType} />
         <RootStackScreen.Screen name="Item" component={Item} />
         <RootStackScreen.Screen name="AddItem" component={AddItem} />
+        <RootStackScreen.Screen
+          name="StockReportMess"
+          component={StockReportMess}
+        />
+        <RootStackScreen.Screen
+          name="StockReportDetails"
+          component={StockReportDetails}
+        />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{

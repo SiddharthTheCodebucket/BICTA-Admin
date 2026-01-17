@@ -201,6 +201,8 @@ export default {
   AddItemType: 'AddItemType',
   Item: 'Item',
   AddItem: 'AddItem',
+  StockReportMess: 'StockReportMess',
+  StockReportDetails: 'StockReportDetails',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

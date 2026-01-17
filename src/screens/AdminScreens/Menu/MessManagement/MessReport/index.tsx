@@ -26,7 +26,9 @@ const MessReport = (props: Props) => {
     {
       id: 1,
       name: 'Stock Report',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.StockReportMess);
+      },
     },
   ];
 

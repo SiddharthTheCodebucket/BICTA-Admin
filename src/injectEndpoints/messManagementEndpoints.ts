@@ -87,6 +87,20 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    messManagementListMess: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_list_mess,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementMessStockReport: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_mess_stock_report,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -103,4 +117,6 @@ export const {
   useMessManagementAddItemMutation,
   useMessManagementUpdateItemMutation,
   useMessManagementDeleteItemMutation,
+  useMessManagementListMessMutation,
+  useMessManagementMessStockReportMutation,
 } = apiEndpoints;
