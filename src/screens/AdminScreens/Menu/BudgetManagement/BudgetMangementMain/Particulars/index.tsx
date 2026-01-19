@@ -38,7 +38,7 @@ import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import {
   useBudgetDeleteParticularsMutation,
   useBudgetListParticularsMutation,
-} from '../../../../../../injectEndpoints/BudgetManagementEndpoints';
+} from '../../../../../../injectEndpoints/budgetManagementEndpoints';
 import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 
 interface Props {

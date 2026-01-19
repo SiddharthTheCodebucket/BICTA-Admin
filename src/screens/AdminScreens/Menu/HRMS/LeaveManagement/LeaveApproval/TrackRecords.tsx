@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { useCallback, useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -14,73 +9,40 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  colors,
-  fonts,
-  images,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import { useAppSelector } from '../../../../../../hooks';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 import moment from 'moment';
-import {
-  useBudgetDeleteTrainingMutation,
-  useBudgetListTrainingMutation,
-} from '../../../../../../injectEndpoints/budgetManagementEndpoints';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
+import { useHrmsListApprovalHistoryMutation } from '../../../../../../injectEndpoints/hrmsEndpoints';
 
 interface Props {
+  route: any;
   navigation: NavigationType;
 }
-
-const debounce = (func: any, delay: number) => {
-  let timer: any;
-  return (...args: any[]) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      func(...args);
-    }, delay);
-  };
-};
 
 interface ListPermissionProps {
   item: any;
   index: number;
-  navigation: NavigationType;
-  onDelete: (id: any) => void;
-  onRefresh: () => void;
 }
 
-const ListPermissionCard = ({
-  item,
-  index,
-  navigation,
-  onDelete,
-  onRefresh,
-}: ListPermissionProps) => {
-  const handleDelete = () => {
-    navigation.navigate(screensName.AlertOrganism, {
-      title: strings.guest.deleteConfirmation,
-      message: strings.guest.deleteItemConfirmation,
-      okText: strings.guest.confirm,
-      double: true,
-      cancelText: strings.cancel,
-      okFunction: () => onDelete(item.id),
-      cancelFunction: () => {},
-    });
+const ListPermissionCard = ({ item, index }: ListPermissionProps) => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Approved':
+        return { color: colors.green };
+      case 'Rejected':
+        return { color: colors.red };
+      case 'Pending':
+        return { color: colors.warningOrange };
+      default:
+        return { color: colors.grey };
+    }
   };
   return (
     <ViewAtom style={styles.card}>
@@ -88,50 +50,59 @@ const ListPermissionCard = ({
         <TextAtom style={[styles.label, styles.flex1]}>
           {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
         </TextAtom>
-        <View style={styles.actionRow}>
-          <TouchableAtom
-            style={styles.editButton}
-            onPress={() => {
-              navigation.navigate(screensName.AddCreateTraining, {
-                item: item,
-                onDone: onRefresh,
-              });
-            }}
-          >
-            <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
-          </TouchableAtom>
-
-          <TouchableAtom style={styles.deleteButton} onPress={handleDelete}>
-            <ImageAtom source={images.delete} style={styles.iconSmall} />
-          </TouchableAtom>
-        </View>
-      </View>
-
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>{'Training Name'}</TextAtom>
-        <TextAtom numberOfLines={0} style={styles.value}>
-          {item.trainingName ?? '-'}
-        </TextAtom>
-      </View>
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>{'Number Of Participant'}</TextAtom>
-        <TextAtom numberOfLines={0} style={styles.value}>
-          {item.noOfParticipants ?? '-'}
-        </TextAtom>
       </View>
       <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>{'Start Date'}</TextAtom>
+          <TextAtom style={styles.label}>{'Leave ID'}</TextAtom>
           <TextAtom numberOfLines={0} style={styles.value}>
-            {moment(item.startDate).format('DD-MM-YYYY') ?? '-'}
+            {item.leaveRequestId}
+          </TextAtom>
+        </View>
+
+        <View style={{ alignItems: 'flex-end' }}>
+          <TextAtom style={styles.labelRight}>{'Action'}</TextAtom>
+          <TextAtom
+            style={[styles.valueRight, getStatusColor(item.actionStatus)]}
+          >
+            {item.actionStatus ?? '-'}
+          </TextAtom>
+        </View>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>{'Action Taken By'}</TextAtom>
+          <TextAtom numberOfLines={0} style={styles.value}>
+            {item.actionType ?? '-'}
           </TextAtom>
         </View>
         <View style={{ flex: 1, alignSelf: 'flex-end' }}>
-          <TextAtom style={styles.labelRight}>{'End Date'}</TextAtom>
+          <TextAtom style={styles.labelRight}>{'Authority Name'}</TextAtom>
           <TextAtom numberOfLines={0} style={styles.valueRight}>
-            {moment(item.endDate).format('DD-MM-YYYY') ?? '-'}
+            {item.actionByName ?? '-'}
           </TextAtom>
         </View>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>{'Date'}</TextAtom>
+          <TextAtom numberOfLines={0} style={styles.value}>
+            {moment(item.actionAt).format('DD-MM-YYYY') ?? '-'}
+          </TextAtom>
+        </View>
+        <View style={{ flex: 1, alignSelf: 'flex-end' }}>
+          <TextAtom style={styles.labelRight}>{'Status'}</TextAtom>
+          <TextAtom numberOfLines={0} style={styles.valueRight}>
+            {item.status ?? '-'}
+          </TextAtom>
+        </View>
+      </View>
+      <View style={{ flex: 1 }}>
+        <TextAtom style={styles.label}>{'Remark'}</TextAtom>
+        <TextAtom numberOfLines={0} style={styles.value}>
+          {item.actionRemark ?? '-'}
+        </TextAtom>
       </View>
     </ViewAtom>
   );
@@ -139,82 +110,62 @@ const ListPermissionCard = ({
 
 const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 
-const CreateTraining = (props: Props) => {
-  const { navigation } = props;
-  const { crediantialData } = useAppSelector(state => state.Auth);
+const TrackRecords = (props: Props) => {
+  const { navigation, route } = props;
+  const item = route?.params?.item;
 
-  const [listReportFacultyApi] = useBudgetListTrainingMutation();
-  const [deleteResponseApi] = useBudgetDeleteTrainingMutation();
+  const [listApi] = useHrmsListApprovalHistoryMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
+
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
 
   const ITEMS_PER_PAGE = 10;
 
-  const [search, setSearch] = React.useState('');
-
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Create Training Master Data');
+    Header.setNavigation(navigation, 'Employee List For Approval');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
   useFocusEffect(
     useCallback(() => {
-      if (firstTimeLoad && !centerSerach?.name && search === '') {
+      if (firstTimeLoad) {
         setFirstTimeLoad(false);
 
-        listReportFaculty(1, true, search, []);
+        list(1, true, '', []);
       }
-    }, [firstTimeLoad, centerSerach, search]),
+    }, [firstTimeLoad, '']),
   );
 
-  useEffect(() => {
-    if (!centerSerach?.name) return;
-    listReportFaculty(1, true, '');
-  }, [centerSerach]);
-
-  const getCentreFilter = () => {
-    if (!centerSerach?.name) return null;
-
-    if (centerSerach.name === strings.dashboardIndex.allCenters) {
-      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
-    }
-
-    return [centerSerach.name];
-  };
-
-  const listReportFaculty = (
+  const list = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
     filtersArray: any[] = [],
+    extraParams: any = {},
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
-    const centreFilter = getCentreFilter();
+
     const params: any = {
       search: keyword,
       sort: {
-        attributes: ['createdAt'],
+        attributes: ['id'],
         sorts: ['desc'],
       },
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
-      bipardCentre: [],
+      requestId: item?.id,
+      ...extraParams,
     };
-
-    if (centreFilter) {
-      params.bipardCentre = centreFilter;
-    }
-    listReportFacultyApi(params)
+    listApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -226,9 +177,10 @@ const CreateTraining = (props: Props) => {
         } else {
           setData(newData);
         }
-
         setPage(pageNumber);
-
+        if (res.data.exportUrlExcel) {
+          downloadAndOpenFile(res.data.exportUrlExcel);
+        }
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
       })
@@ -243,94 +195,13 @@ const CreateTraining = (props: Props) => {
       });
   };
 
-  const handleSearch = useCallback(
-    debounce((text: string) => {
-      listReportFaculty(1, true, text);
-    }, 500),
-    [],
-  );
-
-  const onChangeSearch = (text: string) => {
-    setSearch(text);
-    handleSearch(text);
-  };
-
-  const onClearSearch = () => {
-    setSearch('');
-    listReportFaculty(1, true, '');
-  };
-
-  const deleteResponse = (id: any) => {
-    setInitialCall(true);
-    deleteResponseApi({ id: id })
-      .unwrap()
-      .then((res: any) => {
-        Toast.show({ type: 'success', text2: res.data.message });
-        setInitialCall(false);
-        setFirstTimeLoad(true);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || strings.something_went_wrong,
-        });
-      });
-  };
-
   const renderListPermissionDetails = ({ item, index }: any) => (
-    <ListPermissionCard
-      item={item}
-      index={index}
-      navigation={navigation}
-      onDelete={deleteResponse}
-      onRefresh={() => listReportFaculty(1, true, search)}
-    />
+    <ListPermissionCard item={item} index={index} />
   );
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      {crediantialData.user[0].tenantId === 3 && (
-        <DropDownOrganism
-          label={''}
-          placeholder={strings.dashboardIndex.centers}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.dashboardIndex.center,
-              Data: [
-                {
-                  id: strings.dashboardIndex.allCenters,
-                  name: strings.dashboardIndex.allCenters,
-                },
-                {
-                  id: strings.dashboardIndex.gaya,
-                  name: strings.dashboardIndex.gaya,
-                },
-                {
-                  id: strings.dashboardIndex.patna,
-                  name: strings.dashboardIndex.patna,
-                },
-              ],
-              selectedData: centerSerach,
-              setSelectedData: (data: any) => {
-                setCenterSerach(data);
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={centerSerach?.name}
-          containerStyle={{ marginBottom: vh(-10) }}
-        />
-      )}
-
-      <SearchBoxOrganism
-        onChangeText={onChangeSearch}
-        searchText={search}
-        onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
-      />
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -359,31 +230,22 @@ const CreateTraining = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listReportFaculty(1, false, '');
+              list(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
-          nextPageAvailable
-            ? listReportFaculty(page + 1, false, search)
-            : setPagination(false);
+          nextPageAvailable ? list(page + 1, false, '') : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={BedItemSeparator}
-      />
-      <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddCreateTraining, {
-            onDone: () => listReportFaculty(1, true, search),
-          });
-        }}
       />
     </SafeAreaView>
   );
 };
 
-export default CreateTraining;
+export default TrackRecords;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -484,6 +346,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.grey,
     borderRadius: vw(6),
+    maxHeight: vh(160), // ✅ FIX HEIGHT
     overflow: 'hidden',
   },
 
@@ -587,5 +450,26 @@ const styles = StyleSheet.create({
   iconSmDelete: {
     width: vw(15),
     height: vw(15),
+  },
+  approveButton: {
+    backgroundColor: colors.green,
+    borderWidth: vw(1),
+    borderColor: colors.green,
+    borderRadius: vw(6),
+    padding: vw(4),
+  },
+
+  rejectButton: {
+    borderColor: colors.red,
+    backgroundColor: colors.red,
+    borderWidth: vw(1),
+    borderRadius: vw(6),
+    padding: vw(4),
+  },
+
+  actionIcon: {
+    width: vw(14),
+    height: vw(14),
+    tintColor: colors.white,
   },
 });

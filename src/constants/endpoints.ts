@@ -272,4 +272,15 @@ export default {
     'mess-management/update-stock-consumption',
   mess_management_delete_stock_consumption:
     'mess-management/delete-stock-consumption',
+
+  //HRMS
+  hrms_list_employee: 'hrms/list-employee',
+  hrms_credit_leave_balance: 'hrms/credit-leave-balance',
+  hrms_list_leave_balance: 'hrms/list-leave-balance',
+  hrms_list_leave_request: 'hrms/list-leave-request',
+  hrms_delete_leave_request: 'hrms/delete-leave-request',
+  hrms_add_leave_request: 'hrms/add-leave-request',
+  hrms_update_leave_request: 'hrms/update-approval-status',
+  hrms_list_approval_history: 'hrms/list-approval-history',
+  hrms_assign_approval_officer: '/hrms/assign-approval-officer',
 };

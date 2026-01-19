@@ -220,6 +220,16 @@ import Stock from '../screens/AdminScreens/Menu/MessManagement/StockDetails/Stoc
 import AddStock from '../screens/AdminScreens/Menu/MessManagement/StockDetails/Stock/AddStock';
 import StockConsumption from '../screens/AdminScreens/Menu/MessManagement/StockDetails/StockConsumption';
 import AddStockConsumption from '../screens/AdminScreens/Menu/MessManagement/StockDetails/StockConsumption/AddStockConsumption';
+import HRMS from '../screens/AdminScreens/Menu/HRMS';
+import VendorEmployeeMangement from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement';
+import LeaveManagement from '../screens/AdminScreens/Menu/HRMS/LeaveManagement';
+import EmployeeLeaveHistory from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/EmployeeLeaveHistory';
+import CreditLeaveBalance from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/EmployeeLeaveHistory/CreditLeaveBalance';
+import LeaveHistoryDetails from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/EmployeeLeaveHistory/LeaveHistoryDetails';
+import AvailLeave from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/EmployeeLeaveHistory/AvailLeave';
+import LeaveApproval from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/LeaveApproval';
+import LeaveApprovalDetails from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/LeaveApproval/LeaveApprovalDetails';
+import TrackRecords from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/LeaveApproval/TrackRecords';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -924,6 +934,37 @@ const RootNavigatorAdmin = () => {
           name="AddStockConsumption"
           component={AddStockConsumption}
         />
+        <RootStackScreen.Screen name="HRMS" component={HRMS} />
+        <RootStackScreen.Screen
+          name="VendorEmployeeMangement"
+          component={VendorEmployeeMangement}
+        />
+        <RootStackScreen.Screen
+          name="LeaveManagement"
+          component={LeaveManagement}
+        />
+        <RootStackScreen.Screen
+          name="EmployeeLeaveHistory"
+          component={EmployeeLeaveHistory}
+        />
+        <RootStackScreen.Screen
+          name="CreditLeaveBalance"
+          component={CreditLeaveBalance}
+        />
+        <RootStackScreen.Screen
+          name="LeaveHistoryDetails"
+          component={LeaveHistoryDetails}
+        />
+        <RootStackScreen.Screen name="AvailLeave" component={AvailLeave} />
+        <RootStackScreen.Screen
+          name="LeaveApproval"
+          component={LeaveApproval}
+        />
+        <RootStackScreen.Screen
+          name="LeaveApprovalDetails"
+          component={LeaveApprovalDetails}
+        />
+        <RootStackScreen.Screen name="TrackRecords" component={TrackRecords} />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{

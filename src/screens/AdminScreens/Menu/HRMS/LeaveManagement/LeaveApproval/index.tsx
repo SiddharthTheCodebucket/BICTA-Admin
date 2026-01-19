@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { useCallback, useLayoutEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -37,16 +32,14 @@ import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import {
-  downloadAndOpenFile,
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
-import { useAppSelector } from '../../../../../../hooks';
+import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 import moment from 'moment';
 import {
-  useBudgetDeleteDetailsMutation,
-  useBudgetListDetailsMutation,
-} from '../../../../../../injectEndpoints/budgetManagementEndpoints';
+  useHrmsListLeaveRequestMutation,
+  useHrmsUpdateLeaveRequestMutation,
+} from '../../../../../../injectEndpoints/hrmsEndpoints';
+import { useGetCentre } from '../../../../../../hooks/useGetCentre';
+import ApproveRejectModal from './ApproveRejectModal';
 
 interface Props {
   navigation: NavigationType;
@@ -66,92 +59,131 @@ interface ListPermissionProps {
   item: any;
   index: number;
   navigation: NavigationType;
-  onDelete: (id: any) => void;
-}
-
-interface FilterArgs {
-  training?: any;
-  batch?: any;
-  faculty?: any;
-  startDate?: any;
-  endDate?: any;
+  onApproveReject: (item: any, status: 'Approved' | 'Rejected') => void;
+  onRefresh: () => void;
+  recommendedList: any[];
+  selectedRecommended: any;
+  setSelectedRecommended: (d: any) => void;
+  hitRecommanded: (data: any, item: any) => void;
 }
 
 const ListPermissionCard = ({
   item,
   index,
   navigation,
-  onDelete,
+  onApproveReject,
+  onRefresh,
+  recommendedList,
+  selectedRecommended,
+  setSelectedRecommended,
+  hitRecommanded,
 }: ListPermissionProps) => {
-  const handleDelete = () => {
-    navigation.navigate(screensName.AlertOrganism, {
-      title: strings.guest.deleteConfirmation,
-      message: strings.guest.deleteItemConfirmation,
-      okText: strings.guest.confirm,
-      double: true,
-      cancelText: strings.cancel,
-      okFunction: () => onDelete(item.trainingId),
-      cancelFunction: () => {},
-    });
-  };
   return (
     <TouchableAtom
       style={styles.card}
       onPress={() => {
-        navigation.navigate(screensName.EstimatedBudgetList, {
-          budgetDetails: item.budgetDetails,
-        });
+        navigation.navigate(screensName.LeaveApprovalDetails, { data: item });
       }}
-      disabled={isNullUndefined(item.budgetDetails)}
     >
       <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
         <TextAtom style={[styles.label, styles.flex1]}>
           {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
         </TextAtom>
-        {!isNullUndefined(item.budgetDetails) && (
-          <View style={styles.actionRow}>
-            <TouchableAtom style={styles.deleteButton} onPress={handleDelete}>
-              <ImageAtom source={images.delete} style={styles.iconSmall} />
-            </TouchableAtom>
-          </View>
-        )}
-      </View>
 
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>{'Training Name'}</TextAtom>
-        <TextAtom numberOfLines={0} style={styles.value}>
-          {item.trainingName ?? '-'}
-        </TextAtom>
+        <View style={styles.actionRow}>
+          <TouchableAtom
+            style={styles.editButton}
+            onPress={() =>
+              navigation.navigate(screensName.TrackRecords, {
+                item: item,
+                onDone: onRefresh,
+              })
+            }
+          >
+            <ImageAtom source={images.eyeOpen} style={styles.editIcon} />
+          </TouchableAtom>
+          {item.approvalStatus === 'Pending' && (
+            <>
+              <TouchableAtom
+                style={styles.approveButton}
+                onPress={() => onApproveReject(item, 'Approved')}
+                activeOpacity={0.8}
+              >
+                <ImageAtom source={images.tick} style={styles.actionIcon} />
+              </TouchableAtom>
+
+              <TouchableAtom
+                style={styles.rejectButton}
+                onPress={() => onApproveReject(item, 'Rejected')}
+                activeOpacity={0.8}
+              >
+                <ImageAtom source={images.cross} style={styles.actionIcon} />
+              </TouchableAtom>
+            </>
+          )}
+        </View>
+      </View>
+      <View style={styles.rowBetween}>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>{'Employee Name'}</TextAtom>
+          <TextAtom numberOfLines={0} style={styles.value}>
+            {`${item.employeeName}${item.employeeId}`}
+          </TextAtom>
+        </View>
       </View>
       <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>{'Number Of Participant'}</TextAtom>
+        <TextAtom style={styles.label}>{'Vendor Name'}</TextAtom>
         <TextAtom numberOfLines={0} style={styles.value}>
-          {item.noOfParticipants ?? '-'}
+          {item.vendorName ?? '-'}
         </TextAtom>
       </View>
       <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>{'Start Date'}</TextAtom>
+          <TextAtom style={styles.label}>{'Leave Type'}</TextAtom>
           <TextAtom numberOfLines={0} style={styles.value}>
-            {moment(item.startDate).format('DD-MM-YYYY') ?? '-'}
+            {item.leaveTypeName ?? '-'}
           </TextAtom>
         </View>
         <View style={{ flex: 1, alignSelf: 'flex-end' }}>
-          <TextAtom style={styles.labelRight}>{'End Date'}</TextAtom>
+          <TextAtom style={styles.labelRight}>{'Leave Date'}</TextAtom>
           <TextAtom numberOfLines={0} style={styles.valueRight}>
-            {moment(item.endDate).format('DD-MM-YYYY') ?? '-'}
+            {moment(item.leaveDate).format('DD-MM-YYYY') ?? '-'}
           </TextAtom>
         </View>
       </View>
+      <DropDownOrganism
+        label=""
+        placeholder={'Recommended To'}
+        onPress={() => {
+          navigation.navigate('DropDownModal', {
+            name: 'Recommended To',
+            Data: recommendedList,
+            selectedData: {
+              id: item.approvalOfficerId,
+              name: item.approvalOfficerName,
+            },
+            setSelectedData: (data: any) => {
+              setSelectedRecommended(data);
+              hitRecommanded(data, item);
+            },
+            typeName: 'name',
+            typeId: 'id',
+          });
+        }}
+        inputText={item.approvalOfficerName}
+        containerStyle={{ width: vw(250), alignSelf: 'center' }}
+        contentContainerStyle={{ width: vw(300), alignSelf: 'center' }}
+        downArrowStyle={{ marginLeft: vh(-100) }}
+      />
     </TouchableAtom>
   );
 };
 
 interface FilterFormProps {
   navigation: NavigationType;
-  trainingList: any[];
-  selectedTraining: any;
-  setSelectedTraining: (d: any) => void;
+  leaveStatusList: any[];
+  selectedLeaveStatus: any;
+  setSelectedLeaveStatus: (d: any) => void;
   applyFilter: () => void;
   clearFilter: () => void;
   hitFilterApi: (parent?: any, module?: any, status?: any) => void;
@@ -159,31 +191,31 @@ interface FilterFormProps {
 
 const FilterForm = ({
   navigation,
-  trainingList,
-  selectedTraining,
-  setSelectedTraining,
+  leaveStatusList,
+  selectedLeaveStatus,
+  setSelectedLeaveStatus,
   applyFilter,
   clearFilter,
   hitFilterApi,
 }: FilterFormProps) => (
   <View style={styles.filterContainer}>
     <DropDownOrganism
-      label={'Training'}
-      placeholder={'Training'}
+      label={'Leave Status'}
+      placeholder={'Leave Status'}
       onPress={() => {
         navigation.navigate('DropDownModal', {
-          name: 'Training',
-          Data: trainingList,
-          selectedData: selectedTraining,
+          name: 'Leave Status',
+          Data: leaveStatusList,
+          selectedData: selectedLeaveStatus,
           setSelectedData: (data: any) => {
-            setSelectedTraining(data);
-            hitFilterApi({ training: data });
+            setSelectedLeaveStatus(data);
+            hitFilterApi({ mess: data });
           },
           typeName: 'name',
           typeId: 'id',
         });
       }}
-      inputText={selectedTraining?.name}
+      inputText={selectedLeaveStatus?.name}
     />
 
     <ViewAtom style={styles.buttonRow}>
@@ -204,34 +236,42 @@ const FilterForm = ({
 
 const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 
-const Budget = (props: Props) => {
+const LeaveApproval = (props: Props) => {
   const { navigation } = props;
-  const { crediantialData } = useAppSelector(state => state.Auth);
 
+  let center = useGetCentre();
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [listReportApi] = useBudgetListDetailsMutation();
-  const [deleteReportApi] = useBudgetDeleteDetailsMutation();
+  const [listApi] = useHrmsListLeaveRequestMutation();
+  const [updateApi] = useHrmsUpdateLeaveRequestMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
-  const [trainingList, setTrainingList] = useState<any>([]);
-  const [selectedTraining, setSelectedTraining] = useState<any>({});
+  const [leaveStatusList, setLeaveStatusList] = useState<any>([]);
+  const [selectedLeaveStatus, setSelectedLeaveStatus] = useState<any>({});
+
+  const [recommendedList, setRecommendedList] = useState<any>([]);
+  const [selectedRecommended, setSelectedRecommended] = useState<any>({});
+
+  const [showModal, setShowModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [approvalStatus, setApprovalStatus] = useState<
+    'Approved' | 'Rejected' | null
+  >(null);
 
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Budget Details');
+    Header.setNavigation(navigation, 'Employee List For Approval');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -242,31 +282,17 @@ const Budget = (props: Props) => {
 
   useFocusEffect(
     useCallback(() => {
-      if (firstTimeLoad && !centerSerach?.name && search === '') {
+      if (firstTimeLoad && search === '') {
         setFirstTimeLoad(false);
 
-        listReportFaculty(1, true, search, []);
-        getTrainingList();
+        list(1, true, search, []);
+        getLeaveStatusList();
+        getRecommendedList();
       }
-    }, [firstTimeLoad, centerSerach, search]),
+    }, [firstTimeLoad, search]),
   );
 
-  useEffect(() => {
-    if (!centerSerach?.name) return;
-    listReportFaculty(1, true, '');
-  }, [centerSerach]);
-
-  const getCentreFilter = () => {
-    if (!centerSerach?.name) return null;
-
-    if (centerSerach.name === strings.dashboardIndex.allCenters) {
-      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
-    }
-
-    return [centerSerach.name];
-  };
-
-  const listReportFaculty = (
+  const list = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -274,24 +300,20 @@ const Budget = (props: Props) => {
     extraParams: any = {},
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
-    const centreFilter = getCentreFilter();
+
     const params: any = {
       search: keyword,
       sort: {
-        attributes: ['createdAt'],
+        attributes: ['id'],
         sorts: ['desc'],
       },
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
-      bipardCentre: [],
       ...extraParams,
     };
 
-    if (centreFilter) {
-      params.bipardCentre = centreFilter;
-    }
-    listReportApi(params)
+    listApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -304,8 +326,8 @@ const Budget = (props: Props) => {
           setData(newData);
         }
         setPage(pageNumber);
-        if (res.data.exportUrlPdf) {
-          downloadAndOpenFile(res.data.exportUrlPdf);
+        if (res.data.exportUrlExcel) {
+          downloadAndOpenFile(res.data.exportUrlExcel);
         }
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
@@ -323,7 +345,7 @@ const Budget = (props: Props) => {
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listReportFaculty(1, true, text);
+      list(1, true, text);
     }, 500),
     [],
   );
@@ -335,25 +357,48 @@ const Budget = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listReportFaculty(1, true, '');
+    list(1, true, '');
   };
 
-  const deleteResponse = (id: any) => {
+  const openApproveRejectModal = (
+    item: any,
+    status: 'Approved' | 'Rejected',
+  ) => {
+    setSelectedItem(item);
+    setApprovalStatus(status);
+    setShowModal(true);
+  };
+
+  const submitApproval = (remark: string) => {
+    const payload = {
+      requestId: selectedItem.id,
+      approvalStatus,
+      approvalRemark: remark,
+    };
+
     setInitialCall(true);
-    deleteReportApi({ trainingId: id })
+
+    updateApi(payload)
       .unwrap()
       .then((res: any) => {
-        Toast.show({ type: 'success', text2: res.data.message });
-        setInitialCall(false);
-        setFirstTimeLoad(true);
+        Toast.show({
+          type: 'success',
+          text2: res.data.message || `Leave ${approvalStatus} successfully`,
+        });
+        setShowModal(false);
+        list(1, true, search);
       })
       .catch((err: any) => {
-        setInitialCall(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || strings.something_went_wrong,
+          text2: err?.data?.message || 'Something went wrong',
         });
-      });
+      })
+      .finally(() => setInitialCall(false));
+  };
+
+  const hitRecommanded = ({ data, item }: any) => {
+    onAssignOfficer(data, item);
   };
 
   const renderListPermissionDetails = ({ item, index }: any) => (
@@ -361,20 +406,25 @@ const Budget = (props: Props) => {
       item={item}
       index={index}
       navigation={navigation}
-      onDelete={deleteResponse}
+      onApproveReject={openApproveRejectModal}
+      onRefresh={() => list(1, true, search)}
+      recommendedList={recommendedList}
+      selectedRecommended={selectedRecommended}
+      setSelectedRecommended={setSelectedRecommended}
+      hitRecommanded={hitRecommanded}
     />
   );
 
   const clearFilter = () => {
-    setSelectedTraining({});
-    listReportFaculty(1, true, search, []);
+    setSelectedLeaveStatus({});
+    list(1, true, search, []);
   };
 
   const buildFilters = () => {
     const filters: any[] = [];
 
-    if (selectedTraining?.id) {
-      filters.push(['trainingId', '=', selectedTraining.id]);
+    if (selectedLeaveStatus?.id) {
+      filters.push(['approvalStatus', '=', selectedLeaveStatus.id]);
     }
 
     return filters;
@@ -382,28 +432,23 @@ const Budget = (props: Props) => {
 
   const applyFilter = () => {
     const filters = buildFilters();
-    listReportFaculty(1, true, search, filters);
+    list(1, true, search, filters);
     setShowFilter(false);
   };
 
-  const getTrainingList = () => {
+  const getLeaveStatusList = () => {
     setInitialCall(true);
     const params = {
-      listType: 'faculty_report_training_name',
-      bipardCentre: [],
-      replacements: ['%%'],
+      listType: 'get_leave_approval_status',
+      bipardCentre: center,
+      replacements: [],
     };
     commonDropdownApi(params)
       .unwrap()
       .then((res: any) => {
         let resData = res.data || [];
-        let data = resData?.map((item: any) => {
-          return {
-            ...item,
-            name: `${item.id},${item.name}`,
-          };
-        });
-        setTrainingList(data);
+
+        setLeaveStatusList(resData);
         setInitialCall(false);
       })
       .catch((err: any) => {
@@ -416,30 +461,77 @@ const Budget = (props: Props) => {
       });
   };
 
-  const hitFilterApi = ({ training = selectedTraining }: FilterArgs = {}) => {
-    const filters: any[] = [];
+  const getRecommendedList = () => {
+    setInitialCall(true);
+    const params = {
+      listType: 'select_approval_officer',
+      bipardCentre: center,
+      replacements: ['%%'],
+    };
+    commonDropdownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        let resData = res.data || [];
 
-    if (training?.id) {
-      filters.push(['trainingId', 'IN', [training.id]]);
-    }
-
-    listReportFaculty(1, true, search, filters);
+        setRecommendedList(resData);
+        setInitialCall(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+          autoHide: true,
+        });
+      });
   };
 
-  const downloadPdf = () => {
-    if (!selectedTraining?.id) {
-      Toast.show({
-        type: 'info',
-        text2: 'Select Training before download',
-      });
-      return;
+  const hitFilterApi = ({ leaveStatus = selectedLeaveStatus }: any = {}) => {
+    const filters: any[] = [];
+
+    if (leaveStatus?.id) {
+      filters.push(['approvalStatus', '=', [leaveStatus.id]]);
     }
 
-    const filters = buildFilters();
+    list(1, true, search, filters);
+  };
 
-    listReportFaculty(1, true, search, filters, {
-      exportFlagPdf: true,
+  const onAssignOfficer = (data: any, item: any) => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: 'Assign Approval Officer Confirmation',
+      message: 'Are you sure you want to assign approval officer?',
+      okText: strings.ok,
+      cancelText: strings.cancel,
+      double: true,
+      okFunction: () => assignApprovalOfficer(data, item),
+      cancelFunction: () => {},
     });
+  };
+
+  const assignApprovalOfficer = (data: any, item: any) => {
+    const payload = {
+      requestId: item.id,
+      approvalOfficer: data.id,
+    };
+
+    setInitialCall(true);
+
+    updateApi(payload)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message || 'Approval officer assigned successfully',
+        });
+        list(1, true, search);
+      })
+      .catch((err: any) => {
+        Toast.show({
+          type: 'error',
+          text2: err?.data?.message || 'Something went wrong',
+        });
+      })
+      .finally(() => setInitialCall(false));
   };
 
   return (
@@ -459,46 +551,7 @@ const Budget = (props: Props) => {
               : strings.hostelManagement.bedAvailability.showFilter}
           </TextAtom>
         </TouchableAtom>
-        <TouchableAtom style={styles.filterButton} onPress={downloadPdf}>
-          <ImageAtom
-            source={images.download}
-            style={{ tintColor: colors.black }}
-          />
-        </TouchableAtom>
       </View>
-      {crediantialData.user[0].tenantId === 3 && (
-        <DropDownOrganism
-          label={''}
-          placeholder={strings.dashboardIndex.centers}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.dashboardIndex.center,
-              Data: [
-                {
-                  id: strings.dashboardIndex.allCenters,
-                  name: strings.dashboardIndex.allCenters,
-                },
-                {
-                  id: strings.dashboardIndex.gaya,
-                  name: strings.dashboardIndex.gaya,
-                },
-                {
-                  id: strings.dashboardIndex.patna,
-                  name: strings.dashboardIndex.patna,
-                },
-              ],
-              selectedData: centerSerach,
-              setSelectedData: (data: any) => {
-                setCenterSerach(data);
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={centerSerach?.name}
-          containerStyle={{ marginBottom: vh(-10) }}
-        />
-      )}
 
       <SearchBoxOrganism
         onChangeText={onChangeSearch}
@@ -533,9 +586,9 @@ const Budget = (props: Props) => {
               navigation={navigation}
               applyFilter={applyFilter}
               clearFilter={clearFilter}
-              trainingList={trainingList}
-              selectedTraining={selectedTraining}
-              setSelectedTraining={setSelectedTraining}
+              leaveStatusList={leaveStatusList}
+              selectedLeaveStatus={selectedLeaveStatus}
+              setSelectedLeaveStatus={setSelectedLeaveStatus}
               hitFilterApi={hitFilterApi}
             />
           ) : null
@@ -547,24 +600,30 @@ const Budget = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listReportFaculty(1, false, '');
+              list(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listReportFaculty(page + 1, false, search)
+            ? list(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={BedItemSeparator}
       />
+      <ApproveRejectModal
+        visible={showModal}
+        status={approvalStatus}
+        onClose={() => setShowModal(false)}
+        onSubmit={submitApproval}
+      />
     </SafeAreaView>
   );
 };
 
-export default Budget;
+export default LeaveApproval;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -665,6 +724,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.grey,
     borderRadius: vw(6),
+    maxHeight: vh(160), // ✅ FIX HEIGHT
     overflow: 'hidden',
   },
 
@@ -768,5 +828,26 @@ const styles = StyleSheet.create({
   iconSmDelete: {
     width: vw(15),
     height: vw(15),
+  },
+  approveButton: {
+    backgroundColor: colors.green,
+    borderWidth: vw(1),
+    borderColor: colors.green,
+    borderRadius: vw(6),
+    padding: vw(4),
+  },
+
+  rejectButton: {
+    borderColor: colors.red,
+    backgroundColor: colors.red,
+    borderWidth: vw(1),
+    borderRadius: vw(6),
+    padding: vw(4),
+  },
+
+  actionIcon: {
+    width: vw(14),
+    height: vw(14),
+    tintColor: colors.white,
   },
 });
