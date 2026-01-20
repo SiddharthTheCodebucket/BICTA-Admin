@@ -293,4 +293,6 @@ export default {
   conference_list_conference: 'conference/list-conference',
   conference_guest_conference_seniority_list:
     'conference/guest-conference-seniority-list',
+  conference_list_management_incharge_details:
+    'conference/list-management-incharge-details',
 };

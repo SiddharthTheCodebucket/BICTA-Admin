@@ -228,6 +228,8 @@ export default {
   ConferenceManagement: 'ConferenceManagement',
   ConferenceMasterDetails: 'ConferenceMasterDetails',
   GuestSeniorityList: 'GuestSeniorityList',
+  ManagementIncharge: 'ManagementIncharge',
+  ManagementInchargeDetails: 'ManagementInchargeDetails',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

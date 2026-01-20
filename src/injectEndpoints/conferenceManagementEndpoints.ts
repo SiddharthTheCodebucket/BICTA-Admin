@@ -17,10 +17,18 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    conferenceListManagementInchargeDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.conference_list_management_incharge_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 export const {
   useConferenceListConferenceMutation,
   useConferenceGuestSeniorityListMutation,
+  useConferenceListManagementInchargeDetailsMutation,
 } = apiEndpoints;

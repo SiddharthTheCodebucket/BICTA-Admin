@@ -242,6 +242,8 @@ import ConferenceManagementSystem from '../screens/AdminScreens/Menu/ConferenceM
 import ConferenceManagement from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement';
 import ConferenceMasterDetails from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceMasterDetails';
 import GuestSeniorityList from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceMasterDetails/GuestSeniorityList';
+import ManagementIncharge from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ManagementIncharge';
+import ManagementInchargeDetails from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ManagementIncharge/ManagementInchargeDetails';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -1020,6 +1022,14 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="GuestSeniorityList"
           component={GuestSeniorityList}
+        />
+        <RootStackScreen.Screen
+          name="ManagementIncharge"
+          component={ManagementIncharge}
+        />
+        <RootStackScreen.Screen
+          name="ManagementInchargeDetails"
+          component={ManagementInchargeDetails}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

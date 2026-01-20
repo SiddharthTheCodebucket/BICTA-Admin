@@ -33,7 +33,9 @@ const ConferenceManagement = (props: Props) => {
     {
       id: 2,
       name: 'Management Incharge',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.ManagementIncharge);
+      },
     },
     {
       id: 3,
