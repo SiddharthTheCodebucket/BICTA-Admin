@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, vh, vw } from '../../../../../constants';
+import { colors, screensName, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -26,12 +26,16 @@ const VendorEmployeeMangement = (props: Props) => {
     {
       id: 1,
       name: 'Vendor List Details',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.VendorListDetails);
+      },
     },
     {
       id: 2,
       name: 'Employee Details',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.EmployeeDetails);
+      },
     },
   ];
 

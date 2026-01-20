@@ -66,6 +66,13 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    hrmsListVendorDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.hrms_list_vendor_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -79,4 +86,5 @@ export const {
   useHrmsUpdateLeaveRequestMutation,
   useHrmsListApprovalHistoryMutation,
   useHrmsAssignApprovalOfficerMutation,
+  useHrmsListVendorDetailsMutation,
 } = apiEndpoints;

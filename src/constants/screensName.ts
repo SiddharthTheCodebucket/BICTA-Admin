@@ -217,6 +217,9 @@ export default {
   LeaveApproval: 'LeaveApproval',
   LeaveApprovalDetails: 'LeaveApprovalDetails',
   TrackRecords: 'TrackRecords',
+  VendorListDetails: 'VendorListDetails',
+  EmployeeDetails: 'EmployeeDetails',
+  EmployeeDetailDetails: 'EmployeeDetailDetails',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

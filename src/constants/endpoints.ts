@@ -283,4 +283,5 @@ export default {
   hrms_update_leave_request: 'hrms/update-approval-status',
   hrms_list_approval_history: 'hrms/list-approval-history',
   hrms_assign_approval_officer: '/hrms/assign-approval-officer',
+  hrms_list_vendor_details: 'hrms/list-vendor-details',
 };

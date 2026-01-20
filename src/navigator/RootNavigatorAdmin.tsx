@@ -212,7 +212,7 @@ import ItemBrand from '../screens/AdminScreens/Menu/MessManagement/MessMaster/It
 import AddItemBrand from '../screens/AdminScreens/Menu/MessManagement/MessMaster/ItemBrand/AddItemBrand';
 import AddItemType from '../screens/AdminScreens/Menu/MessManagement/MessMaster/ItemType/AddItemType';
 import ItemType from '../screens/AdminScreens/Menu/MessManagement/MessMaster/ItemType';
-import Item from '../screens/AdminScreens/Menu/MessManagement/MessMaster/Item/inde';
+
 import AddItem from '../screens/AdminScreens/Menu/MessManagement/MessMaster/Item/AddItem';
 import StockReportMess from '../screens/AdminScreens/Menu/MessManagement/MessReport/StockReportMess';
 import StockReportDetails from '../screens/AdminScreens/Menu/MessManagement/MessReport/StockReportMess/StockReportDetails';
@@ -230,6 +230,10 @@ import AvailLeave from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/Employ
 import LeaveApproval from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/LeaveApproval';
 import LeaveApprovalDetails from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/LeaveApproval/LeaveApprovalDetails';
 import TrackRecords from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/LeaveApproval/TrackRecords';
+import VendorListDetails from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/VendorListDetails';
+import Item from '../screens/AdminScreens/Menu/MessManagement/MessMaster/Item';
+import EmployeeDetails from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/EmployeeDetails';
+import EmployeeDetailDetails from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/EmployeeDetails/EmployeeDetailDetails';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -965,6 +969,18 @@ const RootNavigatorAdmin = () => {
           component={LeaveApprovalDetails}
         />
         <RootStackScreen.Screen name="TrackRecords" component={TrackRecords} />
+        <RootStackScreen.Screen
+          name="VendorListDetails"
+          component={VendorListDetails}
+        />
+        <RootStackScreen.Screen
+          name="EmployeeDetails"
+          component={EmployeeDetails}
+        />
+        <RootStackScreen.Screen
+          name="EmployeeDetailDetails"
+          component={EmployeeDetailDetails}
+        />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{
