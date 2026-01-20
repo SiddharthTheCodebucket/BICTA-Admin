@@ -45,7 +45,9 @@ const ConferenceManagement = (props: Props) => {
     {
       id: 4,
       name: 'Conference Manthan Feedback',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.ConferenceManthanFeedback);
+      },
     },
   ];
 

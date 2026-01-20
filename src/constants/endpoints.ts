@@ -295,4 +295,5 @@ export default {
     'conference/guest-conference-seniority-list',
   conference_list_management_incharge_details:
     'conference/list-management-incharge-details',
+  conference_list_manthan: 'conference/list-manthan',
 };

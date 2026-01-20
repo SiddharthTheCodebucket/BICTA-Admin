@@ -230,6 +230,8 @@ export default {
   GuestSeniorityList: 'GuestSeniorityList',
   ManagementIncharge: 'ManagementIncharge',
   ManagementInchargeDetails: 'ManagementInchargeDetails',
+  ConferenceManthanFeedback: 'ConferenceManthanFeedback',
+  FeedbackQuestionsResponse: 'FeedbackQuestionsResponse',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',
