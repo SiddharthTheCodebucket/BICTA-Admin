@@ -39,4 +39,5 @@ export default {
   copyLink: require('../assets/images/copyLink.png'),
   transfer: require('../assets/images/transfer.png'),
   nextFilled: require('../assets/images/nextFilled.png'),
+  receipt: require('../assets/images/receipt.png'),
 };

@@ -238,6 +238,10 @@ import VisitorManagementSystem from '../screens/AdminScreens/Menu/VisitorManagem
 import VisitorManagement from '../screens/AdminScreens/Menu/VisitorManagementSystem/VisitorManagement';
 import QRListDetails from '../screens/AdminScreens/Menu/VisitorManagementSystem/VisitorManagement/QRListDetails';
 import VisitorListDetails from '../screens/AdminScreens/Menu/VisitorManagementSystem/VisitorManagement/VisitorListDetails';
+import ConferenceManagementSystem from '../screens/AdminScreens/Menu/ConferenceManagementSystem';
+import ConferenceManagement from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement';
+import ConferenceMasterDetails from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceMasterDetails';
+import GuestSeniorityList from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceMasterDetails/GuestSeniorityList';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -1000,6 +1004,22 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="VisitorListDetails"
           component={VisitorListDetails}
+        />
+        <RootStackScreen.Screen
+          name="ConferenceManagementSystem"
+          component={ConferenceManagementSystem}
+        />
+        <RootStackScreen.Screen
+          name="ConferenceManagement"
+          component={ConferenceManagement}
+        />
+        <RootStackScreen.Screen
+          name="ConferenceMasterDetails"
+          component={ConferenceMasterDetails}
+        />
+        <RootStackScreen.Screen
+          name="GuestSeniorityList"
+          component={GuestSeniorityList}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

@@ -20,6 +20,7 @@ interface MenuItem {
 }
 
 const ACTIVE_MODULES = new Set<string>([
+  //'Content Management System',
   'Learning Management System',
   'Hostel Management',
   'User Management',
@@ -28,6 +29,7 @@ const ACTIVE_MODULES = new Set<string>([
   'Report',
   'HRMS',
   'Visitor Management System',
+  'Conference Management System',
   'Support',
   'Invoice and Bill Management',
   'House Keeping Management',
@@ -107,7 +109,12 @@ const Menu = ({ navigation }: Props) => {
       name: 'Visitor Management System',
       onPress: () => navigation.navigate(screensName.VisitorManagementSystem),
     },
-    { id: 10, name: 'Conference Management System' },
+    {
+      id: 10,
+      name: 'Conference Management System',
+      onPress: () =>
+        navigation.navigate(screensName.ConferenceManagementSystem),
+    },
     {
       id: 11,
       name: 'Support',

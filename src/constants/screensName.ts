@@ -224,6 +224,10 @@ export default {
   VisitorManagement: 'VisitorManagement',
   QRListDetails: 'QRListDetails',
   VisitorListDetails: 'VisitorListDetails',
+  ConferenceManagementSystem: 'ConferenceManagementSystem',
+  ConferenceManagement: 'ConferenceManagement',
+  ConferenceMasterDetails: 'ConferenceMasterDetails',
+  GuestSeniorityList: 'GuestSeniorityList',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

@@ -288,4 +288,9 @@ export default {
   //Visitor Management System
   visitor_list_qr_code: 'visitor/list-visitor-qr-code',
   visitor_list_visitor: 'visitor/list-visitor',
+
+  //Conference Management System
+  conference_list_conference: 'conference/list-conference',
+  conference_guest_conference_seniority_list:
+    'conference/guest-conference-seniority-list',
 };
