@@ -40,7 +40,9 @@ const ConferenceManagement = (props: Props) => {
     {
       id: 3,
       name: 'Guest',
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate(screensName.GuestDetails);
+      },
     },
     {
       id: 4,

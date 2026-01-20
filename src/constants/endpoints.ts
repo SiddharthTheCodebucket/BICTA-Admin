@@ -296,4 +296,5 @@ export default {
   conference_list_management_incharge_details:
     'conference/list-management-incharge-details',
   conference_list_manthan: 'conference/list-manthan',
+  conference_list_guest_details: 'conference/list-guest-details',
 };

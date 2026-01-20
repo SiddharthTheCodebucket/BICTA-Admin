@@ -232,6 +232,8 @@ export default {
   ManagementInchargeDetails: 'ManagementInchargeDetails',
   ConferenceManthanFeedback: 'ConferenceManthanFeedback',
   FeedbackQuestionsResponse: 'FeedbackQuestionsResponse',
+  GuestDetails: 'GuestDetails',
+  GuestDetailDetails: 'GuestDetailDetails',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

@@ -246,6 +246,8 @@ import ManagementIncharge from '../screens/AdminScreens/Menu/ConferenceManagemen
 import ManagementInchargeDetails from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ManagementIncharge/ManagementInchargeDetails';
 import ConferenceManthanFeedback from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceManthanFeedback';
 import FeedbackQuestionsResponse from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceManthanFeedback/FeedbackQuestionsResponse';
+import GuestDetails from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/GuestDetails';
+import GuestDetailDetails from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/GuestDetails/GuestDetailDetails';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -1040,6 +1042,11 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="FeedbackQuestionsResponse"
           component={FeedbackQuestionsResponse}
+        />
+        <RootStackScreen.Screen name="GuestDetails" component={GuestDetails} />
+        <RootStackScreen.Screen
+          name="GuestDetailDetails"
+          component={GuestDetailDetails}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group
