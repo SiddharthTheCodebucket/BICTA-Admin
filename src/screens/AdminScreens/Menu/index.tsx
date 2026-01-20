@@ -27,6 +27,7 @@ const ACTIVE_MODULES = new Set<string>([
   'Communication Management System',
   'Report',
   'HRMS',
+  'Visitor Management System',
   'Support',
   'Invoice and Bill Management',
   'House Keeping Management',
@@ -63,6 +64,7 @@ const Menu = ({ navigation }: Props) => {
   }, []);
 
   const ALL_MODULES: MenuItem[] = [
+    // { id: 1, name: 'Content Management System' },
     {
       id: 2,
       name: 'Learning Management System',
@@ -101,6 +103,12 @@ const Menu = ({ navigation }: Props) => {
       onPress: () => navigation.navigate(screensName.HRMS),
     },
     {
+      id: 9,
+      name: 'Visitor Management System',
+      onPress: () => navigation.navigate(screensName.VisitorManagementSystem),
+    },
+    { id: 10, name: 'Conference Management System' },
+    {
       id: 11,
       name: 'Support',
       onPress: () => navigation.navigate(screensName.SupportMain),
@@ -130,22 +138,16 @@ const Menu = ({ navigation }: Props) => {
       name: 'Course Report Management',
       onPress: () => navigation.navigate(screensName.CourseReportManagement),
     },
-    {
-      id: 18,
-      name: 'Mess Management',
-      onPress: () => navigation.navigate(screensName.MessManagement),
-    },
     // {
     //   id: 17,
     //   name: 'Vehicle Management',
     //   onPress: () => navigation.navigate(screensName.VehicleManagement),
     // },
-    { id: 1, name: 'Content Management System' },
-
-    // { id: 6, name: 'Communication Management System' },
-
-    { id: 9, name: 'Visitor Management System' },
-    { id: 10, name: 'Conference Management System' },
+    {
+      id: 18,
+      name: 'Mess Management',
+      onPress: () => navigation.navigate(screensName.MessManagement),
+    },
   ];
 
   const DATA: MenuItem[] = ALL_MODULES.map(item => ({

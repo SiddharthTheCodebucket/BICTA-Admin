@@ -220,6 +220,10 @@ export default {
   VendorListDetails: 'VendorListDetails',
   EmployeeDetails: 'EmployeeDetails',
   EmployeeDetailDetails: 'EmployeeDetailDetails',
+  VisitorManagementSystem: 'VisitorManagementSystem',
+  VisitorManagement: 'VisitorManagement',
+  QRListDetails: 'QRListDetails',
+  VisitorListDetails: 'VisitorListDetails',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

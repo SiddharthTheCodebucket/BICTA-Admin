@@ -234,6 +234,10 @@ import VendorListDetails from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeM
 import Item from '../screens/AdminScreens/Menu/MessManagement/MessMaster/Item';
 import EmployeeDetails from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/EmployeeDetails';
 import EmployeeDetailDetails from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/EmployeeDetails/EmployeeDetailDetails';
+import VisitorManagementSystem from '../screens/AdminScreens/Menu/VisitorManagementSystem';
+import VisitorManagement from '../screens/AdminScreens/Menu/VisitorManagementSystem/VisitorManagement';
+import QRListDetails from '../screens/AdminScreens/Menu/VisitorManagementSystem/VisitorManagement/QRListDetails';
+import VisitorListDetails from '../screens/AdminScreens/Menu/VisitorManagementSystem/VisitorManagement/VisitorListDetails';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -980,6 +984,22 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="EmployeeDetailDetails"
           component={EmployeeDetailDetails}
+        />
+        <RootStackScreen.Screen
+          name="VisitorManagementSystem"
+          component={VisitorManagementSystem}
+        />
+        <RootStackScreen.Screen
+          name="VisitorManagement"
+          component={VisitorManagement}
+        />
+        <RootStackScreen.Screen
+          name="QRListDetails"
+          component={QRListDetails}
+        />
+        <RootStackScreen.Screen
+          name="VisitorListDetails"
+          component={VisitorListDetails}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group
