@@ -35,6 +35,7 @@ import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 import moment from 'moment';
 import {
+  useHrmsAssignApprovalOfficerMutation,
   useHrmsListLeaveRequestMutation,
   useHrmsUpdateLeaveRequestMutation,
 } from '../../../../../../injectEndpoints/hrmsEndpoints';
@@ -62,11 +63,10 @@ interface ListPermissionProps {
   onApproveReject: (item: any, status: 'Approved' | 'Rejected') => void;
   onRefresh: () => void;
   recommendedList: any[];
-  selectedRecommended: any;
-  setSelectedRecommended: (d: any) => void;
+  recommendedMap: any;
+  setRecommendedMap: (d: any) => void;
   hitRecommanded: (data: any, item: any) => void;
 }
-
 const ListPermissionCard = ({
   item,
   index,
@@ -74,8 +74,8 @@ const ListPermissionCard = ({
   onApproveReject,
   onRefresh,
   recommendedList,
-  selectedRecommended,
-  setSelectedRecommended,
+  recommendedMap,
+  setRecommendedMap,
   hitRecommanded,
 }: ListPermissionProps) => {
   return (
@@ -153,24 +153,27 @@ const ListPermissionCard = ({
       </View>
       <DropDownOrganism
         label=""
-        placeholder={'Recommended To'}
+        placeholder="Recommended To"
         onPress={() => {
           navigation.navigate('DropDownModal', {
             name: 'Recommended To',
             Data: recommendedList,
-            selectedData: {
-              id: item.approvalOfficerId,
-              name: item.approvalOfficerName,
-            },
+            selectedData: recommendedMap[item.id] || {},
             setSelectedData: (data: any) => {
-              setSelectedRecommended(data);
-              hitRecommanded(data, item);
+              setRecommendedMap((prev: any) => ({
+                ...prev,
+                [item.id]: data,
+              }));
+
+              setTimeout(() => {
+                hitRecommanded(data, item);
+              }, 0);
             },
             typeName: 'name',
             typeId: 'id',
           });
         }}
-        inputText={item.approvalOfficerName}
+        inputText={recommendedMap[item.id]?.name || item.approvalOfficerName}
         containerStyle={{ width: vw(250), alignSelf: 'center' }}
         contentContainerStyle={{ width: vw(300), alignSelf: 'center' }}
         downArrowStyle={{ marginLeft: vh(-100) }}
@@ -243,6 +246,7 @@ const LeaveApproval = (props: Props) => {
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listApi] = useHrmsListLeaveRequestMutation();
   const [updateApi] = useHrmsUpdateLeaveRequestMutation();
+  const [approvalOfficerApi] = useHrmsAssignApprovalOfficerMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -258,7 +262,9 @@ const LeaveApproval = (props: Props) => {
   const [selectedLeaveStatus, setSelectedLeaveStatus] = useState<any>({});
 
   const [recommendedList, setRecommendedList] = useState<any>([]);
-  const [selectedRecommended, setSelectedRecommended] = useState<any>({});
+  const [recommendedMap, setRecommendedMap] = useState<{ [key: number]: any }>(
+    {},
+  );
 
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -397,8 +403,16 @@ const LeaveApproval = (props: Props) => {
       .finally(() => setInitialCall(false));
   };
 
-  const hitRecommanded = ({ data, item }: any) => {
-    onAssignOfficer(data, item);
+  const hitRecommanded = (data: any, item: any) => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: 'Assign Approval Officer Confirmation',
+      message: 'Are you sure you want to assign approval officer?',
+      okText: strings.ok,
+      cancelText: strings.cancel,
+      double: true,
+      okFunction: () => assignApprovalOfficer(data, item),
+      cancelFunction: () => {},
+    });
   };
 
   const renderListPermissionDetails = ({ item, index }: any) => (
@@ -409,8 +423,8 @@ const LeaveApproval = (props: Props) => {
       onApproveReject={openApproveRejectModal}
       onRefresh={() => list(1, true, search)}
       recommendedList={recommendedList}
-      selectedRecommended={selectedRecommended}
-      setSelectedRecommended={setSelectedRecommended}
+      recommendedMap={recommendedMap}
+      setRecommendedMap={setRecommendedMap}
       hitRecommanded={hitRecommanded}
     />
   );
@@ -496,18 +510,6 @@ const LeaveApproval = (props: Props) => {
     list(1, true, search, filters);
   };
 
-  const onAssignOfficer = (data: any, item: any) => {
-    navigation.navigate(screensName.AlertOrganism, {
-      title: 'Assign Approval Officer Confirmation',
-      message: 'Are you sure you want to assign approval officer?',
-      okText: strings.ok,
-      cancelText: strings.cancel,
-      double: true,
-      okFunction: () => assignApprovalOfficer(data, item),
-      cancelFunction: () => {},
-    });
-  };
-
   const assignApprovalOfficer = (data: any, item: any) => {
     const payload = {
       requestId: item.id,
@@ -516,7 +518,7 @@ const LeaveApproval = (props: Props) => {
 
     setInitialCall(true);
 
-    updateApi(payload)
+    approvalOfficerApi(payload)
       .unwrap()
       .then((res: any) => {
         Toast.show({
@@ -529,6 +531,11 @@ const LeaveApproval = (props: Props) => {
         Toast.show({
           type: 'error',
           text2: err?.data?.message || 'Something went wrong',
+        });
+        setRecommendedMap(prev => {
+          const updated = { ...prev };
+          delete updated[item.id];
+          return updated;
         });
       })
       .finally(() => setInitialCall(false));
