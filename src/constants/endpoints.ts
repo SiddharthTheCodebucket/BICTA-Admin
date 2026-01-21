@@ -285,6 +285,9 @@ export default {
   hrms_assign_approval_officer: '/hrms/assign-approval-officer',
   hrms_list_vendor_details: 'hrms/list-vendor-details',
   hrms_blacklisting_vendor: 'hrms/blacklisting-vendor',
+  hrms_assign_reporting_officer: 'hrms/assign-reporting-officer',
+  hrms_assign_approval_authority: 'hrms/assign-approval-authority',
+  hrms_generate_employee_id_card: 'hrms/generate-employee-id-card',
 
   //Visitor Management System
   visitor_list_qr_code: 'visitor/list-visitor-qr-code',

@@ -80,6 +80,27 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    hrmsAssignReportingOfficer: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.hrms_assign_reporting_officer,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    hrmsAssignApprovalAuthority: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.hrms_assign_approval_authority,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    hrmsGenerateEmployeeIdCard: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.hrms_generate_employee_id_card,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -95,4 +116,7 @@ export const {
   useHrmsAssignApprovalOfficerMutation,
   useHrmsListVendorDetailsMutation,
   useHrmsBlacklistingVendorMutation,
+  useHrmsAssignReportingOfficerMutation,
+  useHrmsAssignApprovalAuthorityMutation,
+  useHrmsGenerateEmployeeIdCardMutation,
 } = apiEndpoints;

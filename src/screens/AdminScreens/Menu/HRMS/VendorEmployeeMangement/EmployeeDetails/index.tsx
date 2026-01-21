@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   LayoutAnimation,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -23,6 +24,7 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import images from '../../../../../../constants/images';
 import {
   Header,
   NavigationType,
@@ -33,11 +35,18 @@ import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxO
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 
 import { useAppSelector } from '../../../../../../hooks';
-import { useHrmsListEmployeeMutation } from '../../../../../../injectEndpoints/hrmsEndpoints';
+import {
+  useHrmsAssignApprovalAuthorityMutation,
+  useHrmsAssignReportingOfficerMutation,
+  useHrmsGenerateEmployeeIdCardMutation,
+  useHrmsListEmployeeMutation,
+} from '../../../../../../injectEndpoints/hrmsEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import AssignmentModal from './AssignmentModal';
+import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 
 interface Props {
   navigation: NavigationType;
@@ -57,43 +66,64 @@ interface VendorCardProps {
   item: any;
   index: number;
   navigation: any;
+  isSelected: boolean;
+  onToggleSelect: (item: any) => void;
 }
 
-const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
+const VendorCard: React.FC<VendorCardProps> = ({
+  item,
+  index,
+  navigation,
+  isSelected,
+  onToggleSelect,
+}) => {
   return (
-    <TouchableAtom
-      style={styles.card}
-      onPress={() => {
-        navigation.navigate(screensName.EmployeeDetailDetails, {
-          data: item,
-        });
-      }}
-    >
-      <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-        <TextAtom style={[styles.label, { flex: 1 }]}>
-          Sr. No: {index + 1}
-        </TextAtom>
-      </View>
+    <View style={[styles.card, isSelected && styles.selectedCard]}>
+      <View style={styles.rowBetween}>
+        <TouchableAtom
+          style={{ flex: 1 }}
+          onPress={() => {
+            navigation.navigate(screensName.EmployeeDetailDetails, {
+              data: item,
+            });
+          }}
+        >
+          <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+            <TextAtom style={[styles.label, { flex: 1 }]}>
+              Sr. No: {index + 1}
+            </TextAtom>
+            <TouchableAtom
+              style={styles.checkboxContainer}
+              onPress={() => onToggleSelect(item)}
+            >
+              <Image
+                source={isSelected ? images.checkbox : images.uncheckbox}
+                style={styles.checkboxImage}
+              />
+            </TouchableAtom>
+          </View>
 
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>Employee Name</TextAtom>
-        <TextAtom numberOfLines={0} style={styles.value}>
-          {item.name ?? '-'}
-        </TextAtom>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>Employee Name</TextAtom>
+            <TextAtom numberOfLines={0} style={styles.value}>
+              {item.name ?? '-'}
+            </TextAtom>
+          </View>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>Vendor Name</TextAtom>
+            <TextAtom numberOfLines={0} style={styles.value}>
+              {item.vendorName ?? '-'}
+            </TextAtom>
+          </View>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>Designation</TextAtom>
+            <TextAtom numberOfLines={0} style={styles.value}>
+              {item.designation ?? '-'}
+            </TextAtom>
+          </View>
+        </TouchableAtom>
       </View>
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>Vendor Name</TextAtom>
-        <TextAtom numberOfLines={0} style={styles.value}>
-          {item.vendorName ?? '-'}
-        </TextAtom>
-      </View>
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>Designation</TextAtom>
-        <TextAtom numberOfLines={0} style={styles.value}>
-          {item.designation ?? '-'}
-        </TextAtom>
-      </View>
-    </TouchableAtom>
+    </View>
   );
 };
 
@@ -160,6 +190,9 @@ const EmployeeDetails = (props: Props) => {
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listVendorApi] = useHrmsListEmployeeMutation();
+  const [assignReportingOfficerApi] = useHrmsAssignReportingOfficerMutation();
+  const [assignApprovalAuthorityApi] = useHrmsAssignApprovalAuthorityMutation();
+  const [generateEmployeeIdCardApi] = useHrmsGenerateEmployeeIdCardMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -174,6 +207,20 @@ const EmployeeDetails = (props: Props) => {
 
   const [vendorList, setVendorList] = useState<any>([]);
   const [selectedVendor, setSelectedVendor] = useState<any>({});
+  const [totalCount, setTotalCount] = useState(0);
+
+  // Selection states
+  const [selectedEmployees, setSelectedEmployees] = useState<any[]>([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectAllLoading, setSelectAllLoading] = useState(false);
+
+  // Modal states
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [assignmentType, setAssignmentType] = useState<'RO' | 'AA' | null>(
+    null,
+  );
+  const [roList, setRoList] = useState<any[]>([]);
+  const [aaList, setAaList] = useState<any[]>([]);
 
   const ITEMS_PER_PAGE = 10;
 
@@ -195,6 +242,8 @@ const EmployeeDetails = (props: Props) => {
         listVendorDetails(1, true, '');
         setFirstTimeLoad(false);
         getVendorList();
+        getROList();
+        getAAList();
       }
     }, [centerSerach, search, firstTimeLoad]),
   );
@@ -252,6 +301,7 @@ const EmployeeDetails = (props: Props) => {
         setPage(pageNumber);
 
         const totalCount = res?.data?.totalCount ?? 0;
+        setTotalCount(totalCount);
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
       })
       .catch((err: any) => {
@@ -261,6 +311,46 @@ const EmployeeDetails = (props: Props) => {
         Toast.show({
           type: 'error',
           text2: err.data?.message || 'Something went wrong',
+        });
+      });
+  };
+
+  const fetchAllEmployees = () => {
+    setSelectAllLoading(true);
+    const centreFilter = getCentreFilter();
+    const filters = buildFilters();
+    const params: any = {
+      search: search,
+      sort: {
+        attributes: ['id'],
+        sorts: ['desc'],
+      },
+      filters: filters,
+      pageNo: 1,
+      itemsPerPage: totalCount || 10000,
+    };
+
+    if (centreFilter) {
+      params.bipardCentre = centreFilter;
+    }
+
+    listVendorApi(params)
+      .unwrap()
+      .then((res: any) => {
+        const allData = res.data?.data ?? [];
+        setSelectedEmployees(allData);
+        setSelectAll(true);
+        setSelectAllLoading(false);
+        Toast.show({
+          type: 'success',
+          text2: `Selected ${allData.length} employee(s)`,
+        });
+      })
+      .catch((err: any) => {
+        setSelectAllLoading(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || 'Failed to fetch all employees',
         });
       });
   };
@@ -283,11 +373,193 @@ const EmployeeDetails = (props: Props) => {
   };
 
   const renderListVendorDetails = useCallback(
-    ({ item, index }: any) => (
-      <VendorCard item={item} index={index} navigation={navigation} />
-    ),
-    [navigation],
+    ({ item, index }: any) => {
+      const isSelected = selectedEmployees.some(emp => emp.id === item.id);
+      return (
+        <VendorCard
+          item={item}
+          index={index}
+          navigation={navigation}
+          isSelected={isSelected}
+          onToggleSelect={handleToggleSelect}
+        />
+      );
+    },
+    [navigation, selectedEmployees],
   );
+
+  const handleToggleSelect = (item: any) => {
+    setSelectedEmployees(prev => {
+      const isAlreadySelected = prev.some(emp => emp.id === item.id);
+      if (isAlreadySelected) {
+        return prev.filter(emp => emp.id !== item.id);
+      } else {
+        return [...prev, item];
+      }
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedEmployees([]);
+      setSelectAll(false);
+    } else {
+      fetchAllEmployees();
+    }
+  };
+
+  const handleAssignRO = () => {
+    if (selectedEmployees.length === 0) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please select at least one employee',
+      });
+      return;
+    }
+    setAssignmentType('RO');
+    setShowAssignmentModal(true);
+  };
+
+  const handleAssignAA = () => {
+    if (selectedEmployees.length === 0) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please select at least one employee',
+      });
+      return;
+    }
+    setAssignmentType('AA');
+    setShowAssignmentModal(true);
+  };
+
+  const handleIdCardDownload = () => {
+    if (!selectedVendor?.id) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please select vendor from filter first',
+      });
+      return;
+    }
+    if (selectedEmployees.length === 0) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please select at least one employee',
+      });
+      return;
+    }
+    if (selectedEmployees.length > 10) {
+      Toast.show({
+        type: 'error',
+        text2: 'You can download maximum 10 ID cards at a time',
+      });
+      return;
+    }
+
+    setInitialCall(true);
+
+    const employeeIds = selectedEmployees.map(emp => emp.id);
+    const params = {
+      vendorId: selectedVendor.id,
+      employeeIds: employeeIds,
+    };
+
+    generateEmployeeIdCardApi(params)
+      .unwrap()
+      .then((res: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'success',
+          text2: res?.message || 'ID Card generated successfully',
+        });
+
+        if (res?.idCardPdfUrl) {
+          downloadAndOpenFile(res.idCardPdfUrl);
+        }
+
+        setSelectedEmployees([]);
+        setSelectAll(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || 'Failed to generate ID card',
+        });
+      });
+  };
+
+  const handleAssignmentSubmit = (selectedItem: any) => {
+    if (!selectedItem?.id) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please select an option',
+      });
+      return;
+    }
+
+    setInitialCall(true);
+
+    // Extract employee IDs from selected employees
+    const employeeIds = selectedEmployees.map(emp => emp.id);
+
+    if (assignmentType === 'RO') {
+      // Assign Reporting Officer
+      const params = {
+        employeeIds: employeeIds,
+        reportingOfficer: selectedItem.id,
+      };
+
+      assignReportingOfficerApi(params)
+        .unwrap()
+        .then((res: any) => {
+          setInitialCall(false);
+          Toast.show({
+            type: 'success',
+            text2: res?.message || 'R.O assigned successfully',
+          });
+          setShowAssignmentModal(false);
+          setSelectedEmployees([]);
+          setSelectAll(false);
+          // Refresh the list
+          listVendorDetails(1, true, search, buildFilters());
+        })
+        .catch((err: any) => {
+          setInitialCall(false);
+          Toast.show({
+            type: 'error',
+            text2: err.data?.message || 'Failed to assign R.O',
+          });
+        });
+    } else if (assignmentType === 'AA') {
+      // Assign Approval Authority
+      const params = {
+        employeeIds: employeeIds,
+        approvalAuthority: selectedItem.id,
+      };
+
+      assignApprovalAuthorityApi(params)
+        .unwrap()
+        .then((res: any) => {
+          setInitialCall(false);
+          Toast.show({
+            type: 'success',
+            text2: res?.message || 'A.A assigned successfully',
+          });
+          setShowAssignmentModal(false);
+          setSelectedEmployees([]);
+          setSelectAll(false);
+          // Refresh the list
+          listVendorDetails(1, true, search, buildFilters());
+        })
+        .catch((err: any) => {
+          setInitialCall(false);
+          Toast.show({
+            type: 'error',
+            text2: err.data?.message || 'Failed to assign A.A',
+          });
+        });
+    }
+  };
 
   const clearFilter = () => {
     setSelectedVendor({});
@@ -335,6 +607,56 @@ const EmployeeDetails = (props: Props) => {
       });
   };
 
+  const getROList = () => {
+    setInitialCall(true);
+    const params = {
+      listType: 'select_reporting_officer',
+      bipardCentre: getCentreFilter(),
+      replacements: ['%%'],
+    };
+    commonDropdownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        let resData = res.data || [];
+
+        setRoList(resData);
+        setInitialCall(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+          autoHide: true,
+        });
+      });
+  };
+
+  const getAAList = () => {
+    setInitialCall(true);
+    const params = {
+      listType: 'get_leave_approval_authority',
+      bipardCentre: getCentreFilter(),
+      replacements: [],
+    };
+    commonDropdownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        let resData = res.data || [];
+
+        setAaList(resData);
+        setInitialCall(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+          autoHide: true,
+        });
+      });
+  };
+
   const hitFilterApi = ({ vendor = selectedVendor }: any = {}) => {
     const filters: any[] = [];
 
@@ -345,9 +667,64 @@ const EmployeeDetails = (props: Props) => {
     listVendorDetails(1, true, search, filters);
   };
 
+  useEffect(() => {
+    // Check if all employees are selected based on total count, not just current page
+    if (
+      selectedEmployees.length > 0 &&
+      selectedEmployees.length >= totalCount
+    ) {
+      setSelectAll(true);
+    } else {
+      setSelectAll(false);
+    }
+  }, [selectedEmployees, totalCount]);
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
+      <AssignmentModal
+        visible={showAssignmentModal}
+        type={assignmentType}
+        onClose={() => setShowAssignmentModal(false)}
+        onSubmit={handleAssignmentSubmit}
+        navigation={navigation}
+        dropdownData={assignmentType === 'RO' ? roList : aaList}
+      />
+
+      <View style={styles.actionButtonsContainer}>
+        <TouchableAtom
+          style={[
+            styles.selectAllButton,
+            selectAllLoading && styles.disabledButton,
+          ]}
+          onPress={handleSelectAll}
+          disabled={selectAllLoading}
+        >
+          {selectAllLoading ? (
+            <ActivityIndicator size="small" color={colors.white} />
+          ) : (
+            <TextAtom style={styles.actionButtonText}>
+              {selectAll ? 'Deselect All' : 'Select All'}
+            </TextAtom>
+          )}
+        </TouchableAtom>
+
+        <TouchableAtom style={styles.actionButton} onPress={handleAssignRO}>
+          <TextAtom style={styles.actionButtonText}>Assign R.O</TextAtom>
+        </TouchableAtom>
+
+        <TouchableAtom style={styles.actionButton} onPress={handleAssignAA}>
+          <TextAtom style={styles.actionButtonText}>Assign A.A</TextAtom>
+        </TouchableAtom>
+
+        <TouchableAtom
+          style={styles.actionButton}
+          onPress={handleIdCardDownload}
+        >
+          <TextAtom style={styles.actionButtonText}>ID Card</TextAtom>
+        </TouchableAtom>
+      </View>
+
       <View
         style={{
           flexDirection: 'row',
@@ -585,5 +962,57 @@ const styles = StyleSheet.create({
     color: colors.black,
     marginTop: vh(1.5),
     textAlign: 'left',
+  },
+  selectedCard: {
+    borderColor: colors.primary,
+    borderWidth: 2,
+  },
+  checkboxContainer: {
+    // padding: vw(8),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxImage: {
+    width: vw(24),
+    height: vw(24),
+  },
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: vw(15),
+    paddingVertical: vh(10),
+    backgroundColor: colors.white,
+    marginHorizontal: vw(15),
+    marginTop: vh(10),
+    borderRadius: vw(8),
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  selectAllButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: vw(10),
+    paddingVertical: vh(6),
+    borderRadius: vw(4),
+    minWidth: vw(70),
+    alignItems: 'center',
+  },
+  actionButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: vw(8),
+    paddingVertical: vh(6),
+    borderRadius: vw(4),
+    minWidth: vw(60),
+    alignItems: 'center',
+  },
+  actionButtonText: {
+    color: colors.white,
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(11),
+  },
+  disabledButton: {
+    opacity: 0.6,
   },
 });
