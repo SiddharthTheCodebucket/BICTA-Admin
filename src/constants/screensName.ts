@@ -234,6 +234,7 @@ export default {
   FeedbackQuestionsResponse: 'FeedbackQuestionsResponse',
   GuestDetails: 'GuestDetails',
   GuestDetailDetails: 'GuestDetailDetails',
+  BlockVendorFrom: 'BlockVendorFrom',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

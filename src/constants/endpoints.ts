@@ -284,6 +284,7 @@ export default {
   hrms_list_approval_history: 'hrms/list-approval-history',
   hrms_assign_approval_officer: '/hrms/assign-approval-officer',
   hrms_list_vendor_details: 'hrms/list-vendor-details',
+  hrms_blacklisting_vendor: 'hrms/blacklisting-vendor',
 
   //Visitor Management System
   visitor_list_qr_code: 'visitor/list-visitor-qr-code',

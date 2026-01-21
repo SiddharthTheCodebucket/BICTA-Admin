@@ -73,6 +73,13 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    hrmsBlacklistingVendor: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.hrms_blacklisting_vendor,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -87,4 +94,5 @@ export const {
   useHrmsListApprovalHistoryMutation,
   useHrmsAssignApprovalOfficerMutation,
   useHrmsListVendorDetailsMutation,
+  useHrmsBlacklistingVendorMutation,
 } = apiEndpoints;

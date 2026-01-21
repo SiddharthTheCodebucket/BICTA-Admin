@@ -14,7 +14,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
+import {
+  colors,
+  fonts,
+  screensName,
+  strings,
+  vh,
+  vw,
+} from '../../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -27,6 +34,7 @@ import DropDownOrganism from '../../../../../../components/organisms/DropDownOrg
 import { useAppSelector } from '../../../../../../hooks';
 import { useHrmsListVendorDetailsMutation } from '../../../../../../injectEndpoints/hrmsEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
+import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 
 interface Props {
   navigation: NavigationType;
@@ -46,9 +54,24 @@ interface VendorCardProps {
   item: any;
   index: number;
   navigation: any;
+  onRefresh: () => void;
 }
 
-const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
+const VendorCard: React.FC<VendorCardProps> = ({
+  item,
+  index,
+  navigation,
+  onRefresh,
+}) => {
+  const isBlocked = item.isBlacklisted === 'Yes';
+
+  const onToggleBlock = () => {
+    navigation.navigate(screensName.BlockVendorFrom, {
+      item: item,
+      onDone: onRefresh,
+    });
+  };
+
   return (
     <ViewAtom style={styles.card}>
       <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
@@ -85,22 +108,38 @@ const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
         </TextAtom>
       </View>
 
-      <View style={[styles.rowBetween]}>
+      <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Block / Unblock</TextAtom>
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.isBlacklisted ?? '-'}
+          <TextAtom style={styles.label}>{'Block / Unblock'}</TextAtom>
+          <TextAtom style={styles.value}>
+            {isBlocked ? 'Blocked' : 'Unblock'}
           </TextAtom>
         </View>
-        {item.isBlacklisted === 'Yes' && (
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.labelRight}>Blocked By</TextAtom>
-            <TextAtom numberOfLines={0} style={styles.valueRight}>
-              {item.blacklistedBy ?? '-'}
-            </TextAtom>
-          </View>
-        )}
+
+        <TouchableAtom
+          onPress={onToggleBlock}
+          style={[
+            styles.blockBtn,
+            {
+              backgroundColor: isBlocked ? colors.green : colors.primary,
+            },
+          ]}
+        >
+          <TextAtom style={styles.blockBtnText}>
+            {isBlocked ? 'Unblock' : 'Block'}
+          </TextAtom>
+        </TouchableAtom>
       </View>
+
+      {item.isBlacklisted === 'Yes' && (
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Blocked By</TextAtom>
+          <TextAtom numberOfLines={0} style={styles.value}>
+            {item.blacklistedBy ?? '-'}
+          </TextAtom>
+        </View>
+      )}
+
       {item.isBlacklisted === 'Yes' && (
         <View style={{ flex: 1 }}>
           <TextAtom style={styles.label}>Reason for Blacklisting</TextAtom>
@@ -240,7 +279,12 @@ const VendorListDetails = (props: Props) => {
 
   const renderListVendorDetails = useCallback(
     ({ item, index }: any) => (
-      <VendorCard item={item} index={index} navigation={navigation} />
+      <VendorCard
+        item={item}
+        index={index}
+        navigation={navigation}
+        onRefresh={() => listVendorDetails(1, true, search)}
+      />
     ),
     [navigation],
   );
@@ -459,5 +503,15 @@ const styles = StyleSheet.create({
     color: colors.black,
     marginTop: vh(1.5),
     textAlign: 'left',
+  },
+  blockBtn: {
+    paddingHorizontal: vw(14),
+    paddingVertical: vh(6),
+    borderRadius: vw(6),
+  },
+  blockBtnText: {
+    color: colors.white,
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(13),
   },
 });
