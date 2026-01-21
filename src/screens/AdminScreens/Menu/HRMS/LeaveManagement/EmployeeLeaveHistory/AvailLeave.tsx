@@ -173,6 +173,8 @@ const AvailLeave = (props: Props) => {
           placeholder={'Employee Name'}
           value={form.employeeName}
           onChangeText={() => {}}
+          disabled
+          editable={false}
         />
         <DropDownOrganism
           label={'Leave Type'}
