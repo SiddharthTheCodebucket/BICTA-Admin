@@ -250,6 +250,7 @@ import GuestDetails from '../screens/AdminScreens/Menu/ConferenceManagementSyste
 import GuestDetailDetails from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/GuestDetails/GuestDetailDetails';
 import BlockVendorFrom from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/VendorListDetails/BlockVendorFrom';
 import BlockEmployeeFrom from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/EmployeeDetails/BlockEmployeeFrom';
+import AddConferenceForm from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceMasterDetails/AddConferenceForm';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -1057,6 +1058,10 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="BlockEmployeeFrom"
           component={BlockEmployeeFrom}
+        />
+        <RootStackScreen.Screen
+          name="AddConferenceForm"
+          component={AddConferenceForm}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

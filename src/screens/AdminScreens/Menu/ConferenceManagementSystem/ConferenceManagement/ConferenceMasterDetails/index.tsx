@@ -41,8 +41,12 @@ import moment from 'moment';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
-import { useConferenceListConferenceMutation } from '../../../../../../injectEndpoints/conferenceManagementEndpoints';
+import {
+  useConferenceDeleteConferenceMutation,
+  useConferenceListConferenceMutation,
+} from '../../../../../../injectEndpoints/conferenceManagementEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 
 interface Props {
   navigation: NavigationType;
@@ -62,9 +66,17 @@ interface VendorCardProps {
   item: any;
   index: number;
   navigation: any;
+  onRefresh: () => void;
+  onDelete: (id: any) => void;
 }
 
-const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
+const VendorCard: React.FC<VendorCardProps> = ({
+  item,
+  index,
+  navigation,
+  onRefresh,
+  onDelete,
+}) => {
   const formatDateTime = (date?: string, time?: string) => {
     if (!date || !time) return '-';
     return moment(`${date} ${time}`, 'YYYY-MM-DD HH:mm:ss').format(
@@ -96,6 +108,21 @@ const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
     };
   };
   const statusStyle = getStatusStyle(item.status);
+
+  const confirmDelete = () => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: strings.hostelManagement.bedDetails.deleteConfirmation,
+      message: strings.hostelManagement.bedDetails.deleteMessage,
+      okText: strings.hostelManagement.confirm,
+      double: true,
+      cancelText: strings.cancel,
+      okFunction: () => onDelete(item.id),
+      cancelFunction: () => {},
+    });
+  };
+
+  const isShowEditDelete = item?.status === 'Upcoming';
+
   return (
     <ViewAtom style={styles.card}>
       <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
@@ -113,7 +140,7 @@ const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
               justifyContent: 'center',
             }}
             onPress={() => {
-              navigation.navigate(screensName.GuestSeniorityList, {
+              navigation.navigate(screensName.AddConferenceForm, {
                 item: item,
               });
             }}
@@ -127,6 +154,30 @@ const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
               }}
             />
           </TouchableAtom>
+          {isShowEditDelete && (
+            <>
+              <TouchableAtom
+                style={styles.editButton}
+                onPress={() =>
+                  navigation.navigate(screensName.AddConferenceForm, {
+                    item,
+                    onDone: onRefresh,
+                  })
+                }
+              >
+                <ImageAtom
+                  source={images.edit_pencil}
+                  style={styles.editIcon}
+                />
+              </TouchableAtom>
+              <TouchableAtom
+                style={styles.deleteButton}
+                onPress={confirmDelete}
+              >
+                <ImageAtom source={images.delete} style={styles.iconSmall} />
+              </TouchableAtom>
+            </>
+          )}
         </View>
       </View>
 
@@ -262,6 +313,7 @@ const ConferenceMasterDetails = (props: Props) => {
   const { crediantialData } = useAppSelector(state => state.Auth);
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listApi] = useConferenceListConferenceMutation();
+  const [deleteApi] = useConferenceDeleteConferenceMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -396,7 +448,13 @@ const ConferenceMasterDetails = (props: Props) => {
 
   const renderlist = useCallback(
     ({ item, index }: any) => (
-      <VendorCard item={item} index={index} navigation={navigation} />
+      <VendorCard
+        item={item}
+        index={index}
+        navigation={navigation}
+        onDelete={deleteData}
+        onRefresh={() => list(1, true, search)}
+      />
     ),
     [navigation],
   );
@@ -478,6 +536,30 @@ const ConferenceMasterDetails = (props: Props) => {
           type: 'error',
           text2: err.data.message,
           autoHide: true,
+        });
+      });
+  };
+
+  const deleteData = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      id: id,
+    };
+    deleteApi(params)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+        setInitialCall(false);
+        list(1, true, search);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -600,6 +682,13 @@ const ConferenceMasterDetails = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={ListItemSeparator}
       />
+      <FloatingButton
+        onButtonPress={() => {
+          navigation.navigate(screensName.AddConferenceForm, {
+            onDone: () => list(1, true, search),
+          });
+        }}
+      />
     </SafeAreaView>
   );
 };
@@ -718,4 +807,26 @@ const styles = StyleSheet.create({
     fontFamily: fonts.Roboto_Medium,
     fontSize: vw(12),
   },
+  editButton: {
+    borderWidth: vw(1),
+    borderColor: colors.green,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editIcon: {
+    tintColor: colors.green,
+    width: vw(15),
+    height: vw(15),
+  },
+  deleteButton: {
+    borderWidth: vw(1),
+    borderColor: colors.red_2,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSmall: { width: vw(15), height: vw(15) },
 });

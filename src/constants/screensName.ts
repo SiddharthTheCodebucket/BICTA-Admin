@@ -236,6 +236,7 @@ export default {
   GuestDetailDetails: 'GuestDetailDetails',
   BlockVendorFrom: 'BlockVendorFrom',
   BlockEmployeeFrom: 'BlockEmployeeFrom',
+  AddConferenceForm: 'AddConferenceForm',
   // Trainee Screen
   MyProfile: 'MyProfile',
   ProfileDetails: 'ProfileDetails',

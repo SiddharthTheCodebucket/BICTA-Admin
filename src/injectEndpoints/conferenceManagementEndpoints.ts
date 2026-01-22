@@ -38,6 +38,27 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    conferenceDeleteConference: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.conference_delete_conference,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    conferenceUpdateConference: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.conference_update_conference,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    conferenceAddConference: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.conference_add_conference,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -47,4 +68,7 @@ export const {
   useConferenceListManagementInchargeDetailsMutation,
   useConferenceListManthanMutation,
   useConferenceListGuestDetailsMutation,
+  useConferenceDeleteConferenceMutation,
+  useConferenceAddConferenceMutation,
+  useConferenceUpdateConferenceMutation,
 } = apiEndpoints;
