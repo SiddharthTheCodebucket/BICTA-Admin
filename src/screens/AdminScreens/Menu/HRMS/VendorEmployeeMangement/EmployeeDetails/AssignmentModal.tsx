@@ -8,11 +8,13 @@ import DropDownOrganism from '../../../../../../components/organisms/DropDownOrg
 
 interface Props {
   visible: boolean;
-  type: 'RO' | 'AA' | null;
+  type: 'RO' | 'AA' | 'VENDOR' | null;
   onClose: () => void;
   onSubmit: (selectedItem: any) => void;
   navigation: any;
   dropdownData: any[];
+  initialSelection?: any;
+  isBulk?: boolean;
 }
 
 const AssignmentModal = ({
@@ -22,6 +24,8 @@ const AssignmentModal = ({
   onSubmit,
   navigation,
   dropdownData,
+  initialSelection,
+  isBulk,
 }: Props) => {
   const [selectedItem, setSelectedItem] = useState<any>({});
   const [error, setError] = useState('');
@@ -29,15 +33,17 @@ const AssignmentModal = ({
 
   useEffect(() => {
     if (visible) {
-      setSelectedItem({});
+      setSelectedItem(initialSelection || {});
       setError('');
       setTempHidden(false);
     }
-  }, [visible]);
+  }, [visible, initialSelection]);
 
   const handleSubmit = () => {
     if (!selectedItem?.id) {
-      setError(`Please select ${type === 'RO' ? 'R.O' : 'A.A'}`);
+      if (type === 'RO') setError('Please select R.O');
+      else if (type === 'AA') setError('Please select A.A');
+      else if (type === 'VENDOR') setError('Please select Vendor');
       return;
     }
 
@@ -46,11 +52,17 @@ const AssignmentModal = ({
   };
 
   const getTitle = () => {
-    return type === 'RO' ? 'Assign R.O' : 'Assign A.A';
+    if (type === 'RO') return isBulk ? 'Assign R.O (Bulk)' : 'Assign R.O';
+    if (type === 'AA') return isBulk ? 'Assign A.A (Bulk)' : 'Assign A.A';
+    if (type === 'VENDOR') return 'Change Vendor';
+    return '';
   };
 
   const getLabel = () => {
-    return type === 'RO' ? 'Select R.O' : 'Select A.A';
+    if (type === 'RO') return isBulk ? 'Select R.O (Bulk)' : 'Select R.O';
+    if (type === 'AA') return isBulk ? 'Select A.A (Bulk)' : 'Select A.A';
+    if (type === 'VENDOR') return 'Select Vendor';
+    return '';
   };
 
   return (

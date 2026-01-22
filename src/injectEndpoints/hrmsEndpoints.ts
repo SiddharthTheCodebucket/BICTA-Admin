@@ -101,6 +101,34 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    hrmsChangeEmployeeVendor: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.hrms_change_employee_vendor,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    hrmsApproveOrReject: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.hrms_approve_or_reject,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    hrmsBlacklistingEmployee: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.hrms_blacklisting_employee,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    hrmsDeleteEmployee: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.hrms_delete_employee,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -119,4 +147,8 @@ export const {
   useHrmsAssignReportingOfficerMutation,
   useHrmsAssignApprovalAuthorityMutation,
   useHrmsGenerateEmployeeIdCardMutation,
+  useHrmsChangeEmployeeVendorMutation,
+  useHrmsApproveOrRejectMutation,
+  useHrmsBlacklistingEmployeeMutation,
+  useHrmsDeleteEmployeeMutation,
 } = apiEndpoints;

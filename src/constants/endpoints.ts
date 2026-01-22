@@ -288,6 +288,10 @@ export default {
   hrms_assign_reporting_officer: 'hrms/assign-reporting-officer',
   hrms_assign_approval_authority: 'hrms/assign-approval-authority',
   hrms_generate_employee_id_card: 'hrms/generate-employee-id-card',
+  hrms_change_employee_vendor: 'hrms/change-employee-vendor',
+  hrms_approve_or_reject: 'hrms/approve-or-reject',
+  hrms_blacklisting_employee: 'hrms/blacklisting-employee',
+  hrms_delete_employee: 'hrms/delete-employee',
 
   //Visitor Management System
   visitor_list_qr_code: 'visitor/list-visitor-qr-code',

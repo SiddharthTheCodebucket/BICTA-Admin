@@ -36,8 +36,11 @@ import DropDownOrganism from '../../../../../../components/organisms/DropDownOrg
 
 import { useAppSelector } from '../../../../../../hooks';
 import {
+  useHrmsApproveOrRejectMutation,
   useHrmsAssignApprovalAuthorityMutation,
   useHrmsAssignReportingOfficerMutation,
+  useHrmsChangeEmployeeVendorMutation,
+  useHrmsDeleteEmployeeMutation,
   useHrmsGenerateEmployeeIdCardMutation,
   useHrmsListEmployeeMutation,
 } from '../../../../../../injectEndpoints/hrmsEndpoints';
@@ -47,6 +50,7 @@ import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganis
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import AssignmentModal from './AssignmentModal';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
+import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 
 interface Props {
   navigation: NavigationType;
@@ -68,6 +72,10 @@ interface VendorCardProps {
   navigation: any;
   isSelected: boolean;
   onToggleSelect: (item: any) => void;
+  onChangeVendor: (item: any) => void;
+  onUpdateStatus: (id: any, approvalStatus: string) => void;
+  onRefresh: () => void;
+  onDelete: (id: any) => void;
 }
 
 const VendorCard: React.FC<VendorCardProps> = ({
@@ -76,7 +84,48 @@ const VendorCard: React.FC<VendorCardProps> = ({
   navigation,
   isSelected,
   onToggleSelect,
+  onChangeVendor,
+  onUpdateStatus,
+  onRefresh,
+  onDelete,
 }) => {
+  const approvalStatus = item?.approvalStatus || '';
+  const [showApprovalStatus, setShowApprovalStatus] = useState(false);
+
+  const isBlocked = item.isBlacklisted === 'Yes';
+
+  const onToggleBlock = () => {
+    navigation.navigate(screensName.BlockEmployeeFrom, {
+      item: item,
+      onDone: onRefresh,
+    });
+  };
+
+  const confirmStatusChange = (approvalStatus: string) => {
+    setShowApprovalStatus(false);
+    navigation.navigate(screensName.AlertOrganism, {
+      title: strings.hostelManagement.bedDetails.statusChangeConfirmation,
+      message: 'Are you sure you want to change status this item?',
+      okText: strings.hostelManagement.confirm,
+      double: true,
+      cancelText: strings.cancel,
+      okFunction: () => onUpdateStatus(item.id, approvalStatus),
+      cancelFunction: () => {},
+    });
+  };
+
+  const confirmDelete = () => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: strings.hostelManagement.bedDetails.deleteConfirmation,
+      message: strings.hostelManagement.bedDetails.deleteMessage,
+      okText: strings.hostelManagement.confirm,
+      double: true,
+      cancelText: strings.cancel,
+      okFunction: () => onDelete(item.id),
+      cancelFunction: () => {},
+    });
+  };
+
   return (
     <View style={[styles.card, isSelected && styles.selectedCard]}>
       <View style={styles.rowBetween}>
@@ -92,15 +141,31 @@ const VendorCard: React.FC<VendorCardProps> = ({
             <TextAtom style={[styles.label, { flex: 1 }]}>
               Sr. No: {index + 1}
             </TextAtom>
-            <TouchableAtom
-              style={styles.checkboxContainer}
-              onPress={() => onToggleSelect(item)}
-            >
-              <Image
-                source={isSelected ? images.checkbox : images.uncheckbox}
-                style={styles.checkboxImage}
-              />
-            </TouchableAtom>
+            <ViewAtom style={{ flexDirection: 'row', gap: vw(15) }}>
+              <TouchableAtom
+                style={styles.changeVendorBtn}
+                onPress={() => onChangeVendor(item)}
+              >
+                <TextAtom style={styles.changeVendorText}>
+                  Change Vendor
+                </TextAtom>
+              </TouchableAtom>
+              <TouchableAtom
+                style={styles.deleteButton}
+                onPress={confirmDelete}
+              >
+                <ImageAtom source={images.delete} style={styles.iconSmall} />
+              </TouchableAtom>
+              <TouchableAtom
+                style={styles.checkboxContainer}
+                onPress={() => onToggleSelect(item)}
+              >
+                <Image
+                  source={isSelected ? images.checkbox : images.uncheckbox}
+                  style={styles.checkboxImage}
+                />
+              </TouchableAtom>
+            </ViewAtom>
           </View>
 
           <View style={{ flex: 1 }}>
@@ -122,6 +187,72 @@ const VendorCard: React.FC<VendorCardProps> = ({
             </TextAtom>
           </View>
         </TouchableAtom>
+      </View>
+
+      <View style={styles.rowBetween}>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>{'Block / Unblock'}</TextAtom>
+          <TextAtom style={styles.value}>
+            {isBlocked ? 'Blocked' : 'Unblock'}
+          </TextAtom>
+        </View>
+
+        <TouchableAtom
+          onPress={onToggleBlock}
+          style={[
+            styles.blockBtn,
+            {
+              backgroundColor: isBlocked ? colors.green : colors.primary,
+            },
+          ]}
+        >
+          <TextAtom style={styles.blockBtnText}>
+            {isBlocked ? 'Unblock' : 'Block'}
+          </TextAtom>
+        </TouchableAtom>
+      </View>
+
+      <View style={styles.statusContainer}>
+        <TextAtom style={styles.label}>{'Approval Status'}</TextAtom>
+        <TouchableAtom
+          onPress={() => setShowApprovalStatus(!showApprovalStatus)}
+          style={[
+            styles.statusBox,
+            approvalStatus === 'Approved'
+              ? styles.activeBox
+              : styles.inActiveBox,
+          ]}
+        >
+          <TextAtom
+            style={[
+              styles.statusText,
+              approvalStatus === 'Approved'
+                ? styles.activeText
+                : styles.inActiveText,
+            ]}
+          >
+            {approvalStatus ?? null}
+          </TextAtom>
+          <ImageAtom source={images.downArrow} />
+        </TouchableAtom>
+
+        {showApprovalStatus && (
+          <View style={styles.dropMenu}>
+            <TouchableAtom
+              style={styles.dropItem}
+              onPress={() => confirmStatusChange('Approved')}
+            >
+              <TextAtom style={styles.statusTextBlack}>{'Approved'}</TextAtom>
+            </TouchableAtom>
+
+            <TouchableAtom
+              style={styles.dropItem}
+              onPress={() => confirmStatusChange('Rejected')}
+            >
+              <TextAtom style={styles.statusTextBlack}>{'Rejected'}</TextAtom>
+            </TouchableAtom>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -193,6 +324,9 @@ const EmployeeDetails = (props: Props) => {
   const [assignReportingOfficerApi] = useHrmsAssignReportingOfficerMutation();
   const [assignApprovalAuthorityApi] = useHrmsAssignApprovalAuthorityMutation();
   const [generateEmployeeIdCardApi] = useHrmsGenerateEmployeeIdCardMutation();
+  const [changeEmployeeVendorApi] = useHrmsChangeEmployeeVendorMutation();
+  const [approveOrRejectApi] = useHrmsApproveOrRejectMutation();
+  const [deleteApi] = useHrmsDeleteEmployeeMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -211,16 +345,20 @@ const EmployeeDetails = (props: Props) => {
 
   // Selection states
   const [selectedEmployees, setSelectedEmployees] = useState<any[]>([]);
-  const [selectAll, setSelectAll] = useState(false);
+
   const [selectAllLoading, setSelectAllLoading] = useState(false);
 
   // Modal states
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
-  const [assignmentType, setAssignmentType] = useState<'RO' | 'AA' | null>(
-    null,
-  );
+  const [assignmentType, setAssignmentType] = useState<
+    'RO' | 'AA' | 'VENDOR' | null
+  >(null);
+  const [selectedEmployeeForVendorChange, setSelectedEmployeeForVendorChange] =
+    useState<any>(null);
   const [roList, setRoList] = useState<any[]>([]);
   const [aaList, setAaList] = useState<any[]>([]);
+
+  const [prefillSelection, setPrefillSelection] = useState<any>({});
 
   const ITEMS_PER_PAGE = 10;
 
@@ -339,7 +477,6 @@ const EmployeeDetails = (props: Props) => {
       .then((res: any) => {
         const allData = res.data?.data ?? [];
         setSelectedEmployees(allData);
-        setSelectAll(true);
         setSelectAllLoading(false);
         Toast.show({
           type: 'success',
@@ -382,6 +519,10 @@ const EmployeeDetails = (props: Props) => {
           navigation={navigation}
           isSelected={isSelected}
           onToggleSelect={handleToggleSelect}
+          onChangeVendor={handleChangeVendor}
+          onUpdateStatus={updateStatus}
+          onRefresh={() => listVendorDetails(1, true, search)}
+          onDelete={deleteEmployee}
         />
       );
     },
@@ -400,9 +541,8 @@ const EmployeeDetails = (props: Props) => {
   };
 
   const handleSelectAll = () => {
-    if (selectAll) {
+    if (selectedEmployees.length > 0) {
       setSelectedEmployees([]);
-      setSelectAll(false);
     } else {
       fetchAllEmployees();
     }
@@ -416,7 +556,23 @@ const EmployeeDetails = (props: Props) => {
       });
       return;
     }
+
     setAssignmentType('RO');
+
+    if (selectedEmployees.length === 1) {
+      const emp = selectedEmployees[0];
+      if (emp.reportingOfficerId && emp.reportingOfficerName) {
+        setPrefillSelection({
+          id: emp.reportingOfficerId,
+          name: emp.reportingOfficerName,
+        });
+      } else {
+        setPrefillSelection({});
+      }
+    } else {
+      setPrefillSelection({});
+    }
+
     setShowAssignmentModal(true);
   };
 
@@ -428,7 +584,38 @@ const EmployeeDetails = (props: Props) => {
       });
       return;
     }
+
     setAssignmentType('AA');
+
+    if (selectedEmployees.length === 1) {
+      const emp = selectedEmployees[0];
+      if (emp.approvalAuthority) {
+        setPrefillSelection({
+          id: emp.approvalAuthority,
+          name: emp.approvalAuthority,
+        });
+      } else {
+        setPrefillSelection({});
+      }
+    } else {
+      setPrefillSelection({});
+    }
+
+    setShowAssignmentModal(true);
+  };
+
+  const handleChangeVendor = (item: any) => {
+    setAssignmentType('VENDOR');
+
+    if (item.vendorId && item.vendorName) {
+      setPrefillSelection({
+        id: item.vendorId,
+        name: item.vendorName,
+      });
+    } else {
+      setPrefillSelection({});
+    }
+
     setShowAssignmentModal(true);
   };
 
@@ -469,15 +656,14 @@ const EmployeeDetails = (props: Props) => {
         setInitialCall(false);
         Toast.show({
           type: 'success',
-          text2: res?.message || 'ID Card generated successfully',
+          text2: res?.data?.message || 'ID Card generated successfully',
         });
 
-        if (res?.idCardPdfUrl) {
-          downloadAndOpenFile(res.idCardPdfUrl);
+        if (res?.data?.idCardPdfUrl) {
+          downloadAndOpenFile(res?.data?.idCardPdfUrl);
         }
 
         setSelectedEmployees([]);
-        setSelectAll(false);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -499,11 +685,9 @@ const EmployeeDetails = (props: Props) => {
 
     setInitialCall(true);
 
-    // Extract employee IDs from selected employees
     const employeeIds = selectedEmployees.map(emp => emp.id);
 
     if (assignmentType === 'RO') {
-      // Assign Reporting Officer
       const params = {
         employeeIds: employeeIds,
         reportingOfficer: selectedItem.id,
@@ -519,8 +703,6 @@ const EmployeeDetails = (props: Props) => {
           });
           setShowAssignmentModal(false);
           setSelectedEmployees([]);
-          setSelectAll(false);
-          // Refresh the list
           listVendorDetails(1, true, search, buildFilters());
         })
         .catch((err: any) => {
@@ -531,7 +713,6 @@ const EmployeeDetails = (props: Props) => {
           });
         });
     } else if (assignmentType === 'AA') {
-      // Assign Approval Authority
       const params = {
         employeeIds: employeeIds,
         approvalAuthority: selectedItem.id,
@@ -547,8 +728,6 @@ const EmployeeDetails = (props: Props) => {
           });
           setShowAssignmentModal(false);
           setSelectedEmployees([]);
-          setSelectAll(false);
-          // Refresh the list
           listVendorDetails(1, true, search, buildFilters());
         })
         .catch((err: any) => {
@@ -558,7 +737,83 @@ const EmployeeDetails = (props: Props) => {
             text2: err.data?.message || 'Failed to assign A.A',
           });
         });
+    } else if (assignmentType === 'VENDOR') {
+      const params = {
+        employeeId: selectedEmployeeForVendorChange?.id,
+        vendorId: selectedItem.id,
+      };
+
+      changeEmployeeVendorApi(params)
+        .unwrap()
+        .then((res: any) => {
+          setInitialCall(false);
+          Toast.show({
+            type: 'success',
+            text2: res?.message || 'Vendor changed successfully',
+          });
+          setShowAssignmentModal(false);
+          setSelectedEmployees([]);
+          setSelectedEmployeeForVendorChange(null);
+          listVendorDetails(1, true, search, buildFilters());
+        })
+        .catch((err: any) => {
+          setInitialCall(false);
+          Toast.show({
+            type: 'error',
+            text2: err.data?.message || 'Failed to change vendor',
+          });
+        });
     }
+  };
+
+  const updateStatus = (id: any, approvalStatus: string) => {
+    setInitialCall(true);
+    const params = {
+      employeeId: id,
+      approvalStatus: approvalStatus,
+      approverRemark: '',
+    };
+    approveOrRejectApi(params)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+        setInitialCall(false);
+        listVendorDetails(1, true, search);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || strings.something_went_wrong,
+        });
+      });
+  };
+
+  const deleteEmployee = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      employeeId: id,
+    };
+    deleteApi(params)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+        setInitialCall(false);
+        listVendorDetails(1, true, search);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || strings.something_went_wrong,
+        });
+      });
   };
 
   const clearFilter = () => {
@@ -667,28 +922,31 @@ const EmployeeDetails = (props: Props) => {
     listVendorDetails(1, true, search, filters);
   };
 
-  useEffect(() => {
-    // Check if all employees are selected based on total count, not just current page
-    if (
-      selectedEmployees.length > 0 &&
-      selectedEmployees.length >= totalCount
-    ) {
-      setSelectAll(true);
-    } else {
-      setSelectAll(false);
+  const getAssignmentDropdownData = () => {
+    switch (assignmentType) {
+      case 'RO':
+        return roList;
+      case 'AA':
+        return aaList;
+      case 'VENDOR':
+        return vendorList;
+      default:
+        return [];
     }
-  }, [selectedEmployees, totalCount]);
+  };
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <FullscreenLoading isVisible={initialCall} />
+      <FullscreenLoading isVisible={initialCall || selectAllLoading} />
       <AssignmentModal
         visible={showAssignmentModal}
         type={assignmentType}
         onClose={() => setShowAssignmentModal(false)}
         onSubmit={handleAssignmentSubmit}
         navigation={navigation}
-        dropdownData={assignmentType === 'RO' ? roList : aaList}
+        dropdownData={getAssignmentDropdownData()}
+        initialSelection={prefillSelection}
+        isBulk={selectedEmployees.length > 1}
       />
 
       <View style={styles.actionButtonsContainer}>
@@ -704,7 +962,7 @@ const EmployeeDetails = (props: Props) => {
             <ActivityIndicator size="small" color={colors.white} />
           ) : (
             <TextAtom style={styles.actionButtonText}>
-              {selectAll ? 'Deselect All' : 'Select All'}
+              {selectedEmployees.length > 1 ? 'Unselect All' : 'Select All'}
             </TextAtom>
           )}
         </TouchableAtom>
@@ -1015,4 +1273,81 @@ const styles = StyleSheet.create({
   disabledButton: {
     opacity: 0.6,
   },
+  changeVendorBtn: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: vw(5),
+    paddingVertical: vh(4),
+    borderRadius: vw(4),
+    alignSelf: 'flex-start',
+  },
+  changeVendorText: {
+    color: colors.white,
+    fontSize: vw(10),
+    fontFamily: fonts.Roboto_Regular,
+  },
+  statusContainer: { marginTop: vh(0), zIndex: 999 },
+  statusTextBlack: { color: colors.black },
+  statusBox: {
+    marginTop: vh(8),
+    paddingVertical: vh(8),
+    paddingHorizontal: vw(12),
+    borderRadius: vw(6),
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  activeBox: {
+    backgroundColor: colors.backgroundColor,
+    borderColor: colors.darkGreen,
+  },
+
+  inActiveBox: {
+    backgroundColor: colors.backgroundColor,
+    borderColor: colors.redText,
+  },
+
+  statusText: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+  },
+
+  activeText: { color: colors.greenText },
+  inActiveText: { color: colors.redText },
+
+  dropMenu: {
+    marginTop: vh(6),
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.grey,
+    borderRadius: vw(6),
+    overflow: 'hidden',
+  },
+
+  dropItem: {
+    paddingVertical: vh(10),
+    paddingHorizontal: vw(12),
+    borderBottomWidth: 1,
+    borderBottomColor: colors.chinese_silver,
+  },
+  blockBtn: {
+    paddingHorizontal: vw(14),
+    paddingVertical: vh(6),
+    borderRadius: vw(6),
+  },
+  blockBtnText: {
+    color: colors.white,
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(13),
+  },
+  deleteButton: {
+    borderWidth: vw(1),
+    borderColor: colors.red_2,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSmall: { width: vw(15), height: vw(15) },
 });
