@@ -308,4 +308,6 @@ export default {
   conference_delete_conference: 'conference/delete-conference',
   conference_update_conference: 'conference/update-conference',
   conference_add_conference: 'conference/add-conference',
+  conference_delete_management_incharge_details:
+    'conference/delete-management-incharge-details',
 };

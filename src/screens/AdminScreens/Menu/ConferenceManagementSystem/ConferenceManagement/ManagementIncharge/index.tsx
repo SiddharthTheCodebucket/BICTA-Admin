@@ -38,7 +38,10 @@ import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
-import { useConferenceListManagementInchargeDetailsMutation } from '../../../../../../injectEndpoints/conferenceManagementEndpoints';
+import {
+  useConferenceDeleteManagementInchargeDetailsMutation,
+  useConferenceListManagementInchargeDetailsMutation,
+} from '../../../../../../injectEndpoints/conferenceManagementEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
@@ -59,9 +62,15 @@ interface VendorCardProps {
   item: any;
   index: number;
   navigation: any;
+  onDelete: (id: any) => void;
 }
 
-const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
+const VendorCard: React.FC<VendorCardProps> = ({
+  item,
+  index,
+  navigation,
+  onDelete,
+}) => {
   const nodalOfficerNames =
     item?.nodalOfficers?.length > 0
       ? item.nodalOfficers.map((o: any) => o.name).join(', ')
@@ -72,6 +81,17 @@ const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
   const liaisonCount =
     item?.liaisonOfficersNameCount ?? item?.liaisonOfficers?.length ?? 0;
 
+  const confirmDelete = () => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: strings.hostelManagement.bedDetails.deleteConfirmation,
+      message: strings.hostelManagement.bedDetails.deleteMessage,
+      okText: strings.hostelManagement.confirm,
+      double: true,
+      cancelText: strings.cancel,
+      okFunction: () => onDelete(item.id),
+      cancelFunction: () => {},
+    });
+  };
   return (
     <ViewAtom style={styles.card}>
       <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
@@ -102,6 +122,9 @@ const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
                 height: vw(15),
               }}
             />
+          </TouchableAtom>
+          <TouchableAtom style={styles.deleteButton} onPress={confirmDelete}>
+            <ImageAtom source={images.delete} style={styles.iconSmall} />
           </TouchableAtom>
         </View>
       </View>
@@ -200,6 +223,7 @@ const ManagementIncharge = (props: Props) => {
   const { crediantialData } = useAppSelector(state => state.Auth);
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listApi] = useConferenceListManagementInchargeDetailsMutation();
+  const [deleteApi] = useConferenceDeleteManagementInchargeDetailsMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -330,7 +354,12 @@ const ManagementIncharge = (props: Props) => {
 
   const renderlist = useCallback(
     ({ item, index }: any) => (
-      <VendorCard item={item} index={index} navigation={navigation} />
+      <VendorCard
+        item={item}
+        index={index}
+        navigation={navigation}
+        onDelete={deleteData}
+      />
     ),
     [navigation],
   );
@@ -390,6 +419,30 @@ const ManagementIncharge = (props: Props) => {
           type: 'error',
           text2: err.data.message,
           autoHide: true,
+        });
+      });
+  };
+
+  const deleteData = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      id: id,
+    };
+    deleteApi(params)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+        setInitialCall(false);
+        list(1, true, search);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || strings.something_went_wrong,
         });
       });
   };
@@ -657,4 +710,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'flex-end',
   },
+  deleteButton: {
+    borderWidth: vw(1),
+    borderColor: colors.red_2,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSmall: { width: vw(15), height: vw(15) },
 });

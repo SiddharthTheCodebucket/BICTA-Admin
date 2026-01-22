@@ -59,6 +59,13 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    conferenceDeleteManagementInchargeDetails: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.conference_delete_management_incharge_details,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -71,4 +78,5 @@ export const {
   useConferenceDeleteConferenceMutation,
   useConferenceAddConferenceMutation,
   useConferenceUpdateConferenceMutation,
+  useConferenceDeleteManagementInchargeDetailsMutation,
 } = apiEndpoints;
