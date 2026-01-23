@@ -140,7 +140,7 @@ const VendorCard: React.FC<VendorCardProps> = ({
               justifyContent: 'center',
             }}
             onPress={() => {
-              navigation.navigate(screensName.AddConferenceForm, {
+              navigation.navigate(screensName.GuestSeniorityList, {
                 item: item,
               });
             }}

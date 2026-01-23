@@ -305,6 +305,8 @@ export default {
     'conference/list-management-incharge-details',
   conference_list_manthan: 'conference/list-manthan',
   conference_list_guest_details: 'conference/list-guest-details',
+  conference_delete_guest_details: 'conference/delete-guest-details',
+  conference_update_guest_details: 'conference/update-guest-details',
   conference_delete_conference: 'conference/delete-conference',
   conference_update_conference: 'conference/update-conference',
   conference_add_conference: 'conference/add-conference',

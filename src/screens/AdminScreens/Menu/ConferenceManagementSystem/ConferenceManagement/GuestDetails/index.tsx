@@ -39,7 +39,11 @@ import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
-import { useConferenceListGuestDetailsMutation } from '../../../../../../injectEndpoints/conferenceManagementEndpoints';
+import {
+  useConferenceDeleteGuestDetailsMutation,
+  useConferenceListGuestDetailsMutation,
+  useConferenceUpdateGuestDetailsMutation,
+} from '../../../../../../injectEndpoints/conferenceManagementEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
@@ -60,9 +64,34 @@ interface VendorCardProps {
   item: any;
   index: number;
   navigation: any;
+  onDelete: (id: any) => void;
+  currentStatusList: any[];
+  currentStatusMap: any;
+  setCurrentStatusMap: (d: any) => void;
+  hitCurrentStatus: (data: any, item: any) => void;
 }
 
-const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
+const VendorCard: React.FC<VendorCardProps> = ({
+  item,
+  index,
+  navigation,
+  onDelete,
+  currentStatusList,
+  currentStatusMap,
+  setCurrentStatusMap,
+  hitCurrentStatus,
+}) => {
+  const confirmDelete = () => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: strings.hostelManagement.bedDetails.deleteConfirmation,
+      message: strings.hostelManagement.bedDetails.deleteMessage,
+      okText: strings.hostelManagement.confirm,
+      double: true,
+      cancelText: strings.cancel,
+      okFunction: () => onDelete(item.id),
+      cancelFunction: () => {},
+    });
+  };
   return (
     <TouchableAtom
       style={styles.card}
@@ -74,6 +103,9 @@ const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
         <TextAtom style={[styles.label, { flex: 1 }]}>
           Sr. No: {index + 1}
         </TextAtom>
+        <TouchableAtom style={styles.deleteButton} onPress={confirmDelete}>
+          <ImageAtom source={images.delete} style={styles.iconSmall} />
+        </TouchableAtom>
       </View>
 
       <View style={{ flex: 1 }}>
@@ -88,6 +120,53 @@ const VendorCard: React.FC<VendorCardProps> = ({ item, index, navigation }) => {
           {`${item.salutation} ${item.name}`}
         </TextAtom>
       </View>
+      <DropDownOrganism
+        label="Status"
+        placeholder="Status"
+        onPress={() => {
+          navigation.navigate('DropDownModal', {
+            name: 'Status',
+            Data: currentStatusList,
+            selectedData:
+              currentStatusMap[item?.id] ??
+              (item?.currentStatusId
+                ? {
+                    id: item.currentStatusId,
+                    name: item.currentStatus,
+                  }
+                : {}),
+
+            setSelectedData: (data: any) => {
+              setCurrentStatusMap((prev: any) => ({
+                ...prev,
+                [item.id]: data,
+              }));
+
+              setTimeout(() => {
+                hitCurrentStatus(data, item);
+              }, 0);
+            },
+            typeName: 'name',
+            typeId: 'id',
+          });
+        }}
+        inputText={
+          currentStatusMap[item?.id]?.name ??
+          item.currentStatus ??
+          'Select Status'
+        }
+        containerStyle={{
+          width: vw(300),
+          alignSelf: 'center',
+          marginLeft: vh(25),
+        }}
+        contentContainerStyle={{
+          width: vw(300),
+          alignSelf: 'center',
+          marginRight: vh(25),
+        }}
+        downArrowStyle={{ marginLeft: vh(-100) }}
+      />
     </TouchableAtom>
   );
 };
@@ -177,6 +256,8 @@ const GuestDetails = (props: Props) => {
   const { crediantialData } = useAppSelector(state => state.Auth);
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listApi] = useConferenceListGuestDetailsMutation();
+  const [deleteApi] = useConferenceDeleteGuestDetailsMutation();
+  const [updateApi] = useConferenceUpdateGuestDetailsMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -195,6 +276,11 @@ const GuestDetails = (props: Props) => {
   );
   const [guestDesList, setGuestDesList] = useState<any>([]);
   const [selectedGuestDes, setSelectedGuestDes] = useState<any>({});
+
+  const [currentStatusList, setCurrentStatusList] = useState<any>([]);
+  const [currentStatusMap, setCurrentStatusMap] = useState<{
+    [key: number]: any;
+  }>({});
 
   const ITEMS_PER_PAGE = 10;
 
@@ -217,6 +303,7 @@ const GuestDetails = (props: Props) => {
         setFirstTimeLoad(false);
         getConferenceStatusList();
         getGuestDesList();
+        getCurrentStatusList();
       }
     }, [centerSerach, search, firstTimeLoad]),
   );
@@ -310,11 +397,62 @@ const GuestDetails = (props: Props) => {
     list(1, true, '');
   };
 
+  const deleteData = (id: any) => {
+    setInitialCall(true);
+    const params = {
+      id: id,
+    };
+    deleteApi(params)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+        setInitialCall(false);
+        list(1, true, search);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || strings.something_went_wrong,
+        });
+      });
+  };
+
+  const hitCurrentStatus = (data: any, item: any) => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: 'Status Change Confirmation',
+      message: 'Are you sure you want to change this item?',
+      okText: strings.ok,
+      cancelText: strings.cancel,
+      double: true,
+      okFunction: () => updateCurrentStatus(data, item),
+      cancelFunction: () => {},
+    });
+  };
+
   const renderlist = useCallback(
     ({ item, index }: any) => (
-      <VendorCard item={item} index={index} navigation={navigation} />
+      <VendorCard
+        item={item}
+        index={index}
+        navigation={navigation}
+        onDelete={deleteData}
+        currentStatusList={currentStatusList}
+        currentStatusMap={currentStatusMap}
+        setCurrentStatusMap={setCurrentStatusMap}
+        hitCurrentStatus={hitCurrentStatus}
+      />
     ),
-    [navigation],
+    [
+      navigation,
+      deleteData,
+      currentStatusList,
+      currentStatusMap,
+      hitCurrentStatus,
+    ],
   );
 
   const clearFilter = () => {
@@ -406,6 +544,63 @@ const GuestDetails = (props: Props) => {
           autoHide: true,
         });
       });
+  };
+
+  console.log('CurrentStatusList', currentStatusList);
+  const getCurrentStatusList = () => {
+    setInitialCall(true);
+    const params = {
+      listType: 'conference_guest_current_status',
+      bipardCentre: getCentreFilter(),
+      replacements: ['%%'],
+    };
+    commonDropdownApi(params)
+      .unwrap()
+      .then((res: any) => {
+        let resData = res.data || [];
+
+        setCurrentStatusList(resData);
+        setInitialCall(false);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data.message,
+          autoHide: true,
+        });
+      });
+  };
+
+  const updateCurrentStatus = (data: any, item: any) => {
+    const payload = {
+      id: item.id,
+      currentStatus: data.id,
+    };
+
+    setInitialCall(true);
+
+    updateApi(payload)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message || 'Approval officer assigned successfully',
+        });
+        list(1, true, search);
+      })
+      .catch((err: any) => {
+        Toast.show({
+          type: 'error',
+          text2: err?.data?.message || 'Something went wrong',
+        });
+        setCurrentStatusMap(prev => {
+          const updated = { ...prev };
+          delete updated[item.id];
+          return updated;
+        });
+      })
+      .finally(() => setInitialCall(false));
   };
 
   return (
@@ -643,4 +838,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.Roboto_Medium,
     fontSize: vw(12),
   },
+  deleteButton: {
+    borderWidth: vw(1),
+    borderColor: colors.red_2,
+    borderRadius: vw(6),
+    padding: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSmall: { width: vw(15), height: vw(15) },
 });
