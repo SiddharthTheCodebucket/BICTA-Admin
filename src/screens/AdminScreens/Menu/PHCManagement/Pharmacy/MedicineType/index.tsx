@@ -190,7 +190,7 @@ const MedicineType = (props: Props) => {
       <FullscreenLoading isVisible={initialCall} />
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
-          label={strings.centers}
+          label={''}
           placeholder={strings.centers}
           onPress={() => {
             navigation.navigate('DropDownModal', {

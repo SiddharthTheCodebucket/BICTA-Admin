@@ -242,20 +242,26 @@ const FacultyConfirmation = (props: Props) => {
           <TextAtom style={styles.label}>
             {strings.lms.facultyManagement.confirmation.facultyName}
           </TextAtom>
-          <TextAtom style={styles.value}>{item.facultyName ?? '-'}</TextAtom>
+          <TextAtom numberOfLines={0} style={styles.value}>
+            {item.facultyName ?? '-'}
+          </TextAtom>
         </View>
         <View style={styles.flex1}>
           <TextAtom style={styles.label}>
             {strings.lms.facultyManagement.confirmation.trainingName}
           </TextAtom>
-          <TextAtom style={styles.value}>{item.trainingName ?? '-'}</TextAtom>
+          <TextAtom numberOfLines={0} style={styles.value}>
+            {item.trainingName ?? '-'}
+          </TextAtom>
         </View>
 
         <View style={styles.flex1}>
           <TextAtom style={styles.label}>
             {strings.lms.facultyManagement.confirmation.subject}
           </TextAtom>
-          <TextAtom style={styles.value}>{item.subject ?? '-'}</TextAtom>
+          <TextAtom numberOfLines={0} style={styles.value}>
+            {item.subject ?? '-'}
+          </TextAtom>
         </View>
         {showStatusMenu && (
           <TouchableOpacity
