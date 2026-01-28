@@ -1,6 +1,12 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { StyleSheet, View, FlatList, Modal, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  Modal,
+  ScrollView,
+  Pressable,
+} from 'react-native';
 import { colors, fonts, vw, vh } from '../../../../constants';
 import strings from '../../../../constants/strings';
 import TextAtom from '../../../../components/atoms/TextAtom';
@@ -31,7 +37,7 @@ const FloorCard = ({ floor, getRoomColor, onRoomPress }: FloorCardProps) => {
           const isVacant = room.vacantBeds === room.totalBeds;
 
           return (
-            <TouchableAtom
+            <Pressable
               key={room.roomId}
               style={[
                 styles.roomBox,
@@ -45,7 +51,7 @@ const FloorCard = ({ floor, getRoomColor, onRoomPress }: FloorCardProps) => {
               onPress={() => onRoomPress(room, isVacant)}
             >
               <TextAtom style={styles.roomText}>{room.roomNo}</TextAtom>
-            </TouchableAtom>
+            </Pressable>
           );
         })}
       </View>
@@ -69,6 +75,7 @@ const BedDetailsModal = ({
       visible={visible}
       transparent
       animationType="fade"
+      presentationStyle="overFullScreen"
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
@@ -234,7 +241,9 @@ const HostelDetailsDashbaord = (props: any) => {
         );
 
         setBedReportData(allocatedBeds || []);
-        setModalVisible(true);
+        setTimeout(() => {
+          setModalVisible(true);
+        }, 150);
 
         setLoader(false);
       })
@@ -313,8 +322,8 @@ const HostelDetailsDashbaord = (props: any) => {
 
   return (
     <>
-      <SafeAreaView edges={['bottom']} style={styles.container}>
-        <FullscreenLoading isVisible={loader} />
+      <View style={styles.container}>
+        {loader && <FullscreenLoading isVisible />}
 
         <View style={styles.paddingHorizontal}>{renderTotalCard()}</View>
 
@@ -336,7 +345,7 @@ const HostelDetailsDashbaord = (props: any) => {
           }
           contentContainerStyle={styles.listContentPadding}
         />
-      </SafeAreaView>
+      </View>
       <BedDetailsModal
         visible={modalVisible}
         bedReportData={bedReportData}
@@ -360,7 +369,7 @@ const styles = StyleSheet.create({
     borderRadius: vw(8),
     paddingHorizontal: vw(15),
     paddingVertical: vh(8),
-  elevation: 3,
+    elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -437,6 +446,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'center',
     padding: vw(20),
+    zIndex: 999,
   },
   modalBox: {
     backgroundColor: colors.white,

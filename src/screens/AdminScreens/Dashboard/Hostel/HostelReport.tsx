@@ -209,7 +209,7 @@ const FilterForm = ({
 
 const HostelReport = (props: any) => {
   const { navigation } = props;
-  const selectedCenter = props.route?.params?.selectedCenter;
+  const selectedCenter = props?.selectedCenter;
   const [loader, setLoader] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [reportData, setReportData] = useState<any[]>([]);
@@ -266,8 +266,9 @@ const HostelReport = (props: any) => {
     if (selectedCenter) {
       params.bipardCentre =
         selectedCenter === 'All Centers' ? ['Gaya', 'Patna'] : [selectedCenter];
+    } else {
+      params.bipardCentre = ['Gaya', 'Patna'];
     }
-
     hostelReportDataApi(params)
       .unwrap()
       .then((res: any) => {
@@ -408,6 +409,8 @@ const HostelReport = (props: any) => {
     if (selectedCenter) {
       params.bipardCentre =
         selectedCenter === 'All Centers' ? ['Gaya', 'Patna'] : [selectedCenter];
+    } else {
+      params.bipardCentre = ['Gaya', 'Patna'];
     }
 
     if (selectedUserType?.id === 'Trainee') {

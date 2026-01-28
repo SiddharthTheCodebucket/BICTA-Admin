@@ -45,7 +45,7 @@ function TraineeBottomTabNavigator() {
   const insets = useSafeAreaInsets();
 
   const isAndroid = Platform.OS === 'android';
-  const bottomInset = isAndroid ? Math.max(insets.bottom, 0) : insets.bottom;
+  const bottomInset = isAndroid ? Math.max(insets.bottom, 0) : 0;
 
   return (
     <BottomTab.Navigator

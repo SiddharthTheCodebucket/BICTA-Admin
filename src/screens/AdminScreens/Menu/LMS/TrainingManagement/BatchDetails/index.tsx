@@ -171,7 +171,9 @@ const BatchDetails = (props: Props) => {
         navigation.navigate(screensName.BatchDetailsList, { item: item });
       }}
     >
-      <TextAtom style={styles.label}>{item.name}</TextAtom>
+      <TextAtom numberOfLines={0} style={styles.label}>
+        {item.name}
+      </TextAtom>
       <TextAtom style={styles.value}>{item.totalBatch} Batches</TextAtom>
     </TouchableAtom>
   );
