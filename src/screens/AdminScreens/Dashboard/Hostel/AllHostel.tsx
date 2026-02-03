@@ -125,7 +125,7 @@ const FilterForm = ({
 
 const AllHostel = (props: any) => {
   const { navigation } = props;
-  const selectedCenter = props.route?.params?.selectedCenter;
+  const selectedCenter = props?.selectedCenter;
   const [loader, setLoader] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [reportData, setReportData] = useState<any[]>([]);

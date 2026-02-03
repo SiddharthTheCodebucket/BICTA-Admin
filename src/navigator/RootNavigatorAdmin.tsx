@@ -188,6 +188,69 @@ import FacultyUpcomingClassTimeTable from '../screens/AdminScreens/Menu/Report/F
 import CourseReportManagement from '../screens/AdminScreens/Menu/CourseReportManagement';
 import CourseReportManagementMain from '../screens/AdminScreens/Menu/CourseReportManagement/CourseReportManagementMain';
 import CourseReport from '../screens/AdminScreens/Menu/CourseReportManagement/CourseReportManagementMain/CourseReport';
+import BudgetManagement from '../screens/AdminScreens/Menu/BudgetManagement';
+import BudgetMangementMain from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain';
+import CreateTraining from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/CreateTraining';
+import Particulars from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/Particulars';
+import Budget from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/Budget';
+import EstimatedBudgetList from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/Budget/EstimatedBudgetList';
+import AddCreateTraining from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/CreateTraining/AddCreateTraining';
+import AddParticulars from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/Particulars/AddParticulars';
+import HouseKeepingManagement from '../screens/AdminScreens/Menu/HouseKeepingManagement';
+import HouseKeepingManagementMain from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain';
+import TaskMaster from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskMaster';
+import TaskMasterDetails from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskMaster/TaskMasterDetails';
+import AddTaskMaster from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskMaster/AddTaskMaster';
+import TaskDetails from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskDetails';
+import TaskDetailDetails from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskDetails/TaskDetailDetails';
+import TransferTask from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskDetails/TransferTask';
+import MessManagement from '../screens/AdminScreens/Menu/MessManagement';
+import MessMaster from '../screens/AdminScreens/Menu/MessManagement/MessMaster';
+import StockDetails from '../screens/AdminScreens/Menu/MessManagement/StockDetails';
+import MessReport from '../screens/AdminScreens/Menu/MessManagement/MessReport';
+import ItemBrand from '../screens/AdminScreens/Menu/MessManagement/MessMaster/ItemBrand';
+import AddItemBrand from '../screens/AdminScreens/Menu/MessManagement/MessMaster/ItemBrand/AddItemBrand';
+import AddItemType from '../screens/AdminScreens/Menu/MessManagement/MessMaster/ItemType/AddItemType';
+import ItemType from '../screens/AdminScreens/Menu/MessManagement/MessMaster/ItemType';
+
+import AddItem from '../screens/AdminScreens/Menu/MessManagement/MessMaster/Item/AddItem';
+import StockReportMess from '../screens/AdminScreens/Menu/MessManagement/MessReport/StockReportMess';
+import StockReportDetails from '../screens/AdminScreens/Menu/MessManagement/MessReport/StockReportMess/StockReportDetails';
+import Stock from '../screens/AdminScreens/Menu/MessManagement/StockDetails/Stock';
+import AddStock from '../screens/AdminScreens/Menu/MessManagement/StockDetails/Stock/AddStock';
+import StockConsumption from '../screens/AdminScreens/Menu/MessManagement/StockDetails/StockConsumption';
+import AddStockConsumption from '../screens/AdminScreens/Menu/MessManagement/StockDetails/StockConsumption/AddStockConsumption';
+import HRMS from '../screens/AdminScreens/Menu/HRMS';
+import VendorEmployeeMangement from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement';
+import LeaveManagement from '../screens/AdminScreens/Menu/HRMS/LeaveManagement';
+import EmployeeLeaveHistory from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/EmployeeLeaveHistory';
+import CreditLeaveBalance from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/EmployeeLeaveHistory/CreditLeaveBalance';
+import LeaveHistoryDetails from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/EmployeeLeaveHistory/LeaveHistoryDetails';
+import AvailLeave from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/EmployeeLeaveHistory/AvailLeave';
+import LeaveApproval from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/LeaveApproval';
+import LeaveApprovalDetails from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/LeaveApproval/LeaveApprovalDetails';
+import TrackRecords from '../screens/AdminScreens/Menu/HRMS/LeaveManagement/LeaveApproval/TrackRecords';
+import VendorListDetails from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/VendorListDetails';
+import Item from '../screens/AdminScreens/Menu/MessManagement/MessMaster/Item';
+import EmployeeDetails from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/EmployeeDetails';
+import EmployeeDetailDetails from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/EmployeeDetails/EmployeeDetailDetails';
+import VisitorManagementSystem from '../screens/AdminScreens/Menu/VisitorManagementSystem';
+import VisitorManagement from '../screens/AdminScreens/Menu/VisitorManagementSystem/VisitorManagement';
+import QRListDetails from '../screens/AdminScreens/Menu/VisitorManagementSystem/VisitorManagement/QRListDetails';
+import VisitorListDetails from '../screens/AdminScreens/Menu/VisitorManagementSystem/VisitorManagement/VisitorListDetails';
+import ConferenceManagementSystem from '../screens/AdminScreens/Menu/ConferenceManagementSystem';
+import ConferenceManagement from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement';
+import ConferenceMasterDetails from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceMasterDetails';
+import GuestSeniorityList from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceMasterDetails/GuestSeniorityList';
+import ManagementIncharge from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ManagementIncharge';
+import ManagementInchargeDetails from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ManagementIncharge/ManagementInchargeDetails';
+import ConferenceManthanFeedback from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceManthanFeedback';
+import FeedbackQuestionsResponse from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceManthanFeedback/FeedbackQuestionsResponse';
+import GuestDetails from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/GuestDetails';
+import GuestDetailDetails from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/GuestDetails/GuestDetailDetails';
+import BlockVendorFrom from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/VendorListDetails/BlockVendorFrom';
+import BlockEmployeeFrom from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/EmployeeDetails/BlockEmployeeFrom';
+import AddConferenceForm from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceMasterDetails/AddConferenceForm';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -812,6 +875,194 @@ const RootNavigatorAdmin = () => {
           component={CourseReportManagementMain}
         />
         <RootStackScreen.Screen name="CourseReport" component={CourseReport} />
+        <RootStackScreen.Screen
+          name="BudgetManagement"
+          component={BudgetManagement}
+        />
+        <RootStackScreen.Screen
+          name="BudgetMangementMain"
+          component={BudgetMangementMain}
+        />
+        <RootStackScreen.Screen
+          name="CreateTraining"
+          component={CreateTraining}
+        />
+        <RootStackScreen.Screen name="Particulars" component={Particulars} />
+        <RootStackScreen.Screen name="Budget" component={Budget} />
+        <RootStackScreen.Screen
+          name="EstimatedBudgetList"
+          component={EstimatedBudgetList}
+        />
+        <RootStackScreen.Screen
+          name="AddCreateTraining"
+          component={AddCreateTraining}
+        />
+        <RootStackScreen.Screen
+          name="AddParticulars"
+          component={AddParticulars}
+        />
+        <RootStackScreen.Screen
+          name="HouseKeepingManagement"
+          component={HouseKeepingManagement}
+        />
+        <RootStackScreen.Screen
+          name="HouseKeepingManagementMain"
+          component={HouseKeepingManagementMain}
+        />
+        <RootStackScreen.Screen name="TaskMaster" component={TaskMaster} />
+        <RootStackScreen.Screen
+          name="TaskMasterDetails"
+          component={TaskMasterDetails}
+        />
+        <RootStackScreen.Screen
+          name="AddTaskMaster"
+          component={AddTaskMaster}
+        />
+        <RootStackScreen.Screen name="TaskDetails" component={TaskDetails} />
+        <RootStackScreen.Screen
+          name="TaskDetailDetails"
+          component={TaskDetailDetails}
+        />
+        <RootStackScreen.Screen name="TransferTask" component={TransferTask} />
+        <RootStackScreen.Screen
+          name="MessManagement"
+          component={MessManagement}
+        />
+        <RootStackScreen.Screen name="MessMaster" component={MessMaster} />
+        <RootStackScreen.Screen name="StockDetails" component={StockDetails} />
+        <RootStackScreen.Screen name="MessReport" component={MessReport} />
+        <RootStackScreen.Screen name="ItemBrand" component={ItemBrand} />
+        <RootStackScreen.Screen name="AddItemBrand" component={AddItemBrand} />
+        <RootStackScreen.Screen name="ItemType" component={ItemType} />
+        <RootStackScreen.Screen name="AddItemType" component={AddItemType} />
+        <RootStackScreen.Screen name="Item" component={Item} />
+        <RootStackScreen.Screen name="AddItem" component={AddItem} />
+        <RootStackScreen.Screen
+          name="StockReportMess"
+          component={StockReportMess}
+        />
+        <RootStackScreen.Screen
+          name="StockReportDetails"
+          component={StockReportDetails}
+        />
+        <RootStackScreen.Screen name="Stock" component={Stock} />
+        <RootStackScreen.Screen name="AddStock" component={AddStock} />
+        <RootStackScreen.Screen
+          name="StockConsumption"
+          component={StockConsumption}
+        />
+        <RootStackScreen.Screen
+          name="AddStockConsumption"
+          component={AddStockConsumption}
+        />
+        <RootStackScreen.Screen name="HRMS" component={HRMS} />
+        <RootStackScreen.Screen
+          name="VendorEmployeeMangement"
+          component={VendorEmployeeMangement}
+        />
+        <RootStackScreen.Screen
+          name="LeaveManagement"
+          component={LeaveManagement}
+        />
+        <RootStackScreen.Screen
+          name="EmployeeLeaveHistory"
+          component={EmployeeLeaveHistory}
+        />
+        <RootStackScreen.Screen
+          name="CreditLeaveBalance"
+          component={CreditLeaveBalance}
+        />
+        <RootStackScreen.Screen
+          name="LeaveHistoryDetails"
+          component={LeaveHistoryDetails}
+        />
+        <RootStackScreen.Screen name="AvailLeave" component={AvailLeave} />
+        <RootStackScreen.Screen
+          name="LeaveApproval"
+          component={LeaveApproval}
+        />
+        <RootStackScreen.Screen
+          name="LeaveApprovalDetails"
+          component={LeaveApprovalDetails}
+        />
+        <RootStackScreen.Screen name="TrackRecords" component={TrackRecords} />
+        <RootStackScreen.Screen
+          name="VendorListDetails"
+          component={VendorListDetails}
+        />
+        <RootStackScreen.Screen
+          name="EmployeeDetails"
+          component={EmployeeDetails}
+        />
+        <RootStackScreen.Screen
+          name="EmployeeDetailDetails"
+          component={EmployeeDetailDetails}
+        />
+        <RootStackScreen.Screen
+          name="VisitorManagementSystem"
+          component={VisitorManagementSystem}
+        />
+        <RootStackScreen.Screen
+          name="VisitorManagement"
+          component={VisitorManagement}
+        />
+        <RootStackScreen.Screen
+          name="QRListDetails"
+          component={QRListDetails}
+        />
+        <RootStackScreen.Screen
+          name="VisitorListDetails"
+          component={VisitorListDetails}
+        />
+        <RootStackScreen.Screen
+          name="ConferenceManagementSystem"
+          component={ConferenceManagementSystem}
+        />
+        <RootStackScreen.Screen
+          name="ConferenceManagement"
+          component={ConferenceManagement}
+        />
+        <RootStackScreen.Screen
+          name="ConferenceMasterDetails"
+          component={ConferenceMasterDetails}
+        />
+        <RootStackScreen.Screen
+          name="GuestSeniorityList"
+          component={GuestSeniorityList}
+        />
+        <RootStackScreen.Screen
+          name="ManagementIncharge"
+          component={ManagementIncharge}
+        />
+        <RootStackScreen.Screen
+          name="ManagementInchargeDetails"
+          component={ManagementInchargeDetails}
+        />
+        <RootStackScreen.Screen
+          name="ConferenceManthanFeedback"
+          component={ConferenceManthanFeedback}
+        />
+        <RootStackScreen.Screen
+          name="FeedbackQuestionsResponse"
+          component={FeedbackQuestionsResponse}
+        />
+        <RootStackScreen.Screen name="GuestDetails" component={GuestDetails} />
+        <RootStackScreen.Screen
+          name="GuestDetailDetails"
+          component={GuestDetailDetails}
+        />
+        <RootStackScreen.Screen
+          name="BlockVendorFrom"
+          component={BlockVendorFrom}
+        />
+        <RootStackScreen.Screen
+          name="BlockEmployeeFrom"
+          component={BlockEmployeeFrom}
+        />
+        <RootStackScreen.Screen
+          name="AddConferenceForm"
+          component={AddConferenceForm}
+        />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{

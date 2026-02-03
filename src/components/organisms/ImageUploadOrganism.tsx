@@ -16,31 +16,32 @@ const ImageUploadOrganism = ({
   buttonContainer,
   onSelectImage,
   defaultImage,
+  mediaType = 'photo',
   maxSizeMB = 3,
   instruction = `Add JPG/PNG/WEBP (max ${3} MB)`,
   note,
   labelStyle,
   preview,
 }: any) => {
-  const [imageUri, setImageUri] = useState('');
+  const [fileUri, setFileUri] = useState('');
 
   useEffect(() => {
     if (defaultImage) {
-      setImageUri(defaultImage);
+      setFileUri(defaultImage);
     }
   }, [defaultImage]);
 
-  const handleImagePick = async () => {
+  const handlePick = async () => {
     try {
       const result: any = await launchImageLibrary({
-        mediaType: 'photo',
+        mediaType,
         selectionLimit: 1,
       });
 
       if (result?.assets?.length > 0) {
         const file = result.assets[0];
 
-        const fileSizeMB = file.fileSize / (1024 * 1024);
+        const fileSizeMB = (file.fileSize || 0) / (1024 * 1024);
         if (fileSizeMB > maxSizeMB) {
           Alert.alert(
             'File Too Large',
@@ -49,13 +50,21 @@ const ImageUploadOrganism = ({
           return;
         }
 
-        setImageUri(file.uri);
+        setFileUri(file.uri);
         onSelectImage?.(file);
       }
     } catch (e) {}
   };
 
-  const btnText = imageUri ? 'Change Image' : 'Upload Image';
+  let btnText = 'Upload Image';
+
+  if (mediaType === 'video') {
+    btnText = 'Upload Video';
+  }
+
+  if (fileUri) {
+    btnText = mediaType === 'video' ? 'Change Video' : 'Change Image';
+  }
 
   return (
     <ViewAtom style={[styles.container, contentContainerStyle]}>
@@ -75,20 +84,23 @@ const ImageUploadOrganism = ({
               : colors.red,
           },
         ]}
-        onPress={handleImagePick}
+        onPress={handlePick}
       >
         <TextAtom style={styles.btnText}>{btnText}</TextAtom>
       </TouchableOpacity>
 
-      {instruction && (
-        <TextAtom style={styles.instruction}>
-          {instruction.replace('3', maxSizeMB)}
-        </TextAtom>
+      {!!instruction && (
+        <TextAtom style={styles.instruction}>{instruction}</TextAtom>
       )}
-      {note && <TextAtom style={styles.note}>{note}</TextAtom>}
 
-      {imageUri ? (
-        <Image source={{ uri: imageUri }} style={[styles.preview, preview]} />
+      {!!note && <TextAtom style={styles.note}>{note}</TextAtom>}
+
+      {fileUri && mediaType === 'photo' ? (
+        <Image source={{ uri: fileUri }} style={[styles.preview, preview]} />
+      ) : null}
+
+      {fileUri && mediaType === 'video' ? (
+        <TextAtom style={styles.videoText}>🎥 Video selected</TextAtom>
       ) : null}
 
       <ErrorMolecule errorMessage={errorMessage} />
@@ -144,5 +156,12 @@ const styles = StyleSheet.create({
     color: colors.red,
     textAlign: 'left',
     paddingHorizontal: vw(15),
+  },
+  videoText: {
+    marginTop: vh(10),
+    fontSize: vw(14),
+    fontFamily: fonts.Roboto_Medium,
+    color: colors.grey,
+    textAlign: 'center',
   },
 });

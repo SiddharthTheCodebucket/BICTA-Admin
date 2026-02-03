@@ -219,4 +219,97 @@ export default {
   courseReport_delete_basic_info:
     'course-report/delete-course-report-basic-info',
   courseReport_download: 'course-report/download-course-report',
+
+  //Budget Mangement
+  budget_list_training: 'budget/list-budget-training-details',
+  budget_add_training: 'budget/add-budget-training-details',
+  budget_update_training: 'budget/update-budget-training-details',
+  budget_delete_training: 'budget/delete-budget-training-details',
+  budget_list_particulars: 'budget/list-budget-particulars',
+  budget_add_particulars: 'budget/add-budget-particulars',
+  budget_update_particulars: 'budget/update-budget-particulars',
+  budget_delete_particulars: 'budget/delete-budget-particulars',
+  budget_list_details: 'budget/list-budget-details',
+  budget_delete_details: 'budget/delete-budget-details',
+
+  //House Keeping Master
+  house_keeping_list_task_master: 'house-keeping/list-task-master',
+  house_keeping_delete_task_master: 'house-keeping/delete-task-master',
+  house_keeping_update_task_master: 'house-keeping/update-task-master',
+  house_keeping_add_task_master: 'house-keeping/add-task-master',
+  house_keeping_list_task_assignment: 'house-keeping/list-task-assignment',
+  house_keeping_update_task_assignment: 'house-keeping/update-task-assignment',
+  house_keeping_delete_task_assignment: 'house-keeping/delete-task-assignment',
+  house_keeping_upload_task_assigned_photo:
+    'house-keeping/upload-task-assigned-photo',
+  house_keeping_transfer_assigned_task:
+    'house-keeping/transfer-assigned-task-to-another-staff',
+
+  //Mess Management
+  mess_management_list_item_brand: 'mess-management/list-item-brand',
+  mess_management_add_item_brand: 'mess-management/add-item-brand',
+  mess_management_update_item_brand: 'mess-management/update-item-brand',
+  mess_management_delete_item_brand: 'mess-management/delete-item-brand',
+  mess_management_list_item_type: 'mess-management/list-item-type',
+  mess_management_add_item_type: 'mess-management/add-item-type',
+  mess_management_update_item_type: 'mess-management/update-item-type',
+  mess_management_delete_item_type: 'mess-management/delete-item-type',
+  mess_management_list_item: 'mess-management/list-item',
+  mess_management_add_item: 'mess-management/add-item',
+  mess_management_update_item: 'mess-management/update-item',
+  mess_management_delete_item: 'mess-management/delete-item',
+  mess_management_list_mess: 'mess-management/list-mess',
+  mess_management_mess_stock_report: 'mess-management/mess-stock-report',
+  mess_management_list_stock_details: 'mess-management/list-stock-details',
+  mess_management_add_stock_details: 'mess-management/add-stock-details',
+  mess_management_update_stock_details: 'mess-management/update-stock-details',
+  mess_management_delete_stock_details: 'mess-management/delete-stock-details',
+  mess_management_list_stock_consumption:
+    'mess-management/list-stock-consumption',
+  mess_management_add_stock_consumption:
+    'mess-management/add-stock-consumption',
+  mess_management_update_stock_consumption:
+    'mess-management/update-stock-consumption',
+  mess_management_delete_stock_consumption:
+    'mess-management/delete-stock-consumption',
+
+  //HRMS
+  hrms_list_employee: 'hrms/list-employee',
+  hrms_credit_leave_balance: 'hrms/credit-leave-balance',
+  hrms_list_leave_balance: 'hrms/list-leave-balance',
+  hrms_list_leave_request: 'hrms/list-leave-request',
+  hrms_delete_leave_request: 'hrms/delete-leave-request',
+  hrms_add_leave_request: 'hrms/add-leave-request',
+  hrms_update_leave_request: 'hrms/update-approval-status',
+  hrms_list_approval_history: 'hrms/list-approval-history',
+  hrms_assign_approval_officer: '/hrms/assign-approval-officer',
+  hrms_list_vendor_details: 'hrms/list-vendor-details',
+  hrms_blacklisting_vendor: 'hrms/blacklisting-vendor',
+  hrms_assign_reporting_officer: 'hrms/assign-reporting-officer',
+  hrms_assign_approval_authority: 'hrms/assign-approval-authority',
+  hrms_generate_employee_id_card: 'hrms/generate-employee-id-card',
+  hrms_change_employee_vendor: 'hrms/change-employee-vendor',
+  hrms_approve_or_reject: 'hrms/approve-or-reject',
+  hrms_blacklisting_employee: 'hrms/blacklisting-employee',
+  hrms_delete_employee: 'hrms/delete-employee',
+
+  //Visitor Management System
+  visitor_list_qr_code: 'visitor/list-visitor-qr-code',
+  visitor_list_visitor: 'visitor/list-visitor',
+
+  //Conference Management System
+  conference_list_conference: 'conference/list-conference',
+  conference_guest_conference_seniority_list:
+    'conference/guest-conference-seniority-list',
+  conference_list_management_incharge_details:
+    'conference/list-management-incharge-details',
+  conference_list_manthan: 'conference/list-manthan',
+  conference_list_guest_details: 'conference/list-guest-details',
+  conference_delete_guest_details: 'conference/delete-guest-details',
+  conference_update_guest_details: 'conference/update-guest-details',
+  conference_delete_conference: 'conference/delete-conference',
+  conference_update_conference: 'conference/update-conference',
+  conference_add_conference: 'conference/add-conference',
+  conference_delete_management_incharge_details:
+    'conference/delete-management-incharge-details',
 };

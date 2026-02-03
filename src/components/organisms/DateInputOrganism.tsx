@@ -28,6 +28,7 @@ type Props = {
   errorMessage?: string;
   errorMessageView?: ViewStyle;
   labelStyle?: ViewStyle;
+  returnType?: 'string' | 'date';
 };
 
 const DateInputOrganism = (props: Props) => {
@@ -47,7 +48,11 @@ const DateInputOrganism = (props: Props) => {
   const handleConfirm = (date: Date) => {
     setIsDatePickerVisible(false);
 
-    props.onChangeText(moment(date).format(props.dateFormat));
+    if (props.returnType === 'date') {
+      props.onChangeText(date);
+    } else {
+      props.onChangeText(moment(date).format(props.dateFormat));
+    }
   };
   const { containerStyle } = props;
 
@@ -137,6 +142,7 @@ const styles = StyleSheet.create({
 DateInputOrganism.defaultProps = {
   majorContainer: {},
   dateFormat: 'DD-MMM-YYYY HH:mm',
+  returnType: 'string',
 };
 
 export default DateInputOrganism;

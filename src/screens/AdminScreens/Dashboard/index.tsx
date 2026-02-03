@@ -40,7 +40,30 @@ const Dashboard = (props: Props) => {
     'Hostel Dashboard' | 'Vendor Dashboard'
   >('Hostel Dashboard');
   const [innerTab, setInnerTab] = useState('Hostel Planning');
-  const [centerSerach, setCenterSerach] = useState<any>({});
+  const getDefaultCenter = () => {
+    const tenantId = crediantialData?.user?.[0]?.tenantId;
+
+    if (tenantId === 1) {
+      return {
+        id: strings.dashboardIndex.gaya,
+        name: strings.dashboardIndex.gaya,
+      };
+    }
+
+    if (tenantId === 2) {
+      return {
+        id: strings.dashboardIndex.patna,
+        name: strings.dashboardIndex.patna,
+      };
+    }
+
+    return {
+      id: strings.dashboardIndex.allCenters,
+      name: strings.dashboardIndex.allCenters,
+    };
+  };
+
+  const [centerSerach, setCenterSerach] = useState<any>(getDefaultCenter());
 
   const HostelTabs: any = {
     [strings.dashboardIndex.hostelPlanning]: HostelPlanning,

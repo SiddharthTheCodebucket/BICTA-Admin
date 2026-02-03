@@ -37,4 +37,7 @@ export default {
   payment: require('../assets/images/payment.png'),
   reply: require('../assets/images/reply.png'),
   copyLink: require('../assets/images/copyLink.png'),
+  transfer: require('../assets/images/transfer.png'),
+  nextFilled: require('../assets/images/nextFilled.png'),
+  receipt: require('../assets/images/receipt.png'),
 };

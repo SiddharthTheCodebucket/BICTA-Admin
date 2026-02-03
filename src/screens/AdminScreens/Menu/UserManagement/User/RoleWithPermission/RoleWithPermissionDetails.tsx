@@ -61,17 +61,23 @@ const ListPermissionCard = ({ item, index }: ListPermissionProps) => {
         </TextAtom>
       </View>
       <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>{'Permission Name'}</TextAtom>
+        <TextAtom numberOfLines={0} style={styles.label}>
+          {'Permission Name'}
+        </TextAtom>
         <TextAtom style={styles.value}>{item.permissionName ?? '-'}</TextAtom>
       </View>
       <View style={{ flex: 1 }}>
         <TextAtom style={styles.label}>{'Module'}</TextAtom>
-        <TextAtom style={styles.value}>{item.module ?? '-'}</TextAtom>
+        <TextAtom numberOfLines={0} style={styles.value}>
+          {item.module ?? '-'}
+        </TextAtom>
       </View>
 
       <View style={{ flex: 1 }}>
         <TextAtom style={styles.label}>{'Parent Module'}</TextAtom>
-        <TextAtom style={styles.value}>{item.parent ?? '-'}</TextAtom>
+        <TextAtom numberOfLines={0} style={styles.value}>
+          {item.parent ?? '-'}
+        </TextAtom>
       </View>
 
       <View style={styles.rowBetween}>

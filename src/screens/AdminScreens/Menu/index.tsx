@@ -20,16 +20,23 @@ interface MenuItem {
 }
 
 const ACTIVE_MODULES = new Set<string>([
+  //'Content Management System',
   'Learning Management System',
   'Hostel Management',
   'User Management',
   'Feedback Management',
   'Communication Management System',
   'Report',
+  'HRMS',
+  'Visitor Management System',
+  'Conference Management System',
   'Support',
   'Invoice and Bill Management',
+  'House Keeping Management',
+  'Budget Management',
   'Health Centre Management',
   'Course Report Management',
+  'Mess Management',
   // 'Vehicle Management',
 ]);
 
@@ -59,6 +66,7 @@ const Menu = ({ navigation }: Props) => {
   }, []);
 
   const ALL_MODULES: MenuItem[] = [
+    // { id: 1, name: 'Content Management System' },
     {
       id: 2,
       name: 'Learning Management System',
@@ -92,6 +100,22 @@ const Menu = ({ navigation }: Props) => {
       onPress: () => navigation.navigate(screensName.Report),
     },
     {
+      id: 8,
+      name: 'HRMS',
+      onPress: () => navigation.navigate(screensName.HRMS),
+    },
+    {
+      id: 9,
+      name: 'Visitor Management System',
+      onPress: () => navigation.navigate(screensName.VisitorManagementSystem),
+    },
+    {
+      id: 10,
+      name: 'Conference Management System',
+      onPress: () =>
+        navigation.navigate(screensName.ConferenceManagementSystem),
+    },
+    {
       id: 11,
       name: 'Support',
       onPress: () => navigation.navigate(screensName.SupportMain),
@@ -100,6 +124,16 @@ const Menu = ({ navigation }: Props) => {
       id: 12,
       name: 'Invoice and Bill Management',
       onPress: () => navigation.navigate(screensName.InvoiceAndBillManagement),
+    },
+    {
+      id: 13,
+      name: 'House Keeping Management',
+      onPress: () => navigation.navigate(screensName.HouseKeepingManagement),
+    },
+    {
+      id: 14,
+      name: 'Budget Management',
+      onPress: () => navigation.navigate(screensName.BudgetManagement),
     },
     {
       id: 15,
@@ -116,18 +150,11 @@ const Menu = ({ navigation }: Props) => {
     //   name: 'Vehicle Management',
     //   onPress: () => navigation.navigate(screensName.VehicleManagement),
     // },
-    { id: 1, name: 'Content Management System' },
-
-    // { id: 6, name: 'Communication Management System' },
-
-    { id: 8, name: 'HRMS' },
-    { id: 9, name: 'Visitor Management System' },
-    { id: 10, name: 'Conference Management System' },
-
-    { id: 13, name: 'House Keeping Management' },
-    { id: 14, name: 'Budget Management' },
-
-    { id: 18, name: 'Mess Management' },
+    {
+      id: 18,
+      name: 'Mess Management',
+      onPress: () => navigation.navigate(screensName.MessManagement),
+    },
   ];
 
   const DATA: MenuItem[] = ALL_MODULES.map(item => ({

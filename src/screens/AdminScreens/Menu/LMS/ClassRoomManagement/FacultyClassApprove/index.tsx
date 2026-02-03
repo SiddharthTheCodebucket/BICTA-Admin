@@ -221,7 +221,9 @@ const FacultyClassApprove = (props: Props) => {
           <TextAtom style={styles.label}>
             {strings.lms.classRoomManagement.trainingName}
           </TextAtom>
-          <TextAtom style={styles.value}>{item.trainingName || '-'}</TextAtom>
+          <TextAtom numberOfLines={0} style={styles.value}>
+            {item.trainingName || '-'}
+          </TextAtom>
         </View>
         <View style={styles.flex1}>
           <TextAtom style={styles.label}>

@@ -186,7 +186,7 @@ const FeedbackTopic = (props: Props) => {
     const [statusValue] = useState(item.status ?? 'Active');
     const [showStatusMenu, setShowStatusMenu] = useState(false);
 
-    const thumbnail =
+    const thumbnail: any =
       item?.thumbnail && item.thumbnail !== null && item.thumbnail !== ''
         ? { uri: item.thumbnail }
         : null;
@@ -382,7 +382,19 @@ const FeedbackTopic = (props: Props) => {
             {strings.lms.curriculumManagement.thumbnail}
           </TextAtom>
           {thumbnail ? (
-            <TouchableAtom onPress={() => Linking.openURL(data.thumbnail)}>
+            <TouchableAtom
+              onPress={async () => {
+                const supported = await Linking.canOpenURL(thumbnail);
+                if (supported) {
+                  Linking.openURL(thumbnail);
+                } else {
+                  Toast.show({
+                    type: 'error',
+                    text2: 'Unable to open link',
+                  });
+                }
+              }}
+            >
               <TextAtom style={[styles.value, { color: colors.primary }]}>
                 View File
               </TextAtom>
