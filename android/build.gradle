@@ -12,11 +12,27 @@ buildscript {
         mavenCentral()
         maven { url "https://jitpack.io" }
     }
+    configurations.all {
+        resolutionStrategy {
+            force 'com.google.ai.edge.litert:litert:1.4.0'
+            force 'com.google.ai.edge.litert:litert-api:1.4.0'
+            
+            // This prevents the old org.tensorflow library from sneaking in
+            exclude group: 'org.tensorflow', module: 'tensorflow-lite'
+            exclude group: 'org.tensorflow', module: 'tensorflow-lite-api'
+        }
+    }
     dependencies {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
     }
 }
-
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://www.jitpack.io" }
+    }
+}
 apply plugin: "com.facebook.react.rootproject"

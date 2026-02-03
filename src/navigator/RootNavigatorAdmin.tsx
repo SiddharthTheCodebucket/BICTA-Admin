@@ -251,6 +251,9 @@ import GuestDetailDetails from '../screens/AdminScreens/Menu/ConferenceManagemen
 import BlockVendorFrom from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/VendorListDetails/BlockVendorFrom';
 import BlockEmployeeFrom from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/EmployeeDetails/BlockEmployeeFrom';
 import AddConferenceForm from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceMasterDetails/AddConferenceForm';
+import UploadImageForTraining from '../screens/AdminScreens/Profile/FaceScan/UploadImageForTraining';
+import FaceScan from '../screens/AdminScreens/Profile/FaceScan';
+import QRScan from '../screens/AdminScreens/Profile/QRScan';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -1063,6 +1066,12 @@ const RootNavigatorAdmin = () => {
           name="AddConferenceForm"
           component={AddConferenceForm}
         />
+        <RootStackScreen.Screen
+          name="UploadImageForTraining"
+          component={UploadImageForTraining}
+        />
+        <RootStackScreen.Screen name="FaceScan" component={FaceScan} />
+        <RootStackScreen.Screen name="QRScan" component={QRScan} />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{

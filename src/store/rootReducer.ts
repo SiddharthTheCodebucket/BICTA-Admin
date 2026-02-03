@@ -4,6 +4,7 @@ import trainingManagementReducer from '../features/TrainingManagement/trainingMa
 import otherRegistrationReducer from '../features/OtherRegistration/otherRegistrationSlice';
 import profileReducer from '../featuresTrainee/Profile/profileSlice';
 import registrationReducer from '../featuresTrainee/Registration/registrationSlice';
+import faceReducer from '../features/face/faceSlice';
 import { apiSlice } from '../api/apiSlice';
 
 export const reducers = combineReducers({
@@ -13,6 +14,7 @@ export const reducers = combineReducers({
   otherRegistration: otherRegistrationReducer,
   Profile: profileReducer,
   Registration: registrationReducer,
+  face: faceReducer,
 });
 
 const resetAction = { type: 'RESET' };
