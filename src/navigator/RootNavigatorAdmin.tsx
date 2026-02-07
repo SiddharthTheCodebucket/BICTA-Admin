@@ -254,6 +254,8 @@ import AddConferenceForm from '../screens/AdminScreens/Menu/ConferenceManagement
 import UploadImageForTraining from '../screens/AdminScreens/Profile/FaceScan/UploadImageForTraining';
 import FaceScan from '../screens/AdminScreens/Profile/FaceScan';
 import QRScan from '../screens/AdminScreens/Profile/QRScan';
+import ObjectDetection from '../screens/AdminScreens/Profile/ObjectDetection';
+import ScanQRAndFace from '../screens/AdminScreens/Profile/ScanQRAndFace';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -1072,6 +1074,14 @@ const RootNavigatorAdmin = () => {
         />
         <RootStackScreen.Screen name="FaceScan" component={FaceScan} />
         <RootStackScreen.Screen name="QRScan" component={QRScan} />
+        <RootStackScreen.Screen
+          name="ObjectDetection"
+          component={ObjectDetection}
+        />
+        <RootStackScreen.Screen
+          name="ScanQRAndFace"
+          component={ScanQRAndFace}
+        />
       </RootStackScreen.Group>
       <RootStackScreen.Group
         screenOptions={{

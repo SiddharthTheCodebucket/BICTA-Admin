@@ -13,7 +13,6 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import RNFS from 'react-native-fs';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
 import { useDispatch } from 'react-redux';
-import { CommonActions } from '@react-navigation/native';
 import { useAppSelector } from '../../../../hooks';
 import {
   addFaceImage,
@@ -21,7 +20,7 @@ import {
   setReferenceEmbedding,
 } from '../../../../features/face/faceSlice';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, vh, vw } from '../../../../constants';
+import { colors, screensName, vh, vw } from '../../../../constants';
 import ButtonOrganism from '../../../../components/organisms/ButtonOrganism';
 import { Header } from '../../../../components/organisms/HeaderOrganism';
 
@@ -164,12 +163,9 @@ const UploadImageForTraining = ({ navigation }: any) => {
           {
             text: 'Continue',
             onPress: () =>
-              navigation.dispatch(
-                CommonActions.reset({
-                  index: 0,
-                  routes: [{ name: 'Profile' }],
-                }),
-              ),
+              navigation.navigate('BottomTabNavigatorAdmin', {
+                screen: screensName.Profile,
+              }),
           },
         ]);
       }

@@ -8,45 +8,125 @@ import {
   NativeModules,
   Image,
   Text,
+  Easing,
 } from 'react-native';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import RNFS from 'react-native-fs';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
-import { CommonActions } from '@react-navigation/native';
-import { useAppSelector } from '../../../../hooks';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAppSelector } from '../../../../hooks';
 import { colors, vh, vw } from '../../../../constants';
-import ButtonOrganism from '../../../../components/organisms/ButtonOrganism';
 import { Header } from '../../../../components/organisms/HeaderOrganism';
 
 const { FaceRecognitionModule, FaceLivenessModule } = NativeModules;
 
 const MATCH_THRESHOLD = 75;
+const SCAN_INTERVAL = 150; // 🔥 fast & safe
 
 const FaceScan = ({ navigation }: any) => {
   const cameraRef = useRef<Camera>(null);
-  const scanValue = useRef(new Animated.Value(0)).current;
+
   const device = useCameraDevice('front');
   const screenHeight = Dimensions.get('window').height;
 
-  const embedding = useAppSelector(state => state.face.embedding);
+  const scanValue = useRef(new Animated.Value(0)).current;
 
-  const [cameraKey, setCameraKey] = useState(0);
+  const scanInProgress = useRef(false);
+  const modalVisible = useRef(false);
+  const cooldown = useRef(false);
 
+  const [cameraReady, setCameraReady] = useState(false);
   const [scanAnimation, setScanAnimation] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  const embedding = useAppSelector(state => state.face.embedding);
 
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'Scan Face');
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
 
+  /* ---------------- AUTO SCAN LOOP ---------------- */
+  useEffect(() => {
+    if (!cameraReady) return;
+
+    let cancelled = false;
+
+    const loop = async () => {
+      if (cancelled) return;
+
+      try {
+        if (
+          !cameraRef.current ||
+          scanInProgress.current ||
+          modalVisible.current ||
+          cooldown.current
+        ) {
+          setTimeout(loop, SCAN_INTERVAL);
+          return;
+        }
+
+        // 🔒 LOCK IMMEDIATELY
+        scanInProgress.current = true;
+
+        const photo = await cameraRef.current.takePhoto();
+        const base64 = await RNFS.readFile(photo.path, 'base64');
+
+        let res;
+        try {
+          res = JSON.parse(await FaceLivenessModule.analyzeFace(base64));
+        } catch (e: any) {
+          scanInProgress.current = false;
+          if (e?.code === 'NO_FACE') {
+            setTimeout(loop, SCAN_INTERVAL);
+            return;
+          }
+          throw e;
+        }
+
+        if (!res?.isLive) {
+          scanInProgress.current = false;
+          setTimeout(loop, SCAN_INTERVAL);
+          return;
+        }
+
+        startScan(async () => {
+          const success = await captureAndVerify(photo.path);
+
+          cooldown.current = true;
+          setTimeout(
+            () => {
+              cooldown.current = false;
+              scanInProgress.current = false;
+              setTimeout(loop, SCAN_INTERVAL);
+            },
+            success ? 200 : 300,
+          );
+        });
+      } catch (err: any) {
+        scanInProgress.current = false;
+        if (err?.code !== 'NO_FACE') {
+          console.log('AUTO SCAN ERROR', err);
+        }
+        setTimeout(loop, SCAN_INTERVAL);
+      }
+    };
+
+    loop();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cameraReady]);
+
+  /* ---------------- SCAN ANIMATION ---------------- */
   const startScan = (cb: () => void) => {
     setScanAnimation(true);
+
     Animated.timing(scanValue, {
       toValue: 1,
-      duration: 1200,
+      duration: 1800, // slow & smooth
+      easing: Easing.inOut(Easing.ease),
       useNativeDriver: true,
     }).start(() => {
       scanValue.setValue(0);
@@ -55,108 +135,76 @@ const FaceScan = ({ navigation }: any) => {
     });
   };
 
-  const checkLivenessMultiFrame = async () => {
-    let lastResult: any = null;
-
-    for (let i = 0; i < 4; i++) {
-      if (!cameraRef.current) break;
-
-      const photo = await cameraRef.current.takePhoto();
-      const base64 = await RNFS.readFile(photo.path, 'base64');
-
-      lastResult = JSON.parse(await FaceLivenessModule.analyzeFace(base64));
-
-      console.log('LIVENESS FRAME', i, lastResult);
-
-      if (lastResult?.isLive) {
-        return { isLive: true, photo };
-      }
-
-      await new Promise((r: any) => setTimeout(r, 300));
-    }
-
-    return { isLive: false, photo: null };
-  };
-
-  const captureAndVerify = async () => {
-    if (!cameraRef.current || !embedding) return;
+  /* ---------------- VERIFY ---------------- */
+  const captureAndVerify = async (photoPath: string): Promise<boolean> => {
+    if (!embedding) return false;
 
     try {
-      setLoading(true);
-
-      const { isLive, photo } = await checkLivenessMultiFrame();
-
-      if (!isLive || !photo) {
-        Alert.alert('Face not live', 'Blink once OR slowly move your head', [
-          {
-            text: 'OK',
-            onPress: () => {
-              setLoading(false);
-              setPreviewImage(null);
-              setCameraKey(prev => prev + 1);
-            },
-          },
-        ]);
-        setLoading(false);
-        return;
-      }
-
       const result = await FaceRecognitionModule.smartAuthenticateFace(
-        photo.path,
+        photoPath,
         embedding,
       );
 
-      setLoading(false);
+      modalVisible.current = true;
+      setPreviewImage(`file://${photoPath}`);
 
-      if (result?.isMatch && result.score >= MATCH_THRESHOLD) {
-        setPreviewImage(`file://${photo.path}`);
+      setTimeout(() => {
+        if (result?.isMatch && result.score >= MATCH_THRESHOLD) {
+          Alert.alert(
+            'Attendance Verified ✅',
+            `Score: ${result.score.toFixed(2)}%`,
+            [
+              {
+                text: 'Continue',
+                onPress: resetAfterResult,
+              },
+            ],
+          );
+        } else {
+          Alert.alert(
+            'Face Mismatch ❌',
+            `Score: ${result?.score?.toFixed(2) ?? 0}%`,
+            [
+              {
+                text: 'Retry',
+                onPress: resetAfterResult,
+              },
+            ],
+          );
+        }
+      }, 100);
 
-        Alert.alert(
-          'Attendance Verified ✅',
-          `Score: ${result.score.toFixed(2)}%`,
-          [
-            {
-              text: 'Continue',
-              onPress: () =>
-                navigation.dispatch(
-                  CommonActions.reset({
-                    index: 0,
-                    routes: [{ name: 'Profie' }],
-                  }),
-                ),
-            },
-          ],
-        );
-      } else {
-        Alert.alert(
-          'Face Mismatch ❌',
-          `Score: ${result?.score?.toFixed(2) ?? 0}%`,
-        );
-      }
-    } catch (e: any) {
-      setLoading(false);
-      Alert.alert('Error', e?.message ?? 'Verification failed');
+      return result?.isMatch && result.score >= MATCH_THRESHOLD;
+    } catch (e) {
+      resetAfterResult();
+      return false;
     }
   };
 
-  useEffect(() => {
-    if (!embedding) {
-      Alert.alert('Face not registered');
-      navigation.goBack();
-    }
-  }, [embedding]);
+  const resetAfterResult = () => {
+    modalVisible.current = false;
+    scanInProgress.current = false;
+    cooldown.current = false;
+    setPreviewImage(null);
+
+    // ⚡ immediately allow next scan
+    setTimeout(() => {
+      scanInProgress.current = false;
+      cooldown.current = false;
+    }, 50);
+  };
 
   if (!device) {
     return (
-      <SafeAreaView edges={['bottom']} style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <Text>Camera not available</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
-      <ScrollView style={styles.flex}>
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
         <View style={[styles.cameraView, { height: screenHeight - vh(260) }]}>
           <Text style={styles.instruction}>Look at camera & blink</Text>
 
@@ -164,12 +212,12 @@ const FaceScan = ({ navigation }: any) => {
             <Image source={{ uri: previewImage }} style={styles.flex} />
           ) : (
             <Camera
-              key={cameraKey}
               ref={cameraRef}
               style={styles.flex}
               device={device}
-              isActive
+              isActive={true}
               photo
+              onInitialized={() => setCameraReady(true)}
             />
           )}
 
@@ -192,24 +240,13 @@ const FaceScan = ({ navigation }: any) => {
           )}
         </View>
       </ScrollView>
-
-      <View style={styles.btn}>
-        <ButtonOrganism
-          bttnText={loading ? 'Verifying...' : 'Mark Attendance'}
-          isDisabled={loading}
-          onPress={() => {
-            if (!loading) {
-              startScan(captureAndVerify);
-            }
-          }}
-        />
-      </View>
     </SafeAreaView>
   );
 };
 
 export default FaceScan;
 
+/* ---------------- STYLES ---------------- */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -232,9 +269,5 @@ const styles = StyleSheet.create({
     height: vh(4),
     width: '100%',
     backgroundColor: 'rgba(0,0,0,0.6)',
-  },
-  btn: {
-    paddingHorizontal: vw(15),
-    paddingVertical: vh(15),
   },
 });

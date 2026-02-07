@@ -164,8 +164,30 @@ class FaceRecognitionModule(
         }
     }
 
-    // ================= REGISTER : MULTIPLE IMAGES (10) =================
 
+private fun loadBitmapSmart(path: String): Bitmap? {
+    return try {
+        when {
+            path.startsWith("http://") || path.startsWith("https://") -> {
+                BitmapFactory.decodeStream(URL(path).openStream())
+            }
+
+            path.startsWith("file://") -> {
+                BitmapFactory.decodeFile(path.replace("file://", ""))
+            }
+
+            else -> {
+                BitmapFactory.decodeFile(path)
+            }
+        }
+    } catch (e: Exception) {
+        Log.e("FaceRecognition", "Bitmap load failed: $path", e)
+        null
+    }
+}
+
+
+    // ================= REGISTER : MULTIPLE IMAGES (10) =================
 @ReactMethod
 fun registerFaceMultiple(
     imagePaths: ReadableArray,
@@ -199,15 +221,9 @@ fun registerFaceMultiple(
                     continue
                 }
 
-                val cleanPath =
-                    if (rawPath.startsWith("file://"))
-                        rawPath.replace("file://", "")
-                    else rawPath
-
-                val bitmap = BitmapFactory.decodeFile(cleanPath)
+                val bitmap = loadBitmapSmart(rawPath)
 
                 if (bitmap == null) {
-                    Log.e("FaceRegister", "Bitmap load failed: $cleanPath")
                     processed++
                     finishIfDone()
                     continue
@@ -226,6 +242,7 @@ fun registerFaceMultiple(
         }
     }
 }
+
 
 
     // ================= AUTHENTICATION =================

@@ -9,31 +9,27 @@ import {
 } from 'react-native-vision-camera';
 import { useIsFocused } from '@react-navigation/native';
 
-import { colors, fonts, screensName, vh, vw } from '../../../../constants';
+import { colors, fonts, vh, vw } from '../../../../constants';
 import TextAtom from '../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../components/atoms/ViewAtom';
 import FullscreenLoading from '../../../../components/organisms/FullscreenLoading';
-import { NavigationType } from '../../../../components/organisms/HeaderOrganism';
 import { isNullUndefined } from '../../../../utils/CommonFunction';
 
-interface Props {
-  navigation: NavigationType;
-}
-const QRScan = (props: Props) => {
-  const { navigation } = props;
+const QRScan = () => {
   const isFocused = useIsFocused();
 
-  const [loader, setLoader] = useState(false);
-  const device = useCameraDevice('back');
-
-  const [scanned, setScanned] = useState(false);
-  const [qrData, setQrData] = useState<any>(null);
   const [permission, setPermission] =
     useState<CameraPermissionStatus>('not-determined');
+  const [loader, setLoader] = useState(false);
+  const [qrData, setQrData] = useState<any>(null);
+  const [scanLock, setScanLock] = useState(false);
+
+  const device = useCameraDevice('front');
 
   useEffect(() => {
     if (isFocused) {
-      setScanned(false);
+      setQrData(null);
+      setScanLock(false);
     }
   }, [isFocused]);
 
@@ -47,48 +43,46 @@ const QRScan = (props: Props) => {
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'],
     onCodeScanned: codes => {
-      if (scanned) return;
-      setScanned(true);
+      if (scanLock || !codes.length) return;
 
       const value = codes[0]?.value;
       if (!value) return;
 
-      setQrData(JSON.parse(value));
-      setLoader(true);
-      setTimeout(() => {
-        setLoader(false);
+      setScanLock(true);
 
-        // navigation.navigate(screensName.RegistrationSteeper, {
-        //   qrData: value,
-        // });
-      }, 1000);
+      try {
+        const parsedQR = value.trim().startsWith('{')
+          ? JSON.parse(value)
+          : { raw: value };
+
+        console.log('GATE QR RESULT ===>', parsedQR);
+
+        setQrData(parsedQR);
+        setLoader(true);
+
+        setTimeout(() => {
+          setLoader(false);
+
+          // 🔁 AUTO RESET FOR NEXT ENTRY
+          setQrData(null);
+          setScanLock(false);
+        }, 1000); // 1 second gap
+      } catch (err) {
+        setScanLock(false);
+      }
     },
   });
 
   if (permission === 'denied') {
     return (
       <SafeAreaView style={styles.container}>
-        <TextAtom
-          style={{
-            fontFamily: fonts.Roboto_Bold,
-            fontSize: vw(16),
-            color: colors.red,
-            marginTop: vh(200),
-            textAlign: 'center',
-          }}
-        >
+        <TextAtom style={styles.permissionText}>
           Camera permission is required to scan QR Code
         </TextAtom>
 
         <TextAtom
           onPress={() => Linking.openSettings()}
-          style={{
-            fontFamily: fonts.Roboto_Bold,
-            fontSize: vw(14),
-            color: colors.primary,
-            marginTop: vh(16),
-            textDecorationLine: 'underline',
-          }}
+          style={styles.openSettings}
         >
           Open Settings
         </TextAtom>
@@ -96,91 +90,41 @@ const QRScan = (props: Props) => {
     );
   }
 
-  if (!device) return null;
+  if (!device || permission !== 'granted') return null;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <FullscreenLoading isVisible={loader} />
 
-      <TextAtom
-        style={{
-          fontFamily: fonts.Roboto_Bold,
-          fontSize: vw(16),
-          color: colors.primary,
-          marginTop: vh(160),
-          alignSelf: 'center',
-        }}
-      >
-        Scan ID Card QR Code
-      </TextAtom>
+      <TextAtom style={styles.title}>Scan ID Card QR Code</TextAtom>
 
-      <ViewAtom
-        style={{
-          width: vw(273),
-          height: vh(273),
-          borderRadius: vw(11),
-          borderColor: colors.primary,
-          borderWidth: vw(2),
-          marginTop: vh(20),
-          overflow: 'hidden',
-        }}
-      >
+      <ViewAtom style={styles.cameraBox}>
         <Camera
-          key={permission}
-          style={{ flex: 1 }}
+          style={StyleSheet.absoluteFill}
           device={device}
-          isActive={isFocused && permission === 'granted' && !loader}
+          isActive={isFocused && !loader}
           codeScanner={codeScanner}
         />
       </ViewAtom>
-      {isNullUndefined(qrData) ? (
-        <ViewAtom style={{ marginBottom: vh(20), marginTop: vh(80) }}>
-          <TextAtom
-            style={{
-              fontFamily: fonts.Roboto_Bold,
-              fontSize: vw(16),
-              color: colors.red,
-              textAlign: 'center',
-            }}
-          >
-            NOTE
-          </TextAtom>
 
-          <TextAtom
-            numberOfLines={0}
-            style={{
-              fontFamily: fonts.Roboto_Bold,
-              fontSize: vw(16),
-              color: colors.primary,
-              textAlign: 'center',
-              width: vw(310),
-            }}
-          >
-            Please scan correct ID Card QR Code available with your training
-            name
+      <TextAtom style={styles.hintText}>
+        Hold ID card straight • Avoid glare • Keep inside box
+      </TextAtom>
+
+      {isNullUndefined(qrData) ? (
+        <ViewAtom style={styles.noteBox}>
+          <TextAtom style={styles.noteTitle}>NOTE</TextAtom>
+          <TextAtom numberOfLines={0} style={styles.noteText}>
+            Please scan correct ID Card QR Code available on your card
           </TextAtom>
         </ViewAtom>
       ) : (
-        <ViewAtom style={{ marginBottom: vh(20), marginTop: vh(80) }}>
-          <TextAtom
-            style={{
-              fontFamily: fonts.Roboto_Bold,
-              fontSize: vw(16),
-              color: colors.grey,
-              textAlign: 'center',
-            }}
-          >
-            {`ID: ${qrData?.id + ''}`}
+        <ViewAtom style={styles.resultBox}>
+          <TextAtom style={styles.resultText}>
+            {`ID: ${qrData?.id ?? '-'}`}
           </TextAtom>
-          <TextAtom
-            style={{
-              fontFamily: fonts.Roboto_Bold,
-              fontSize: vw(16),
-              color: colors.grey,
-              textAlign: 'center',
-            }}
-          >
-            {`Tenant ID: ${qrData?.tenantId + ''}`}
+          <TextAtom style={styles.resultText}>
+            {`Tenant ID: ${qrData?.tenantId ?? '-'}`}
           </TextAtom>
         </ViewAtom>
       )}
@@ -195,5 +139,77 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.backgroundColor,
     alignItems: 'center',
+  },
+
+  title: {
+    fontFamily: fonts.Roboto_Bold,
+    fontSize: vw(16),
+    color: colors.primary,
+    marginTop: vh(150),
+  },
+
+  cameraBox: {
+    width: vw(300),
+    height: vh(300),
+    borderRadius: vw(12),
+    borderWidth: vw(2),
+    borderColor: colors.primary,
+    marginTop: vh(20),
+    overflow: 'hidden',
+  },
+
+  hintText: {
+    marginTop: vh(12),
+    fontFamily: fonts.Roboto_Regular,
+    fontSize: vw(12),
+    color: colors.grey,
+    textAlign: 'center',
+  },
+
+  noteBox: {
+    marginTop: vh(70),
+    width: vw(310),
+  },
+
+  noteTitle: {
+    fontFamily: fonts.Roboto_Bold,
+    fontSize: vw(16),
+    color: colors.red,
+    textAlign: 'center',
+  },
+
+  noteText: {
+    fontFamily: fonts.Roboto_Bold,
+    fontSize: vw(15),
+    color: colors.primary,
+    textAlign: 'center',
+    marginTop: vh(8),
+  },
+
+  resultBox: {
+    marginTop: vh(70),
+  },
+
+  resultText: {
+    fontFamily: fonts.Roboto_Bold,
+    fontSize: vw(15),
+    color: colors.grey,
+    textAlign: 'center',
+  },
+
+  permissionText: {
+    fontFamily: fonts.Roboto_Bold,
+    fontSize: vw(16),
+    color: colors.red,
+    marginTop: vh(200),
+    textAlign: 'center',
+  },
+
+  openSettings: {
+    fontFamily: fonts.Roboto_Bold,
+    fontSize: vw(14),
+    color: colors.primary,
+    marginTop: vh(16),
+    textDecorationLine: 'underline',
   },
 });

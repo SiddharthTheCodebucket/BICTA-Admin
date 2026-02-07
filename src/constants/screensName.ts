@@ -280,4 +280,6 @@ export default {
   LeaveDetailsList: 'LeaveDetailsList',
   AddNotice: 'AddNotice',
   AddShowCauseNotice: 'AddShowCauseNotice',
+
+  ScanQRAndFace: 'ScanQRAndFace',
 };

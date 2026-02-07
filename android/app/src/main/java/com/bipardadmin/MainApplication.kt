@@ -9,6 +9,7 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.lugg.RNCConfig.RNCConfigPackage 
 import com.bipardadmin.FaceRecognitionPackage
 import com.bipardadmin.FaceLivenessPackage
+import com.bipardadmin.ObjectDetectionPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -22,6 +23,7 @@ class MainApplication : Application(), ReactApplication {
           add(RNCConfigPackage())
           add(FaceRecognitionPackage())
           add(FaceLivenessPackage())
+          add(ObjectDetectionPackage())
         },
     )
   }

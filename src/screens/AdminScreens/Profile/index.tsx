@@ -1,4 +1,10 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
@@ -67,7 +73,7 @@ const Profile = (props: Props) => {
   };
 
   const faceImagesCount = trainingImages?.length;
-  const isFaceReady = faceImagesCount === 10 && !!embedding;
+  const isFaceReady = faceImagesCount === 5 && !!embedding;
 
   const getAttendanceButtonText = () => {
     if (!isFaceReady) {
@@ -81,9 +87,32 @@ const Profile = (props: Props) => {
     navigation.navigate('QRScan');
   };
 
+  const handleScanQRAndFacePress = () => {
+    navigation.navigate(screensName.ScanQRAndFace);
+  };
+
+  const handleObjectDetectionPress = () => {
+    navigation.navigate('ObjectDetection');
+  };
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <View style={{ flex: 1 }}>
+        <TouchableOpacity
+          style={[
+            styles.markAttenButton,
+            {
+              backgroundColor: colors.primary,
+            },
+          ]}
+          onPress={handleScanQRAndFacePress}
+        >
+          <Text
+            style={[styles.markAttenText, { color: colors.backgroundColor }]}
+          >
+            {'Gate Pass Through QR and Face'}
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.markAttenButton,
@@ -114,7 +143,25 @@ const Profile = (props: Props) => {
             {'QR Scan'}
           </Text>
         </TouchableOpacity>
+        {Platform.OS === 'android' && (
+          <TouchableOpacity
+            style={[
+              styles.markAttenButton,
+              {
+                backgroundColor: '#FF9800',
+              },
+            ]}
+            onPress={handleObjectDetectionPress}
+          >
+            <Text
+              style={[styles.markAttenText, { color: colors.backgroundColor }]}
+            >
+              {'🔍 Object Detection'}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
+
       <ButtonOrganism
         onPress={() => {
           navigation.navigate(screensName.AlertOrganism, {
