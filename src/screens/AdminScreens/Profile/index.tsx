@@ -24,6 +24,8 @@ import {
 import ButtonOrganism from '../../../components/organisms/ButtonOrganism';
 import Router from '../../../navigator/routes';
 import { useAppSelector } from '../../../hooks';
+import { setIsRegistered } from '../../../features/face/faceSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
   navigation: NavigationType;
@@ -35,7 +37,19 @@ const Profile = (props: Props) => {
   const [time, setTime] = useState(new Date());
   const trainingImages = useAppSelector(state => state.face.images ?? []);
   const embedding = useAppSelector(state => state.face.embedding);
+  const isRegistered = useAppSelector(state => state.face.isRegistered);
   const [attendanceData, setAttendanceData] = useState<any>([]);
+
+  useEffect(() => {
+    const checkStatus = async () => {
+      const status = await AsyncStorage.getItem('@device_registered_status');
+      if (status === 'true') {
+        dispatch(setIsRegistered(true));
+      }
+    };
+    checkStatus();
+  }, []);
+
   useLayoutEffect(() => {
     Header.setDashboardHeader(navigation, {
       time,
@@ -98,37 +112,44 @@ const Profile = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <View style={{ flex: 1 }}>
-        <TouchableOpacity
-          style={[
-            styles.markAttenButton,
-            {
-              backgroundColor: colors.primary,
-            },
-          ]}
-          onPress={handleScanQRAndFacePress}
-        >
-          <Text
-            style={[styles.markAttenText, { color: colors.backgroundColor }]}
+        {/* Removed redundant Gate Pass button */}
+
+        {!isRegistered && (
+          <TouchableOpacity
+            style={[
+              styles.markAttenButton,
+              {
+                backgroundColor: colors.primary,
+              },
+            ]}
+            onPress={() => navigation.navigate(screensName.DeviceRegistration)}
           >
-            {'Gate Pass Through QR and Face'}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.markAttenButton,
-            {
-              backgroundColor: colors.primary,
-            },
-          ]}
-          onPress={handleAttendancePress}
-        >
-          <Text
-            style={[styles.markAttenText, { color: colors.backgroundColor }]}
+            <Text
+              style={[styles.markAttenText, { color: colors.backgroundColor }]}
+            >
+              {'Device Registration'}
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {isRegistered && (
+          <TouchableOpacity
+            style={[
+              styles.markAttenButton,
+              {
+                backgroundColor: colors.primary,
+              },
+            ]}
+            onPress={() => navigation.navigate('ScanQRAndFace')}
           >
-            {getAttendanceButtonText()}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+            <Text
+              style={[styles.markAttenText, { color: colors.backgroundColor }]}
+            >
+              {'QR & Face Authentication'}
+            </Text>
+          </TouchableOpacity>
+        )}
+        {/* <TouchableOpacity
           style={[
             styles.markAttenButton,
             {
@@ -142,8 +163,8 @@ const Profile = (props: Props) => {
           >
             {'QR Scan'}
           </Text>
-        </TouchableOpacity>
-        {Platform.OS === 'android' && (
+        </TouchableOpacity> */}
+        {/* {Platform.OS === 'android' && (
           <TouchableOpacity
             style={[
               styles.markAttenButton,
@@ -159,7 +180,7 @@ const Profile = (props: Props) => {
               {'🔍 Object Detection'}
             </Text>
           </TouchableOpacity>
-        )}
+        )} */}
       </View>
 
       <ButtonOrganism

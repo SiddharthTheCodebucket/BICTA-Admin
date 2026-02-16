@@ -256,6 +256,7 @@ import FaceScan from '../screens/AdminScreens/Profile/FaceScan';
 import QRScan from '../screens/AdminScreens/Profile/QRScan';
 import ObjectDetection from '../screens/AdminScreens/Profile/ObjectDetection';
 import ScanQRAndFace from '../screens/AdminScreens/Profile/ScanQRAndFace';
+import DeviceRegistration from '../screens/AdminScreens/Profile/FaceScan/DeviceRegistration';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -1081,6 +1082,10 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="ScanQRAndFace"
           component={ScanQRAndFace}
+        />
+        <RootStackScreen.Screen
+          name={screensName.DeviceRegistration}
+          component={DeviceRegistration}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

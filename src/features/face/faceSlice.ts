@@ -4,12 +4,14 @@ type FaceState = {
   images: string[];
   embedding: string | null;
   referenceEmbedding: number[] | null;
+  isRegistered: boolean;
 };
 
 const initialState: FaceState = {
   images: [],
   embedding: null,
   referenceEmbedding: null,
+  isRegistered: false,
 };
 
 const faceSlice = createSlice({
@@ -33,14 +35,24 @@ const faceSlice = createSlice({
       state.embedding = action.payload;
     },
 
+    setIsRegistered(state, action: PayloadAction<boolean>) {
+      state.isRegistered = action.payload;
+    },
+
     resetFace(state) {
       state.images = [];
       state.embedding = null;
       state.referenceEmbedding = null;
+      state.isRegistered = false;
     },
   },
 });
 
-export const { addFaceImage, setEmbedding, resetFace, setReferenceEmbedding } =
-  faceSlice.actions;
+export const {
+  addFaceImage,
+  setEmbedding,
+  resetFace,
+  setReferenceEmbedding,
+  setIsRegistered,
+} = faceSlice.actions;
 export default faceSlice.reducer;

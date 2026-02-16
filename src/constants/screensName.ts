@@ -282,4 +282,5 @@ export default {
   AddShowCauseNotice: 'AddShowCauseNotice',
 
   ScanQRAndFace: 'ScanQRAndFace',
+  DeviceRegistration: 'DeviceRegistration',
 };
