@@ -283,4 +283,5 @@ export default {
 
   ScanQRAndFace: 'ScanQRAndFace',
   DeviceRegistration: 'DeviceRegistration',
+  DeviceList: 'DeviceList',
 };

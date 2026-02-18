@@ -38,10 +38,11 @@ import {
 import { useGetCentre } from '../../../../hooks/useGetCentre';
 import { setDeviceInfo } from '../../../../features/face/faceSlice';
 
-const DeviceRegistration = ({ navigation }: any) => {
+const DeviceRegistration = ({ navigation, route }: any) => {
   const bipardCentre = useGetCentre();
   const { crediantialData } = useAppSelector((state: any) => state.Auth);
   const tenantId = crediantialData?.user?.[0]?.tenantId;
+  const passedDeviceData = route?.params?.deviceData;
 
   const validationSchema = Yup.object().shape({
     location: Yup.object().shape({
@@ -82,9 +83,12 @@ const DeviceRegistration = ({ navigation }: any) => {
   const isNavigatingToSettings = useRef(false);
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Device Registration');
+    Header.setNavigation(
+      navigation,
+      passedDeviceData ? 'Edit Device' : 'Device Registration',
+    );
     navigation.BackButtonPress = () => navigation.goBack();
-  }, [navigation]);
+  }, [navigation, passedDeviceData]);
 
   useEffect(() => {
     const init = async () => {
@@ -96,7 +100,24 @@ const DeviceRegistration = ({ navigation }: any) => {
         setCenterSearch({ id: bipardCentre[0], name: bipardCentre[0] });
       }
 
-      checkIfAlreadyRegistered(id);
+      if (passedDeviceData) {
+        // If we are editing a specific device from the list
+        setDbRecord(passedDeviceData);
+        setSelectedLocation({
+          id: passedDeviceData.locationId,
+          name: passedDeviceData.locationName,
+        });
+
+        if (tenantId === 3) {
+          const inferredCentre =
+            passedDeviceData.tenantId === 2 ? 'Patna' : 'Gaya';
+          setCenterSearch({ id: inferredCentre, name: inferredCentre });
+        }
+        setIsChecking(false);
+      } else {
+        // Normal flow: check if CURRENT device is registered
+        checkIfAlreadyRegistered(id);
+      }
     };
 
     init();
@@ -401,6 +422,7 @@ const DeviceRegistration = ({ navigation }: any) => {
           <DropDownOrganism
             label="Select Centre"
             placeholder="Select Centre"
+            isDisabled={!!passedDeviceData}
             onPress={() => {
               navigation.navigate('DropDownModal', {
                 name: 'Center',
@@ -420,6 +442,7 @@ const DeviceRegistration = ({ navigation }: any) => {
             }}
             inputText={centerSearch?.name}
             errorMessage={error.centre}
+            isMandatory
           />
         )}
 
@@ -441,6 +464,7 @@ const DeviceRegistration = ({ navigation }: any) => {
           }}
           inputText={selectedLocation?.name}
           errorMessage={error.location}
+          isMandatory
         />
 
         <ButtonOrganism

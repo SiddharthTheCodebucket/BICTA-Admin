@@ -253,6 +253,7 @@ import BlockEmployeeFrom from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeM
 import AddConferenceForm from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceMasterDetails/AddConferenceForm';
 import ScanQRAndFace from '../screens/AdminScreens/Profile/ScanQRAndFace';
 import DeviceRegistration from '../screens/AdminScreens/Profile/FaceScan/DeviceRegistration';
+import DeviceList from '../screens/AdminScreens/Profile/FaceScan/DeviceList';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -1072,6 +1073,10 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name={screensName.DeviceRegistration}
           component={DeviceRegistration}
+        />
+        <RootStackScreen.Screen
+          name={screensName.DeviceList}
+          component={DeviceList}
         />
       </RootStackScreen.Group>
       <RootStackScreen.Group

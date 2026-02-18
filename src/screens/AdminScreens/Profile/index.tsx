@@ -30,6 +30,8 @@ import ButtonOrganism from '../../../components/organisms/ButtonOrganism';
 import Router from '../../../navigator/routes';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAppSelector } from '../../../hooks';
+import { usePermission } from '../../../hooks/usePermission';
+import { matchPermission } from '../../../utils/PermissionChecker/index';
 import {
   setIsRegistered,
   setDeviceInfo,
@@ -47,6 +49,26 @@ const Profile = (props: Props) => {
   const dispatch = useDispatch();
   const bipardCentre = useGetCentre();
   const [listDeviceApi] = useListDeviceMutation();
+
+  const { crediantialData } = useAppSelector((state: any) => state.Auth);
+  const globalPermissions = crediantialData?.globalPermissions || [];
+
+  // Dedicated Scanner: exactly one role and it's QR CODE SCANNER DEVICE
+  const isDedicatedScanner =
+    globalPermissions.length === 1 &&
+    globalPermissions[0]?.roleName === 'QR CODE SCANNER DEVICE';
+
+  const hasListDevicePermission = matchPermission(
+    globalPermissions?.[0]?.permissions || [],
+    { name: 'LIST DEVICE' },
+  );
+
+  const hasAddDevicePermission = matchPermission(
+    globalPermissions?.[0]?.permissions || [],
+    { name: 'ADD DEVICE' },
+  );
+
+  const tenantId = crediantialData?.user?.[0]?.tenantId;
 
   const [time, setTime] = useState(new Date());
   const isRegistered = useAppSelector(state => state.face.isRegistered);
@@ -106,25 +128,7 @@ const Profile = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <View style={{ flex: 1 }}>
-        <TouchableOpacity
-          style={[
-            styles.markAttenButton,
-            {
-              backgroundColor: colors.primary,
-            },
-          ]}
-          onPress={() => navigation.navigate(screensName.DeviceRegistration)}
-        >
-          <Text
-            style={[styles.markAttenText, { color: colors.backgroundColor }]}
-          >
-            {isRegistered
-              ? 'Update Device Registration'
-              : 'Device Registration'}
-          </Text>
-        </TouchableOpacity>
-
-        {isRegistered && (
+        {hasListDevicePermission && !isDedicatedScanner && (
           <TouchableOpacity
             style={[
               styles.markAttenButton,
@@ -132,14 +136,62 @@ const Profile = (props: Props) => {
                 backgroundColor: colors.primary,
               },
             ]}
-            onPress={() => navigation.navigate('ScanQRAndFace')}
+            onPress={() => navigation.navigate(screensName.DeviceList)}
           >
             <Text
               style={[styles.markAttenText, { color: colors.backgroundColor }]}
             >
-              {'QR & Face Authentication'}
+              {'Registered Device List'}
             </Text>
           </TouchableOpacity>
+        )}
+
+        {isDedicatedScanner && Platform.OS === 'android' && (
+          <>
+            <TouchableOpacity
+              style={[
+                styles.markAttenButton,
+                {
+                  backgroundColor: colors.primary,
+                },
+              ]}
+              onPress={() =>
+                navigation.navigate(screensName.DeviceRegistration)
+              }
+            >
+              <Text
+                style={[
+                  styles.markAttenText,
+                  { color: colors.backgroundColor },
+                ]}
+              >
+                {isRegistered
+                  ? 'Update Device Registration'
+                  : 'Device Registration'}
+              </Text>
+            </TouchableOpacity>
+
+            {isRegistered && (
+              <TouchableOpacity
+                style={[
+                  styles.markAttenButton,
+                  {
+                    backgroundColor: colors.primary,
+                  },
+                ]}
+                onPress={() => navigation.navigate('ScanQRAndFace')}
+              >
+                <Text
+                  style={[
+                    styles.markAttenText,
+                    { color: colors.backgroundColor },
+                  ]}
+                >
+                  {'QR & Face Authentication'}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
       </View>
 

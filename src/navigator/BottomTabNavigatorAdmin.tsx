@@ -46,9 +46,13 @@ function BottomTabNavigatorAdmin() {
   const { crediantialData } = useAppSelector(state => state.Auth);
   const insets = useSafeAreaInsets();
   const userType: string | undefined = crediantialData?.user?.[0]?.userType;
+  const globalPermissions = crediantialData?.globalPermissions || [];
+
+  const isDedicatedScanner =
+    globalPermissions.length === 1 &&
+    globalPermissions[0]?.roleName === 'QR CODE SCANNER DEVICE';
 
   const canSeeInvoice = userType === 'ACCOUNTCONTROLLER';
-
   const isAndroid = Platform.OS === 'android';
   const bottomInset = isAndroid ? Math.max(insets.bottom, 0) : 0;
 
@@ -68,7 +72,7 @@ function BottomTabNavigatorAdmin() {
         headerShown: false,
       }}
     >
-      {!canSeeInvoice && (
+      {!canSeeInvoice && !isDedicatedScanner && (
         <BottomTab.Screen
           name={screensName.Dashboard}
           component={Dashboard}
@@ -84,26 +88,30 @@ function BottomTabNavigatorAdmin() {
         />
       )}
 
-      <BottomTab.Screen
-        name={screensName.Menu}
-        component={Menu}
-        options={{
-          tabBarLabel: 'Menu',
-          tabBarIcon: renderMenuIcon(),
-        }}
-        listeners={({ navigation }) => ({
-          tabPress: () => {
-            navigation.navigate(screensName.Menu);
-          },
-        })}
-      />
+      {!isDedicatedScanner && (
+        <BottomTab.Screen
+          name={screensName.Menu}
+          component={Menu}
+          options={{
+            tabBarLabel: 'Menu',
+            tabBarIcon: renderMenuIcon(),
+          }}
+          listeners={({ navigation }) => ({
+            tabPress: () => {
+              navigation.navigate(screensName.Menu);
+            },
+          })}
+        />
+      )}
 
       <BottomTab.Screen
         name={screensName.Profile}
         component={Profile}
         options={{
-          tabBarLabel: 'Profile',
-          tabBarIcon: renderProfileIcon(),
+          tabBarLabel: isDedicatedScanner ? 'Home' : 'Profile',
+          tabBarIcon: isDedicatedScanner
+            ? renderHomeIcon()
+            : renderProfileIcon(),
         }}
         listeners={({ navigation }) => ({
           tabPress: () => {
