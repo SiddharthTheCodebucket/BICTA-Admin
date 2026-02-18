@@ -1,4 +1,11 @@
-import React, { useEffect, useState, useLayoutEffect } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useLayoutEffect,
+  useCallback,
+  useRef,
+} from 'react';
+import * as Yup from 'yup';
 import {
   StyleSheet,
   View,
@@ -6,36 +13,73 @@ import {
   Alert,
   Platform,
   PermissionsAndroid,
+  Linking,
+  AppState,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DeviceInfo from 'react-native-device-info';
 import Geolocation from '@react-native-community/geolocation';
 import { useDispatch } from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import * as Yup from 'yup';
-import TextInputOrganisms from '../../../../components/organisms/TextInputOrganisms';
+import { useAppSelector } from '../../../../hooks';
 import ButtonOrganism from '../../../../components/organisms/ButtonOrganism';
 import { Header } from '../../../../components/organisms/HeaderOrganism';
 import { colors, screensName, vh, vw } from '../../../../constants';
 import FullscreenLoading from '../../../../components/organisms/FullscreenLoading';
-import { setIsRegistered as setIsRegisteredRedux } from '../../../../features/face/faceSlice';
+import DropDownOrganism from '../../../../components/organisms/DropDownOrganism';
+import { useCommonDropdownListMutation } from '../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import {
+  useAddDeviceMutation,
+  useListDeviceMutation,
+  useUpdateDeviceMutation,
+} from '../../../../injectEndpoints/faceEndpoints';
 
-const REGISTRATION_KEY = '@device_registered_status';
+import { useGetCentre } from '../../../../hooks/useGetCentre';
+import { setDeviceInfo } from '../../../../features/face/faceSlice';
 
 const DeviceRegistration = ({ navigation }: any) => {
+  const bipardCentre = useGetCentre();
+  const { crediantialData } = useAppSelector((state: any) => state.Auth);
+  const tenantId = crediantialData?.user?.[0]?.tenantId;
+
+  const validationSchema = Yup.object().shape({
+    location: Yup.object().shape({
+      id: Yup.string().required('Location is required'),
+    }),
+    centre:
+      tenantId === 3
+        ? Yup.object().shape({
+            id: Yup.string().required('Centre is required'),
+          })
+        : Yup.mixed().notRequired(),
+  });
+
   const dispatch = useDispatch();
-  const [locationName, setLocationName] = useState('');
+  const appState = useRef(AppState.currentState);
+
+  const [addDeviceApi] = useAddDeviceMutation();
+  const [updateDeviceApi] = useUpdateDeviceMutation();
+  const [listDeviceApi] = useListDeviceMutation();
+  const [commonDropdownListApi] = useCommonDropdownListMutation();
+
+  const [locationList, setLocationList] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState<any>({});
+  const [centerSearch, setCenterSearch] = useState<any>({});
   const [deviceId, setDeviceId] = useState('');
-  const [location, setLocation] = useState<{
+  const [dbRecord, setDbRecord] = useState<any>(null);
+
+  const [locationCoords, setLocationCoords] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
-  const [error, setError] = useState({ locationName: '' });
+  const [error, setError] = useState({ centre: '', location: '' });
 
-  const [registering, setRegistering] = useState(false);
+  const isAlertOpen = useRef(false);
+  const lastAlertTime = useRef(0);
+  const isNavigatingToSettings = useRef(false);
 
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'Device Registration');
@@ -47,133 +91,292 @@ const DeviceRegistration = ({ navigation }: any) => {
       const id = await DeviceInfo.getUniqueId();
       setDeviceId(id);
 
-      try {
-        // 🔥 Simulate API check with Local Storage
-        const isRegistered = await AsyncStorage.getItem(REGISTRATION_KEY);
-        if (isRegistered === 'true') {
-          dispatch(setIsRegisteredRedux(true));
-          navigation.replace(screensName.ScanQRAndFace);
-          return;
-        }
-      } catch (err) {
-        console.log('Reg Check Error:', err);
-      } finally {
-        setTimeout(() => setIsChecking(false), 800);
+      // Auto-select centre for tenantId 1 or 2
+      if (tenantId !== 3 && bipardCentre && bipardCentre.length > 0) {
+        setCenterSearch({ id: bipardCentre[0], name: bipardCentre[0] });
       }
+
+      checkIfAlreadyRegistered(id);
     };
 
     init();
-    requestLocationPermission();
+
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      const now = Date.now();
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        isNavigatingToSettings.current = false;
+
+        if (!locationCoords && !isAlertOpen.current) {
+          setTimeout(() => {
+            if (!locationCoords && !isAlertOpen.current) {
+              requestLocationPermission(false);
+            }
+          }, 100);
+        }
+      }
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
-  const requestLocationPermission = async () => {
+  useEffect(() => {
+    if (centerSearch?.id) {
+      getLocationList();
+    }
+  }, [centerSearch]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!locationCoords && !isAlertOpen.current) {
+        requestLocationPermission(false);
+      }
+    }, [locationCoords]),
+  );
+
+  const showAlert = (params: any) => {
+    const now = Date.now();
+    if (isAlertOpen.current || now - lastAlertTime.current < 2000) {
+      return;
+    }
+
+    isAlertOpen.current = true;
+    lastAlertTime.current = now;
+
+    navigation.navigate(screensName.AlertOrganism, {
+      ...params,
+      okFunction: () => {
+        isAlertOpen.current = false;
+        lastAlertTime.current = Date.now();
+        if (params.okFunction) params.okFunction();
+      },
+      cancelFunction: () => {
+        isAlertOpen.current = false;
+        lastAlertTime.current = Date.now();
+        if (params.cancelFunction) params.cancelFunction();
+      },
+    });
+  };
+
+  const checkIfAlreadyRegistered = (id: string) => {
+    const params = {
+      search: '',
+      sort: {
+        attributes: ['id'],
+        sorts: ['desc'],
+      },
+      filters: [['deviceId', '=', id]],
+      pageNo: 1,
+      itemsPerPage: 10,
+      bipardCentre: bipardCentre,
+    };
+
+    listDeviceApi(params)
+      .unwrap()
+      .then((res: any) => {
+        if (res?.data?.data && res.data.data.length > 0) {
+          const record = res.data.data[0];
+          setDbRecord(record);
+          dispatch(setDeviceInfo(record));
+
+          if (tenantId === 3) {
+            const inferredCentre = record.tenantId === 2 ? 'Patna' : 'Gaya';
+            setCenterSearch({ id: inferredCentre, name: inferredCentre });
+          }
+
+          setSelectedLocation({
+            id: record.locationId,
+            name: record.locationName,
+          });
+        }
+      })
+      .catch(err => {})
+      .finally(() => {
+        setTimeout(() => setIsChecking(false), 800);
+      });
+  };
+
+  const getLocationList = () => {
+    if (!centerSearch?.id) return;
+
+    const params = {
+      listType: 'select_face_match_location',
+      bipardCentre: [centerSearch.id],
+      replacements: ['%%'],
+    };
+    commonDropdownListApi(params)
+      .unwrap()
+      .then((res: any) => {
+        setLocationList(res.data);
+      })
+      .catch(err => {});
+  };
+
+  const requestLocationPermission = async (silent = false) => {
     if (Platform.OS === 'android') {
       try {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('Location Permission Granted');
-          getCurrentLocation();
+          getCurrentLocation(silent);
         } else if (granted === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
-          Alert.alert(
-            'Permission Required',
-            'You have permanently denied location permission. Please enable it in settings.',
-            [{ text: 'OK' }],
-          );
+          if (!silent) {
+            showAlert({
+              title: 'Permission Required',
+              message:
+                'You have permanently denied location permission. Enable it in settings.',
+              okText: 'OK',
+            });
+          }
         } else {
-          Alert.alert(
-            'Permission Denied',
-            'Location permission is required for registration.',
-          );
+          if (!silent) {
+            showAlert({
+              title: 'Permission Denied',
+              message: 'Location permission is required for registration.',
+              okText: 'OK',
+            });
+          }
         }
       } catch (err) {
         console.warn(err);
       }
     } else {
-      getCurrentLocation();
+      getCurrentLocation(silent);
     }
   };
 
-  const getCurrentLocation = () => {
-    Geolocation.getCurrentPosition(
-      position => {
-        setLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-      },
-      error => {
-        console.log('Location Error:', error);
-        Alert.alert(
-          'Location Error',
-          'Unable to fetch current location. Please ensure GPS is on.',
-        );
-      },
-      {
-        enableHighAccuracy: Platform.OS === 'ios',
-        timeout: 30000,
-        maximumAge: 10000,
-      },
-    );
+  const getCurrentLocation = (
+    silent = false,
+  ): Promise<{ latitude: number; longitude: number } | null> => {
+    return new Promise(resolve => {
+      Geolocation.getCurrentPosition(
+        position => {
+          const coords = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+          setLocationCoords(coords);
+          resolve(coords);
+        },
+        error => {
+          if (!silent) {
+            showAlert({
+              title: 'Location Error',
+              message:
+                'Unable to fetch current location. Ensure your device location/GPS is turned ON and try again.',
+              double: true,
+              cancelText: 'Cancel',
+              okText: 'Open Settings',
+              okFunction: () => {
+                isNavigatingToSettings.current = true;
+                setTimeout(() => {
+                  if (Platform.OS === 'android') {
+                    Linking.sendIntent(
+                      'android.settings.LOCATION_SOURCE_SETTINGS',
+                    );
+                  } else {
+                    Linking.openSettings();
+                  }
+                }, 1000);
+              },
+              cancelFunction: () => {},
+            });
+          }
+          resolve(null);
+        },
+      );
+    });
   };
 
   const isValidate = () => {
     try {
-      const schema = Yup.object().shape({
-        locationName: Yup.string().required(
-          'Location Name is required (e.g. GATE 1)',
-        ),
-      });
-      schema.validateSync({ locationName });
+      validationSchema.validateSync(
+        { centre: centerSearch, location: selectedLocation },
+        { abortEarly: true },
+      );
+      setError({ centre: '', location: '' });
       return true;
     } catch (err: any) {
-      setError({ ...error, [err.path]: err.message });
+      if (err instanceof Yup.ValidationError) {
+        // Only set the first error found to ensure sequential display
+        const path = err.path || '';
+        setError({
+          centre: path === 'centre.id' ? err.message : '',
+          location: path === 'location.id' ? err.message : '',
+        });
+      }
       return false;
     }
   };
 
-  const handleRegister = async () => {
+  const handleAction = async () => {
     if (!isValidate()) return;
-
-    if (!location) {
-      Toast.show({
-        type: 'error',
-        text1: 'Location Required',
-        text2: 'Please wait until your location is fetched before registering.',
-      });
-      getCurrentLocation();
-      return;
-    }
 
     setLoading(true);
 
-    try {
-      const payload = {
-        deviceId,
-        latitude: location.latitude,
-        longitude: location.longitude,
-        locationName,
-      };
-
-      console.log('Registering with payload:', payload);
-
-      // 🔥 Simulate API call
-      await new Promise(resolve => setTimeout(() => resolve(null), 2000));
-
-      await AsyncStorage.setItem(REGISTRATION_KEY, 'true');
-      dispatch(setIsRegisteredRedux(true));
-
+    const freshCoords = await getCurrentLocation(false);
+    if (!freshCoords) {
       setLoading(false);
-      Alert.alert('Success', 'Device registered successfully!', [
-        {
-          text: 'Continue',
-          onPress: () => navigation.replace(screensName.ScanQRAndFace),
-        },
-      ]);
-    } catch (error: any) {
-      setLoading(false);
-      Alert.alert('Error', 'Registration failed. Please try again.');
+      return;
+    }
+
+    const payload: any = {
+      latitude: String(freshCoords.latitude),
+      longitude: String(freshCoords.longitude),
+      locationId: selectedLocation.id,
+      bipardCentre: centerSearch?.id ? [centerSearch.id] : bipardCentre,
+    };
+
+    if (dbRecord) {
+      payload.id = String(dbRecord.id);
+      updateDeviceApi(payload)
+        .unwrap()
+        .then((res: any) => {
+          setLoading(false);
+          if (res?.data) {
+            dispatch(setDeviceInfo(res.data));
+          }
+          Toast.show({
+            type: 'success',
+            text2: res.data.message || 'Device updated successfully!',
+          });
+          navigation.goBack();
+        })
+        .catch(err => {
+          setLoading(false);
+          Toast.show({
+            type: 'error',
+            text2: err?.data?.message || 'Update failed',
+          });
+        });
+    } else {
+      payload.deviceId = deviceId;
+      addDeviceApi(payload)
+        .unwrap()
+        .then((res: any) => {
+          setLoading(false);
+          if (res?.data) {
+            dispatch(setDeviceInfo(res.data));
+          }
+          Toast.show({
+            type: 'success',
+            text2: res?.data?.message ?? 'Device registered successfully!',
+          });
+          navigation.goBack();
+        })
+        .catch(err => {
+          setLoading(false);
+          Toast.show({
+            type: 'error',
+            text2: err?.data?.message ?? 'Registration failed',
+          });
+        });
     }
   };
 
@@ -182,29 +385,67 @@ const DeviceRegistration = ({ navigation }: any) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <FullscreenLoading isVisible={loading} />
       <View style={styles.content}>
-        <Text style={styles.title}>Register Device</Text>
+        <Text style={styles.title}>
+          {dbRecord ? 'Update Device' : 'Register Device'}
+        </Text>
         <Text style={styles.subtitle}>
-          Please provide the location details to continue.
+          {dbRecord
+            ? 'Your device is already registered. You can update its location if needed.'
+            : 'Select your current location to register this device.'}
         </Text>
 
-        <TextInputOrganisms
-          label="Location Name"
-          placeholder="e.g. GATE 1"
-          value={locationName}
-          onChangeText={(txt: string) => {
-            setLocationName(txt);
-            setError({ ...error, locationName: '' });
+        {tenantId === 3 && (
+          <DropDownOrganism
+            label="Select Centre"
+            placeholder="Select Centre"
+            onPress={() => {
+              navigation.navigate('DropDownModal', {
+                name: 'Center',
+                Data: [
+                  { id: 'Gaya', name: 'Gaya' },
+                  { id: 'Patna', name: 'Patna' },
+                ],
+                selectedData: centerSearch,
+                setSelectedData: (data: any) => {
+                  setCenterSearch(data);
+                  setSelectedLocation({});
+                  setError(prev => ({ ...prev, centre: '' }));
+                },
+                typeName: 'name',
+                typeId: 'id',
+              });
+            }}
+            inputText={centerSearch?.name}
+            errorMessage={error.centre}
+          />
+        )}
+
+        <DropDownOrganism
+          label="Select Location"
+          placeholder="Select Location"
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Select Location',
+              Data: locationList,
+              selectedData: selectedLocation,
+              setSelectedData: (data: any) => {
+                setSelectedLocation(data);
+                setError(prev => ({ ...prev, location: '' }));
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
           }}
-          errorMessage={error.locationName}
-          containerStyle={styles.input}
+          inputText={selectedLocation?.name}
+          errorMessage={error.location}
         />
 
         <ButtonOrganism
-          bttnText="Register & Continue"
-          onPress={handleRegister}
+          bttnText={dbRecord ? 'Update' : 'Register'}
+          onPress={handleAction}
           containerStyle={styles.button}
         />
       </View>
@@ -222,7 +463,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: vw(20),
-    paddingTop: vh(20),
+    marginTop: vh(20),
   },
   title: {
     fontSize: vw(22),
@@ -239,7 +480,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     padding: vw(15),
     borderRadius: vw(8),
-    marginBottom: vh(15),
+    marginVertical: vh(15),
   },
   infoLabel: {
     fontSize: vw(12),
@@ -251,10 +492,7 @@ const styles = StyleSheet.create({
     color: colors.black,
     fontFamily: 'Roboto-Medium',
   },
-  input: {
-    marginTop: vh(10),
-  },
   button: {
-    marginTop: vh(40),
+    marginTop: vh(20),
   },
 });

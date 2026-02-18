@@ -5,6 +5,7 @@ type FaceState = {
   embedding: string | null;
   referenceEmbedding: number[] | null;
   isRegistered: boolean;
+  deviceInfo: any | null;
 };
 
 const initialState: FaceState = {
@@ -12,6 +13,7 @@ const initialState: FaceState = {
   embedding: null,
   referenceEmbedding: null,
   isRegistered: false,
+  deviceInfo: null,
 };
 
 const faceSlice = createSlice({
@@ -39,11 +41,16 @@ const faceSlice = createSlice({
       state.isRegistered = action.payload;
     },
 
+    setDeviceInfo(state, action: PayloadAction<any>) {
+      state.deviceInfo = action.payload;
+    },
+
     resetFace(state) {
       state.images = [];
       state.embedding = null;
       state.referenceEmbedding = null;
       state.isRegistered = false;
+      state.deviceInfo = null;
     },
   },
 });
@@ -54,5 +61,6 @@ export const {
   resetFace,
   setReferenceEmbedding,
   setIsRegistered,
+  setDeviceInfo,
 } = faceSlice.actions;
 export default faceSlice.reducer;

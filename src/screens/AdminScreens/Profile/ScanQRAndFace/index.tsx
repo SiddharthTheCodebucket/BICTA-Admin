@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
-  Alert,
   StyleSheet,
   NativeModules,
   Text,
@@ -9,10 +8,17 @@ import {
   Linking,
   AppState,
   Dimensions,
+  Platform,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { vh, vw, screensName } from '../../../../constants';
+import { NavigationType } from '../../../../components/organisms/HeaderOrganism';
+import { useAppSelector } from '../../../../hooks';
+import { useAddMatchLogMutation } from '../../../../injectEndpoints/faceEndpoints';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const OVERLAY_SIZE = SCREEN_WIDTH * 0.65; // Responsive size
+const OVERLAY_SIZE = SCREEN_WIDTH * 0.65;
+
 import {
   Camera,
   useCameraDevice,
@@ -31,6 +37,9 @@ const MATCH_THRESHOLD = 75;
 const MAX_FACE_RETRY = 3;
 
 const ScanQRAndFace = () => {
+  const navigation = useNavigation<NavigationType>();
+  const { deviceInfo } = useAppSelector((state: any) => state.face);
+  const [addMatchLogApi] = useAddMatchLogMutation();
   const cameraRef = useRef<Camera>(null);
   const appState = useRef(AppState.currentState);
 
@@ -50,12 +59,10 @@ const ScanQRAndFace = () => {
   const scanning = useRef(false);
   const faceRetryCount = useRef(0);
 
-  /* ---------------- CAMERA PERMISSION (BULLETPROOF) ---------------- */
   const checkCameraPermission = async (showAlert = false) => {
     setCheckingPermission(true);
 
     const status = Camera.getCameraPermissionStatus();
-    console.log('Camera permission:', status);
 
     if (status === 'granted') {
       setHasPermission(true);
@@ -63,7 +70,6 @@ const ScanQRAndFace = () => {
       return;
     }
 
-    // FIRST TIME INSTALL → ONLY time Android shows system prompt
     if (status === 'not-determined') {
       const result = await Camera.requestCameraPermission();
       setHasPermission(result === 'granted');
@@ -71,34 +77,28 @@ const ScanQRAndFace = () => {
       return;
     }
 
-    // denied / restricted / ask every time
     setHasPermission(false);
     setCheckingPermission(false);
 
     if (showAlert) {
-      Alert.alert(
-        'Camera Permission Required',
-        'Please allow camera access to continue.\n\nGo to Settings → Permissions → Camera → Allow only while using the app.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Open Settings',
-            onPress: () => {
-              void Linking.openSettings();
-            },
-          },
-        ],
-        { cancelable: false },
-      );
+      navigation.navigate(screensName.AlertOrganism, {
+        title: 'Camera Permission Required',
+        message:
+          'Please allow camera access to continue.\n\nGo to Settings → Permissions → Camera → Allow only while using the app.',
+        okText: 'Open Settings',
+        double: true,
+        cancelText: 'Cancel',
+        okFunction: () => {
+          void Linking.openSettings();
+        },
+      });
     }
   };
 
-  // initial check
   useEffect(() => {
     checkCameraPermission(true);
   }, []);
 
-  // re-check when user comes back from settings
   useEffect(() => {
     const sub = AppState.addEventListener('change', nextState => {
       if (
@@ -124,7 +124,6 @@ const ScanQRAndFace = () => {
     setStep('QR');
   };
 
-  /* ---------------- QR SCAN ---------------- */
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'],
     onCodeScanned: codes => {
@@ -132,22 +131,30 @@ const ScanQRAndFace = () => {
 
       const value = codes?.[0]?.value;
       if (!value) return;
-
+      console.log('QR data====>', value);
       lock.current = true;
       setLoading(true);
       setMessage('ID card scanned. Verifying details…');
 
       try {
-        const qrData = JSON.parse(value);
+        // Some QR codes might have unquoted keys (e.g. name: instead of "name":)
+        // This regex ensures keys are quoted so JSON.parse works.
+        const cleanedValue = value.replace(
+          /([{,])\s*([a-zA-Z0-9_]+)\s*:/g,
+          '$1"$2":',
+        );
+
+        const qrData = JSON.parse(cleanedValue);
 
         if (!qrData?.images?.length) {
           throw new Error('Invalid QR: missing face images');
         }
 
         setEmployee(qrData);
-        setMessage(`Welcome ${qrData.basicData?.name}`);
+        setMessage(`Welcome ${qrData.name}`);
         setStep('REGISTER');
-      } catch {
+      } catch (err) {
+        console.error('QR Parsing Error:', err);
         setMessage('Invalid ID card. Please scan again.');
         setLoading(false);
         lock.current = false;
@@ -155,12 +162,11 @@ const ScanQRAndFace = () => {
     },
   });
 
-  /* ---------------- REGISTER FACE ---------------- */
   useEffect(() => {
     if (step !== 'REGISTER' || !employee) return;
 
     setLoading(true);
-    setMessage(`Registering face for ${employee.basicData?.name}…`);
+    setMessage(`Registering face for ${employee?.name}…`);
 
     (async () => {
       try {
@@ -184,11 +190,48 @@ const ScanQRAndFace = () => {
         setMessage('Face registered. Please look at the camera.');
         setStep('SCAN');
       } catch {
-        Alert.alert('Registration Failed', 'Please rescan ID card.');
-        reset();
+        setLoading(false);
+        navigation.navigate(screensName.AlertOrganism, {
+          title: 'Registration Failed',
+          message: 'Please rescan ID card.',
+          okText: 'OK',
+          okFunction: reset,
+        });
       }
     })();
   }, [step, employee]);
+
+  const submitMatchLog = async (
+    photoPath: string,
+    isMatch: boolean,
+    score: number,
+  ) => {
+    try {
+      setLoading(true);
+      setMessage(
+        isMatch ? 'Match found! Syncing attendance…' : 'Logging attempt…',
+      );
+
+      const formData = new FormData();
+      formData.append('deviceTableId', deviceInfo?.id || '1');
+      formData.append('adminUserId', String(employee?.adminUserId || ''));
+      formData.append('userRole', employee?.userRole || 'EMPLOYEE');
+      formData.append('isFaceMatched', isMatch ? 'Yes' : 'No');
+      formData.append('faceMatchPercentage', score.toFixed(2));
+
+      formData.append('liveImage', {
+        uri: Platform.OS === 'android' ? `file://${photoPath}` : photoPath,
+        type: 'image/jpeg',
+        name: `match_${Date.now()}.jpg`,
+      } as any);
+
+      await addMatchLogApi(formData).unwrap();
+    } catch (err) {
+      // Silent fail for logs to not interrupt flow
+    } finally {
+      setLoading(false);
+    }
+  };
 
   /* ---------------- FACE SCAN LOOP ---------------- */
   useEffect(() => {
@@ -206,7 +249,7 @@ const ScanQRAndFace = () => {
         }
 
         scanning.current = true;
-        setMessage(`Scanning face for ${employee?.basicData?.name}…`);
+        setMessage(`Scanning face for ${employee?.name}…`);
 
         const photo = await cameraRef.current.takePhoto();
         const base64 = await RNFS.readFile(photo.path, 'base64');
@@ -233,57 +276,38 @@ const ScanQRAndFace = () => {
         const isMatch = result?.isMatch && score >= MATCH_THRESHOLD;
 
         if (isMatch) {
-          // 🔥 Attendance Payload Simulation
-          const deviceId = await DeviceInfo.getUniqueId();
-          const userId = employee?.basicData?.id || 'USER_PLACEHOLDER';
-          const dateTime = new Date().toISOString();
-          const liveImageBase64 = await RNFS.readFile(photo.path, 'base64');
-
-          const attendancePayload = {
-            deviceId,
-            userId,
-            dateTime,
-            liveImage: liveImageBase64.substring(0, 50) + '...', // Log partial for safety
-          };
-
-          console.log('--- SCAN QR + FACE ATTENDANCE LOG ---');
-          console.log('Sending Attendance Payload:', {
-            ...attendancePayload,
-            liveImage: `[Base64 Image String length: ${liveImageBase64.length}]`,
-          });
-          console.log('--------------------------------------');
+          await submitMatchLog(photo.path, true, score);
 
           Toast.show({
             type: 'success',
             text1: 'Access Granted',
-            text2: `Welcome ${employee.basicData?.name}! (${score.toFixed(
-              2,
-            )}%)`,
+            text2: `Verified ${
+              employee?.name || employee?.cardNumber
+            }! (${score.toFixed(2)}%)`,
           });
           setTimeout(reset, 1000);
         } else {
+          await submitMatchLog(photo.path, false, score);
+
           faceRetryCount.current += 1;
 
           if (faceRetryCount.current >= MAX_FACE_RETRY) {
-            Alert.alert(
-              'Verification Failed',
-              `Face did not match (${faceRetryCount.current}/${MAX_FACE_RETRY}).\n\nPlease rescan your ID card.`,
-              [{ text: 'OK', onPress: reset }],
-            );
+            navigation.navigate(screensName.AlertOrganism, {
+              title: 'Verification Failed',
+              message: `Face did not match (${faceRetryCount.current}/${MAX_FACE_RETRY}).\n\nPlease rescan your ID card.`,
+              okText: 'OK',
+              okFunction: reset,
+            });
           } else {
-            Alert.alert(
-              'Face Not Matched',
-              `Attempt ${faceRetryCount.current}/${MAX_FACE_RETRY} failed.\n\nPlease try again.`,
-              [
-                {
-                  text: 'Try Again',
-                  onPress: () => {
-                    scanning.current = false;
-                    setTimeout(loop, 500);
-                  },
-                },
-              ],
-            );
+            navigation.navigate(screensName.AlertOrganism, {
+              title: 'Face Not Matched',
+              message: `Attempt ${faceRetryCount.current}/${MAX_FACE_RETRY} failed.\n\nPlease try again.`,
+              okText: 'Try Again',
+              okFunction: () => {
+                scanning.current = false;
+                setTimeout(loop, 500);
+              },
+            });
           }
         }
       } catch {
@@ -299,7 +323,6 @@ const ScanQRAndFace = () => {
     };
   }, [step, embedding]);
 
-  /* ---------------- UI GUARDS ---------------- */
   if (checkingPermission) {
     return <FullscreenLoading isVisible />;
   }
@@ -347,8 +370,6 @@ const ScanQRAndFace = () => {
 
 export default ScanQRAndFace;
 
-/* ---------------- FACEID OVERLAY ---------------- */
-
 const FaceIDOverlay = ({ scanning }: { scanning: boolean }) => {
   const scanAnim = useRef(new Animated.Value(0)).current;
 
@@ -375,7 +396,7 @@ const FaceIDOverlay = ({ scanning }: { scanning: boolean }) => {
 
   const translateY = scanAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [-(OVERLAY_SIZE / 2) + 20, OVERLAY_SIZE / 2 - 20],
+    outputRange: [-(OVERLAY_SIZE / 2) + vw(20), OVERLAY_SIZE / 2 - vw(20)],
   });
 
   return (
@@ -392,7 +413,7 @@ const FaceIDOverlay = ({ scanning }: { scanning: boolean }) => {
               style={[
                 styles.scanLine,
                 {
-                  width: OVERLAY_SIZE - 20,
+                  width: OVERLAY_SIZE - vw(20),
                   transform: [{ translateY }],
                 },
               ]}
@@ -404,18 +425,16 @@ const FaceIDOverlay = ({ scanning }: { scanning: boolean }) => {
   );
 };
 
-/* ---------------- STYLES ---------------- */
-
 const styles = StyleSheet.create({
   container: { flex: 1 },
 
   messageBox: {
     position: 'absolute',
-    top: 40,
+    top: vh(40),
     alignSelf: 'center',
     backgroundColor: 'rgba(0,0,0,0.6)',
-    padding: 14,
-    borderRadius: 8,
+    padding: vw(14),
+    borderRadius: vw(8),
     zIndex: 10,
   },
 
@@ -436,9 +455,9 @@ const styles = StyleSheet.create({
 
   corner: {
     position: 'absolute',
-    width: 40,
-    height: 40,
-    borderWidth: 4,
+    width: vw(40),
+    height: vw(40),
+    borderWidth: vw(4),
     borderColor: '#fff',
   },
 
@@ -448,12 +467,12 @@ const styles = StyleSheet.create({
   br: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0 },
 
   scanLine: {
-    height: 2,
+    height: vh(2),
     backgroundColor: '#00ffcc',
     shadowColor: '#00ffcc',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
-    shadowRadius: 10,
+    shadowRadius: vw(10),
     elevation: 5,
   },
 
@@ -462,24 +481,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: vw(24),
   },
 
   permissionTitle: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: vw(18),
     fontWeight: '700',
   },
 
   permissionText: {
     color: '#ccc',
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: vh(8),
   },
 
   permissionLink: {
     color: '#00ffcc',
-    marginTop: 16,
-    fontSize: 16,
+    marginTop: vh(16),
+    fontSize: vw(16),
   },
 });

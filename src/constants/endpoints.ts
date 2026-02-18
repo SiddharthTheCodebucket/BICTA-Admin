@@ -312,4 +312,10 @@ export default {
   conference_add_conference: 'conference/add-conference',
   conference_delete_management_incharge_details:
     'conference/delete-management-incharge-details',
+
+  // Device Management
+  add_device: 'qr-based-face-match/add-device',
+  update_device: 'qr-based-face-match/update-device',
+  list_device: 'qr-based-face-match/list-device',
+  add_match_log: 'qr-based-face-match/add-match-log',
 };

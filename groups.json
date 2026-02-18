@@ -1,0 +1,15 @@
+[
+  {
+    "id": "group_1770968934175_at9qr9yva",
+    "name": "Test Group",
+    "members": [
+      "userA",
+      "userB",
+      "1003"
+    ],
+    "admin": "userB",
+    "createdAt": 1770968934176,
+    "profileImage": "https://res.cloudinary.com/dgbse6dz7/image/upload/q_auto,f_auto,w_400,h_400,c_fill/v1770972476/chat_profiles/dp0asciagqub2ksfjhgh.jpg",
+    "description": "ABC"
+  }
+]

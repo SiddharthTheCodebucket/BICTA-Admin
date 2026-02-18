@@ -5,7 +5,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 import {
@@ -23,9 +28,15 @@ import {
 } from '../../../components/organisms/HeaderOrganism';
 import ButtonOrganism from '../../../components/organisms/ButtonOrganism';
 import Router from '../../../navigator/routes';
+import { useFocusEffect } from '@react-navigation/native';
 import { useAppSelector } from '../../../hooks';
-import { setIsRegistered } from '../../../features/face/faceSlice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  setIsRegistered,
+  setDeviceInfo,
+} from '../../../features/face/faceSlice';
+import { useListDeviceMutation } from '../../../injectEndpoints/faceEndpoints';
+import DeviceInfo from 'react-native-device-info';
+import { useGetCentre } from '../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
@@ -34,21 +45,48 @@ interface Props {
 const Profile = (props: Props) => {
   const { navigation } = props;
   const dispatch = useDispatch();
-  const [time, setTime] = useState(new Date());
-  const trainingImages = useAppSelector(state => state.face.images ?? []);
-  const embedding = useAppSelector(state => state.face.embedding);
-  const isRegistered = useAppSelector(state => state.face.isRegistered);
-  const [attendanceData, setAttendanceData] = useState<any>([]);
+  const bipardCentre = useGetCentre();
+  const [listDeviceApi] = useListDeviceMutation();
 
-  useEffect(() => {
-    const checkStatus = async () => {
-      const status = await AsyncStorage.getItem('@device_registered_status');
-      if (status === 'true') {
-        dispatch(setIsRegistered(true));
-      }
-    };
-    checkStatus();
-  }, []);
+  const [time, setTime] = useState(new Date());
+  const isRegistered = useAppSelector(state => state.face.isRegistered);
+
+  useFocusEffect(
+    useCallback(() => {
+      const checkRegistration = async () => {
+        const id = await DeviceInfo.getUniqueId();
+        const params = {
+          search: '',
+          sort: {
+            attributes: ['id'],
+            sorts: ['desc'],
+          },
+          filters: [['deviceId', '=', id]],
+          pageNo: 1,
+          itemsPerPage: 10,
+          bipardCentre: bipardCentre,
+        };
+
+        listDeviceApi(params)
+          .unwrap()
+          .then((res: any) => {
+            if (res?.data?.data && res.data.data.length > 0) {
+              const record = res.data.data[0];
+              dispatch(setIsRegistered(true));
+              dispatch(setDeviceInfo(record));
+            } else {
+              dispatch(setIsRegistered(false));
+              dispatch(setDeviceInfo(null));
+            }
+          })
+          .catch(err => {
+            console.log('List Device Error (Profile):', err);
+          });
+      };
+
+      checkRegistration();
+    }, [bipardCentre]),
+  );
 
   useLayoutEffect(() => {
     Header.setDashboardHeader(navigation, {
@@ -64,73 +102,27 @@ const Profile = (props: Props) => {
     }, 1000 * 60);
     return () => clearInterval(interval);
   }, []);
-  const handleAttendancePress = () => {
-    if (!isFaceReady) {
-      navigation.navigate('UploadImageForTraining');
-      return;
-    }
-
-    navigation.navigate('FaceScan');
-  };
-
-  const getAttendanceLabel = (attendanceData: any[]): string => {
-    if (!Array.isArray(attendanceData) || attendanceData.length === 0) {
-      return 'Scan Face';
-    }
-
-    const inExists = attendanceData.some(i => i.attendance_type === 'IN');
-    const outExists = attendanceData.some(i => i.attendance_type === 'OUT');
-
-    if (inExists && outExists) return 'Done';
-    if (inExists) return 'Check Out';
-    return 'Scan Face';
-  };
-
-  const faceImagesCount = trainingImages?.length;
-  const isFaceReady = faceImagesCount === 5 && !!embedding;
-
-  const getAttendanceButtonText = () => {
-    if (!isFaceReady) {
-      return `Upload Face For Scan (${faceImagesCount}/5)`;
-    }
-
-    return getAttendanceLabel(attendanceData);
-  };
-
-  const handleQRScanPress = () => {
-    navigation.navigate('QRScan');
-  };
-
-  const handleScanQRAndFacePress = () => {
-    navigation.navigate(screensName.ScanQRAndFace);
-  };
-
-  const handleObjectDetectionPress = () => {
-    navigation.navigate('ObjectDetection');
-  };
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <View style={{ flex: 1 }}>
-        {/* Removed redundant Gate Pass button */}
-
-        {!isRegistered && (
-          <TouchableOpacity
-            style={[
-              styles.markAttenButton,
-              {
-                backgroundColor: colors.primary,
-              },
-            ]}
-            onPress={() => navigation.navigate(screensName.DeviceRegistration)}
+        <TouchableOpacity
+          style={[
+            styles.markAttenButton,
+            {
+              backgroundColor: colors.primary,
+            },
+          ]}
+          onPress={() => navigation.navigate(screensName.DeviceRegistration)}
+        >
+          <Text
+            style={[styles.markAttenText, { color: colors.backgroundColor }]}
           >
-            <Text
-              style={[styles.markAttenText, { color: colors.backgroundColor }]}
-            >
-              {'Device Registration'}
-            </Text>
-          </TouchableOpacity>
-        )}
+            {isRegistered
+              ? 'Update Device Registration'
+              : 'Device Registration'}
+          </Text>
+        </TouchableOpacity>
 
         {isRegistered && (
           <TouchableOpacity
@@ -149,38 +141,6 @@ const Profile = (props: Props) => {
             </Text>
           </TouchableOpacity>
         )}
-        {/* <TouchableOpacity
-          style={[
-            styles.markAttenButton,
-            {
-              backgroundColor: colors.primary,
-            },
-          ]}
-          onPress={handleQRScanPress}
-        >
-          <Text
-            style={[styles.markAttenText, { color: colors.backgroundColor }]}
-          >
-            {'QR Scan'}
-          </Text>
-        </TouchableOpacity> */}
-        {/* {Platform.OS === 'android' && (
-          <TouchableOpacity
-            style={[
-              styles.markAttenButton,
-              {
-                backgroundColor: '#FF9800',
-              },
-            ]}
-            onPress={handleObjectDetectionPress}
-          >
-            <Text
-              style={[styles.markAttenText, { color: colors.backgroundColor }]}
-            >
-              {'🔍 Object Detection'}
-            </Text>
-          </TouchableOpacity>
-        )} */}
       </View>
 
       <ButtonOrganism

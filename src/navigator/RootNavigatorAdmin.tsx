@@ -251,10 +251,6 @@ import GuestDetailDetails from '../screens/AdminScreens/Menu/ConferenceManagemen
 import BlockVendorFrom from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/VendorListDetails/BlockVendorFrom';
 import BlockEmployeeFrom from '../screens/AdminScreens/Menu/HRMS/VendorEmployeeMangement/EmployeeDetails/BlockEmployeeFrom';
 import AddConferenceForm from '../screens/AdminScreens/Menu/ConferenceManagementSystem/ConferenceManagement/ConferenceMasterDetails/AddConferenceForm';
-import UploadImageForTraining from '../screens/AdminScreens/Profile/FaceScan/UploadImageForTraining';
-import FaceScan from '../screens/AdminScreens/Profile/FaceScan';
-import QRScan from '../screens/AdminScreens/Profile/QRScan';
-import ObjectDetection from '../screens/AdminScreens/Profile/ObjectDetection';
 import ScanQRAndFace from '../screens/AdminScreens/Profile/ScanQRAndFace';
 import DeviceRegistration from '../screens/AdminScreens/Profile/FaceScan/DeviceRegistration';
 
@@ -1068,16 +1064,6 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="AddConferenceForm"
           component={AddConferenceForm}
-        />
-        <RootStackScreen.Screen
-          name="UploadImageForTraining"
-          component={UploadImageForTraining}
-        />
-        <RootStackScreen.Screen name="FaceScan" component={FaceScan} />
-        <RootStackScreen.Screen name="QRScan" component={QRScan} />
-        <RootStackScreen.Screen
-          name="ObjectDetection"
-          component={ObjectDetection}
         />
         <RootStackScreen.Screen
           name="ScanQRAndFace"

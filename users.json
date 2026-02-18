@@ -1,0 +1,16 @@
+[
+  {
+    "id": "userA",
+    "profileImage": "https://res.cloudinary.com/dgbse6dz7/image/upload/q_auto,f_auto,w_400,h_400,c_fill/v1770974931/chat_profiles/emvdcd5xhryia4ajkhxf.jpg"
+  },
+  {
+    "id": "userB",
+    "profileImage": "https://res.cloudinary.com/dgbse6dz7/image/upload/q_auto,f_auto,w_400,h_400,c_fill/v1771313946/chat_profiles/kktue1yths14gspe5qoj.jpg"
+  },
+  {
+    "id": "8825314845",
+    "name": "SUPERADMIN",
+    "email": "",
+    "profileImage": ""
+  }
+]
