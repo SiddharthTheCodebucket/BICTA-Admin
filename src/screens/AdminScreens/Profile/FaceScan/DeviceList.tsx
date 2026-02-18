@@ -1,4 +1,9 @@
-import React, { useLayoutEffect, useCallback, useState } from 'react';
+import React, {
+  useLayoutEffect,
+  useCallback,
+  useState,
+  useEffect,
+} from 'react';
 import {
   FlatList,
   StyleSheet,
@@ -16,9 +21,11 @@ import {
   fonts,
   images,
   screensName,
+  strings,
   vh,
   vw,
 } from '../../../../constants';
+import DropDownOrganism from '../../../../components/organisms/DropDownOrganism';
 import {
   Header,
   NavigationType,
@@ -50,6 +57,10 @@ const DeviceList = ({ navigation }: Props) => {
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [centerSearch, setCenterSearch] = useState<any>({
+    id: strings.dashboardIndex.allCenters,
+    name: strings.dashboardIndex.allCenters,
+  });
 
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'Registered Devices');
@@ -69,11 +80,19 @@ const DeviceList = ({ navigation }: Props) => {
       // Filter by tenantId if not 3 (Superadmin)
       if (tenantId !== 3) {
         params.filters.push(['tenantId', '=', tenantId]);
-      }
-
-      // Add bipardCentre if available
-      if (bipardCentre) {
-        params.bipardCentre = bipardCentre;
+        if (bipardCentre) {
+          params.bipardCentre = bipardCentre;
+        }
+      } else if (centerSearch?.id) {
+        // Superadmin filter logic
+        if (centerSearch.id !== strings.dashboardIndex.allCenters) {
+          params.bipardCentre = [centerSearch.id];
+        } else {
+          params.bipardCentre = [
+            strings.dashboardIndex.gaya,
+            strings.dashboardIndex.patna,
+          ];
+        }
       }
 
       try {
@@ -92,8 +111,15 @@ const DeviceList = ({ navigation }: Props) => {
         setIsRefreshing(false);
       }
     },
-    [listDeviceApi, tenantId, bipardCentre],
+    [listDeviceApi, tenantId, bipardCentre, centerSearch],
   );
+
+  useEffect(() => {
+    if (tenantId === 3 && centerSearch?.id) {
+      setPage(1);
+      fetchDevices(1, true);
+    }
+  }, [centerSearch]);
 
   useFocusEffect(
     useCallback(() => {
@@ -167,6 +193,39 @@ const DeviceList = ({ navigation }: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={isLoading && page === 1 && !isRefreshing} />
+      {tenantId === 3 && (
+        <DropDownOrganism
+          label={''}
+          placeholder={strings.dashboardIndex.centers}
+          onPress={() => {
+            navigation.navigate('DropDownModal', {
+              name: 'Center',
+              Data: [
+                {
+                  id: strings.dashboardIndex.allCenters,
+                  name: strings.dashboardIndex.allCenters,
+                },
+                {
+                  id: strings.dashboardIndex.gaya,
+                  name: strings.dashboardIndex.gaya,
+                },
+                {
+                  id: strings.dashboardIndex.patna,
+                  name: strings.dashboardIndex.patna,
+                },
+              ],
+              selectedData: centerSearch,
+              setSelectedData: (data: any) => {
+                setCenterSearch(data);
+              },
+              typeName: 'name',
+              typeId: 'id',
+            });
+          }}
+          inputText={centerSearch?.name}
+          containerStyle={styles.centerFilterDropdown}
+        />
+      )}
       <FlatList
         data={devices}
         renderItem={renderItem}
@@ -178,9 +237,9 @@ const DeviceList = ({ navigation }: Props) => {
           <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
         }
         ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            {isLoading && page === 1 ? 'Loading...' : 'No devices found'}
-          </Text>
+          !isLoading ? (
+            <Text style={styles.emptyText}>{'No devices found'}</Text>
+          ) : null
         }
       />
     </SafeAreaView>
@@ -243,5 +302,10 @@ const styles = StyleSheet.create({
     marginTop: vh(50),
     fontSize: vw(16),
     color: colors.grey,
+  },
+  centerFilterDropdown: {
+    marginHorizontal: vw(16),
+    marginTop: vh(10),
+    marginBottom: vh(-5),
   },
 });
