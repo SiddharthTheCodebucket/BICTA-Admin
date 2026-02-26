@@ -25,9 +25,9 @@ import {
   useCodeScanner,
 } from 'react-native-vision-camera';
 import RNFS from 'react-native-fs';
-import DeviceInfo from 'react-native-device-info';
 import FullscreenLoading from '../../../../components/organisms/FullscreenLoading';
 import Toast from 'react-native-toast-message';
+import { useCommonDropdownListMutation } from '../../../../injectEndpointsTrainee/profileEndpoints';
 
 const { FaceRecognitionModule, FaceLivenessModule } = NativeModules;
 
@@ -40,6 +40,7 @@ const ScanQRAndFace = () => {
   const navigation = useNavigation<NavigationType>();
   const { deviceInfo } = useAppSelector((state: any) => state.face);
   const [addMatchLogApi] = useAddMatchLogMutation();
+  const [commonDropdownApi] = useCommonDropdownListMutation();
   const cameraRef = useRef<Camera>(null);
   const appState = useRef(AppState.currentState);
 
@@ -124,6 +125,26 @@ const ScanQRAndFace = () => {
     setStep('QR');
   };
 
+  const getCommonApiErrorMessage = (err: any) => {
+    if (err?.status === 'FETCH_ERROR') {
+      return 'Network error.Check your internet connection.';
+    }
+
+    if (err?.status === 401) {
+      return 'Session expired.Login again.';
+    }
+
+    if (err?.data?.message) {
+      return err.data.message;
+    }
+
+    if (err?.message) {
+      return err.message;
+    }
+
+    return 'Unable to fetch face data.Try again.';
+  };
+
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'],
     onCodeScanned: codes => {
@@ -131,34 +152,60 @@ const ScanQRAndFace = () => {
 
       const value = codes?.[0]?.value;
       if (!value) return;
-      console.log('QR data====>', value);
+
       lock.current = true;
       setLoading(true);
-      setMessage('ID card scanned. Verifying details…');
+      setMessage('ID card scanned. Fetching face data…');
 
-      try {
-        // Some QR codes might have unquoted keys (e.g. name: instead of "name":)
-        // This regex ensures keys are quoted so JSON.parse works.
-        const cleanedValue = value.replace(
-          /([{,])\s*([a-zA-Z0-9_]+)\s*:/g,
-          '$1"$2":',
-        );
+      (async () => {
+        try {
+          // ✅ QR parse
+          // sonar-ignore-next-line typescript:S7781, typescript:S6353
+          const cleanedValue = value.replace(
+            /([{,])\s*([a-zA-Z0-9_]+)\s*:/g,
+            '$1"$2":',
+          );
 
-        const qrData = JSON.parse(cleanedValue);
+          const qrData = JSON.parse(cleanedValue);
+          if (!qrData?.adminUserId) {
+            throw new Error('adminUserId missing in QR');
+          }
 
-        if (!qrData?.images?.length) {
-          throw new Error('Invalid QR: missing face images');
+          // ✅ Common API call
+          const params = {
+            listType: 'get-user-live-image',
+            replacements: [qrData.adminUserId],
+          };
+
+          const res = await commonDropdownApi(params).unwrap();
+
+          const liveImages = res?.data?.[0]?.images;
+
+          if (!Array.isArray(liveImages) || liveImages.length === 0) {
+            throw new Error('No live face images found for this user');
+          }
+
+          setEmployee({
+            ...qrData,
+            images: liveImages,
+          });
+
+          setMessage(`Welcome ${qrData.name}`);
+          setStep('REGISTER');
+        } catch (err: any) {
+          const errorMsg = getCommonApiErrorMessage(err);
+
+          Toast.show({
+            type: 'error',
+            text2: errorMsg,
+          });
+
+          lock.current = false;
+          setMessage('Please scan your ID card again');
+        } finally {
+          setLoading(false);
         }
-
-        setEmployee(qrData);
-        setMessage(`Welcome ${qrData.name}`);
-        setStep('REGISTER');
-      } catch (err) {
-        console.error('QR Parsing Error:', err);
-        setMessage('Invalid ID card. Please scan again.');
-        setLoading(false);
-        lock.current = false;
-      }
+      })();
     },
   });
 
@@ -251,10 +298,17 @@ const ScanQRAndFace = () => {
         scanning.current = true;
         setMessage(`Scanning face for ${employee?.name}…`);
 
-        const photo = await cameraRef.current.takePhoto();
-        const base64 = await RNFS.readFile(photo.path, 'base64');
+        const photo = await cameraRef.current.takePhoto({
+          flash: 'off',
+          enableShutterSound: false,
+        });
+        // const base64 = await RNFS.readFile(photo.path, 'base64');
 
-        const live = JSON.parse(await FaceLivenessModule.analyzeFace(base64));
+        // const live = JSON.parse(await FaceLivenessModule.analyzeFace(base64));
+
+        const live = JSON.parse(
+          await FaceLivenessModule.analyzeFaceFromPath(photo.path),
+        );
 
         if (!live?.isLive) {
           scanning.current = false;

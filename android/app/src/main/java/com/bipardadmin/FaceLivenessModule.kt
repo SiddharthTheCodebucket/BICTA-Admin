@@ -15,6 +15,7 @@ import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import kotlin.math.abs
 import kotlin.math.exp
+import java.io.File
 
 class FaceLivenessModule(
   reactContext: ReactApplicationContext
@@ -117,6 +118,79 @@ class FaceLivenessModule(
       promise.reject("ANALYZE_ERROR", e.message)
     }
   }
+
+  @ReactMethod
+fun analyzeFaceFromPath(imagePath: String, promise: Promise) {
+  try {
+    val file = File(imagePath)
+    if (!file.exists()) {
+      promise.reject("FILE_NOT_FOUND", "Image file not found")
+      return
+    }
+
+    val bitmap = BitmapFactory.decodeFile(imagePath)
+      ?: return promise.reject("BITMAP_NULL", "Invalid image")
+
+    val image = InputImage.fromBitmap(bitmap, 0)
+
+    val detector = FaceDetection.getClient(
+      FaceDetectorOptions.Builder()
+        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+        .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+        .build()
+    )
+
+    detector.process(image)
+      .addOnSuccessListener { faces ->
+        if (faces.isEmpty()) {
+          resetBuffers()
+          promise.reject("NO_FACE", "No face detected")
+          return@addOnSuccessListener
+        }
+
+        val face = faces.first()
+        val faceBitmap = crop(bitmap, face.boundingBox)
+
+        if (!isFaceSizeValid(face.boundingBox, bitmap)) {
+          resetBuffers()
+          promise.reject("FACE_TOO_SMALL", "Move closer to camera")
+          return@addOnSuccessListener
+        }
+
+        val spoofScore = runLiveness(faceBitmap)
+        pushScore(spoofScore)
+
+        pushFaceBox(face.boundingBox)
+        val motionDetected = detectMotion()
+        val blinkDetected = detectBlink(face)
+
+        val avgScore = spoofScores.average().toFloat()
+
+        val isLive =
+          spoofScores.size >= 3 &&
+          avgScore < 0.65 &&
+          (motionDetected || blinkDetected)
+
+        val result = JSONObject()
+        result.put("avgSpoofScore", avgScore)
+        result.put("motionDetected", motionDetected)
+        result.put("blinkDetected", blinkDetected)
+        result.put("isLive", isLive)
+
+        promise.resolve(result.toString())
+
+        if (isLive) resetBuffers()
+      }
+      .addOnFailureListener {
+        resetBuffers()
+        promise.reject("DETECT_FAIL", it.message)
+      }
+
+  } catch (e: Exception) {
+    resetBuffers()
+    promise.reject("ANALYZE_ERROR", e.message)
+  }
+}
 
   private fun resetBuffers() {
   spoofScores.clear()
