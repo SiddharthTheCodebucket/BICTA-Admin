@@ -1,0 +1,18 @@
+[
+  {
+    "id": "0987654321",
+    "publicKey": "04fb4881d907f4d9bba0d31f29bc5bfe931ff902460944f5eb3245b2f46d5c3726cb470752f3c7197b9656ac2b26cfc6a7574a61d1cde3ff9b1aefecbe7e30d609",
+    "name": "User B",
+    "email": "",
+    "profileImage": "https://res.cloudinary.com/dgbse6dz7/image/upload/q_auto,f_auto,w_400,h_400,c_fill/v1772449562/chat_profiles/vikixzbvwkshgqpve8or.jpg",
+    "status": "Free to chat"
+  },
+  {
+    "id": "1234567890",
+    "publicKey": "0401d5cb55dec4fd4473743debb38f49888da1ec09e0e781bfd8366ef4860c6950e3bc39d5eb080d6bc4e0a73519fde781b8ecfefc812ced2da087b8d4784f4240",
+    "name": "SUPERADMIN",
+    "email": "",
+    "profileImage": "https://res.cloudinary.com/dgbse6dz7/image/upload/q_auto,f_auto,w_400,h_400,c_fill/v1772449082/chat_profiles/zfx60jvtug3hjhxs5gv0.jpg",
+    "status": "Excited!"
+  }
+]

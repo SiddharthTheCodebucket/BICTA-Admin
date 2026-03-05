@@ -270,6 +270,7 @@ const RegistrationSteeper = ({ navigation, route }: Props) => {
         paddingTop: vh(10),
         backgroundColor: colors.backgroundColor,
       }}
+      edges={['bottom']}
     >
       <FullscreenLoading isVisible={loader} />
       <Text
