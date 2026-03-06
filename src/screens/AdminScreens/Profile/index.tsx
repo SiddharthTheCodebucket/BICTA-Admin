@@ -13,6 +13,8 @@ import React, {
 } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
+import DeviceInfo from 'react-native-device-info';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
@@ -28,16 +30,13 @@ import {
 } from '../../../components/organisms/HeaderOrganism';
 import ButtonOrganism from '../../../components/organisms/ButtonOrganism';
 import Router from '../../../navigator/routes';
-import { useFocusEffect } from '@react-navigation/native';
 import { useAppSelector } from '../../../hooks';
-import { usePermission } from '../../../hooks/usePermission';
 import { matchPermission } from '../../../utils/PermissionChecker/index';
 import {
   setIsRegistered,
   setDeviceInfo,
 } from '../../../features/face/faceSlice';
 import { useListDeviceMutation } from '../../../injectEndpoints/faceEndpoints';
-import DeviceInfo from 'react-native-device-info';
 import { useGetCentre } from '../../../hooks/useGetCentre';
 
 interface Props {
@@ -53,7 +52,6 @@ const Profile = (props: Props) => {
   const { crediantialData } = useAppSelector((state: any) => state.Auth);
   const globalPermissions = crediantialData?.globalPermissions || [];
 
-  // Dedicated Scanner: exactly one role and it's QR CODE SCANNER DEVICE
   const isDedicatedScanner =
     globalPermissions.length === 1 &&
     globalPermissions[0]?.roleName === 'QR CODE SCANNER DEVICE';
@@ -63,9 +61,14 @@ const Profile = (props: Props) => {
     { name: 'LIST DEVICE' },
   );
 
-  const hasAddDevicePermission = matchPermission(
-    globalPermissions?.[0]?.permissions || [],
-    { name: 'ADD DEVICE' },
+  const permissions = globalPermissions?.[0]?.permissions || [];
+
+  const hasAddDevicePermission = permissions.some(
+    (p: any) => p.permissionName === 'ADD DEVICE',
+  );
+
+  const hasUpdateDevicePermission = permissions.some(
+    (p: any) => p.permissionName === 'UPDATE DEVICE',
   );
 
   const tenantId = crediantialData?.user?.[0]?.tenantId;
@@ -148,28 +151,47 @@ const Profile = (props: Props) => {
 
         {isDedicatedScanner && Platform.OS === 'android' && (
           <>
-            <TouchableOpacity
-              style={[
-                styles.markAttenButton,
-                {
-                  backgroundColor: colors.primary,
-                },
-              ]}
-              onPress={() =>
-                navigation.navigate(screensName.DeviceRegistration)
-              }
-            >
-              <Text
+            {!isRegistered && hasAddDevicePermission && (
+              <TouchableOpacity
                 style={[
-                  styles.markAttenText,
-                  { color: colors.backgroundColor },
+                  styles.markAttenButton,
+                  { backgroundColor: colors.primary },
                 ]}
+                onPress={() =>
+                  navigation.navigate(screensName.DeviceRegistration)
+                }
               >
-                {isRegistered
-                  ? 'Update Device Registration'
-                  : 'Device Registration'}
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={[
+                    styles.markAttenText,
+                    { color: colors.backgroundColor },
+                  ]}
+                >
+                  Device Registration
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {isRegistered && hasUpdateDevicePermission && (
+              <TouchableOpacity
+                style={[
+                  styles.markAttenButton,
+                  { backgroundColor: colors.primary },
+                ]}
+                onPress={() =>
+                  navigation.navigate(screensName.DeviceRegistration)
+                }
+              >
+                <Text
+                  style={[
+                    styles.markAttenText,
+                    { color: colors.backgroundColor },
+                  ]}
+                >
+                  Update Device Registration
+                </Text>
+              </TouchableOpacity>
+            )}
 
             {isRegistered && (
               <TouchableOpacity
