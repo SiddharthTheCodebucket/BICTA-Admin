@@ -16,6 +16,8 @@ import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import java.util.concurrent.Executors
 import kotlin.math.abs
+import android.media.ExifInterface
+import android.graphics.Matrix
 import kotlin.math.sqrt
 
 class FaceRecognitionModule(
@@ -173,11 +175,14 @@ private fun loadBitmapSmart(path: String): Bitmap? {
             }
 
             path.startsWith("file://") -> {
-                BitmapFactory.decodeFile(path.replace("file://", ""))
+                val realPath = path.replace("file://", "")
+                val bm = BitmapFactory.decodeFile(realPath)
+                if (bm != null) applyExifRotation(bm, realPath) else null
             }
 
             else -> {
-                BitmapFactory.decodeFile(path)
+                val bm = BitmapFactory.decodeFile(path)
+                if (bm != null) applyExifRotation(bm, path) else null
             }
         }
     } catch (e: Exception) {
@@ -374,10 +379,35 @@ private fun l2Normalize(v: FloatArray): FloatArray {
                 BitmapFactory.decodeStream(URL(path).openStream())
             } else {
                 val file = File(path)
-                if (!file.exists()) null else BitmapFactory.decodeFile(path)
+                if (!file.exists()) {
+                    null
+                } else {
+                    val bm = BitmapFactory.decodeFile(path)
+                    if (bm != null) applyExifRotation(bm, path) else null
+                }
             }
         } catch (e: Exception) {
             null
         }
+    }
+
+    private fun applyExifRotation(bitmap: Bitmap, path: String): Bitmap {
+        try {
+            val exif = ExifInterface(path)
+            val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+            val matrix = Matrix()
+            var rotate = false
+            when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> { matrix.postRotate(90f); rotate = true }
+                ExifInterface.ORIENTATION_ROTATE_180 -> { matrix.postRotate(180f); rotate = true }
+                ExifInterface.ORIENTATION_ROTATE_270 -> { matrix.postRotate(270f); rotate = true }
+            }
+            if (rotate) {
+                return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return bitmap
     }
 }

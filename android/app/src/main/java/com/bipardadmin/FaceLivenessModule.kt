@@ -16,6 +16,8 @@ import java.nio.channels.FileChannel
 import kotlin.math.abs
 import kotlin.math.exp
 import java.io.File
+import android.media.ExifInterface
+import android.graphics.Matrix
 
 class FaceLivenessModule(
   reactContext: ReactApplicationContext
@@ -128,7 +130,7 @@ fun analyzeFaceFromPath(imagePath: String, promise: Promise) {
       return
     }
 
-    val bitmap = BitmapFactory.decodeFile(imagePath)
+    val bitmap = loadBitmapWithRotation(imagePath)
       ?: return promise.reject("BITMAP_NULL", "Invalid image")
 
     val image = InputImage.fromBitmap(bitmap, 0)
@@ -255,10 +257,32 @@ fun analyzeFaceFromPath(imagePath: String, promise: Promise) {
   private fun isFaceSizeValid(rect: Rect, bitmap: Bitmap): Boolean {
     val faceArea = rect.width() * rect.height()
     val imgArea = bitmap.width * bitmap.height
-    return faceArea > imgArea * 0.15
+    // Reduced from 0.15 to 0.06 to support generic tablets and devices with wide-angle cameras
+    return faceArea > imgArea * 0.06
   }
 
   // ================= HELPERS =================
+  private fun loadBitmapWithRotation(path: String): Bitmap? {
+    val bitmap = BitmapFactory.decodeFile(path) ?: return null
+    try {
+        val exif = ExifInterface(path)
+        val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+        val matrix = Matrix()
+        var rotate = false
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> { matrix.postRotate(90f); rotate = true }
+            ExifInterface.ORIENTATION_ROTATE_180 -> { matrix.postRotate(180f); rotate = true }
+            ExifInterface.ORIENTATION_ROTATE_270 -> { matrix.postRotate(270f); rotate = true }
+        }
+        if (rotate) {
+            return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+    return bitmap
+  }
+
   private fun crop(bitmap: Bitmap, rect: Rect): Bitmap {
     val x = rect.left.coerceAtLeast(0)
     val y = rect.top.coerceAtLeast(0)
