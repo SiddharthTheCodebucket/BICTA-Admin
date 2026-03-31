@@ -12,10 +12,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const BottomTab = createBottomTabNavigator();
 
 const renderHomeIcon = () => {
+  const { width, height } = require('react-native').Dimensions.get('window');
+  const isTablet = width >= 768;
+
   return ({ focused }: any) => (
     <Image
       source={focused ? images.home_active : images.home_inactive}
-      style={styles.iconStyle}
+      style={isTablet ? styles.iconStyleTablet : styles.iconStyle}
     />
   );
 };
@@ -47,7 +50,9 @@ function BottomTabNavigatorAdmin() {
   const insets = useSafeAreaInsets();
   const userType: string | undefined = crediantialData?.user?.[0]?.userType;
   const globalPermissions = crediantialData?.globalPermissions || [];
-
+  const { width, height } = require('react-native').Dimensions.get('window');
+  const isTablet = width >= 768;
+  const isLandscape = width > height;
   const isDedicatedScanner =
     globalPermissions.length === 1 &&
     globalPermissions[0]?.roleName === 'QR CODE SCANNER DEVICE';
@@ -132,8 +137,13 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginTop: vh(5),
   },
+  iconStyleTablet: {
+    width: vw(10),
+    height: vw(10),
+    resizeMode: 'contain',
+  },
   tabBarLabel: {
-    fontSize: vw(12),
+    fontSize: vw(10),
     fontFamily: fonts.Roboto_Regular,
     marginTop: vh(5),
     color: colors.primary,

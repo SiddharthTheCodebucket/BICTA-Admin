@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ParamListBase } from '@react-navigation/native';
-import { colors, fonts, images, vw } from '../../constants';
+import { colors, fonts, images, vh, vw } from '../../constants';
 import ImageAtom from '../atoms/ImageAtom';
 
 export interface NavigationType
@@ -72,6 +72,10 @@ export const Header = {
       headerContainerStyle,
     } = options;
 
+    const { width, height } = require('react-native').Dimensions.get('window');
+    const isTablet = width >= 768;
+    const isLandscape = width > height;
+
     const dayNames = [
       'Sunday',
       'Monday',
@@ -108,34 +112,80 @@ export const Header = {
 
     navigation.setOptions({
       headerTitle: () => (
-        <View style={[styles.dashboardMiddleContainer, headerContainerStyle]}>
-          <Text style={styles.dashboardDateText}>
+        <View
+          style={[
+            styles.dashboardMiddleContainer,
+            headerContainerStyle,
+            {
+              maxWidth: isTablet ? 500 : '100%',
+            },
+          ]}
+        >
+          <Text
+            numberOfLines={1}
+            style={[
+              styles.dashboardDateText,
+              {
+                fontSize: isTablet ? (isLandscape ? 18 : 16) : 14,
+              },
+            ]}
+          >
             {`${day} ${date} ${month}`}
           </Text>
-          <Text style={styles.dashboardTimeText}>{formattedTime}</Text>
+
+          <Text
+            style={[
+              styles.dashboardTimeText,
+              {
+                fontSize: isTablet ? (isLandscape ? 16 : 14) : 12,
+              },
+            ]}
+          >
+            {formattedTime}
+          </Text>
         </View>
       ),
+
       headerLeft: () => (
         <View style={styles.leftContainer}>
-          <ImageAtom source={logo} style={styles.dashboardLogo} />
+          <ImageAtom
+            source={logo}
+            style={[
+              styles.dashboardLogo,
+              {
+                width: isTablet ? 40 : 32,
+                height: isTablet ? 40 : 32,
+              },
+            ]}
+          />
         </View>
       ),
+
       headerRight: () => (
         <View style={styles.rightContainer}>
-          <TouchableOpacity
-            onPress={() => onNotificationPress?.()}
-            hitSlop={styles.backBttnHitSlop}
-          >
-            <ImageAtom source={images.notification} style={styles.notifyIcon} />
+          <TouchableOpacity onPress={() => onNotificationPress?.()}>
+            <ImageAtom
+              source={images.notification}
+              style={[
+                styles.notifyIcon,
+                {
+                  width: isTablet ? 26 : 22,
+                  height: isTablet ? 26 : 22,
+                },
+              ]}
+            />
           </TouchableOpacity>
         </View>
       ),
-      headerStyle: { backgroundColor: colors.grey_5 },
+
+      headerStyle: {
+        backgroundColor: colors.grey_5,
+        height: isTablet ? (isLandscape ? 90 : 70) : 60, // 🔥 main fix
+      },
+
       headerTitleAlign: 'center',
-      headerTintColor: colors.grey_5,
       headerBackVisible: false,
       headerShown: true,
-      headerShadowVisible: true,
     });
   },
 };

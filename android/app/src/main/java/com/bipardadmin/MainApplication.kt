@@ -10,6 +10,7 @@ import com.lugg.RNCConfig.RNCConfigPackage
 import com.bipardadmin.FaceRecognitionPackage
 import com.bipardadmin.FaceLivenessPackage
 import com.bipardadmin.ObjectDetectionPackage
+import com.bipardadmin.KioskPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -24,6 +25,7 @@ class MainApplication : Application(), ReactApplication {
           add(FaceRecognitionPackage())
           add(FaceLivenessPackage())
           add(ObjectDetectionPackage())
+          add(KioskPackage())
         },
     )
   }

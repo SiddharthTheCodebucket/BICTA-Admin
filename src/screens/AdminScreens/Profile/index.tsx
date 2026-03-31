@@ -48,7 +48,9 @@ const Profile = (props: Props) => {
   const dispatch = useDispatch();
   const bipardCentre = useGetCentre();
   const [listDeviceApi] = useListDeviceMutation();
-
+  const { width, height } = require('react-native').Dimensions.get('window');
+  const isTablet = width >= 768;
+  const isLandscape = width > height;
   const { crediantialData } = useAppSelector((state: any) => state.Auth);
   const globalPermissions = crediantialData?.globalPermissions || [];
 
@@ -148,7 +150,6 @@ const Profile = (props: Props) => {
             </Text>
           </TouchableOpacity>
         )}
-
         {isDedicatedScanner && Platform.OS === 'android' && (
           <>
             {!isRegistered && hasAddDevicePermission && (
@@ -176,7 +177,10 @@ const Profile = (props: Props) => {
               <TouchableOpacity
                 style={[
                   styles.markAttenButton,
-                  { backgroundColor: colors.primary },
+                  {
+                    height: isTablet ? (isLandscape ? 'auto' : vh(40)) : vh(40),
+                    backgroundColor: colors.primary,
+                  },
                 ]}
                 onPress={() =>
                   navigation.navigate(screensName.DeviceRegistration)
@@ -198,6 +202,7 @@ const Profile = (props: Props) => {
                 style={[
                   styles.markAttenButton,
                   {
+                    height: isTablet ? (isLandscape ? 'auto' : vh(40)) : vh(40),
                     backgroundColor: colors.primary,
                   },
                 ]}
@@ -234,6 +239,9 @@ const Profile = (props: Props) => {
           });
         }}
         bttnText={strings.logout}
+        containerStyle={{
+          height: isTablet ? (isLandscape ? 'auto' : vh(40)) : vh(40),
+        }}
       />
     </SafeAreaView>
   );
@@ -262,7 +270,7 @@ const styles = StyleSheet.create({
   },
   markAttenButton: {
     width: vw(330),
-    height: vh(40),
+
     borderRadius: vw(6),
     alignItems: 'center',
     justifyContent: 'center',
