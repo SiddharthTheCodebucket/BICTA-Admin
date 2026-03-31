@@ -9,6 +9,10 @@ import {
   AppState,
   Dimensions,
   Platform,
+  BackHandler,
+  TouchableOpacity,
+  Modal,
+  TextInput,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { vh, vw, screensName } from '../../../../constants';
@@ -29,7 +33,8 @@ import FullscreenLoading from '../../../../components/organisms/FullscreenLoadin
 import Toast from 'react-native-toast-message';
 import { useCommonDropdownListMutation } from '../../../../injectEndpointsTrainee/profileEndpoints';
 
-const { FaceRecognitionModule, FaceLivenessModule } = NativeModules;
+const { FaceRecognitionModule, FaceLivenessModule, KioskModule } =
+  NativeModules;
 
 type Step = 'QR' | 'REGISTER' | 'SCAN';
 
@@ -55,10 +60,35 @@ const ScanQRAndFace = () => {
   const [embedding, setEmbedding] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('Please scan your ID card');
+  const [adminModalVisible, setAdminModalVisible] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
 
   const lock = useRef(false);
   const scanning = useRef(false);
   const faceRetryCount = useRef(0);
+
+  // ── Secret admin exit: 5 taps on message to unlock ──
+  const adminTapCount = useRef(0);
+  const adminTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleAdminTap = () => {
+    adminTapCount.current += 1;
+
+    if (adminTapTimer.current) {
+      clearTimeout(adminTapTimer.current);
+    }
+
+    // Reset tap count after 3 seconds of inactivity
+    adminTapTimer.current = setTimeout(() => {
+      adminTapCount.current = 0;
+    }, 3000);
+
+    if (adminTapCount.current >= 5) {
+      adminTapCount.current = 0;
+      setAdminPassword('');
+      setAdminModalVisible(true);
+    }
+  };
 
   const checkCameraPermission = async (showAlert = false) => {
     setCheckingPermission(true);
@@ -98,6 +128,41 @@ const ScanQRAndFace = () => {
 
   useEffect(() => {
     checkCameraPermission(true);
+  }, []);
+
+  // ── KIOSK MODE: Lock device to this screen 24/7 ──
+  useEffect(() => {
+    if (Platform.OS === 'android' && KioskModule) {
+      if (hasPermission === true) {
+        // Start lock task ONLY IF permission is granted
+        KioskModule.startKioskMode().catch((err: any) =>
+          console.warn('Kiosk start failed:', err),
+        );
+      } else {
+        // Explicitly stop lock task to show Android system dialogs/settings
+        KioskModule.stopKioskMode().catch((err: any) =>
+          console.warn('Kiosk stop failed:', err),
+        );
+      }
+    }
+
+    return () => {
+      if (Platform.OS === 'android' && KioskModule) {
+        KioskModule.stopKioskMode().catch((err: any) =>
+          console.warn('Kiosk stop failed:', err),
+        );
+      }
+    };
+  }, [hasPermission]);
+
+  // ── Disable hardware back button ──
+  useEffect(() => {
+    const onBackPress = () => true; // returning true = prevent default back
+    const subscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      onBackPress,
+    );
+    return () => subscription.remove();
   }, []);
 
   useEffect(() => {
@@ -217,16 +282,16 @@ const ScanQRAndFace = () => {
 
     (async () => {
       try {
-        const localImages: string[] = [];
-
-        for (let i = 0; i < employee.images.length; i++) {
-          const path = `${RNFS.CachesDirectoryPath}/reg_${i}.jpg`;
-          await RNFS.downloadFile({
-            fromUrl: employee.images[i],
-            toFile: path,
-          }).promise;
-          localImages.push(path);
-        }
+        const localImages = await Promise.all(
+          employee.images.map(async (url: string, i: number) => {
+            const path = `${RNFS.CachesDirectoryPath}/reg_${i}.jpg`;
+            await RNFS.downloadFile({
+              fromUrl: url,
+              toFile: path,
+            }).promise;
+            return path;
+          })
+        );
 
         const emb = await FaceRecognitionModule.registerFaceMultiple(
           localImages,
@@ -296,19 +361,25 @@ const ScanQRAndFace = () => {
         }
 
         scanning.current = true;
-        setMessage(`Scanning face for ${employee?.name}…`);
+        
+        // Only set scanning message if we're not currently displaying an instruction error
+        if (message === 'Please look at the camera' || message.startsWith('Scanning face')) {
+           setMessage(`Scanning face for ${employee?.name}…`);
+        }
 
         const photo = await cameraRef.current.takePhoto({
           flash: 'off',
           enableShutterSound: false,
         });
+
+        console.log('photo====>', photo);
         // const base64 = await RNFS.readFile(photo.path, 'base64');
 
         // const live = JSON.parse(await FaceLivenessModule.analyzeFace(base64));
 
-        const live = JSON.parse(
-          await FaceLivenessModule.analyzeFaceFromPath(photo.path),
-        );
+        const liveStr = await FaceLivenessModule.analyzeFaceFromPath(photo.path);
+        const live = JSON.parse(liveStr);
+        console.log('Liveness Result====>', live);
 
         if (!live?.isLive) {
           scanning.current = false;
@@ -364,10 +435,20 @@ const ScanQRAndFace = () => {
             });
           }
         }
-      } catch {
+      } catch (err: any) {
+        console.log('Face check error====>', err);
         scanning.current = false;
         setLoading(false);
-        setTimeout(loop, 300);
+        
+        // Display the specific rejection message directly on the screen
+        if (err?.message) {
+          setMessage(err.message);
+        } else {
+          setMessage('Please look at the camera');
+        }
+        
+        // Give the user a bit more time to read the error before taking the next photo
+        setTimeout(loop, 1000);
       }
     };
 
@@ -413,9 +494,65 @@ const ScanQRAndFace = () => {
 
       {step === 'SCAN' && <FaceIDOverlay scanning={scanning.current} />}
 
-      <View style={styles.messageBox}>
+      <TouchableOpacity
+        style={styles.messageBox}
+        activeOpacity={0.8}
+        onPress={handleAdminTap}
+      >
         <Text style={styles.messageText}>{message}</Text>
-      </View>
+      </TouchableOpacity>
+
+      <Modal visible={adminModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Admin Access</Text>
+            <Text style={styles.modalMessage}>
+              Enter admin password to exit kiosk mode:
+            </Text>
+            <TextInput
+              style={styles.modalInput}
+              secureTextEntry
+              value={adminPassword}
+              onChangeText={setAdminPassword}
+              placeholder="Password"
+              placeholderTextColor="#999"
+              autoFocus
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.modalBtnCancel]}
+                onPress={() => setAdminModalVisible(false)}
+              >
+                <Text style={styles.modalBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.modalBtnUnlock]}
+                onPress={() => {
+                  setAdminModalVisible(false);
+                  if (adminPassword === 'bipard@admin') {
+                    if (Platform.OS === 'android' && KioskModule) {
+                      KioskModule.stopKioskMode().catch(() => {});
+                    }
+                    Toast.show({
+                      type: 'success',
+                      text1: 'Kiosk Mode Disabled',
+                      text2: 'You can now navigate freely.',
+                    });
+                    navigation.goBack();
+                  } else {
+                    Toast.show({
+                      type: 'error',
+                      text2: 'Incorrect password',
+                    });
+                  }
+                }}
+              >
+                <Text style={styles.modalBtnText}>Unlock</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       <FullscreenLoading isVisible={loading} />
     </View>
@@ -554,5 +691,57 @@ const styles = StyleSheet.create({
     color: '#00ffcc',
     marginTop: vh(16),
     fontSize: vw(16),
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    width: vw(300),
+    borderRadius: vw(10),
+    padding: vw(20),
+  },
+  modalTitle: {
+    fontSize: vw(18),
+    fontWeight: 'bold',
+    marginBottom: vh(10),
+    color: '#000',
+  },
+  modalMessage: {
+    fontSize: vw(14),
+    marginBottom: vh(15),
+    color: '#333',
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: vw(5),
+    padding: vw(10),
+    marginBottom: vh(20),
+    color: '#000',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  modalBtn: {
+    paddingVertical: vh(8),
+    paddingHorizontal: vw(15),
+    borderRadius: vw(5),
+    marginLeft: vw(10),
+  },
+  modalBtnCancel: {
+    backgroundColor: '#ccc',
+  },
+  modalBtnUnlock: {
+    backgroundColor: '#00ffcc',
+  },
+  modalBtnText: {
+    fontWeight: 'bold',
+    color: '#000',
   },
 });
