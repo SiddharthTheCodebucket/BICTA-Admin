@@ -180,7 +180,7 @@ export const Header = {
 
       headerStyle: {
         backgroundColor: colors.grey_5,
-        height: isTablet ? (isLandscape ? 90 : 70) : 60, // 🔥 main fix
+        height: isTablet ? (isLandscape ? 90 : 70) : vh(80), // 🔥 main fix
       },
 
       headerTitleAlign: 'center',

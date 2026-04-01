@@ -18,7 +18,10 @@ import { useNavigation } from '@react-navigation/native';
 import { vh, vw, screensName } from '../../../../constants';
 import { NavigationType } from '../../../../components/organisms/HeaderOrganism';
 import { useAppSelector } from '../../../../hooks';
-import { useAddMatchLogMutation } from '../../../../injectEndpoints/faceEndpoints';
+import {
+  useAddMatchLogMutation,
+  useMatchDeviceSecretKeyMutation,
+} from '../../../../injectEndpoints/faceEndpoints';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const OVERLAY_SIZE = SCREEN_WIDTH * 0.65;
@@ -45,6 +48,7 @@ const ScanQRAndFace = () => {
   const navigation = useNavigation<NavigationType>();
   const { deviceInfo } = useAppSelector((state: any) => state.face);
   const [addMatchLogApi] = useAddMatchLogMutation();
+  const [matchSecretKeyApi] = useMatchDeviceSecretKeyMutation();
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const cameraRef = useRef<Camera>(null);
   const appState = useRef(AppState.currentState);
@@ -290,7 +294,7 @@ const ScanQRAndFace = () => {
               toFile: path,
             }).promise;
             return path;
-          })
+          }),
         );
 
         const emb = await FaceRecognitionModule.registerFaceMultiple(
@@ -361,10 +365,13 @@ const ScanQRAndFace = () => {
         }
 
         scanning.current = true;
-        
+
         // Only set scanning message if we're not currently displaying an instruction error
-        if (message === 'Please look at the camera' || message.startsWith('Scanning face')) {
-           setMessage(`Scanning face for ${employee?.name}…`);
+        if (
+          message === 'Please look at the camera' ||
+          message.startsWith('Scanning face')
+        ) {
+          setMessage(`Scanning face for ${employee?.name}…`);
         }
 
         const photo = await cameraRef.current.takePhoto({
@@ -372,14 +379,14 @@ const ScanQRAndFace = () => {
           enableShutterSound: false,
         });
 
-        console.log('photo====>', photo);
         // const base64 = await RNFS.readFile(photo.path, 'base64');
 
         // const live = JSON.parse(await FaceLivenessModule.analyzeFace(base64));
 
-        const liveStr = await FaceLivenessModule.analyzeFaceFromPath(photo.path);
+        const liveStr = await FaceLivenessModule.analyzeFaceFromPath(
+          photo.path,
+        );
         const live = JSON.parse(liveStr);
-        console.log('Liveness Result====>', live);
 
         if (!live?.isLive) {
           scanning.current = false;
@@ -436,17 +443,16 @@ const ScanQRAndFace = () => {
           }
         }
       } catch (err: any) {
-        console.log('Face check error====>', err);
         scanning.current = false;
         setLoading(false);
-        
+
         // Display the specific rejection message directly on the screen
         if (err?.message) {
           setMessage(err.message);
         } else {
           setMessage('Please look at the camera');
         }
-        
+
         // Give the user a bit more time to read the error before taking the next photo
         setTimeout(loop, 1000);
       }
@@ -528,23 +534,52 @@ const ScanQRAndFace = () => {
               <TouchableOpacity
                 style={[styles.modalBtn, styles.modalBtnUnlock]}
                 onPress={() => {
-                  setAdminModalVisible(false);
-                  if (adminPassword === 'bipard@admin') {
-                    if (Platform.OS === 'android' && KioskModule) {
-                      KioskModule.stopKioskMode().catch(() => {});
-                    }
-                    Toast.show({
-                      type: 'success',
-                      text1: 'Kiosk Mode Disabled',
-                      text2: 'You can now navigate freely.',
-                    });
-                    navigation.goBack();
-                  } else {
+                  if (!adminPassword) {
                     Toast.show({
                       type: 'error',
-                      text2: 'Incorrect password',
+                      text2: 'Please enter password',
                     });
+                    return;
                   }
+
+                  const payload = {
+                    deviceRegisteredId: deviceInfo?.id,
+                    secretKey: adminPassword,
+                  };
+
+                  setLoading(true);
+                  matchSecretKeyApi(payload)
+                    .unwrap()
+                    .then((res: any) => {
+                      setLoading(false);
+                      setAdminModalVisible(false);
+                      if (res?.data?.isMatched) {
+                        if (Platform.OS === 'android' && KioskModule) {
+                          KioskModule.stopKioskMode().catch(() => {});
+                        }
+                        Toast.show({
+                          type: 'success',
+                          text1: 'Kiosk Mode Disabled',
+                          text2: 'You can now navigate freely.',
+                        });
+                        navigation.goBack();
+                      } else {
+                        Toast.show({
+                          type: 'error',
+                          text2: 'Incorrect password',
+                        });
+                      }
+                    })
+                    .catch(err => {
+                      setLoading(false);
+                      setAdminModalVisible(false);
+                      Toast.show({
+                        type: 'error',
+                        text2:
+                          err?.data?.message ||
+                          'Verification failed. Try again.',
+                      });
+                    });
                 }}
               >
                 <Text style={styles.modalBtnText}>Unlock</Text>

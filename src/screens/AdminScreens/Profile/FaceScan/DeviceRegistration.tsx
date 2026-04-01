@@ -15,6 +15,7 @@ import {
   PermissionsAndroid,
   Linking,
   AppState,
+  NativeModules,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DeviceInfo from 'react-native-device-info';
@@ -35,26 +36,17 @@ import {
   useUpdateDeviceMutation,
 } from '../../../../injectEndpoints/faceEndpoints';
 
+import TextInputOrganisms from '../../../../components/organisms/TextInputOrganisms';
 import { useGetCentre } from '../../../../hooks/useGetCentre';
 import { setDeviceInfo } from '../../../../features/face/faceSlice';
+
+const { KioskModule } = NativeModules;
 
 const DeviceRegistration = ({ navigation, route }: any) => {
   const bipardCentre = useGetCentre();
   const { crediantialData } = useAppSelector((state: any) => state.Auth);
   const tenantId = crediantialData?.user?.[0]?.tenantId;
   const passedDeviceData = route?.params?.deviceData;
-
-  const validationSchema = Yup.object().shape({
-    location: Yup.object().shape({
-      id: Yup.string().required('Location is required'),
-    }),
-    centre:
-      tenantId === 3
-        ? Yup.object().shape({
-            id: Yup.string().required('Centre is required'),
-          })
-        : Yup.mixed().notRequired(),
-  });
 
   const dispatch = useDispatch();
   const appState = useRef(AppState.currentState);
@@ -68,7 +60,31 @@ const DeviceRegistration = ({ navigation, route }: any) => {
   const [selectedLocation, setSelectedLocation] = useState<any>({});
   const [centerSearch, setCenterSearch] = useState<any>({});
   const [deviceId, setDeviceId] = useState('');
+  const [secretKey, setSecretKey] = useState('');
   const [dbRecord, setDbRecord] = useState<any>(null);
+
+  const validationSchema = Yup.object().shape({
+    ...(!dbRecord
+      ? {
+          secretKey: Yup.string()
+            .required('Secret Key is required')
+            .min(8, 'Secret Key must be at least 8 characters')
+            .matches(
+              /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&#]).{8,}$/,
+              'Secret Key must contain at least one uppercase, one lowercase, and one special character',
+            ),
+        }
+      : {}),
+    centre:
+      tenantId === 3
+        ? Yup.object().shape({
+            id: Yup.string().required('Centre is required'),
+          })
+        : Yup.mixed().notRequired(),
+    location: Yup.object().shape({
+      id: Yup.string().required('Location is required'),
+    }),
+  });
 
   const [locationCoords, setLocationCoords] = useState<{
     latitude: number;
@@ -76,7 +92,11 @@ const DeviceRegistration = ({ navigation, route }: any) => {
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
-  const [error, setError] = useState({ centre: '', location: '' });
+  const [error, setError] = useState({
+    centre: '',
+    location: '',
+    secretKey: '',
+  });
 
   const isAlertOpen = useRef(false);
   const lastAlertTime = useRef(0);
@@ -92,6 +112,11 @@ const DeviceRegistration = ({ navigation, route }: any) => {
 
   useEffect(() => {
     const init = async () => {
+      // ── Ensure Kiosk Mode is OFF during registration ──
+      if (Platform.OS === 'android' && KioskModule) {
+        KioskModule.stopKioskMode().catch(() => {});
+      }
+
       const id = await DeviceInfo.getUniqueId();
       setDeviceId(id);
 
@@ -318,10 +343,14 @@ const DeviceRegistration = ({ navigation, route }: any) => {
   const isValidate = () => {
     try {
       validationSchema.validateSync(
-        { centre: centerSearch, location: selectedLocation },
+        {
+          centre: centerSearch,
+          location: selectedLocation,
+          secretKey: secretKey,
+        },
         { abortEarly: true },
       );
-      setError({ centre: '', location: '' });
+      setError({ centre: '', location: '', secretKey: '' });
       return true;
     } catch (err: any) {
       if (err instanceof Yup.ValidationError) {
@@ -330,6 +359,7 @@ const DeviceRegistration = ({ navigation, route }: any) => {
         setError({
           centre: path === 'centre.id' ? err.message : '',
           location: path === 'location.id' ? err.message : '',
+          secretKey: path === 'secretKey' ? err.message : '',
         });
       }
       return false;
@@ -353,6 +383,10 @@ const DeviceRegistration = ({ navigation, route }: any) => {
       locationId: selectedLocation.id,
       bipardCentre: centerSearch?.id ? [centerSearch.id] : bipardCentre,
     };
+
+    if (!dbRecord) {
+      payload.secretKey = secretKey;
+    }
 
     if (dbRecord) {
       payload.id = String(dbRecord.id);
@@ -466,6 +500,21 @@ const DeviceRegistration = ({ navigation, route }: any) => {
           errorMessage={error.location}
           isMandatory
         />
+
+        {!dbRecord && (
+          <TextInputOrganisms
+            label="Secret Key (Password)"
+            placeholder="Enter Secret Key (Password)"
+            onChangeText={(txt: string) => {
+              setSecretKey(txt);
+              setError(prev => ({ ...prev, secretKey: '' }));
+            }}
+            value={secretKey}
+            errorMessage={error.secretKey}
+            isMandatory
+            secureTextEntry
+          />
+        )}
 
         <ButtonOrganism
           bttnText={dbRecord ? 'Update' : 'Register'}

@@ -4,6 +4,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  NativeModules,
 } from 'react-native';
 import React, {
   useCallback,
@@ -42,6 +43,8 @@ import { useGetCentre } from '../../../hooks/useGetCentre';
 interface Props {
   navigation: NavigationType;
 }
+
+const { KioskModule } = NativeModules;
 
 const Profile = (props: Props) => {
   const { navigation } = props;
@@ -106,13 +109,16 @@ const Profile = (props: Props) => {
               dispatch(setDeviceInfo(null));
             }
           })
-          .catch(err => {
-            console.log('List Device Error (Profile):', err);
-          });
+          .catch(err => {});
       };
 
       checkRegistration();
-    }, [bipardCentre]),
+
+      // ── Ensure Kiosk Mode is OFF when on Profile screen ──
+      if (Platform.OS === 'android' && KioskModule) {
+        KioskModule.stopKioskMode().catch(() => {});
+      }
+    }, [bipardCentre, dispatch, listDeviceApi]),
   );
 
   useLayoutEffect(() => {
@@ -138,13 +144,19 @@ const Profile = (props: Props) => {
             style={[
               styles.markAttenButton,
               {
+                height: isTablet ? (isLandscape ? 'auto' : vh(40)) : vh(40),
                 backgroundColor: colors.primary,
               },
             ]}
             onPress={() => navigation.navigate(screensName.DeviceList)}
           >
             <Text
-              style={[styles.markAttenText, { color: colors.backgroundColor }]}
+              style={[
+                styles.markAttenText,
+                {
+                  color: colors.backgroundColor,
+                },
+              ]}
             >
               {'Registered Device List'}
             </Text>
@@ -156,7 +168,10 @@ const Profile = (props: Props) => {
               <TouchableOpacity
                 style={[
                   styles.markAttenButton,
-                  { backgroundColor: colors.primary },
+                  {
+                    height: isTablet ? (isLandscape ? 'auto' : vh(40)) : vh(40),
+                    backgroundColor: colors.primary,
+                  },
                 ]}
                 onPress={() =>
                   navigation.navigate(screensName.DeviceRegistration)

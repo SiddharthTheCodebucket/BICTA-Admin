@@ -31,6 +31,13 @@ const faceEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    matchDeviceSecretKey: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.match_device_secret_key,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -40,4 +47,5 @@ export const {
   useUpdateDeviceMutation,
   useListDeviceMutation,
   useAddMatchLogMutation,
+  useMatchDeviceSecretKeyMutation,
 } = faceEndpoints;

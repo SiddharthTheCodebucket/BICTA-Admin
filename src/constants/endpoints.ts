@@ -318,4 +318,5 @@ export default {
   update_device: 'qr-based-face-match/update-device',
   list_device: 'qr-based-face-match/list-device',
   add_match_log: 'qr-based-face-match/add-match-log',
+  match_device_secret_key: 'qr-based-face-match/match-device-secret-key',
 };

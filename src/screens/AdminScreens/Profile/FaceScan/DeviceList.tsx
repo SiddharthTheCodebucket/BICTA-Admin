@@ -106,7 +106,6 @@ const DeviceList = ({ navigation }: Props) => {
           setTotalCount(res.data.totalCount || 0);
         }
       } catch (err) {
-        console.log('List Device Error:', err);
       } finally {
         setIsRefreshing(false);
       }
