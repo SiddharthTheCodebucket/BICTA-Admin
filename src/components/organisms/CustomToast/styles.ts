@@ -4,24 +4,29 @@ import {SCREEN_WIDTH, vh, vw} from '../../../constants/dimensions';
 
 export const styles = StyleSheet.create({
   toastContainer: {
-    width: SCREEN_WIDTH * 0.95,
-    maxHeight: vh(70),
+    width: '90%',
+    minHeight: vh(70),
+    height: 'auto',
+    paddingVertical: vh(15),
+    paddingHorizontal: vw(10),
   },
   contentContainerStyle: {
-    backgroundColor: 'red',
+    paddingHorizontal: vw(15),
+    backgroundColor: 'transparent',
   },
   text1Style: {
     fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(12),
+    fontSize: Math.min(vw(16), 24), // Add upper limits to prevent massive text on tablets
     color: colors.black,
     includeFontPadding: false,
     paddingVertical: 0,
   },
   text2Style: {
     fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(12),
+    fontSize: Math.min(vw(14), 20),
     color: colors.black,
     includeFontPadding: false,
     paddingVertical: 0,
+    marginTop: vh(5),
   },
 });

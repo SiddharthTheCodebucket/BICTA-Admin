@@ -88,8 +88,11 @@ android {
         applicationId "com.bipardadmin"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 8
-        versionName "1.0.7"
+        versionCode 12
+        versionName "1.0.11"
+            ndk {
+        abiFilters "arm64-v8a"
+    }
     }
     signingConfigs {
         debug {
@@ -119,16 +122,54 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
 }
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation project(':react-native-config')
+    //custom dependencies
+     implementation 'com.google.mlkit:face-detection:16.1.5'
+     implementation "com.google.android.gms:play-services-mlkit-face-detection:17.1.0"
+     implementation 'org.tensorflow:tensorflow-lite:2.9.0'
+     implementation("com.google.android.play:app-update:2.1.0")
+     implementation("com.google.android.play:app-update-ktx:2.1.0")
+     implementation project(':react-native-config')
+
+// TensorFlow Lite GPU delegate
+implementation 'org.tensorflow:tensorflow-lite-gpu:2.12.0'
+
+// TensorFlow Lite Support Library for image processing, normalization, file utils, etc.
+implementation 'org.tensorflow:tensorflow-lite-support:0.4.0'
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
+    }
+}
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        // Core TF Lite -> LiteRT
+        substitute module('org.tensorflow:tensorflow-lite') using module('com.google.ai.edge.litert:litert:1.4.0')
+        substitute module('org.tensorflow:tensorflow-lite-api') using module('com.google.ai.edge.litert:litert-api:1.4.0')
+        
+        // GPU Support (This is what is failing now)
+        substitute module('org.tensorflow:tensorflow-lite-gpu') using module('com.google.ai.edge.litert:litert-gpu:1.4.0')
+        substitute module('org.tensorflow:tensorflow-lite-gpu-api') using module('com.google.ai.edge.litert:litert-gpu-api:1.4.0')
+        
+        // Support/Metadata Support
+        substitute module('org.tensorflow:tensorflow-lite-support') using module('com.google.ai.edge.litert:litert-support:0.1.0')
+    }
+    
+    // Force specific versions to ensure no mismatched versions of LiteRT exist
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.group == 'com.google.ai.edge.litert') {
+            details.useVersion '1.4.0'
+        }
     }
 }

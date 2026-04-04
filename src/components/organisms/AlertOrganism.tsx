@@ -49,7 +49,7 @@ const AlertOrganism = (props: Props) => {
               {title}
             </TextAtom>
           )}
-          <TextAtom numberOfLines={3} style={styles.messageText}>
+          <TextAtom numberOfLines={0} style={styles.messageText}>
             {message}
           </TextAtom>
           <ViewAtom style={styles.separator} />
@@ -97,7 +97,9 @@ const AlertOrganism = (props: Props) => {
             {title}
           </TextAtom>
 
-          <TextAtom style={styles.messageText}> {message} </TextAtom>
+          <TextAtom numberOfLines={0} style={styles.messageText}>
+            {message}
+          </TextAtom>
           <ViewAtom style={styles.separator} />
           <TouchableAtom
             onPress={() => {

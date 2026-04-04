@@ -10,7 +10,33 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    checkDeviceRegistration: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: 'device/check-registration', // Placeholder
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    registerDevice: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: 'device/register', // Placeholder
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    markAttendance: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: 'attendance/mark', // Placeholder
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
-export const { useDeleteTraineeRegistrationMutation } = apiEndpoints;
+export const {
+  useDeleteTraineeRegistrationMutation,
+  useCheckDeviceRegistrationMutation,
+  useRegisterDeviceMutation,
+  useMarkAttendanceMutation,
+} = apiEndpoints;

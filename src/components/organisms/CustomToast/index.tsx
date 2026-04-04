@@ -13,10 +13,11 @@ const toastConfig = {
     <BaseToast
       {...props}
       style={[styles.toastContainer, { borderLeftColor: colors.green }]}
+      contentContainerStyle={styles.contentContainerStyle}
       text1Style={styles.text1Style}
       text2Style={styles.text2Style}
-      text1NumberOfLines={1}
-      text2NumberOfLines={2}
+      text1NumberOfLines={2}
+      text2NumberOfLines={3}
     />
   ),
 
@@ -24,10 +25,11 @@ const toastConfig = {
     <ErrorToast
       {...props}
       style={[styles.toastContainer, { borderLeftColor: colors.red }]}
+      contentContainerStyle={styles.contentContainerStyle}
       text1Style={styles.text1Style}
       text2Style={styles.text2Style}
-      text1NumberOfLines={1}
-      text2NumberOfLines={2}
+      text1NumberOfLines={2}
+      text2NumberOfLines={3}
     />
   ),
 };

@@ -1,9 +1,24 @@
-import { StyleSheet, View } from 'react-native';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  NativeModules,
+} from 'react-native';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
+import DeviceInfo from 'react-native-device-info';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
+  fonts,
   images,
   screensName,
   strings,
@@ -16,15 +31,95 @@ import {
 } from '../../../components/organisms/HeaderOrganism';
 import ButtonOrganism from '../../../components/organisms/ButtonOrganism';
 import Router from '../../../navigator/routes';
+import { useAppSelector } from '../../../hooks';
+import { matchPermission } from '../../../utils/PermissionChecker/index';
+import {
+  setIsRegistered,
+  setDeviceInfo,
+} from '../../../features/face/faceSlice';
+import { useListDeviceMutation } from '../../../injectEndpoints/faceEndpoints';
+import { useGetCentre } from '../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
 }
 
+const { KioskModule } = NativeModules;
+
 const Profile = (props: Props) => {
   const { navigation } = props;
   const dispatch = useDispatch();
+  const bipardCentre = useGetCentre();
+  const [listDeviceApi] = useListDeviceMutation();
+  const { width, height } = require('react-native').Dimensions.get('window');
+  const isTablet = width >= 768;
+  const isLandscape = width > height;
+  const { crediantialData } = useAppSelector((state: any) => state.Auth);
+  const globalPermissions = crediantialData?.globalPermissions || [];
+
+  const isDedicatedScanner =
+    globalPermissions.length === 1 &&
+    globalPermissions[0]?.roleName === 'QR CODE SCANNER DEVICE';
+
+  const hasListDevicePermission = matchPermission(
+    globalPermissions?.[0]?.permissions || [],
+    { name: 'LIST DEVICE' },
+  );
+
+  const permissions = globalPermissions?.[0]?.permissions || [];
+
+  const hasAddDevicePermission = permissions.some(
+    (p: any) => p.permissionName === 'ADD DEVICE',
+  );
+
+  const hasUpdateDevicePermission = permissions.some(
+    (p: any) => p.permissionName === 'UPDATE DEVICE',
+  );
+
+  const tenantId = crediantialData?.user?.[0]?.tenantId;
+
   const [time, setTime] = useState(new Date());
+  const isRegistered = useAppSelector(state => state.face.isRegistered);
+
+  useFocusEffect(
+    useCallback(() => {
+      const checkRegistration = async () => {
+        const id = await DeviceInfo.getUniqueId();
+        const params = {
+          search: '',
+          sort: {
+            attributes: ['id'],
+            sorts: ['desc'],
+          },
+          filters: [['deviceId', '=', id]],
+          pageNo: 1,
+          itemsPerPage: 10,
+          bipardCentre: bipardCentre,
+        };
+
+        listDeviceApi(params)
+          .unwrap()
+          .then((res: any) => {
+            if (res?.data?.data && res.data.data.length > 0) {
+              const record = res.data.data[0];
+              dispatch(setIsRegistered(true));
+              dispatch(setDeviceInfo(record));
+            } else {
+              dispatch(setIsRegistered(false));
+              dispatch(setDeviceInfo(null));
+            }
+          })
+          .catch(err => {});
+      };
+
+      checkRegistration();
+
+      // ── Ensure Kiosk Mode is OFF when on Profile screen ──
+      if (Platform.OS === 'android' && KioskModule) {
+        KioskModule.stopKioskMode().catch(() => {});
+      }
+    }, [bipardCentre, dispatch, listDeviceApi]),
+  );
 
   useLayoutEffect(() => {
     Header.setDashboardHeader(navigation, {
@@ -43,7 +138,105 @@ const Profile = (props: Props) => {
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <View style={{ flex: 1 }}></View>
+      <View style={{ flex: 1 }}>
+        {hasListDevicePermission && !isDedicatedScanner && (
+          <TouchableOpacity
+            style={[
+              styles.markAttenButton,
+              {
+                height: isTablet ? (isLandscape ? 'auto' : vh(40)) : vh(40),
+                backgroundColor: colors.primary,
+              },
+            ]}
+            onPress={() => navigation.navigate(screensName.DeviceList)}
+          >
+            <Text
+              style={[
+                styles.markAttenText,
+                {
+                  color: colors.backgroundColor,
+                },
+              ]}
+            >
+              {'Registered Device List'}
+            </Text>
+          </TouchableOpacity>
+        )}
+        {isDedicatedScanner && Platform.OS === 'android' && (
+          <>
+            {!isRegistered && hasAddDevicePermission && (
+              <TouchableOpacity
+                style={[
+                  styles.markAttenButton,
+                  {
+                    height: isTablet ? (isLandscape ? 'auto' : vh(40)) : vh(40),
+                    backgroundColor: colors.primary,
+                  },
+                ]}
+                onPress={() =>
+                  navigation.navigate(screensName.DeviceRegistration)
+                }
+              >
+                <Text
+                  style={[
+                    styles.markAttenText,
+                    { color: colors.backgroundColor },
+                  ]}
+                >
+                  Device Registration
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {isRegistered && hasUpdateDevicePermission && (
+              <TouchableOpacity
+                style={[
+                  styles.markAttenButton,
+                  {
+                    height: isTablet ? (isLandscape ? 'auto' : vh(40)) : vh(40),
+                    backgroundColor: colors.primary,
+                  },
+                ]}
+                onPress={() =>
+                  navigation.navigate(screensName.DeviceRegistration)
+                }
+              >
+                <Text
+                  style={[
+                    styles.markAttenText,
+                    { color: colors.backgroundColor },
+                  ]}
+                >
+                  Update Device Registration
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {isRegistered && (
+              <TouchableOpacity
+                style={[
+                  styles.markAttenButton,
+                  {
+                    height: isTablet ? (isLandscape ? 'auto' : vh(40)) : vh(40),
+                    backgroundColor: colors.primary,
+                  },
+                ]}
+                onPress={() => navigation.navigate('ScanQRAndFace')}
+              >
+                <Text
+                  style={[
+                    styles.markAttenText,
+                    { color: colors.backgroundColor },
+                  ]}
+                >
+                  {'QR & Face Authentication'}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </>
+        )}
+      </View>
+
       <ButtonOrganism
         onPress={() => {
           navigation.navigate(screensName.AlertOrganism, {
@@ -61,6 +254,9 @@ const Profile = (props: Props) => {
           });
         }}
         bttnText={strings.logout}
+        containerStyle={{
+          height: isTablet ? (isLandscape ? 'auto' : vh(40)) : vh(40),
+        }}
       />
     </SafeAreaView>
   );
@@ -86,5 +282,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: vh(15),
+  },
+  markAttenButton: {
+    width: vw(330),
+
+    borderRadius: vw(6),
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginTop: vh(20),
+  },
+  markAttenText: {
+    fontSize: vw(18),
+    fontFamily: fonts.Roboto_Medium,
   },
 });

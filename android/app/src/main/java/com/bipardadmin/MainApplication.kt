@@ -7,6 +7,10 @@ import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.lugg.RNCConfig.RNCConfigPackage 
+import com.bipardadmin.FaceRecognitionPackage
+import com.bipardadmin.FaceLivenessPackage
+import com.bipardadmin.ObjectDetectionPackage
+import com.bipardadmin.KioskPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -18,6 +22,10 @@ class MainApplication : Application(), ReactApplication {
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // add(MyReactNativePackage())
           add(RNCConfigPackage())
+          add(FaceRecognitionPackage())
+          add(FaceLivenessPackage())
+          add(ObjectDetectionPackage())
+          add(KioskPackage())
         },
     )
   }
