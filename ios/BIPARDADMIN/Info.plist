@@ -45,6 +45,9 @@
 	<true/>
 	<key>UIAppFonts</key>
 	<array>
+		<string>inter-400-normal.ttf</string>
+		<string>inter-500-normal.ttf</string>
+		<string>inter-600-normal.ttf</string>
 		<string>Roboto-Black.ttf</string>
 		<string>Roboto-Bold.ttf</string>
 		<string>Roboto-Light.ttf</string>

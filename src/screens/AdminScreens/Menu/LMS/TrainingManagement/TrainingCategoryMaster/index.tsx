@@ -10,6 +10,7 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  ImageBackground,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -62,7 +63,18 @@ const TrainingCategoryMaster = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Training Management');
+    Header.setNavigation(
+      navigation,
+      'Training Management',
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -75,58 +87,57 @@ const TrainingCategoryMaster = (props: Props) => {
     return [centerSerach.name];
   }, [centerSerach]);
 
-  const listTrainingCategoryDetails = useCallback((
-    pageNumber: number,
-    initial: boolean,
-    keyword: string,
-  ) => {
-    initial ? setInitialCall(true) : setInitialCall(false);
+  const listTrainingCategoryDetails = useCallback(
+    (pageNumber: number, initial: boolean, keyword: string) => {
+      initial ? setInitialCall(true) : setInitialCall(false);
 
-    const centreFilter = getCentreFilter();
+      const centreFilter = getCentreFilter();
 
-    const params: any = {
-      search: keyword,
-      sort: {
-        attributes: ['createdDate'],
-        sorts: ['desc'],
-      },
-      filters: [],
-      pageNo: pageNumber,
-      itemsPerPage: ITEMS_PER_PAGE,
-      bipardCentre: centreFilter ?? [],
-    };
+      const params: any = {
+        search: keyword,
+        sort: {
+          attributes: ['createdDate'],
+          sorts: ['desc'],
+        },
+        filters: [],
+        pageNo: pageNumber,
+        itemsPerPage: ITEMS_PER_PAGE,
+        bipardCentre: centreFilter ?? [],
+      };
 
-    listTrainingApi(params)
-      .unwrap()
-      .then((res: any) => {
-        const newData = res.data?.data ?? [];
+      listTrainingApi(params)
+        .unwrap()
+        .then((res: any) => {
+          const newData = res.data?.data ?? [];
 
-        setInitialCall(false);
-        setPagination(false);
-        setRefreshing(false);
+          setInitialCall(false);
+          setPagination(false);
+          setRefreshing(false);
 
-        if (pageNumber !== 1 && data.length > 0) {
-          setData((prev: any) => [...prev, ...newData]);
-        } else {
-          setData(newData);
-        }
+          if (pageNumber !== 1 && data.length > 0) {
+            setData((prev: any) => [...prev, ...newData]);
+          } else {
+            setData(newData);
+          }
 
-        const tCount = res?.data?.totalCount ?? 0;
-        setTotalCount(tCount);
+          const tCount = res?.data?.totalCount ?? 0;
+          setTotalCount(tCount);
 
-        setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < tCount);
-        setPage(pageNumber);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        setPagination(false);
-        setRefreshing(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < tCount);
+          setPage(pageNumber);
+        })
+        .catch((err: any) => {
+          setInitialCall(false);
+          setPagination(false);
+          setRefreshing(false);
+          Toast.show({
+            type: 'error',
+            text2: err.data?.message || 'Something went wrong',
+          });
         });
-      });
-  }, [data.length, getCentreFilter, listTrainingApi]);
+    },
+    [data.length, getCentreFilter, listTrainingApi],
+  );
 
   const onChangeSearch = (text: string) => {
     setSearch(text);
@@ -144,7 +155,12 @@ const TrainingCategoryMaster = (props: Props) => {
         setFirstTimeLoad(false);
         listTrainingCategoryDetails(1, true, '');
       }
-    }, [firstTimeLoad, centerSerach?.name, search, listTrainingCategoryDetails]),
+    }, [
+      firstTimeLoad,
+      centerSerach?.name,
+      search,
+      listTrainingCategoryDetails,
+    ]),
   );
 
   useEffect(() => {
@@ -205,10 +221,13 @@ const TrainingCategoryMaster = (props: Props) => {
       <FullscreenLoading isVisible={initialCall} />
 
       <View style={styles.tabRow}>
-        <TouchableAtom style={[styles.tabItem, styles.tabItemActive]}>
-          <TextAtom style={[styles.tabText, styles.tabTextActive]}>
-            Training Category
-          </TextAtom>
+        <TouchableAtom
+          onPress={() =>
+            navigation.navigate(screensName.TrainingCategoryMaster)
+          }
+          style={[styles.tabItem, styles.tabItemActive]}
+        >
+          <TextAtom style={[styles.tabText]}>Training Category</TextAtom>
         </TouchableAtom>
 
         <TouchableAtom
@@ -249,14 +268,21 @@ const TrainingCategoryMaster = (props: Props) => {
           </TouchableAtom>
 
           <TouchableAtom
-            style={styles.createButton}
+            style={styles.createButtonTouchable}
             onPress={() => {
               navigation.navigate(screensName.AddTrainingCategory, {
                 onDone: () => listTrainingCategoryDetails(1, true, search),
               });
             }}
           >
-            <TextAtom style={styles.createButtonText}>+ Create</TextAtom>
+            <ImageBackground
+              source={images.buttonGrad_25}
+              style={styles.createButton}
+              imageStyle={styles.createButtonImage}
+              resizeMode="stretch"
+            >
+              <TextAtom style={styles.createButtonText}>+ Create</TextAtom>
+            </ImageBackground>
           </TouchableAtom>
         </View>
       </View>
@@ -330,24 +356,24 @@ const styles = StyleSheet.create({
   },
 
   tabItem: {
-    borderRadius: vw(4),
-    paddingHorizontal: vw(10),
-    paddingVertical: vh(8),
+    paddingHorizontal: vw(8),
+    paddingVertical: vh(7),
     marginRight: vw(8),
   },
 
   tabItemActive: {
     backgroundColor: colors.primary_sky_blue,
+    borderTopRightRadius: vh(8),
+    borderTopLeftRadius: vh(8),
+    borderBottomColor: colors.primary_dark_blue,
+    borderBottomWidth: 1,
+    // elevation: 2,
   },
 
   tabText: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(13),
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(14),
     color: colors.new_ui_tab_text,
-  },
-
-  tabTextActive: {
-    color: colors.new_ui_tab_text_active,
   },
 
   headerRow: {
@@ -364,15 +390,15 @@ const styles = StyleSheet.create({
   },
 
   headerTitle: {
-    fontFamily: fonts.Roboto_Bold,
-    fontSize: vw(16),
+    fontFamily: fonts.Inter_Bold,
+    fontSize: vw(32 / 2),
     color: colors.new_ui_heading,
   },
 
   headerCount: {
     marginLeft: vw(4),
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(13),
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(14),
     color: colors.new_ui_count,
   },
 
@@ -406,16 +432,25 @@ const styles = StyleSheet.create({
     borderRadius: vw(2),
   },
 
-  createButton: {
-    backgroundColor: colors.primary_dark_blue,
+  createButtonTouchable: {
     borderRadius: vw(8),
+    overflow: 'hidden',
+  },
+
+  createButton: {
     paddingHorizontal: vw(14),
     paddingVertical: vh(9),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  createButtonImage: {
+    borderRadius: vw(8),
   },
 
   createButtonText: {
-    fontFamily: fonts.Roboto_Bold,
-    fontSize: vw(13),
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(14),
     color: colors.white,
   },
 
@@ -447,24 +482,24 @@ const styles = StyleSheet.create({
 
   title: {
     flex: 1,
-    fontFamily: fonts.Roboto_Bold,
-    fontSize: vw(14),
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(17),
     color: colors.new_ui_card_title,
     marginRight: vw(8),
   },
 
   description: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(12),
     color: colors.new_ui_card_description,
-    lineHeight: vh(22),
+    lineHeight: vh(20),
   },
 
   emptyText: {
     textAlign: 'center',
     marginTop: vh(50),
     color: colors.grey,
-    fontFamily: fonts.Roboto_Medium,
+    fontFamily: fonts.Inter_Medium,
   },
 
   editBtn: {

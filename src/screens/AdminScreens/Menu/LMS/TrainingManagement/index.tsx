@@ -16,7 +16,18 @@ const TrainingManagement = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Training Management');
+    Header.setNavigation(
+      navigation,
+      'Training Management',
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+    );
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };

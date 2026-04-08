@@ -23,6 +23,12 @@ export interface RouteType {
   params: any;
   path: any;
 }
+
+interface HeaderNavigationOptions {
+  backgroundColor?: string;
+  titleColor?: string;
+  backIconColor?: string;
+}
 export const Header = {
   setNavigation: (
     navigation: NavigationType,
@@ -30,12 +36,17 @@ export const Header = {
     renderRight?: Function | undefined,
     renderLeft?: Function | undefined,
     headerTextContainer?: StyleProp<ViewStyle> | undefined,
+    options?: HeaderNavigationOptions,
   ) => {
+    const backgroundColor = options?.backgroundColor ?? colors.grey_5;
+    const titleColor = options?.titleColor ?? colors.primary;
+    const backIconColor = options?.backIconColor ?? titleColor;
+
     navigation.setOptions({
       headerTitle: () =>
         title ? (
           <View style={[styles.headerTextView, headerTextContainer]}>
-            <Text numberOfLines={1} style={[styles.titleText]}>
+            <Text numberOfLines={1} style={[styles.titleText, { color: titleColor }]}>
               {title}
             </Text>
           </View>
@@ -51,14 +62,17 @@ export const Header = {
             hitSlop={styles.backBttnHitSlop}
             onPress={() => navigation.BackButtonPress()}
           >
-            <ImageAtom source={images.arrow_back} style={[styles.backButton]} />
+            <ImageAtom
+              source={images.arrow_back}
+              style={[styles.backButton, { tintColor: backIconColor }]}
+            />
           </TouchableOpacity>
         ),
       headerStyle: {
-        backgroundColor: colors.grey_5,
+        backgroundColor,
       },
       headerTitleAlign: 'center',
-      headerTintColor: colors.grey_5,
+      headerTintColor: backgroundColor,
       headerBackVisible: false,
       headerShown: true,
       headerShadowVisible: true,

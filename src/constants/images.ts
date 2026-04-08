@@ -40,4 +40,7 @@ export default {
   transfer: require('../assets/images/transfer.png'),
   nextFilled: require('../assets/images/nextFilled.png'),
   receipt: require('../assets/images/receipt.png'),
+  buttonGrad_25: require('../assets/images/buttonGrad_25.png'),
+  buttonGrad_50: require('../assets/images/buttonGrad_50.png'),
+  buttonGrad_100: require('../assets/images/buttonGrad_100.png'),
 };
