@@ -35,6 +35,7 @@ import {
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import UniversalDropdown from '../../../../../../components/atoms/UniversalDropdown';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
@@ -207,28 +208,10 @@ const TrainingDetails = (props: Props) => {
     listTrainingDetails(1, true, '');
   };
 
-  const openCenterFilter = () => {
-    if (crediantialData?.user?.[0]?.tenantId !== 3) return;
-
-    navigation.navigate('DropDownModal', {
-      name: 'Center',
-      Data: [
-        { id: 'All Centers', name: 'All Centers' },
-        { id: 'Gaya', name: 'Gaya' },
-        { id: 'Patna', name: 'Patna' },
-      ],
-      selectedData: centerSearch,
-      setSelectedData: (selectedData: any) => {
-        setCenterSearch(selectedData);
-      },
-      typeName: 'name',
-      typeId: 'id',
-    });
-  };
-
   const clearFilter = () => {
     setStartDate('');
     setEndDate('');
+    setCenterSearch({});
     listTrainingDetails(1, true, search, []);
   };
 
@@ -490,23 +473,20 @@ const TrainingDetails = (props: Props) => {
             </View>
 
             {crediantialData?.user?.[0]?.tenantId === 3 && (
-              <TouchableAtom
-                style={styles.centerBtn}
-                onPress={openCenterFilter}
-              >
-                <TextAtom
-                  style={[
-                    styles.centerBtnText,
-                    !centerSearch?.name && styles.centerBtnPlaceholder,
-                  ]}
-                >
-                  {centerSearch?.name || 'Select Center'}
-                </TextAtom>
-                <ImageAtom
-                  source={images.downArrow}
-                  style={styles.centerBtnIcon}
-                />
-              </TouchableAtom>
+              <UniversalDropdown
+                label="Center"
+                placeholder="Select Center"
+                data={[
+                  { id: 'All Centers', name: 'All Centers' },
+                  { id: 'Gaya', name: 'Gaya' },
+                  { id: 'Patna', name: 'Patna' },
+                ]}
+                value={centerSearch?.id}
+                onChange={(item: any) => setCenterSearch(item)}
+                labelField="name"
+                valueField="id"
+                containerStyle={{ marginBottom: vh(2) }}
+              />
             )}
 
             <DateInputOrganism
@@ -743,6 +723,7 @@ const styles = StyleSheet.create({
     height: vw(16),
     tintColor: colors.new_ui_icon,
   },
+
   centerBtn: {
     height: vh(42),
     borderRadius: vw(8),
@@ -757,7 +738,7 @@ const styles = StyleSheet.create({
   },
   centerBtnText: {
     fontFamily: fonts.Inter_Regular,
-    fontSize: vw(14),
+    fontSize: adminFontSizes.sm,
     color: '#344054',
   },
   centerBtnPlaceholder: {

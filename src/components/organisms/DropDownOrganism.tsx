@@ -8,9 +8,10 @@ import TextAtom from '../atoms/TextAtom';
 import ViewAtom from '../atoms/ViewAtom';
 import ImageAtom from '../atoms/ImageAtom';
 import LabelWithMandatoryMolecules from '../molecules/LabelWithMandatoryMolecules';
+import UniversalDropdown from '../atoms/UniversalDropdown';
 
 interface Props {
-  onPress: Function;
+  onPress?: Function;
   inputText?: string;
   image?: any;
   containerStyle?: ViewStyle;
@@ -29,9 +30,37 @@ interface Props {
   errorMessageView?: ViewStyle;
   label: string;
   isMandatory?: boolean;
+
+  data?: any[];
+  value?: any;
+  onChange?: (item: any) => void;
+  labelField?: string;
+  valueField?: string;
+  searchable?: boolean;
 }
 
 const DropDownOrganism = (props: Props) => {
+  if (props.data && props.onChange && props.labelField && props.valueField) {
+    return (
+      <UniversalDropdown
+        label={props.label}
+        isMandatory={props.isMandatory}
+        placeholder={props.placeholder}
+        data={props.data}
+        value={props.value}
+        onChange={props.onChange}
+        labelField={props.labelField}
+        valueField={props.valueField}
+        searchable={props.searchable}
+        disabled={props.isDisabled}
+        containerStyle={props.containerStyle}
+        dropdownStyle={props.contentContainerStyle}
+        errorMessage={props.errorMessage}
+        errorMessageView={props.errorMessageView}
+      />
+    );
+  }
+
   const renderContent = () => {
     if (props.renderMultipleInput) {
       return props.dataLength === 0 ? (
@@ -91,7 +120,7 @@ const DropDownOrganism = (props: Props) => {
             : colors.red,
         }}
         disabled={props.isDisabled}
-        onPress={() => props.onPress()}
+        onPress={() => props.onPress?.()}
       >
         {renderContent()}
         <ImageAtom

@@ -23,7 +23,7 @@ new_ui_edit_icon: '#6D7581',
 // new UI colors end
 
 
-  primary: 'rgba(161, 53, 31, 1)',
+  primary:'#0E2239',
   lightPrimary: 'rgba(161, 53, 31, 0.40)',
   white: 'rgba(255, 255, 255, 1)',
   black: 'rgba(0, 0, 0, 1)',
