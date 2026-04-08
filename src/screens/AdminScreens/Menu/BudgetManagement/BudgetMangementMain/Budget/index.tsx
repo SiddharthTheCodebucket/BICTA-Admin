@@ -46,7 +46,7 @@ import moment from 'moment';
 import {
   useBudgetDeleteDetailsMutation,
   useBudgetListDetailsMutation,
-} from '../../../../../../injectEndpoints/dgetManagementEndpoints';
+} from '../../../../../../injectEndpoints/BudgetManagementEndpoints';
 
 interface Props {
   navigation: NavigationType;
