@@ -1,4 +1,28 @@
 export default {
+// new UI colors start
+primary_sky_blue: '#A8D8FF',
+primary_blue: '#1C4371',
+primary_dark_blue: '#0E2239',
+text_black: '#111827',
+text_grey: '#4B5563',
+text_light_grey: '#666666',
+new_ui_screen_bg: '#F2F2F4',
+new_ui_tab_text: '#5F646C',
+new_ui_tab_text_active: '#24384E',
+new_ui_heading: '#343A42',
+new_ui_count: '#8A9099',
+new_ui_icon: '#5E6670',
+new_ui_card_bg: '#FAFAFB',
+new_ui_card_border: '#EFEFF2',
+new_ui_card_title: '#323944',
+new_ui_card_description: '#737A84',
+new_ui_edit_border: '#D8DCE2',
+new_ui_edit_icon: '#6D7581',
+
+
+// new UI colors end
+
+
   primary: 'rgba(161, 53, 31, 1)',
   lightPrimary: 'rgba(161, 53, 31, 0.40)',
   white: 'rgba(255, 255, 255, 1)',
