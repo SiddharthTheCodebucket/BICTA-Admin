@@ -198,6 +198,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.black_20,
+    zIndex: 4,
   },
   boxStyle: {
     flex: 1,

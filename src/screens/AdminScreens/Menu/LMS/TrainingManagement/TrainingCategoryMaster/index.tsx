@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
   title: {
     flex: 1,
     fontFamily: fonts.Inter_SemiBold,
-    fontSize: vw(17),
+    fontSize: vw(16),
     color: colors.new_ui_card_title,
     marginRight: vw(8),
   },

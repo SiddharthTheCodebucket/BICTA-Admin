@@ -527,7 +527,7 @@ const TrainingTeamLocation = (props: Props) => {
                 height: vh(20),
               }}
               onPress={() => removeItem(index)}
-              bttnTextStyle={{ fontSize: vw(8) }}
+              bttnTextStyle={{ fontSize: vw(12) }}
             />
           </ViewAtom>
         ))}

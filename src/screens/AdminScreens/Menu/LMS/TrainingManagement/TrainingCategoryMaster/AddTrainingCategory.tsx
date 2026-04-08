@@ -413,14 +413,14 @@ const styles = StyleSheet.create({
   },
   labelText: {
     fontFamily: fonts.Inter_Medium,
-    fontSize: vw(13),
+    fontSize: vw(14),
     color: '#6D7480',
     marginBottom: vh(6),
   },
   requiredMark: {
     color: '#D11A2A',
     fontFamily: fonts.Inter_Medium,
-    fontSize: vw(13),
+    fontSize: vw(14),
   },
   inputContainer: {
     height: vh(42),
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   },
   inputText: {
     fontFamily: fonts.Inter_Regular,
-    fontSize: vw(15),
+    fontSize: vw(16),
     color: '#2E3440',
   },
   dropIcon: {
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     paddingHorizontal: vw(12),
     fontFamily: fonts.Inter_Regular,
-    fontSize: vw(15),
+    fontSize: vw(16),
     color: '#2E3440',
   },
   descriptionInput: {

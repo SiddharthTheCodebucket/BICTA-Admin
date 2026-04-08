@@ -1,28 +1,26 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
+  FlatList,
+  Modal,
+  Pressable,
+  RefreshControl,
   StyleSheet,
   View,
-  FlatList,
-  ActivityIndicator,
-  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
 import {
+  adminFontSizes,
   colors,
   fonts,
   images,
   screensName,
+  strings,
   vh,
   vw,
 } from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
@@ -34,10 +32,16 @@ import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import {
+  useListTrainingBatchDetailsMutation,
+  useUpdateTrainingBatchDetailsMutation,
+} from '../../../../../../injectEndpoints/lmsEndpoints';
 
 interface Props {
   navigation: NavigationType;
 }
+
+const ITEMS_PER_PAGE = 10;
 
 const debounce = (func: any, delay: number) => {
   let timer: any;
@@ -52,23 +56,28 @@ const debounce = (func: any, delay: number) => {
 const BatchDetails = (props: Props) => {
   const { navigation } = props;
 
-  const { crediantialData } = useAppSelector(state => state.Auth);
+  const [listTrainingNameApi] = useCommonDropdownListMutation();
+  const [listTrainingBatchDetailsApi] = useListTrainingBatchDetailsMutation();
+  const [updateTrainingBatchDetailsApi] =
+    useUpdateTrainingBatchDetailsMutation();
 
-  const [listapi] = useCommonDropdownListMutation();
-
-  const [data, setData] = useState<any>([]);
-  const [filteredData, setFilteredData] = useState<any>([]);
-  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
-  const [pagination, setPagination] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [pagination, setPagination] = useState(false);
 
-  const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const [trainings, setTrainings] = useState<any[]>([]);
+  const [selectedTraining, setSelectedTraining] = useState<any>(null);
+  const [showTrainingPicker, setShowTrainingPicker] = useState(false);
+
+  const [batches, setBatches] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [nextPageAvailable, setNextPageAvailable] = useState(false);
+
   const [showSearch, setShowSearch] = useState(false);
+  const [search, setSearch] = useState('');
 
   const [activeTab, setActiveTab] = useState<
-    'Current Training' | 'Complete Training'
+    'Current Training' | 'Completed Training'
   >('Current Training');
 
   useLayoutEffect(() => {
@@ -85,46 +94,17 @@ const BatchDetails = (props: Props) => {
       },
     );
     navigation.BackButtonPress = () => navigation.goBack();
-  });
+  }, [navigation]);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (firstTimeLoad && !centerSerach?.name && search === '') {
-        setFirstTimeLoad(false);
-        listBatchDetais();
-      }
-    }, [firstTimeLoad, centerSerach, search]),
-  );
+  const filteredTrainings = useMemo(() => {
+    return trainings.filter(t => {
+      const isActive = String(t?.isCourseActive).toLowerCase() === 'yes';
+      return activeTab === 'Current Training' ? isActive : !isActive;
+    });
+  }, [activeTab, trainings]);
 
-  useEffect(() => {
-    if (!centerSerach?.name) return;
-    listBatchDetais();
-  }, [centerSerach]);
-
-  useEffect(() => {
-    applyTabFilter(data);
-  }, [activeTab]);
-
-  const getCentreFilter = () => {
-    if (!centerSerach?.name) return null;
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
-    }
-    return [centerSerach.name];
-  };
-
-  const applyTabFilter = (fullList: any[]) => {
-    if (activeTab === 'Current Training') {
-      setFilteredData(fullList.filter(item => item.isCourseActive === 'Yes'));
-    } else {
-      setFilteredData(fullList.filter(item => item.isCourseActive === 'No'));
-    }
-  };
-
-  const listBatchDetais = () => {
+  const listTrainingNames = useCallback(() => {
     setInitialCall(true);
-
-    const centreFilter = getCentreFilter();
 
     const searchValue = search?.trim() ? `%${search.trim()}%` : `%%`;
 
@@ -133,62 +113,286 @@ const BatchDetails = (props: Props) => {
       replacements: [searchValue],
     };
 
-    if (centreFilter) {
-      params.bipardCentre = centreFilter;
-    }
-
-    listapi(params)
+    listTrainingNameApi(params)
       .unwrap()
       .then((res: any) => {
-        const newData = res?.data ?? [];
-        setInitialCall(false);
-        setPagination(false);
-        setRefreshing(false);
-
-        setData(newData);
-        applyTabFilter(newData); // ⭐ Apply tab filter on fresh list
+        setTrainings(res?.data ?? []);
       })
       .catch((err: any) => {
-        setInitialCall(false);
-        setPagination(false);
-        setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err?.data?.message || 'Something went wrong',
         });
+      })
+      .finally(() => {
+        setInitialCall(false);
+        setRefreshing(false);
       });
-  };
+  }, [listTrainingNameApi, search]);
+
+  useFocusEffect(
+    useCallback(() => {
+      listTrainingNames();
+    }, [listTrainingNames]),
+  );
+
+  useEffect(() => {
+    if (!filteredTrainings.length) {
+      setSelectedTraining(null);
+      setBatches([]);
+      return;
+    }
+
+    if (
+      !selectedTraining ||
+      !filteredTrainings.some(t => t?.id === selectedTraining?.id)
+    ) {
+      setSelectedTraining(filteredTrainings[0]);
+    }
+  }, [filteredTrainings, selectedTraining]);
+
+  const listBatches = useCallback(
+    (pageNumber: number, initial: boolean) => {
+      if (!selectedTraining?.id) return;
+      initial ? setInitialCall(true) : setInitialCall(false);
+
+      const params: any = {
+        search: '',
+        sort: {
+          attributes: ['created_date'],
+          sorts: ['asc'],
+        },
+        filters: ['trainingNameId', '=', selectedTraining.id],
+        pageNo: pageNumber,
+        itemsPerPage: ITEMS_PER_PAGE,
+        bipardCentre: [],
+      };
+
+      listTrainingBatchDetailsApi(params)
+        .unwrap()
+        .then((res: any) => {
+          const newData = res?.data?.data ?? [];
+          const totalCount = res?.data?.totalCount ?? 0;
+
+          setBatches(prev =>
+            pageNumber === 1 ? newData : [...prev, ...newData],
+          );
+          setPage(pageNumber);
+          setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
+        })
+        .catch((err: any) => {
+          Toast.show({
+            type: 'error',
+            text2: err?.data?.message || 'Something went wrong',
+          });
+        })
+        .finally(() => {
+          setInitialCall(false);
+          setPagination(false);
+          setRefreshing(false);
+        });
+    },
+    [listTrainingBatchDetailsApi, selectedTraining?.id],
+  );
+
+  useEffect(() => {
+    if (!selectedTraining?.id) return;
+    listBatches(1, true);
+  }, [listBatches, selectedTraining?.id]);
 
   const handleSearch = useCallback(
-    debounce((text: string) => {
-      listBatchDetais();
+    debounce(() => {
+      listTrainingNames();
     }, 500),
-    [],
+    [listTrainingNames],
   );
 
   const onChangeSearch = (text: string) => {
     setSearch(text);
-    handleSearch(text);
+    handleSearch();
   };
 
   const onClearSearch = () => {
     setSearch('');
-    listBatchDetais();
+    listTrainingNames();
   };
 
-  const renderCard = ({ item }: any) => (
-    <TouchableAtom
-      style={styles.card}
-      onPress={() => {
-        navigation.navigate(screensName.BatchDetailsList, { item: item });
-      }}
-    >
-      <TextAtom numberOfLines={0} style={styles.label}>
-        {item.name}
-      </TextAtom>
-      <TextAtom style={styles.value}>{item.totalBatch} Batches</TextAtom>
-    </TouchableAtom>
-  );
+  const confirmChangeStatus = (batchItem: any, next: 'Active' | 'Inactive') => {
+    const current = String(batchItem?.action ?? 'Active').toLowerCase();
+    const isActive = current === 'active';
+    if (isActive && next === 'Active') return;
+    if (!isActive && next === 'Inactive') return;
+
+    navigation.navigate(screensName.AlertOrganism, {
+      title: 'Status Change Confirmation',
+      message: 'Are you sure you want to change this item?',
+      okText: 'Confirm',
+      double: true,
+      cancelText: strings.cancel,
+      okFunction: () => toggleStatus(batchItem?.id),
+      cancelFunction: () => {},
+    });
+  };
+
+  const toggleStatus = (id: any) => {
+    if (!id) return;
+    setInitialCall(true);
+
+    updateTrainingBatchDetailsApi({ id_for_change_status: id })
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res?.data?.message ?? 'Updated',
+        });
+        listBatches(1, true);
+      })
+      .catch((err: any) => {
+        Toast.show({
+          type: 'error',
+          text2: err?.data?.message || 'Something went wrong',
+        });
+      })
+      .finally(() => setInitialCall(false));
+  };
+
+  const renderBatchCard = ({ item }: any) => {
+    const statusRaw = String(item?.action ?? 'Active').toLowerCase();
+    const isActive = statusRaw === 'active';
+
+    return (
+      <View style={styles.batchCard}>
+        <View style={styles.batchHeaderRow}>
+          <TextAtom numberOfLines={1} style={styles.batchTitle}>
+            {item?.batchName || `Batch ${item?.batchNo ?? ''}` || '-'}
+          </TextAtom>
+
+          <View style={styles.batchActionsRow}>
+            <TouchableAtom
+              style={styles.iconBtn}
+              onPress={() =>
+                navigation.navigate(screensName.MergedBatchForm, {
+                  item,
+                  onDone: () => listBatches(1, true),
+                })
+              }
+            >
+              <ImageAtom source={images.transfer} style={styles.iconSmall} />
+            </TouchableAtom>
+
+            <TouchableAtom
+              style={styles.iconBtn}
+              onPress={() =>
+                navigation.navigate(screensName.EditBatchDetails, {
+                  item,
+                  onDone: () => listBatches(1, true),
+                })
+              }
+            >
+              <ImageAtom source={images.edit_pencil} style={styles.iconSmall} />
+            </TouchableAtom>
+          </View>
+        </View>
+
+        <View style={styles.twoColRow}>
+          <View style={styles.col}>
+            <TextAtom style={styles.label}>Start & End Date</TextAtom>
+            <TextAtom style={styles.value}>
+              {`${item?.dateFrom ?? '-'} - ${item?.dateTo ?? '-'}`}
+            </TextAtom>
+          </View>
+          <View style={[styles.col, styles.colRight]}>
+            <TextAtom style={styles.label}>Batch Number</TextAtom>
+            <TextAtom style={styles.value}>{item?.batchNo ?? '-'}</TextAtom>
+          </View>
+        </View>
+
+        <View style={styles.twoColRow}>
+          <View style={styles.col}>
+            <TextAtom style={styles.label}>Batch Location</TextAtom>
+            <TextAtom numberOfLines={1} style={styles.value}>
+              {item?.batchLocation ?? '-'}
+            </TextAtom>
+          </View>
+          <View style={[styles.col, styles.colRight]}>
+            <TextAtom style={styles.label}>Coordinator</TextAtom>
+            <TextAtom numberOfLines={1} style={styles.value}>
+              {item?.coordinator ?? '-'}
+            </TextAtom>
+          </View>
+        </View>
+
+        <View style={styles.twoColRow}>
+          <View style={styles.col}>
+            <TextAtom style={styles.label}>Admin</TextAtom>
+            <TextAtom numberOfLines={1} style={styles.value}>
+              {item?.admin ?? '-'}
+            </TextAtom>
+          </View>
+          <View style={[styles.col, styles.colRight]}>
+            <TextAtom style={styles.label}>Max Candidate</TextAtom>
+            <TextAtom style={styles.value}>
+              {item?.maximumCandidate ?? '-'}
+            </TextAtom>
+          </View>
+        </View>
+
+        <View style={styles.twoColRow}>
+          <View style={styles.col}>
+            <TextAtom style={styles.label}>Trainee Count</TextAtom>
+            <TextAtom style={styles.value}>
+              {item?.totalRegisteredTrainees ?? '-'}
+            </TextAtom>
+          </View>
+
+          <View style={[styles.col, styles.colRight]}>
+            <TextAtom style={styles.label}>Status</TextAtom>
+            <View style={styles.statusPillsRow}>
+              <TouchableAtom
+                style={[
+                  styles.statusPill,
+                  isActive ? styles.statusPillActive : styles.statusPillInactive,
+                ]}
+                onPress={() => confirmChangeStatus(item, 'Active')}
+              >
+                <TextAtom
+                  style={[
+                    styles.statusPillText,
+                    isActive
+                      ? styles.statusPillTextActive
+                      : styles.statusPillTextInactive,
+                  ]}
+                >
+                  Active
+                </TextAtom>
+              </TouchableAtom>
+
+              <TouchableAtom
+                style={[
+                  styles.statusPill,
+                  !isActive
+                    ? styles.statusPillActive
+                    : styles.statusPillInactive,
+                ]}
+                onPress={() => confirmChangeStatus(item, 'Inactive')}
+              >
+                <TextAtom
+                  style={[
+                    styles.statusPillText,
+                    !isActive
+                      ? styles.statusPillTextActive
+                      : styles.statusPillTextInactive,
+                  ]}
+                >
+                  Inactive
+                </TextAtom>
+              </TouchableAtom>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
@@ -197,40 +401,15 @@ const BatchDetails = (props: Props) => {
       <View style={styles.headerRow}>
         <View style={styles.titleRow}>
           <TextAtom style={styles.headerTitle}>Batch Details</TextAtom>
-          <TextAtom style={styles.headerCount}>({filteredData.length})</TextAtom>
+          <TextAtom style={styles.headerCount}>({filteredTrainings.length})</TextAtom>
         </View>
-        <View style={styles.actionsRow}>
-          <TouchableAtom
-            style={styles.iconBtn}
-            onPress={() => setShowSearch(prev => !prev)}
-          >
-            <ImageAtom source={images.search} style={styles.actionIcon} />
-          </TouchableAtom>
-          <TouchableAtom
-            style={styles.iconBtn}
-            onPress={() => {
-              if (crediantialData.user[0].tenantId !== 3) return;
-              navigation.navigate('DropDownModal', {
-                name: 'Center',
-                Data: [
-                  { id: 'All Centers', name: 'All Centers' },
-                  { id: 'Gaya', name: 'Gaya' },
-                  { id: 'Patna', name: 'Patna' },
-                ],
-                selectedData: centerSerach,
-                setSelectedData: setCenterSerach,
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-          >
-            <View style={styles.filterGlyph}>
-              <View style={[styles.filterLine, { width: vw(12) }]} />
-              <View style={[styles.filterLine, { width: vw(9) }]} />
-              <View style={[styles.filterLine, { width: vw(6) }]} />
-            </View>
-          </TouchableAtom>
-        </View>
+
+        <TouchableAtom
+          style={styles.headerIconBtn}
+          onPress={() => setShowSearch(prev => !prev)}
+        >
+          <ImageAtom source={images.search} style={styles.headerIcon} />
+        </TouchableAtom>
       </View>
 
       {showSearch && (
@@ -238,21 +417,24 @@ const BatchDetails = (props: Props) => {
           onChangeText={onChangeSearch}
           searchText={search}
           onPressCross={onClearSearch}
-          searchBox={{ marginTop: vh(10) }}
+          searchBox={styles.searchBox}
         />
       )}
 
-      <View style={styles.tabRow}>
-        {['Current Training', 'Complete Training'].map(tab => (
+      <View style={styles.statusTabWrap}>
+        {(['Current Training', 'Completed Training'] as const).map(tab => (
           <TouchableAtom
             key={tab}
-            style={[styles.tabButton, activeTab === tab && styles.activeTab]}
-            onPress={() => setActiveTab(tab as any)}
+            style={[
+              styles.statusTab,
+              activeTab === tab && styles.statusTabActive,
+            ]}
+            onPress={() => setActiveTab(tab)}
           >
             <TextAtom
               style={[
-                styles.tabText,
-                activeTab === tab && styles.activeTabText,
+                styles.statusTabText,
+                activeTab === tab && styles.statusTabTextActive,
               ]}
             >
               {tab}
@@ -261,11 +443,32 @@ const BatchDetails = (props: Props) => {
         ))}
       </View>
 
+      <TouchableAtom
+        style={styles.trainingSelect}
+        activeOpacity={0.9}
+        onPress={() => setShowTrainingPicker(true)}
+      >
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.trainingLabel}>Training Name</TextAtom>
+          <TextAtom numberOfLines={1} style={styles.trainingValue}>
+            {selectedTraining?.name || '-'}
+          </TextAtom>
+          <TextAtom style={styles.trainingSub}>
+            {selectedTraining?.totalBatch
+              ? `${selectedTraining.totalBatch} Batch`
+              : ''}
+          </TextAtom>
+        </View>
+        <ImageAtom source={images.downArrow} style={styles.downIcon} />
+      </TouchableAtom>
+
       <FlatList
         showsVerticalScrollIndicator={false}
-        data={filteredData} // ⭐ Updated here
-        renderItem={renderCard}
-        keyExtractor={(item, index) => index.toString()}
+        data={batches}
+        renderItem={renderBatchCard}
+        keyExtractor={(item, index) =>
+          item?.id ? item.id.toString() : index.toString()
+        }
         ListEmptyComponent={
           initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
@@ -276,23 +479,72 @@ const BatchDetails = (props: Props) => {
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(10) }}
+            style={{ marginTop: vh(12) }}
           />
         }
         refreshControl={
           <RefreshControl
             tintColor={colors.primary}
-            colors={[colors.primary]}
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listBatchDetais();
+              listTrainingNames();
+              listBatches(1, true);
             }}
           />
         }
-        contentContainerStyle={styles.flatListContainer}
+        onEndReached={() => {
+          if (!nextPageAvailable || pagination || initialCall) return;
+          setPagination(true);
+          listBatches(page + 1, false);
+        }}
+        contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
+
+      <Modal
+        visible={showTrainingPicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowTrainingPicker(false)}
+      >
+        <View style={styles.pickerRoot}>
+          <Pressable
+            style={styles.pickerOverlay}
+            onPress={() => setShowTrainingPicker(false)}
+          />
+          <View style={styles.pickerSheet}>
+            <TextAtom style={styles.pickerTitle}>Select Training</TextAtom>
+
+            <FlatList
+              data={filteredTrainings}
+              keyExtractor={(it, idx) => (it?.id ? String(it.id) : String(idx))}
+              renderItem={({ item }) => (
+                <TouchableAtom
+                  style={styles.pickerItem}
+                  onPress={() => {
+                    setSelectedTraining(item);
+                    setShowTrainingPicker(false);
+                  }}
+                >
+                  <TextAtom numberOfLines={2} style={styles.pickerItemText}>
+                    {item?.name || '-'}
+                  </TextAtom>
+                  {!!item?.totalBatch && (
+                    <TextAtom style={styles.pickerItemSub}>
+                      {item.totalBatch} Batch
+                    </TextAtom>
+                  )}
+                </TouchableAtom>
+              )}
+              ItemSeparatorComponent={() => (
+                <View style={{ height: 1, backgroundColor: '#EEF1F4' }} />
+              )}
+              style={{ maxHeight: vh(300) }}
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -300,10 +552,11 @@ const BatchDetails = (props: Props) => {
 export default BatchDetails;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
-  flatListContainer: {
-    paddingVertical: vh(10),
+  container: {
+    flex: 1,
+    backgroundColor: colors.new_ui_screen_bg,
   },
+
   headerRow: {
     marginTop: vh(10),
     paddingHorizontal: vw(14),
@@ -317,95 +570,235 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: fonts.Inter_Bold,
-    fontSize: vw(16),
+    fontSize: adminFontSizes.md,
     color: colors.new_ui_heading,
   },
   headerCount: {
     marginLeft: vw(4),
     fontFamily: fonts.Inter_Regular,
-    fontSize: vw(14),
+    fontSize: adminFontSizes.sm,
     color: colors.new_ui_count,
   },
-  actionsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconBtn: {
+  headerIconBtn: {
     width: vw(22),
     height: vw(22),
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: vw(8),
   },
-  actionIcon: {
+  headerIcon: {
     width: vw(17),
     height: vw(17),
     tintColor: colors.new_ui_icon,
   },
-  filterGlyph: {
-    alignItems: 'flex-end',
-  },
-  filterLine: {
-    height: vh(2),
-    backgroundColor: colors.new_ui_icon,
-    marginVertical: vh(1),
-    borderRadius: vw(2),
+
+  searchBox: {
+    marginTop: vh(10),
   },
 
-  tabRow: {
+  statusTabWrap: {
+    marginTop: vh(10),
+    marginHorizontal: vw(14),
+    padding: vw(2),
+    borderRadius: vw(8),
+    backgroundColor: '#DCE8F6',
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: vw(10),
-    marginTop: vh(8),
   },
-  tabButton: {
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(20),
-    backgroundColor: '#EAEAEA',
-    borderRadius: vw(6),
+  statusTab: {
+    flex: 1,
+    height: vh(34),
+    borderRadius: vw(7),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  activeTab: {
-    backgroundColor: colors.primary,
+  statusTabActive: {
+    backgroundColor: colors.primary_blue,
   },
-  tabText: {
-    color: colors.black,
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
+  statusTabText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: adminFontSizes.sm,
+    color: '#3D4B5C',
   },
-  activeTabText: {
+  statusTabTextActive: {
     color: colors.white,
   },
 
-  card: {
+  trainingSelect: {
+    marginTop: vh(10),
+    marginHorizontal: vw(14),
+    borderRadius: vw(12),
+    borderWidth: 1,
+    borderColor: '#E2E5EA',
     backgroundColor: colors.white,
-    marginHorizontal: vw(15),
+    paddingHorizontal: vw(12),
+    paddingVertical: vh(10),
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  trainingLabel: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: adminFontSizes.xs,
+    color: '#8A9099',
+  },
+  trainingValue: {
+    marginTop: vh(2),
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: adminFontSizes.sm,
+    color: '#2F3742',
+  },
+  trainingSub: {
+    marginTop: vh(2),
+    fontFamily: fonts.Inter_Regular,
+    fontSize: adminFontSizes.xs,
+    color: '#8A9099',
+  },
+  downIcon: {
+    width: vw(14),
+    height: vw(14),
+    tintColor: colors.new_ui_icon,
+    marginLeft: vw(10),
+  },
+
+  listContent: {
+    paddingTop: vh(10),
+    paddingBottom: vh(20),
+  },
+
+  batchCard: {
+    backgroundColor: colors.white,
+    marginHorizontal: vw(14),
+    borderRadius: vw(12),
+    borderWidth: 1,
+    borderColor: '#ECEEF2',
+    paddingHorizontal: vw(12),
+    paddingVertical: vh(12),
+  },
+  batchHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  batchTitle: {
+    flex: 1,
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: adminFontSizes.md,
+    color: '#2F3742',
+    marginRight: vw(10),
+  },
+  batchActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconBtn: {
+    width: vw(28),
+    height: vw(28),
     borderRadius: vw(8),
-    paddingHorizontal: vw(15),
-    paddingVertical: vh(8),
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
+    borderWidth: 1,
+    borderColor: '#E2E5EA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F8F8F9',
+    marginLeft: vw(8),
+  },
+  iconSmall: {
+    width: vw(14),
+    height: vw(14),
+    tintColor: colors.new_ui_icon,
   },
 
+  twoColRow: {
+    flexDirection: 'row',
+    marginTop: vh(10),
+  },
+  col: {
+    flex: 1,
+    paddingRight: vw(10),
+  },
+  colRight: {
+    alignItems: 'flex-end',
+    paddingRight: 0,
+  },
   label: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
+    fontFamily: fonts.Inter_Regular,
+    fontSize: adminFontSizes.xs,
+    color: '#8A9099',
+    marginBottom: vh(2),
+  },
+  value: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: adminFontSizes.sm,
+    color: '#2F3742',
   },
 
-  value: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
+  statusPillsRow: {
+    flexDirection: 'row',
+    marginTop: vh(2),
+    justifyContent: 'flex-end',
+  },
+  statusPill: {
+    height: vh(22),
+    borderRadius: vw(6),
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: vw(10),
+    marginLeft: vw(8),
+  },
+  statusPillActive: {
+    backgroundColor: colors.primary_blue,
+  },
+  statusPillInactive: {
+    backgroundColor: '#CFE2F7',
+  },
+  statusPillText: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: adminFontSizes.xs,
+  },
+  statusPillTextActive: {
+    color: colors.white,
+  },
+  statusPillTextInactive: {
+    color: '#23406A',
   },
 
   emptyText: {
     textAlign: 'center',
     marginTop: vh(50),
     color: colors.grey,
-    fontFamily: fonts.Roboto_Medium,
+    fontFamily: fonts.Inter_Medium,
+  },
+
+  pickerRoot: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: vw(18),
+  },
+  pickerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  pickerSheet: {
+    backgroundColor: colors.white,
+    borderRadius: vw(14),
+    paddingVertical: vh(12),
+    paddingHorizontal: vw(12),
+  },
+  pickerTitle: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: adminFontSizes.md,
+    color: '#2F3742',
+    marginBottom: vh(10),
+  },
+  pickerItem: {
+    paddingVertical: vh(10),
+  },
+  pickerItemText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: adminFontSizes.sm,
+    color: '#2F3742',
+  },
+  pickerItemSub: {
+    marginTop: vh(2),
+    fontFamily: fonts.Inter_Regular,
+    fontSize: adminFontSizes.xs,
+    color: '#8A9099',
   },
 });

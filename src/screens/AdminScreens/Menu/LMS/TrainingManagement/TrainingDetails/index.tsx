@@ -7,8 +7,9 @@ import React, {
 import {
   ActivityIndicator,
   FlatList,
-  ImageBackground,
   LayoutAnimation,
+  Modal,
+  Pressable,
   RefreshControl,
   StyleSheet,
   View,
@@ -19,6 +20,7 @@ import moment from 'moment';
 import Toast from 'react-native-toast-message';
 import {
   colors,
+  adminFontSizes,
   fonts,
   images,
   screensName,
@@ -232,6 +234,7 @@ const TrainingDetails = (props: Props) => {
 
   const applyFilter = () => {
     listTrainingDetails(1, true, search, buildDateFilters());
+    setShowFilterPanel(false);
   };
 
   const handleDelete = (id: any) => {
@@ -321,7 +324,9 @@ const TrainingDetails = (props: Props) => {
 
           <View style={styles.metaCol}>
             <TextAtom style={styles.metaLabel}>Participants</TextAtom>
-            <TextAtom style={styles.metaValue}>{item?.noOfParticipants || '-'}</TextAtom>
+            <TextAtom style={styles.metaValue}>
+              {item?.noOfParticipants || '-'}
+            </TextAtom>
           </View>
         </View>
 
@@ -335,7 +340,9 @@ const TrainingDetails = (props: Props) => {
 
           <View style={styles.metaCol}>
             <TextAtom style={styles.metaLabel}>Sections Batches</TextAtom>
-            <TextAtom style={styles.metaValue}>{item?.noOfSections || '-'}</TextAtom>
+            <TextAtom style={styles.metaValue}>
+              {item?.noOfSections || '-'}
+            </TextAtom>
           </View>
         </View>
 
@@ -397,6 +404,7 @@ const TrainingDetails = (props: Props) => {
           onPress={() =>
             navigation.navigate(screensName.TrainingDetailsScreen, {
               data: item,
+              onDone: () => listTrainingDetails(1, true, search),
             })
           }
         >
@@ -427,8 +435,10 @@ const TrainingDetails = (props: Props) => {
           <TouchableAtom
             style={styles.iconBtn}
             onPress={() => {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-              setShowFilterPanel(prev => !prev);
+              LayoutAnimation.configureNext(
+                LayoutAnimation.Presets.easeInEaseOut,
+              );
+              setShowFilterPanel(true);
             }}
           >
             <View style={styles.filterGlyph}>
@@ -439,17 +449,10 @@ const TrainingDetails = (props: Props) => {
           </TouchableAtom>
 
           <TouchableAtom
-            style={styles.createButtonTouchable}
+            style={styles.createButton}
             onPress={() => navigation.navigate(screensName.AddTrainingDetails)}
           >
-            <ImageBackground
-              source={images.buttonGrad_25}
-              style={styles.createButton}
-              imageStyle={styles.createButtonImage}
-              resizeMode="stretch"
-            >
-              <TextAtom style={styles.createButtonText}>+ Create</TextAtom>
-            </ImageBackground>
+            <TextAtom style={styles.createButtonText}>+ Create</TextAtom>
           </TouchableAtom>
         </View>
       </View>
@@ -463,53 +466,86 @@ const TrainingDetails = (props: Props) => {
         />
       )}
 
-      {showFilterPanel && (
-        <View style={styles.filterPanel}>
-          {crediantialData?.user?.[0]?.tenantId === 3 && (
-            <TouchableAtom style={styles.centerBtn} onPress={openCenterFilter}>
-              <TextAtom
-                style={[
-                  styles.centerBtnText,
-                  !centerSearch?.name && styles.centerBtnPlaceholder,
-                ]}
-              >
-                {centerSearch?.name || 'Select Center'}
-              </TextAtom>
-              <ImageAtom source={images.downArrow} style={styles.centerBtnIcon} />
-            </TouchableAtom>
-          )}
+      <Modal
+        visible={showFilterPanel}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowFilterPanel(false)}
+      >
+        <View style={styles.filterModalRoot}>
+          <Pressable
+            style={styles.filterModalOverlay}
+            onPress={() => setShowFilterPanel(false)}
+          />
 
-          <View style={styles.filterDateRow}>
+          <View style={styles.filterSheet}>
+            <View style={styles.filterSheetHeader}>
+              <TextAtom style={styles.filterSheetTitle}>Filters</TextAtom>
+              <TouchableAtom
+                style={styles.filterSheetCloseBtn}
+                onPress={() => setShowFilterPanel(false)}
+              >
+                <ImageAtom source={images.cross} style={styles.closeIcon} />
+              </TouchableAtom>
+            </View>
+
+            {crediantialData?.user?.[0]?.tenantId === 3 && (
+              <TouchableAtom
+                style={styles.centerBtn}
+                onPress={openCenterFilter}
+              >
+                <TextAtom
+                  style={[
+                    styles.centerBtnText,
+                    !centerSearch?.name && styles.centerBtnPlaceholder,
+                  ]}
+                >
+                  {centerSearch?.name || 'Select Center'}
+                </TextAtom>
+                <ImageAtom
+                  source={images.downArrow}
+                  style={styles.centerBtnIcon}
+                />
+              </TouchableAtom>
+            )}
+
             <DateInputOrganism
-              label={'Start Date'}
-              placeholder={'Start Date'}
+              label={'Start Date*'}
+              placeholder={'Select'}
               value={startDate}
               onChangeText={(val: any) => setStartDate(val)}
               fieldName={'date'}
               dateFormat="DD-MM-YYYY"
-              containerStyle={styles.dateInput}
+              containerStyle={styles.fullDateInput}
             />
+
             <DateInputOrganism
-              label={'End Date'}
-              placeholder={'End Date'}
+              label={'End Date*'}
+              placeholder={'Select'}
               value={endDate}
               onChangeText={(val: any) => setEndDate(val)}
               fieldName={'date'}
               dateFormat="DD-MM-YYYY"
-              containerStyle={styles.dateInput}
+              containerStyle={styles.fullDateInput}
             />
-          </View>
 
-          <View style={styles.filterActionRow}>
-            <TouchableAtom style={styles.clearFilterBtn} onPress={clearFilter}>
-              <TextAtom style={styles.clearFilterText}>Clear</TextAtom>
-            </TouchableAtom>
-            <TouchableAtom style={styles.applyFilterBtn} onPress={applyFilter}>
-              <TextAtom style={styles.applyFilterText}>Apply</TextAtom>
-            </TouchableAtom>
+            <View style={styles.filterActionRow}>
+              <TouchableAtom
+                style={styles.clearFilterBtn}
+                onPress={clearFilter}
+              >
+                <TextAtom style={styles.clearFilterText}>Clear</TextAtom>
+              </TouchableAtom>
+              <TouchableAtom
+                style={styles.applyFilterBtn}
+                onPress={applyFilter}
+              >
+                <TextAtom style={styles.applyFilterText}>Apply</TextAtom>
+              </TouchableAtom>
+            </View>
           </View>
         </View>
-      )}
+      </Modal>
 
       <View style={styles.statusTabWrap}>
         <TouchableAtom
@@ -539,7 +575,8 @@ const TrainingDetails = (props: Props) => {
           <TextAtom
             style={[
               styles.statusTabText,
-              activeStatus === 'Completed Training' && styles.statusTabTextActive,
+              activeStatus === 'Completed Training' &&
+                styles.statusTabTextActive,
             ]}
           >
             Completed Training
@@ -555,7 +592,9 @@ const TrainingDetails = (props: Props) => {
         }
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          initialCall ? null : <TextAtom style={styles.emptyText}>No data found</TextAtom>
+          initialCall ? null : (
+            <TextAtom style={styles.emptyText}>No data found</TextAtom>
+          )
         }
         ListFooterComponent={
           <ActivityIndicator
@@ -648,17 +687,16 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   createButton: {
+    height: vh(34),
+    backgroundColor: colors.primary_dark_blue,
     paddingHorizontal: vw(14),
-    paddingVertical: vh(9),
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  createButtonImage: {
     borderRadius: vw(8),
   },
   createButtonText: {
     fontFamily: fonts.Inter_SemiBold,
-    fontSize: vw(14),
+    fontSize: adminFontSizes.sm,
     color: colors.white,
   },
 
@@ -666,14 +704,44 @@ const styles = StyleSheet.create({
     marginTop: vh(10),
   },
 
-  filterPanel: {
-    marginTop: vh(8),
-    marginHorizontal: vw(14),
-    borderRadius: vw(12),
-    borderWidth: 1,
-    borderColor: colors.new_ui_card_border,
-    backgroundColor: colors.new_ui_card_bg,
-    padding: vw(10),
+  filterModalRoot: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  filterModalOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  filterSheet: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: vw(18),
+    borderTopRightRadius: vw(18),
+    paddingHorizontal: vw(16),
+    paddingTop: vh(14),
+    paddingBottom: vh(18),
+  },
+  filterSheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: vh(10),
+  },
+  filterSheetTitle: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: adminFontSizes.md,
+    color: colors.text_black,
+  },
+  filterSheetCloseBtn: {
+    width: vw(28),
+    height: vw(28),
+    borderRadius: vw(8),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closeIcon: {
+    width: vw(16),
+    height: vw(16),
+    tintColor: colors.new_ui_icon,
   },
   centerBtn: {
     height: vh(42),
@@ -700,41 +768,38 @@ const styles = StyleSheet.create({
     height: vw(14),
     tintColor: '#1F2937',
   },
-  filterDateRow: {
+  fullDateInput: {
+    marginTop: vh(8),
+  },
+  filterActionRow: {
+    marginTop: vh(14),
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  dateInput: {
-    width: '48.5%',
-  },
-  filterActionRow: {
-    marginTop: vh(8),
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
   clearFilterBtn: {
     borderWidth: 1,
-    borderColor: colors.primary_dark_blue,
-    borderRadius: vw(6),
-    paddingHorizontal: vw(14),
-    paddingVertical: vh(6),
-    marginRight: vw(8),
+    borderColor: '#C9D3E1',
+    borderRadius: vw(10),
+    paddingVertical: vh(12),
+    width: '48%',
+    alignItems: 'center',
   },
   clearFilterText: {
-    color: colors.primary_dark_blue,
+    color: '#2F3742',
     fontFamily: fonts.Inter_Medium,
-    fontSize: vw(12),
+    fontSize: adminFontSizes.sm,
   },
   applyFilterBtn: {
-    borderRadius: vw(6),
-    backgroundColor: colors.primary_dark_blue,
-    paddingHorizontal: vw(14),
-    paddingVertical: vh(6),
+    borderRadius: vw(10),
+    backgroundColor: colors.primary_blue,
+    paddingVertical: vh(12),
+    width: '48%',
+    alignItems: 'center',
   },
   applyFilterText: {
     color: colors.white,
     fontFamily: fonts.Inter_Medium,
-    fontSize: vw(12),
+    fontSize: adminFontSizes.sm,
   },
 
   statusTabWrap: {
@@ -757,7 +822,7 @@ const styles = StyleSheet.create({
   },
   statusTabText: {
     fontFamily: fonts.Inter_Medium,
-    fontSize: vw(13),
+    fontSize: adminFontSizes.sm,
     color: '#3D4B5C',
   },
   statusTabTextActive: {
@@ -821,7 +886,7 @@ const styles = StyleSheet.create({
   cardSubTitle: {
     marginTop: vh(2),
     fontFamily: fonts.Inter_Regular,
-    fontSize: vw(13.5),
+    fontSize: adminFontSizes.sm,
     color: '#737A84',
   },
 
@@ -871,7 +936,7 @@ const styles = StyleSheet.create({
   },
   locationPillText: {
     fontFamily: fonts.Inter_SemiBold,
-    fontSize: vw(11),
+    fontSize: adminFontSizes.xs,
   },
   locationPillTextActive: {
     color: colors.white,
