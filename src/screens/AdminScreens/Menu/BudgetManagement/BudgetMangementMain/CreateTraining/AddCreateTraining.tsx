@@ -19,7 +19,7 @@ import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints
 import {
   useBudgetAddTrainingMutation,
   useBudgetUpdateTrainingMutation,
-} from '../../../../../../injectEndpoints/budgetManagementEndpoints';
+} from '../../../../../../injectEndpoints/dgetManagementEndpoints';
 import moment from 'moment';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 

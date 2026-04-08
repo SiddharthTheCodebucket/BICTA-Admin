@@ -39,7 +39,7 @@ import moment from 'moment';
 import {
   useBudgetDeleteTrainingMutation,
   useBudgetListTrainingMutation,
-} from '../../../../../../injectEndpoints/budgetManagementEndpoints';
+} from '../../../../../../injectEndpoints/dgetManagementEndpoints';
 import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 
 interface Props {

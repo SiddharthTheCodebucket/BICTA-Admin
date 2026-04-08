@@ -19,7 +19,7 @@ import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints
 import {
   useBudgetAddParticularsMutation,
   useBudgetUpdateParticularsMutation,
-} from '../../../../../../injectEndpoints/budgetManagementEndpoints';
+} from '../../../../../../injectEndpoints/dgetManagementEndpoints';
 import RadioSelectableOrganism from '../../../../../../components/organisms/RadioSelectableOrganism';
 
 interface Props {
