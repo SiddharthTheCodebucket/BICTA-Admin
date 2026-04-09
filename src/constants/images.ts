@@ -43,4 +43,5 @@ export default {
   buttonGrad_25: require('../assets/images/buttonGrad_25.png'),
   buttonGrad_50: require('../assets/images/buttonGrad_50.png'),
   buttonGrad_100: require('../assets/images/buttonGrad_100.png'),
+  gradBtnGenrateQR: require('../assets/images/gradBtnGenrateQR.png'),
 };

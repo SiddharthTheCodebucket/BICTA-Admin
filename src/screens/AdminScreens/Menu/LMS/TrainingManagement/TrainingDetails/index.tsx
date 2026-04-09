@@ -48,6 +48,7 @@ import {
   useDeleteTrainingDetailsMutation,
   useListTrainingDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
+import { globalStyles } from '../../../../../../utils/globalStyles';
 
 interface Props {
   navigation: NavigationType;
@@ -343,21 +344,22 @@ const TrainingDetails = (props: Props) => {
 
           <View style={styles.metaCol}>
             <TextAtom style={styles.metaLabel}>Location Required</TextAtom>
-            <View style={styles.locationPillRow}>
+
+            <View style={globalStyles.switchPillRow}>
               <View
                 style={[
-                  styles.locationPill,
+                  globalStyles.switchPill,
                   isLocationRequired
-                    ? styles.locationPillActive
-                    : styles.locationPillInactive,
+                    ? globalStyles.switchPillActive
+                    : globalStyles.switchPillInactive,
                 ]}
               >
                 <TextAtom
                   style={[
-                    styles.locationPillText,
+                    globalStyles.switchPillText,
                     isLocationRequired
-                      ? styles.locationPillTextActive
-                      : styles.locationPillTextInactive,
+                      ? globalStyles.switchPillTextActive
+                      : globalStyles.switchPillTextInactive,
                   ]}
                 >
                   Yes
@@ -365,18 +367,18 @@ const TrainingDetails = (props: Props) => {
               </View>
               <View
                 style={[
-                  styles.locationPill,
+                  globalStyles.switchPill,
                   !isLocationRequired
-                    ? styles.locationPillActive
-                    : styles.locationPillInactive,
+                    ? globalStyles.switchPillActive
+                    : globalStyles.switchPillInactive,
                 ]}
               >
                 <TextAtom
                   style={[
-                    styles.locationPillText,
+                    globalStyles.switchPillText,
                     !isLocationRequired
-                      ? styles.locationPillTextActive
-                      : styles.locationPillTextInactive,
+                      ? globalStyles.switchPillTextActive
+                      : globalStyles.switchPillTextInactive,
                   ]}
                 >
                   No
@@ -905,36 +907,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.Inter_SemiBold,
     fontSize: vw(14),
     color: '#3B424E',
-  },
-
-  locationPillRow: {
-    flexDirection: 'row',
-    marginTop: vh(2),
-  },
-  locationPill: {
-    minWidth: vw(26),
-    height: vh(20),
-    borderRadius: vw(3),
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: vw(4),
-    paddingHorizontal: vw(5),
-  },
-  locationPillActive: {
-    backgroundColor: colors.primary_blue,
-  },
-  locationPillInactive: {
-    backgroundColor: '#CFE2F7',
-  },
-  locationPillText: {
-    fontFamily: fonts.Inter_SemiBold,
-    fontSize: adminFontSizes.xs,
-  },
-  locationPillTextActive: {
-    color: colors.white,
-  },
-  locationPillTextInactive: {
-    color: '#23406A',
   },
 
   viewMoreBtn: {

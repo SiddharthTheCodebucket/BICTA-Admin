@@ -38,6 +38,7 @@ import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { useListTrainingCategoryMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import DropDownModal from '../../../../../../modal/DropDownModal';
+import { globalStyles } from '../../../../../../utils/globalStyles';
 
 interface Props {
   navigation: NavigationType;
@@ -247,7 +248,7 @@ const TrainingCategoryMaster = (props: Props) => {
           </TouchableAtom>
 
           <TouchableAtom
-            style={styles.createButtonTouchable}
+            style={globalStyles.createButtonTouchable}
             onPress={() => {
               navigation.navigate(screensName.AddTrainingCategory, {
                 onDone: () => listTrainingCategoryDetails(1, true, search),
@@ -256,11 +257,13 @@ const TrainingCategoryMaster = (props: Props) => {
           >
             <ImageBackground
               source={images.buttonGrad_25}
-              style={styles.createButton}
-              imageStyle={styles.createButtonImage}
+              style={globalStyles.createButton}
+              imageStyle={globalStyles.createButtonImage}
               resizeMode="stretch"
             >
-              <TextAtom style={styles.createButtonText}>+ Create</TextAtom>
+              <TextAtom style={globalStyles.createButtonText}>
+                + Create
+              </TextAtom>
             </ImageBackground>
           </TouchableAtom>
         </View>
@@ -400,28 +403,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.new_ui_icon,
     marginVertical: vh(1),
     borderRadius: vw(2),
-  },
-
-  createButtonTouchable: {
-    borderRadius: vw(8),
-    overflow: 'hidden',
-  },
-
-  createButton: {
-    paddingHorizontal: vw(14),
-    paddingVertical: vh(9),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  createButtonImage: {
-    borderRadius: vw(8),
-  },
-
-  createButtonText: {
-    fontFamily: fonts.Inter_SemiBold,
-    fontSize: vw(14),
-    color: colors.white,
   },
 
   searchBox: {

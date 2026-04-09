@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ImageBackground, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import {
@@ -9,6 +9,7 @@ import {
   images,
   screensName,
   strings,
+  SvgDownload,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -20,6 +21,7 @@ import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import { useDeleteTrainingDetailsMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
+import { globalStyles } from '../../../../../../utils/globalStyles';
 
 const InfoBlock = ({ label, value, alignRight }: any) => (
   <View style={[styles.infoBlock, alignRight && styles.infoBlockRight]}>
@@ -120,22 +122,23 @@ const TrainingDetailsScreen = ({ route, navigation }: any) => {
                   ? moment(data.courseEndDate).format('DD-MM-YYYY')
                   : '-'
               }
-              alignRight
             />
           </View>
 
           <View style={styles.gridRow}>
-            <InfoBlock label="No Of Participants" value={data?.noOfParticipants} />
+            <InfoBlock
+              label="No Of Participants"
+              value={data?.noOfParticipants}
+            />
             <InfoBlock
               label="Total Registration"
               value={data?.totalRegisteredTrainees}
-              alignRight
             />
           </View>
 
           <View style={styles.gridRow}>
             <InfoBlock label="Section Batches" value={data?.noOfSections} />
-            <InfoBlock label="File No." value={data?.fileNo} alignRight />
+            <InfoBlock label="File No." value={data?.fileNo} />
           </View>
 
           <View style={styles.gridRow}>
@@ -146,27 +149,28 @@ const TrainingDetailsScreen = ({ route, navigation }: any) => {
             <InfoBlock
               label="Young Professional"
               value={data?.youngProfessional}
-              alignRight
             />
           </View>
 
           <View style={styles.gridRow}>
             <InfoBlock label="Login Allowed" value={data?.isLoginAllowed} />
-            <View style={[styles.infoBlock, styles.infoBlockRight]}>
+            <View style={[styles.infoBlock]}>
               <TextAtom style={styles.infoLabel}>Location Required</TextAtom>
-              <View style={styles.pillRow}>
+              <View style={globalStyles.switchPillRow}>
                 <View
                   style={[
-                    styles.pill,
-                    isLocationRequired ? styles.pillActive : styles.pillInactive,
+                    globalStyles.switchPill,
+                    isLocationRequired
+                      ? globalStyles.switchPillActive
+                      : globalStyles.switchPillInactive,
                   ]}
                 >
                   <TextAtom
                     style={[
-                      styles.pillText,
+                      globalStyles.switchPillText,
                       isLocationRequired
-                        ? styles.pillTextActive
-                        : styles.pillTextInactive,
+                        ? globalStyles.switchPillTextActive
+                        : globalStyles.switchPillTextInactive,
                     ]}
                   >
                     Yes
@@ -174,16 +178,18 @@ const TrainingDetailsScreen = ({ route, navigation }: any) => {
                 </View>
                 <View
                   style={[
-                    styles.pill,
-                    !isLocationRequired ? styles.pillActive : styles.pillInactive,
+                    globalStyles.switchPill,
+                    !isLocationRequired
+                      ? globalStyles.switchPillActive
+                      : globalStyles.switchPillInactive,
                   ]}
                 >
                   <TextAtom
                     style={[
-                      styles.pillText,
+                      globalStyles.switchPillText,
                       !isLocationRequired
-                        ? styles.pillTextActive
-                        : styles.pillTextInactive,
+                        ? globalStyles.switchPillTextActive
+                        : globalStyles.switchPillTextInactive,
                     ]}
                   >
                     No
@@ -194,19 +200,29 @@ const TrainingDetailsScreen = ({ route, navigation }: any) => {
           </View>
 
           <View style={styles.qrRow}>
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, paddingRight: vw(11) }}>
               <TextAtom style={styles.infoLabel}>Registration QR</TextAtom>
-              <TouchableAtom style={styles.qrButton} onPress={() => {}}>
-                <TextAtom style={styles.qrButtonText}>
-                  Generate Emergency QR
-                </TextAtom>
+              <TouchableAtom
+                style={globalStyles.createButtonTouchable}
+                onPress={() => {}}
+              >
+                <ImageBackground
+                  source={images.gradBtnGenrateQR}
+                  style={globalStyles.createButton}
+                  imageStyle={globalStyles.createButtonImage}
+                  resizeMode="stretch"
+                >
+                  <TextAtom style={{ fontSize: 11, lineHeight: 15 }}>
+                    Generate Emergency QR
+                  </TextAtom>
+                </ImageBackground>
               </TouchableAtom>
             </View>
 
-            <View style={{ width: vw(110), alignItems: 'flex-end' }}>
+            <View style={{ flex: 1 }}>
               <TextAtom style={styles.infoLabel}>Extend</TextAtom>
-              <TouchableAtom style={styles.extendBtn} onPress={() => {}}>
-                <ImageAtom source={images.extended} style={styles.extendIcon} />
+              <TouchableAtom style={{ marginLeft: 6 }} onPress={() => {}}>
+                <SvgDownload />
               </TouchableAtom>
             </View>
           </View>
@@ -322,7 +338,7 @@ const styles = StyleSheet.create({
   qrRow: {
     flexDirection: 'row',
     marginTop: vh(14),
-    alignItems: 'flex-end',
+    // alignItems: 'flex-end',
   },
   qrButton: {
     marginTop: vh(6),
@@ -336,22 +352,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.Inter_Medium,
     fontSize: adminFontSizes.xs,
     color: colors.white,
-  },
-  extendBtn: {
-    marginTop: vh(6),
-    width: vw(44),
-    height: vw(36),
-    borderRadius: vw(10),
-    borderWidth: 1,
-    borderColor: '#E2E5EA',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F8F8F9',
-  },
-  extendIcon: {
-    width: vw(16),
-    height: vw(16),
-    tintColor: colors.new_ui_icon,
   },
 
   footerRow: {

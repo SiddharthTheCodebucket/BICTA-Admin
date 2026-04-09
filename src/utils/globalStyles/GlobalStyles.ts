@@ -2,6 +2,66 @@ import {StyleSheet} from 'react-native';
 import {adminFontSizes, colors, fonts, vh, vw} from '../../constants';
 
 export const globalStyles = StyleSheet.create({
+
+    switchPillRow: {
+    flexDirection: 'row',
+    marginTop: vh(2),
+    backgroundColor:colors.sky_blue,
+    alignSelf: 'flex-start',
+      borderRadius: vw(4),
+    
+  },
+
+
+  switchPill: {
+    minHeight:23,
+    minWidth: vw(32),
+    borderRadius: vw(4),
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: vw(6),
+      paddingVertical: vh(4),
+  },
+  switchPillActive: {
+    backgroundColor: colors.primary_blue,
+  },
+  switchPillInactive: {
+    backgroundColor: '#CFE2F7',
+  },
+  switchPillText: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: adminFontSizes.xs,
+  },
+  switchPillTextActive: {
+    color: colors.white,
+  },
+  switchPillTextInactive: {
+    color: '#23406A',
+  },
+
+    createButtonTouchable: {
+    borderRadius: vw(8),
+    overflow: 'hidden',
+  },
+
+    createButton: {
+    paddingHorizontal: vw(14),
+    paddingVertical: vh(9),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  createButtonImage: {
+    borderRadius: vw(8),
+  },
+
+  createButtonText: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(14),
+    color: colors.white,
+  },
+
+
   adminFormCard: {
     backgroundColor: colors.white,
     borderRadius: vw(16),
