@@ -7,6 +7,7 @@ import React, {
 import {
   ActivityIndicator,
   FlatList,
+  ImageBackground,
   LayoutAnimation,
   Modal,
   Pressable,
@@ -27,6 +28,9 @@ import {
   strings,
   vh,
   vw,
+  SvgCross,
+  SvgSearch,
+  SvgFilterLines,
 } from '../../../../../../constants';
 import {
   Header,
@@ -412,7 +416,7 @@ const TrainingDetails = (props: Props) => {
             style={styles.iconBtn}
             onPress={() => setShowSearch(prev => !prev)}
           >
-            <ImageAtom source={images.search} style={styles.actionIcon} />
+            <SvgSearch width={vw(18)} height={vw(18)} />
           </TouchableAtom>
 
           <TouchableAtom
@@ -424,18 +428,21 @@ const TrainingDetails = (props: Props) => {
               setShowFilterPanel(true);
             }}
           >
-            <View style={styles.filterGlyph}>
-              <View style={[styles.filterLine, { width: vw(12) }]} />
-              <View style={[styles.filterLine, { width: vw(9) }]} />
-              <View style={[styles.filterLine, { width: vw(6) }]} />
-            </View>
+            <SvgFilterLines />
           </TouchableAtom>
 
           <TouchableAtom
-            style={styles.createButton}
+            style={styles.createButtonTouchable}
             onPress={() => navigation.navigate(screensName.AddTrainingDetails)}
           >
-            <TextAtom style={styles.createButtonText}>+ Create</TextAtom>
+            <ImageBackground
+              source={images.buttonGrad_25}
+              style={styles.createButton}
+              imageStyle={styles.createButtonImage}
+              resizeMode="stretch"
+            >
+              <TextAtom style={styles.createButtonText}>+ Create</TextAtom>
+            </ImageBackground>
           </TouchableAtom>
         </View>
       </View>
@@ -468,7 +475,7 @@ const TrainingDetails = (props: Props) => {
                 style={styles.filterSheetCloseBtn}
                 onPress={() => setShowFilterPanel(false)}
               >
-                <ImageAtom source={images.cross} style={styles.closeIcon} />
+                <SvgCross />
               </TouchableAtom>
             </View>
 
@@ -614,6 +621,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.new_ui_screen_bg,
   },
 
+  createButtonImage: {
+    borderRadius: vw(8),
+  },
+
   headerRow: {
     marginTop: vh(10),
     paddingHorizontal: vw(14),
@@ -662,18 +673,18 @@ const styles = StyleSheet.create({
     marginVertical: vh(1),
     borderRadius: vw(2),
   },
+
   createButtonTouchable: {
     borderRadius: vw(8),
     overflow: 'hidden',
   },
   createButton: {
-    height: vh(34),
-    backgroundColor: colors.primary_dark_blue,
     paddingHorizontal: vw(14),
+    paddingVertical: vh(9),
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: vw(8),
   },
+
   createButtonText: {
     fontFamily: fonts.Inter_SemiBold,
     fontSize: adminFontSizes.sm,

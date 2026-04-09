@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
@@ -6,271 +6,244 @@ import {
   Image,
   Text,
   Keyboard,
+  FlatList,
 } from 'react-native';
+import Modal from 'react-native-modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BottomSheet, { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 
-import { colors, fonts, images, strings, vh, vw } from '../../constants';
+import {
+  colors,
+  fonts,
+  images,
+  strings,
+  SvgCross,
+  vh,
+  vw,
+} from '../../constants';
 import { isNullUndefined } from '../../utils/CommonFunction';
-import { useAndroidBackButton } from '../../hooks/behaviour';
 import TextInputOrganisms from '../../components/organisms/TextInputOrganisms';
 
-/**
- * Custom Imports
- */
 interface Props {
-  navigation: any;
-  name: any;
-  route: any;
-  setSelectedData: Function;
+  isVisible: boolean;
+  onClose: () => void;
+  data: any[];
+  name: string;
   typeName: string;
   typeId: string;
+  selectedData: any;
+  setSelectedData: Function;
+  multiSelect?: boolean;
 }
 
-const DropDownModal = (props: Props) => {
-  const data = props.route.params?.Data;
-  const { navigation } = props;
-  const [index, setIndex] = React.useState(1);
-  // ref
-  const bottomSheetRef = React.useRef<BottomSheet>(null);
-
-  // variables
-  const snapPoints = React.useMemo(() => ['50%', '95%'], []);
-
-  // callbacks
-  const handleSheetChanges = React.useCallback(() => {}, []);
-
-  // callbacks
-  const handleSnap = React.useCallback(
-    (startIndex: number, endIndex: number) => {
-      if (startIndex === 1 && endIndex === -1) {
-        navigation.goBack();
-      }
-      if (startIndex === 0 && endIndex === -1) {
-        navigation.goBack();
-      }
-    },
-    [navigation],
-  );
-
-  const [dummyData, setdummyData] = React.useState(data);
-
-  const { name, typeName, typeId, selectedData, setSelectedData, multiSelect } =
-    props.route.params;
+const DropDownModal = ({
+  isVisible,
+  onClose,
+  data,
+  name,
+  typeName,
+  typeId,
+  selectedData,
+  setSelectedData,
+  multiSelect = false,
+}: Props) => {
+  const [dummyData, setDummyData] = useState(data);
 
   const SearchData = (val: string) => {
-    let Data = data;
-    if (Data?.length !== 0 && !isNullUndefined(data)) {
-      let filterData = Data.filter((obj: any) => {
-        let searchName = `${obj[typeName]}`;
-        let nameLC = searchName.toLowerCase();
-        let txtLC = val.toLowerCase();
-        if (nameLC.includes(txtLC)) {
-          return obj[typeName];
-        }
-      });
-      if (val?.length !== 0) {
-        setdummyData([...data]);
-      }
+    if (!data || data.length === 0) return;
 
-      setdummyData([...filterData]);
+    const txtLC = val.toLowerCase();
+
+    const filterData = data.filter((obj: any) => {
+      const searchName = `${obj[typeName]}`.toLowerCase();
+      return searchName.includes(txtLC);
+    });
+
+    if (val.length === 0) {
+      setDummyData(data);
+    } else {
+      setDummyData(filterData);
     }
   };
-  const FindSelected = React.useCallback((item: any) => {
-    let find = false;
-    let findedIndex = selectedData?.findIndex(
-      (val: any) => val[typeId] === item[typeId],
-    );
 
-    if (findedIndex >= 0) {
-      find = true;
-    }
+  const FindSelected = useCallback(
+    (item: any) => {
+      const index = selectedData?.findIndex(
+        (val: any) => val[typeId] === item[typeId],
+      );
+      return index >= 0;
+    },
+    [selectedData],
+  );
 
-    return find;
-  }, []);
-  const isRenderRight = () => {
+  const isRenderRight = () => (
+    <TouchableOpacity>
+      <Image source={images.search} />
+    </TouchableOpacity>
+  );
+
+  const renderItem = ({ item }: any) => {
+    const isSelected = multiSelect
+      ? FindSelected(item)
+      : item[typeId] === selectedData?.[typeId];
+
     return (
-      <TouchableOpacity>
-        <Image source={images.search} />
+      <TouchableOpacity
+        style={styles.dataViewStyle}
+        onPress={() => {
+          if (!isSelected) {
+            setSelectedData(item);
+          }
+          onClose();
+        }}
+      >
+        <Text style={styles.itemTitle}>{item[typeName]}</Text>
+        {isSelected && <Image source={images.tick} style={styles.tickImg} />}
       </TouchableOpacity>
     );
   };
 
-  useAndroidBackButton(() => {
-    navigation.goBack();
-    return true;
-  }, [navigation]);
-
-  const itemSeperator = () => {
-    return <View style={styles.lineStyle} />;
-  };
-  const handleComponent = () => {
-    return <View style={styles.handleComponent} />;
-  };
   return (
-    <SafeAreaView style={styles.container}>
-      <TouchableOpacity
-        style={styles.container}
-        onPress={() => {
-          props.navigation.pop();
-        }}
-      />
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={index}
-        snapPoints={snapPoints}
-        onChange={handleSheetChanges}
-        handleComponent={() => handleComponent()}
-        onAnimate={handleSnap}
-        enablePanDownToClose={true}
-      >
-        <View style={styles.boxStyle}>
-          <View style={styles.headerStyle}>
-            <Text style={styles.textStyle}>
-              {strings.select} {name}
-            </Text>
-            <TouchableOpacity
-              style={styles.crossView}
-              onPress={() => {
-                navigation.pop();
-              }}
-            >
-              <Image
-                source={images.cross}
-                style={styles.crossStyle}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.itemSeprator} />
-          <TextInputOrganisms
-            errorMessage=""
-            placeholder={strings.search + ' ' + name}
-            onChangeText={(val: any) => {
-              SearchData(val.trim());
-            }}
-            isrenderRight={() => isRenderRight()}
-            onSubmitEditing={() => {
-              Keyboard.dismiss();
-            }}
-            onFocus={() => {
-              setIndex(1);
-            }}
-            style={styles.textInput}
-            returnKeyType={'done'}
-          />
-          {dummyData?.length === 0 && (
-            <Text style={styles.noDataFound}>{strings.noDataFound}</Text>
-          )}
-          <BottomSheetFlatList
-            showsVerticalScrollIndicator={false}
-            data={dummyData}
-            bounces={false}
-            keyExtractor={(item: any, indexK: any) => item[typeId] + indexK}
-            renderItem={({ item }: any) => {
-              let isSelected = multiSelect
-                ? FindSelected(item)
-                : item[typeId] === selectedData[typeId];
-              return (
-                <TouchableOpacity
-                  style={styles.dataViewStyle}
-                  onPress={() => {
-                    !isSelected && setSelectedData(item);
-                    navigation.goBack();
-                  }}
-                >
-                  <Text style={styles.itemTitle}>{item[typeName]}</Text>
-                  {isSelected && (
-                    <Image source={images.tick} style={styles.tickImg} />
-                  )}
-                </TouchableOpacity>
-              );
-            }}
-            ItemSeparatorComponent={() => itemSeperator()}
-          />
+    <Modal
+      isVisible={isVisible}
+      onBackdropPress={onClose}
+      onBackButtonPress={onClose}
+      swipeDirection="down"
+      onSwipeComplete={onClose}
+      style={styles.modal}
+      propagateSwipe
+    >
+      <SafeAreaView style={styles.container}>
+        <View style={styles.handle} />
+
+        {/* Header */}
+        <View style={styles.headerStyle}>
+          <Text style={styles.textStyle}>
+            {strings.select} {name}
+          </Text>
+
+          <TouchableOpacity onPress={onClose}>
+            <SvgCross />
+          </TouchableOpacity>
         </View>
-      </BottomSheet>
-    </SafeAreaView>
+
+        {/* <View style={styles.itemSeprator} /> */}
+
+        {/* Search */}
+        <TextInputOrganisms
+          errorMessage=""
+          placeholder={strings.search + ' ' + name}
+          onChangeText={(val: string) => SearchData(val.trim())}
+          isrenderRight={isRenderRight}
+          onSubmitEditing={() => Keyboard.dismiss()}
+          style={styles.textInput}
+          returnKeyType="done"
+        />
+
+        {/* Empty */}
+        {dummyData?.length === 0 && (
+          <Text style={styles.noDataFound}>{strings.noDataFound}</Text>
+        )}
+
+        {/* List */}
+        <FlatList
+          data={dummyData}
+          keyExtractor={(item, index) => item[typeId] + index}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          ItemSeparatorComponent={() => <View style={styles.lineStyle} />}
+        />
+      </SafeAreaView>
+    </Modal>
   );
 };
 
+export default DropDownModal;
+
 const styles = StyleSheet.create({
+  modal: {
+    justifyContent: 'flex-end',
+    margin: 0,
+  },
+
   container: {
-    flex: 1,
-    backgroundColor: colors.black_20,
-    zIndex: 4,
-  },
-  boxStyle: {
-    flex: 1,
+    maxHeight: '90%',
     backgroundColor: colors.white,
+    borderTopLeftRadius: vw(16),
+    borderTopRightRadius: vw(16),
     paddingHorizontal: vw(20),
+    paddingBottom: vh(20),
   },
+
+  handle: {
+    alignSelf: 'center',
+    width: vw(40),
+    height: vh(5),
+    borderRadius: vw(10),
+    backgroundColor: colors.borderColor,
+    marginTop: vh(10),
+    marginBottom: vh(10),
+  },
+
   textStyle: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(18),
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: 16, // even number (your guideline)
   },
+
   dataViewStyle: {
     width: '100%',
-    minHeight: vh(30),
-    marginTop: vh(15),
-    textAlign: 'center',
+    minHeight: vh(40),
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: vw(3),
+    alignItems: 'center',
+    paddingVertical: vh(10),
   },
+
   lineStyle: {
     width: '100%',
+    height: 1,
     backgroundColor: colors.borderColor,
-    height: vh(1),
-    borderRadius: vw(10),
   },
+
   itemTitle: {
-    width: vw(300),
+    width: '85%',
     fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
+    fontSize: 14,
     color: colors.black,
   },
+
   headerStyle: {
-    width: '100%',
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  crossStyle: {
-    width: vw(24),
-    height: vw(24),
-    tintColor: colors.borderColor,
-    resizeMode: 'contain',
-  },
-  crossView: {
-    width: vw(30),
-    height: vw(30),
     alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: vh(10),
   },
+
+  crossStyle: {
+    width: vw(22),
+    height: vw(22),
+    tintColor: colors.borderColor,
+  },
+
   itemSeprator: {
-    width: vw(328),
-    height: 0.5,
+    height: 1,
     backgroundColor: colors.borderColor,
-    alignSelf: 'center',
-    marginTop: vh(16),
+    marginTop: vh(12),
   },
+
   noDataFound: {
     alignSelf: 'center',
-    marginTop: vw(20.7),
-    marginBottom: vh(10),
+    marginTop: vh(20),
     fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(18),
+    fontSize: 16,
     color: colors.black,
   },
+
   textInput: {
     marginTop: vh(15),
   },
-  handleComponent: {
-    marginTop: vh(30),
-  },
+
   tickImg: {
     tintColor: colors.primary,
   },
 });
-export default DropDownModal;

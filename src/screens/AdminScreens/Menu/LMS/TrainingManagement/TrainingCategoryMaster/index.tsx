@@ -37,6 +37,7 @@ import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxO
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { useListTrainingCategoryMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
+import DropDownModal from '../../../../../../modal/DropDownModal';
 
 interface Props {
   navigation: NavigationType;
@@ -65,6 +66,9 @@ const TrainingCategoryMaster = (props: Props) => {
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
+  const [isCenterModalVisible, setIsCenterModalVisible] = useState(false);
+  const [centerSearch, setCenterSearch] = useState<any>(null);
+
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
@@ -82,13 +86,14 @@ const TrainingCategoryMaster = (props: Props) => {
   });
 
   const getCentreFilter = useCallback(() => {
-    if (!centerSerach?.name) return null;
+    if (!centerSearch?.name) return null;
 
-    if (centerSerach.name === 'All Centers') {
+    if (centerSearch.name === 'All Centers') {
       return ['Gaya', 'Patna'];
     }
-    return [centerSerach.name];
-  }, [centerSerach]);
+
+    return [centerSearch.name];
+  }, [centerSearch]);
 
   const listTrainingCategoryDetails = useCallback(
     (pageNumber: number, initial: boolean, keyword: string) => {
@@ -173,22 +178,22 @@ const TrainingCategoryMaster = (props: Props) => {
 
   const openCenterFilter = () => {
     if (crediantialData?.user?.[0]?.tenantId !== 3) return;
-
-    navigation.navigate('DropDownModal', {
-      name: 'Center',
-      Data: [
-        { id: 'All Centers', name: 'All Centers' },
-        { id: 'Gaya', name: 'Gaya' },
-        { id: 'Patna', name: 'Patna' },
-      ],
-      selectedData: centerSerach,
-      setSelectedData: (selectedData: any) => {
-        setCenterSerach(selectedData);
-      },
-      typeName: 'name',
-      typeId: 'id',
-    });
+    setIsCenterModalVisible(true);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (firstTimeLoad && !centerSerach?.name && search === '') {
+        setFirstTimeLoad(false);
+        listTrainingCategoryDetails(1, true, '');
+      }
+    }, [firstTimeLoad, centerSerach, search]),
+  );
+
+  useEffect(() => {
+    if (!centerSerach?.name) return;
+    listTrainingCategoryDetails(1, true, '');
+  }, [centerSerach]);
 
   const renderTrainingCard = useCallback(
     ({ item }: any) => (
@@ -307,6 +312,25 @@ const TrainingCategoryMaster = (props: Props) => {
         }}
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={ListItemSeparator}
+      />
+
+      <DropDownModal
+        isVisible={isCenterModalVisible}
+        onClose={() => setIsCenterModalVisible(false)}
+        name="Center"
+        data={[
+          { id: 'All Centers', name: 'All Centers' },
+          { id: 'Gaya', name: 'Gaya' },
+          { id: 'Patna', name: 'Patna' },
+        ]}
+        selectedData={centerSearch}
+        setSelectedData={(selectedData: any) => {
+          setCenterSearch(selectedData);
+          setIsCenterModalVisible(false);
+          listTrainingCategoryDetails(1, true, search);
+        }}
+        typeName="name"
+        typeId="id"
       />
     </SafeAreaView>
   );
