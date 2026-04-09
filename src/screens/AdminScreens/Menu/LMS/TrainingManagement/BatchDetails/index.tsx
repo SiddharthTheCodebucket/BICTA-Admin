@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -18,6 +24,9 @@ import {
   images,
   screensName,
   strings,
+  SvgEditPencile,
+  SvgMerge,
+  SvgSearch,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -36,6 +45,7 @@ import {
   useListTrainingBatchDetailsMutation,
   useUpdateTrainingBatchDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
+import { globalStyles } from '../../../../../../utils/globalStyles';
 
 interface Props {
   navigation: NavigationType;
@@ -269,7 +279,6 @@ const BatchDetails = (props: Props) => {
 
           <View style={styles.batchActionsRow}>
             <TouchableAtom
-              style={styles.iconBtn}
               onPress={() =>
                 navigation.navigate(screensName.MergedBatchForm, {
                   item,
@@ -277,11 +286,11 @@ const BatchDetails = (props: Props) => {
                 })
               }
             >
-              <ImageAtom source={images.transfer} style={styles.iconSmall} />
+              <SvgMerge />
             </TouchableAtom>
 
             <TouchableAtom
-              style={styles.iconBtn}
+              style={{ marginLeft: vw(10) }}
               onPress={() =>
                 navigation.navigate(screensName.EditBatchDetails, {
                   item,
@@ -289,7 +298,7 @@ const BatchDetails = (props: Props) => {
                 })
               }
             >
-              <ImageAtom source={images.edit_pencil} style={styles.iconSmall} />
+              <SvgEditPencile />
             </TouchableAtom>
           </View>
         </View>
@@ -301,7 +310,7 @@ const BatchDetails = (props: Props) => {
               {`${item?.dateFrom ?? '-'} - ${item?.dateTo ?? '-'}`}
             </TextAtom>
           </View>
-          <View style={[styles.col, styles.colRight]}>
+          <View style={[styles.col]}>
             <TextAtom style={styles.label}>Batch Number</TextAtom>
             <TextAtom style={styles.value}>{item?.batchNo ?? '-'}</TextAtom>
           </View>
@@ -314,7 +323,7 @@ const BatchDetails = (props: Props) => {
               {item?.batchLocation ?? '-'}
             </TextAtom>
           </View>
-          <View style={[styles.col, styles.colRight]}>
+          <View style={[styles.col]}>
             <TextAtom style={styles.label}>Coordinator</TextAtom>
             <TextAtom numberOfLines={1} style={styles.value}>
               {item?.coordinator ?? '-'}
@@ -329,7 +338,7 @@ const BatchDetails = (props: Props) => {
               {item?.admin ?? '-'}
             </TextAtom>
           </View>
-          <View style={[styles.col, styles.colRight]}>
+          <View style={[styles.col]}>
             <TextAtom style={styles.label}>Max Candidate</TextAtom>
             <TextAtom style={styles.value}>
               {item?.maximumCandidate ?? '-'}
@@ -345,22 +354,24 @@ const BatchDetails = (props: Props) => {
             </TextAtom>
           </View>
 
-          <View style={[styles.col, styles.colRight]}>
+          <View style={[styles.col]}>
             <TextAtom style={styles.label}>Status</TextAtom>
-            <View style={styles.statusPillsRow}>
+            <View style={globalStyles.switchPillRow}>
               <TouchableAtom
                 style={[
-                  styles.statusPill,
-                  isActive ? styles.statusPillActive : styles.statusPillInactive,
+                  globalStyles.switchPill,
+                  isActive
+                    ? globalStyles.switchPillActive
+                    : globalStyles.switchPillInactive,
                 ]}
                 onPress={() => confirmChangeStatus(item, 'Active')}
               >
                 <TextAtom
                   style={[
-                    styles.statusPillText,
+                    globalStyles.switchPillText,
                     isActive
-                      ? styles.statusPillTextActive
-                      : styles.statusPillTextInactive,
+                      ? globalStyles.switchPillTextActive
+                      : globalStyles.switchPillTextInactive,
                   ]}
                 >
                   Active
@@ -369,19 +380,19 @@ const BatchDetails = (props: Props) => {
 
               <TouchableAtom
                 style={[
-                  styles.statusPill,
+                  globalStyles.switchPill,
                   !isActive
-                    ? styles.statusPillActive
-                    : styles.statusPillInactive,
+                    ? globalStyles.switchPillActive
+                    : globalStyles.switchPillInactive,
                 ]}
                 onPress={() => confirmChangeStatus(item, 'Inactive')}
               >
                 <TextAtom
                   style={[
-                    styles.statusPillText,
+                    globalStyles.switchPillText,
                     !isActive
-                      ? styles.statusPillTextActive
-                      : styles.statusPillTextInactive,
+                      ? globalStyles.switchPillTextActive
+                      : globalStyles.switchPillTextInactive,
                   ]}
                 >
                   Inactive
@@ -401,14 +412,16 @@ const BatchDetails = (props: Props) => {
       <View style={styles.headerRow}>
         <View style={styles.titleRow}>
           <TextAtom style={styles.headerTitle}>Batch Details</TextAtom>
-          <TextAtom style={styles.headerCount}>({filteredTrainings.length})</TextAtom>
+          <TextAtom style={styles.headerCount}>
+            ({filteredTrainings.length})
+          </TextAtom>
         </View>
 
         <TouchableAtom
           style={styles.headerIconBtn}
           onPress={() => setShowSearch(prev => !prev)}
         >
-          <ImageAtom source={images.search} style={styles.headerIcon} />
+          <SvgSearch />
         </TouchableAtom>
       </View>
 

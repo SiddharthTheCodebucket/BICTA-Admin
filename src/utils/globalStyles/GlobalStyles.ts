@@ -9,6 +9,7 @@ export const globalStyles = StyleSheet.create({
     backgroundColor:colors.sky_blue,
     alignSelf: 'flex-start',
       borderRadius: vw(4),
+      overflow: 'hidden',
     
   },
 
@@ -16,7 +17,7 @@ export const globalStyles = StyleSheet.create({
   switchPill: {
     minHeight:23,
     minWidth: vw(32),
-    borderRadius: vw(4),
+    // borderRadius: vw(4),
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: vw(6),
@@ -24,6 +25,7 @@ export const globalStyles = StyleSheet.create({
   },
   switchPillActive: {
     backgroundColor: colors.primary_blue,
+    borderRadius: vw(4),
   },
   switchPillInactive: {
     backgroundColor: '#CFE2F7',
