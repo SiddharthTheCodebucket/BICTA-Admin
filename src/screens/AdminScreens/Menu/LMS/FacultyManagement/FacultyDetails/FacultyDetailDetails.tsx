@@ -1,11 +1,20 @@
 import React, { useLayoutEffect } from 'react';
-import { StyleSheet, ScrollView, Image } from 'react-native';
+import { StyleSheet, ScrollView, Image, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vh, vw, strings } from '../../../../../../constants';
+import {
+  colors,
+  fonts,
+  vh,
+  vw,
+  strings,
+  images,
+} from '../../../../../../constants';
 import { Header } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import moment from 'moment';
+import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 
 const FieldRow = ({ label, value }: any) => (
   <ViewAtom style={styles.row}>
@@ -31,10 +40,20 @@ const FacultyDetailDetails = ({ route, navigation }: any) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      strings.lms.facultyManagement.details.title,
+      strings.lms.facultyManagement.main.title,
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
     );
-    navigation.BackButtonPress = () => navigation.goBack();
-  });
+    navigation.BackButtonPress = () => {
+      navigation.goBack();
+    };
+  }, [navigation]);
 
   const facultyStrings = strings.lms.facultyManagement.details;
 
@@ -44,6 +63,15 @@ const FacultyDetailDetails = ({ route, navigation }: any) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}
       >
+        <TouchableAtom
+          style={styles.titleRow}
+          onPress={() => navigation.goBack()}
+          activeOpacity={0.8}
+        >
+          <ImageAtom source={images.arrow_back} style={styles.inlineBackIcon} />
+          <TextAtom style={styles.pageTitle}>{'Create Category'}</TextAtom>
+        </TouchableAtom>
+
         <ViewAtom style={styles.card}>
           {/* BASIC DETAILS */}
           <FieldRow
@@ -139,14 +167,32 @@ const FacultyDetailDetails = ({ route, navigation }: any) => {
 export default FacultyDetailDetails;
 
 const styles = StyleSheet.create({
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    marginTop: vh(10),
+  },
+  inlineBackIcon: {
+    width: vw(18),
+    height: vw(18),
+    tintColor: colors.new_ui_heading,
+    marginRight: vw(8),
+  },
+  pageTitle: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(16),
+    lineHeight: 24,
+    color: colors.text_black,
+  },
   container: { flex: 1, backgroundColor: colors.backgroundColor },
 
-  scrollContainer: { paddingBottom: vh(40), paddingHorizontal: vw(15) },
+  scrollContainer: { paddingBottom: vh(40), paddingHorizontal: vw(12) },
 
   card: {
     backgroundColor: colors.white,
     borderRadius: vw(10),
-    padding: vw(15),
+    padding: vw(16),
     marginTop: vh(15),
     elevation: 2,
     shadowColor: colors.black,

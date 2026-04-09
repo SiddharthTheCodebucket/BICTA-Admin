@@ -763,7 +763,7 @@ const styles = StyleSheet.create({
     width: vw(36),
     height: vw(36),
     borderRadius: vw(18),
-    backgroundColor: colors.primary_sky_blue,
+    backgroundColor: colors.light_sky_blue,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -784,7 +784,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: vw(8),
     paddingVertical: vh(2),
     borderRadius: vw(6),
-    backgroundColor: colors.lightBlue,
+    backgroundColor: colors.light_sky_blue,
   },
   badgeText: {
     fontFamily: fonts.Roboto_Regular,

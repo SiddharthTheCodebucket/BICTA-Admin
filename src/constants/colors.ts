@@ -1,6 +1,7 @@
 export default {
 // new UI colors start
 primary_sky_blue: '#A8D8FF',
+light_sky_blue: '#E6F2FF',
 primary_blue: '#1C4371',
 primary_dark_blue: '#0E2239',
 text_black: '#111827',
