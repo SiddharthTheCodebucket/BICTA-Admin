@@ -124,4 +124,33 @@ export const globalStyles = StyleSheet.create({
     fontFamily: fonts.Inter_Regular,
     fontSize: adminFontSizes.xs,
   },
+
+// for stepwise footor buttons in admin forms
+footerButtonsRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: vh(10),
+  marginTop: vh(20),
+},
+footerButton: {
+  height: vh(46),
+  borderRadius: vh(10),
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingHorizontal: vh(18),
+},
+backButton: {
+  flex: 1,
+  backgroundColor: colors.backgroundColor,
+  borderRadius: vh(8),
+  borderWidth: 1,
+  borderColor: '#111827',
+},
+backButtonText: {
+  fontSize: vw(16),
+  fontFamily: fonts.Inter_Medium,
+  color: '#111827',
+},
+
+
 });

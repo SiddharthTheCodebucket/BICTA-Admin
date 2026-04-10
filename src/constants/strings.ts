@@ -1181,7 +1181,7 @@ export default {
         bihar: 'Bihar',
         outsideBihar: 'Outside Bihar',
         uploadFile: 'Upload File',
-        addFile: 'Add File',
+        addFile: 'NOTE: Please merge proof document front and back side in single file before uploading if applicable',
         chooseFile: 'Choose File',
         add: 'Add',
         update: 'Update',
