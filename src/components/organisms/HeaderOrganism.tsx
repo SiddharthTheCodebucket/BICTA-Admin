@@ -76,7 +76,7 @@ export const Header = {
       headerBackVisible: false,
       headerShown: true,
       headerShadowVisible: true,
-    });
+    } as any);
   },
   setDashboardHeader: (navigation: NavigationType, options: any) => {
     const {
@@ -200,7 +200,7 @@ export const Header = {
       headerTitleAlign: 'center',
       headerBackVisible: false,
       headerShown: true,
-    });
+    } as any);
   },
 };
 

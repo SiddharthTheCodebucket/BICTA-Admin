@@ -10,7 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -18,6 +17,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
+  images,
   screensName,
   vh,
   vw,
@@ -31,7 +31,7 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
+import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
@@ -65,13 +65,25 @@ const BatchDetails = (props: Props) => {
 
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const [showSearch, setShowSearch] = useState(false);
 
   const [activeTab, setActiveTab] = useState<
     'Current Training' | 'Complete Training'
   >('Current Training');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Batch Details');
+    Header.setNavigation(
+      navigation,
+      'Training Management',
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -182,38 +194,53 @@ const BatchDetails = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={{ height: 'auto' }}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {crediantialData.user[0].tenantId === 3 && (
-            <DropDownOrganism
-              label={''}
-              placeholder={'Centers'}
-              onPress={() => {
-                navigation.navigate('DropDownModal', {
-                  name: 'Center',
-                  Data: [
-                    { id: 'All Centers', name: 'All Centers' },
-                    { id: 'Gaya', name: 'Gaya' },
-                    { id: 'Patna', name: 'Patna' },
-                  ],
-                  selectedData: centerSerach,
-                  setSelectedData: setCenterSerach,
-                  typeName: 'name',
-                  typeId: 'id',
-                });
-              }}
-              inputText={centerSerach?.name}
-              containerStyle={{ marginBottom: vh(5) }}
-            />
-          )}
-          <SearchBoxOrganism
-            onChangeText={onChangeSearch}
-            searchText={search}
-            onPressCross={onClearSearch}
-            searchBox={{ marginTop: vh(10) }}
-          />
-        </ScrollView>
+      <View style={styles.headerRow}>
+        <View style={styles.titleRow}>
+          <TextAtom style={styles.headerTitle}>Batch Details</TextAtom>
+          <TextAtom style={styles.headerCount}>({filteredData.length})</TextAtom>
+        </View>
+        <View style={styles.actionsRow}>
+          <TouchableAtom
+            style={styles.iconBtn}
+            onPress={() => setShowSearch(prev => !prev)}
+          >
+            <ImageAtom source={images.search} style={styles.actionIcon} />
+          </TouchableAtom>
+          <TouchableAtom
+            style={styles.iconBtn}
+            onPress={() => {
+              if (crediantialData.user[0].tenantId !== 3) return;
+              navigation.navigate('DropDownModal', {
+                name: 'Center',
+                Data: [
+                  { id: 'All Centers', name: 'All Centers' },
+                  { id: 'Gaya', name: 'Gaya' },
+                  { id: 'Patna', name: 'Patna' },
+                ],
+                selectedData: centerSerach,
+                setSelectedData: setCenterSerach,
+                typeName: 'name',
+                typeId: 'id',
+              });
+            }}
+          >
+            <View style={styles.filterGlyph}>
+              <View style={[styles.filterLine, { width: vw(12) }]} />
+              <View style={[styles.filterLine, { width: vw(9) }]} />
+              <View style={[styles.filterLine, { width: vw(6) }]} />
+            </View>
+          </TouchableAtom>
+        </View>
       </View>
+
+      {showSearch && (
+        <SearchBoxOrganism
+          onChangeText={onChangeSearch}
+          searchText={search}
+          onPressCross={onClearSearch}
+          searchBox={{ marginTop: vh(10) }}
+        />
+      )}
 
       <View style={styles.tabRow}>
         {['Current Training', 'Complete Training'].map(tab => (
@@ -273,16 +300,63 @@ const BatchDetails = (props: Props) => {
 export default BatchDetails;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
   flatListContainer: {
     paddingVertical: vh(10),
+  },
+  headerRow: {
+    marginTop: vh(10),
+    paddingHorizontal: vw(14),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  headerTitle: {
+    fontFamily: fonts.Inter_Bold,
+    fontSize: vw(16),
+    color: colors.new_ui_heading,
+  },
+  headerCount: {
+    marginLeft: vw(4),
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(14),
+    color: colors.new_ui_count,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconBtn: {
+    width: vw(22),
+    height: vw(22),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: vw(8),
+  },
+  actionIcon: {
+    width: vw(17),
+    height: vw(17),
+    tintColor: colors.new_ui_icon,
+  },
+  filterGlyph: {
+    alignItems: 'flex-end',
+  },
+  filterLine: {
+    height: vh(2),
+    backgroundColor: colors.new_ui_icon,
+    marginVertical: vh(1),
+    borderRadius: vw(2),
   },
 
   tabRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingHorizontal: vw(10),
-    marginTop: vh(5),
+    marginTop: vh(8),
   },
   tabButton: {
     paddingVertical: vh(8),

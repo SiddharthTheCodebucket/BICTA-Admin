@@ -1837,12 +1837,12 @@
     color "^4.2.3"
     sf-symbols-typescript "^2.1.0"
 
-"@react-navigation/core@^7.13.2":
-  version "7.13.2"
-  resolved "https://registry.npmjs.org/@react-navigation/core/-/core-7.13.2.tgz"
-  integrity sha512-A0pFeZlKp+FJob2lVr7otDt3M4rsSJrnAfXWoWR9JVeFtfEXsH/C0s7xtpDCMRUO58kzSBoTF1GYzoMC5DLD4g==
+"@react-navigation/core@^7.17.2":
+  version "7.17.2"
+  resolved "https://registry.npmjs.org/@react-navigation/core/-/core-7.17.2.tgz"
+  integrity sha512-Rt2OZwcgOmjv401uLGAKaRM6xo0fiBce/A7LfRHI1oe5FV+KooWcgAoZ2XOtgKj6UzVMuQWt3b2e6rxo/mDJRA==
   dependencies:
-    "@react-navigation/routers" "^7.5.2"
+    "@react-navigation/routers" "^7.5.3"
     escape-string-regexp "^4.0.0"
     fast-deep-equal "^3.1.3"
     nanoid "^3.3.11"
@@ -1851,14 +1851,23 @@
     use-latest-callback "^0.2.4"
     use-sync-external-store "^1.5.0"
 
-"@react-navigation/elements@^2.8.3":
-  version "2.8.3"
-  resolved "https://registry.npmjs.org/@react-navigation/elements/-/elements-2.8.3.tgz"
-  integrity sha512-0c5nSDPP3bUFujgkSVqqMShaAup3XIxNe1KTK9LSmwKgWEneyo6OPIjIdiEwPlZvJZKi7ag5hDjacQLGwO0LGA==
+"@react-navigation/elements@^2.8.3", "@react-navigation/elements@^2.9.14":
+  version "2.9.14"
+  resolved "https://registry.npmjs.org/@react-navigation/elements/-/elements-2.9.14.tgz"
+  integrity sha512-lKqzu+su2pI/YIZmR7L7xdOs4UL+rVXKJAMpRMBrwInEy96SjIFst6QDGpE89Dunnu3VjVpjWfByo9f2GWBHDQ==
   dependencies:
     color "^4.2.3"
     use-latest-callback "^0.2.4"
     use-sync-external-store "^1.5.0"
+
+"@react-navigation/material-top-tabs@^7.4.23":
+  version "7.4.23"
+  resolved "https://registry.npmjs.org/@react-navigation/material-top-tabs/-/material-top-tabs-7.4.23.tgz"
+  integrity sha512-yIU2ne7w+LBjhhiHLwhLIuzjnY44GK6OXqls1112StR4afd5bYYUBL6WopZkBmXD/3sRooimp8iy5Cih+8Mr8w==
+  dependencies:
+    "@react-navigation/elements" "^2.9.14"
+    color "^4.2.3"
+    react-native-tab-view "^4.3.0"
 
 "@react-navigation/native-stack@^7.6.1":
   version "7.6.4"
@@ -1870,21 +1879,21 @@
     sf-symbols-typescript "^2.1.0"
     warn-once "^0.1.1"
 
-"@react-navigation/native@^7.1.19", "@react-navigation/native@^7.1.21":
-  version "7.1.21"
-  resolved "https://registry.npmjs.org/@react-navigation/native/-/native-7.1.21.tgz"
-  integrity sha512-mhpAewdivBL01ibErr91FUW9bvKhfAF6Xv/yr6UOJtDhv0jU6iUASUcA3i3T8VJCOB/vxmoke7VDp8M+wBFs/Q==
+"@react-navigation/native@^7.1.19", "@react-navigation/native@^7.1.21", "@react-navigation/native@^7.2.2":
+  version "7.2.2"
+  resolved "https://registry.npmjs.org/@react-navigation/native/-/native-7.2.2.tgz"
+  integrity sha512-kem1Ko2BcbAjmbQIv66dNmr6EtfDut3QU0qjsVhMnLLhktwyXb6FzZYp8gTrUb6AvkAbaJoi+BF5Pl55pAUa5w==
   dependencies:
-    "@react-navigation/core" "^7.13.2"
+    "@react-navigation/core" "^7.17.2"
     escape-string-regexp "^4.0.0"
     fast-deep-equal "^3.1.3"
     nanoid "^3.3.11"
     use-latest-callback "^0.2.4"
 
-"@react-navigation/routers@^7.5.2":
-  version "7.5.2"
-  resolved "https://registry.npmjs.org/@react-navigation/routers/-/routers-7.5.2.tgz"
-  integrity sha512-kymreY5aeTz843E+iPAukrsOtc7nabAH6novtAPREmmGu77dQpfxPB2ZWpKb5nRErIRowp1kYRoN2Ckl+S6JYw==
+"@react-navigation/routers@^7.5.3":
+  version "7.5.3"
+  resolved "https://registry.npmjs.org/@react-navigation/routers/-/routers-7.5.3.tgz"
+  integrity sha512-1tJHg4KKRJuQ1/EvJxatrMef3NZXEPzwUIUZ3n1yJ2t7Q97siwRtbynRpQG9/69ebbtiZ8W3ScOZF/OmhvM4Rg==
   dependencies:
     nanoid "^3.3.11"
 
@@ -5928,6 +5937,11 @@ react-native-modal@^14.0.0-rc.1:
   dependencies:
     react-native-animatable "1.4.0"
 
+react-native-pager-view@^8.0.0, "react-native-pager-view@>= 6.0.0":
+  version "8.0.0"
+  resolved "https://registry.npmjs.org/react-native-pager-view/-/react-native-pager-view-8.0.0.tgz"
+  integrity sha512-oAwlWT1lhTkIs9HhODnjNNl/owxzn9DP1MbP+az6OTUdgbmzA16Up83sBH8NRKwrH8rNm7iuWnX1qMqiiWOLhg==
+
 react-native-pell-rich-editor@^1.10.0:
   version "1.10.0"
   resolved "https://registry.npmjs.org/react-native-pell-rich-editor/-/react-native-pell-rich-editor-1.10.0.tgz"
@@ -5968,6 +5982,13 @@ react-native-screens@^4.18.0, "react-native-screens@>= 4.0.0":
   dependencies:
     react-freeze "^1.0.0"
     warn-once "^0.1.0"
+
+react-native-tab-view@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.npmjs.org/react-native-tab-view/-/react-native-tab-view-4.3.0.tgz"
+  integrity sha512-qPMF75uz/7+MuVG2g+YETdGMzlWZnhC6iI4h/7EBbwIBwNBIBi2z4OA6KhY3IOOBwGHXEIz5IyA6doDqifYBHg==
+  dependencies:
+    use-latest-callback "^0.2.4"
 
 react-native-toast-message@^2.3.3:
   version "2.3.3"

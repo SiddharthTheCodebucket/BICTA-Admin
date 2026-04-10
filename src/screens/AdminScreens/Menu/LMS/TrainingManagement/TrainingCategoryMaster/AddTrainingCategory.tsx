@@ -215,104 +215,133 @@ const AddTrainingCategory = (props: Props) => {
         </TouchableAtom>
 
         <View style={styles.formCard}>
-          <View style={styles.fieldBlock}>
-            <TextAtom style={styles.labelText}>
-              Select Bipard Location
-              <TextAtom style={styles.requiredMark}>*</TextAtom>
-            </TextAtom>
-            <TouchableAtom
-              style={styles.inputContainer}
-              onPress={() => {
-                if (tenantId !== 3) return;
+          <View
+            style={{
+              backgroundColor: colors.backgroundColor,
+              padding: vw(8),
 
-                navigation.navigate('DropDownModal', {
-                  name: 'Bipard Location',
-                  Data: [
-                    { id: 'Gaya', name: 'Gaya' },
-                    { id: 'Patna', name: 'Patna' },
-                  ],
-                  selectedData: form.bipardLocation,
-                  setSelectedData: (data: any) => {
-                    setForm((prev: any) => ({
-                      ...prev,
-                      bipardLocation: data,
-                    }));
-                    setErrors((prev: any) => ({
-                      ...prev,
-                      bipardLocation: '',
-                      'bipardLocation.name': '',
-                    }));
-                  },
-                  typeName: 'name',
-                  typeId: 'id',
-                });
-              }}
-              activeOpacity={tenantId === 3 ? 0.8 : 1}
-            >
-              <TextAtom
-                style={[
-                  styles.inputText,
-                  !form.bipardLocation?.name && styles.placeholderText,
-                ]}
+              borderRadius: vw(8),
+            }}
+          >
+            <View style={styles.fieldBlock}>
+              <TextAtom style={styles.labelText}>
+                Select Bipard Location
+                <TextAtom style={styles.requiredMark}>*</TextAtom>
+              </TextAtom>
+              <TouchableAtom
+                style={styles.inputContainer}
+                onPress={() => {
+                  if (tenantId !== 3) return;
+
+                  navigation.navigate('DropDownModal', {
+                    name: 'Bipard Location',
+                    Data: [
+                      { id: 'Gaya', name: 'Gaya' },
+                      { id: 'Patna', name: 'Patna' },
+                    ],
+                    selectedData: form.bipardLocation,
+                    setSelectedData: (data: any) => {
+                      setForm((prev: any) => ({
+                        ...prev,
+                        bipardLocation: data,
+                      }));
+                      setErrors((prev: any) => ({
+                        ...prev,
+                        bipardLocation: '',
+                        'bipardLocation.name': '',
+                      }));
+                    },
+                    typeName: 'name',
+                    typeId: 'id',
+                  });
+                }}
+                activeOpacity={tenantId === 3 ? 0.8 : 1}
               >
-                {form.bipardLocation?.name || 'Select'}
-              </TextAtom>
-              <ImageAtom source={images.downArrow} style={styles.dropIcon} />
-            </TouchableAtom>
-            {!!(errors['bipardLocation.name'] || errors.bipardLocation) && (
-              <TextAtom style={styles.errorText}>
-                {errors['bipardLocation.name'] || errors.bipardLocation}
-              </TextAtom>
-            )}
+                <TextAtom
+                  style={[
+                    styles.inputText,
+                    !form.bipardLocation?.name && styles.placeholderText,
+                  ]}
+                >
+                  {form.bipardLocation?.name || 'Select'}
+                </TextAtom>
+                <ImageAtom source={images.downArrow} style={styles.dropIcon} />
+              </TouchableAtom>
+              {!!(errors['bipardLocation.name'] || errors.bipardLocation) && (
+                <TextAtom style={styles.errorText}>
+                  {errors['bipardLocation.name'] || errors.bipardLocation}
+                </TextAtom>
+              )}
+            </View>
           </View>
 
-          <View style={styles.fieldBlock}>
-            <TextAtom style={styles.labelText}>
-              Category Name
-              <TextAtom style={styles.requiredMark}>*</TextAtom>
-            </TextAtom>
-            <TextInput
-              ref={input1_ref}
-              style={styles.input}
-              value={form.categoryName}
-              placeholder="Enter"
-              placeholderTextColor={colors.new_ui_count}
-              returnKeyType="next"
-              onSubmitEditing={() => input2_ref.current?.focus()}
-              onChangeText={(val: string) => {
-                setValue('categoryName', val);
-                setErrors((prev: any) => ({ ...prev, categoryName: '' }));
-              }}
-            />
-            {!!errors.categoryName && (
-              <TextAtom style={styles.errorText}>
-                {errors.categoryName}
+          <View
+            style={{
+              backgroundColor: colors.backgroundColor,
+              padding: vw(8),
+
+              borderRadius: vw(8),
+              marginTop: vh(10),
+            }}
+          >
+            <View style={styles.fieldBlock}>
+              <TextAtom style={styles.labelText}>
+                Category Name
+                <TextAtom style={styles.requiredMark}>*</TextAtom>
               </TextAtom>
-            )}
+              <TextInput
+                ref={input1_ref}
+                style={styles.input}
+                value={form.categoryName}
+                placeholder="Enter"
+                placeholderTextColor={colors.new_ui_count}
+                returnKeyType="next"
+                onSubmitEditing={() => input2_ref.current?.focus()}
+                onChangeText={(val: string) => {
+                  setValue('categoryName', val);
+                  setErrors((prev: any) => ({ ...prev, categoryName: '' }));
+                }}
+              />
+              {!!errors.categoryName && (
+                <TextAtom style={styles.errorText}>
+                  {errors.categoryName}
+                </TextAtom>
+              )}
+            </View>
           </View>
 
-          <View style={styles.fieldBlock}>
-            <TextAtom style={styles.labelText}>
-              Description
-              <TextAtom style={styles.requiredMark}>*</TextAtom>
-            </TextAtom>
-            <TextInput
-              ref={input2_ref}
-              style={[styles.input, styles.descriptionInput]}
-              value={form.desc}
-              placeholder="Enter"
-              placeholderTextColor={colors.new_ui_count}
-              multiline
-              textAlignVertical="top"
-              onSubmitEditing={() => Keyboard.dismiss()}
-              onChangeText={(val: string) => {
-                setValue('desc', val);
-                setErrors((prev: any) => ({ ...prev, desc: '' }));
-              }}
-            />
-            {!!errors.desc && (
-              <TextAtom style={styles.errorText}>{errors.desc}</TextAtom>
-            )}
+          <View
+            style={{
+              backgroundColor: colors.backgroundColor,
+              padding: vw(8),
+
+              borderRadius: vw(8),
+              marginTop: vh(10),
+            }}
+          >
+            <View style={styles.fieldBlock}>
+              <TextAtom style={styles.labelText}>
+                Description
+                <TextAtom style={styles.requiredMark}>*</TextAtom>
+              </TextAtom>
+              <TextInput
+                ref={input2_ref}
+                style={[styles.input, styles.descriptionInput]}
+                value={form.desc}
+                placeholder="Enter"
+                placeholderTextColor={colors.new_ui_count}
+                multiline
+                textAlignVertical="top"
+                onSubmitEditing={() => Keyboard.dismiss()}
+                onChangeText={(val: string) => {
+                  setValue('desc', val);
+                  setErrors((prev: any) => ({ ...prev, desc: '' }));
+                }}
+              />
+              {!!errors.desc && (
+                <TextAtom style={styles.errorText}>{errors.desc}</TextAtom>
+              )}
+            </View>
           </View>
         </View>
       </KeyboardAwareScrollView>
@@ -353,11 +382,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: vw(12),
     paddingTop: vh(10),
     paddingBottom: vh(120),
+    backgroundColor: colors.new_ui_screen_bg,
   },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: vh(8),
+    marginBottom: vh(10),
   },
   inlineBackIcon: {
     width: vw(18),
@@ -372,8 +402,8 @@ const styles = StyleSheet.create({
     color: colors.text_black,
   },
   formCard: {
-    backgroundColor: '#F7F7F8',
-    borderRadius: vw(14),
+    backgroundColor: colors.white,
+    borderRadius: vw(16),
     borderWidth: 1,
     borderColor: '#EFEFF2',
     padding: vw(10),
@@ -395,9 +425,9 @@ const styles = StyleSheet.create({
   inputContainer: {
     height: vh(42),
     borderWidth: 1,
-    borderColor: '#E1E4E8',
+    borderColor: '#ECECEC',
     borderRadius: vw(8),
-    backgroundColor: '#F2F3F5',
+    backgroundColor: colors.white,
     paddingHorizontal: vw(12),
     flexDirection: 'row',
     alignItems: 'center',
@@ -421,7 +451,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E1E4E8',
     borderRadius: vw(8),
-    backgroundColor: '#F2F3F5',
+    backgroundColor: colors.white,
     paddingHorizontal: vw(12),
     fontFamily: fonts.Inter_Regular,
     fontSize: vw(15),

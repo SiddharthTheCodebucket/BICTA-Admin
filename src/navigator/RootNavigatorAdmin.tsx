@@ -40,12 +40,9 @@ import BlockDetails from '../screens/AdminScreens/Dashboard/Hostel/BlockDetails'
 import BlockedForm from '../screens/AdminScreens/Dashboard/Hostel/BlockedForm';
 import LMS from '../screens/AdminScreens/Menu/LMS';
 import TrainingManagement from '../screens/AdminScreens/Menu/LMS/TrainingManagement';
-import TrainingCategoryMaster from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingCategoryMaster';
 import AddTrainingCategory from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingCategoryMaster/AddTrainingCategory';
-import TrainingDetails from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingDetails';
 import TrainingDetailsScreen from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingDetails/TrainingDetailsScreen';
 import AddTrainingDetails from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingDetails/AddTrainingDetails';
-import BatchDetails from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails';
 import BatchDetailsList from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails/BatchDetailsList';
 import EditBatchDetails from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails/EditBatchDetails';
 import MergedBatchForm from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails/MergedBatchForm';
@@ -378,7 +375,8 @@ const RootNavigatorAdmin = () => {
         />
         <RootStackScreen.Screen
           name="TrainingCategoryMaster"
-          component={TrainingCategoryMaster}
+          component={TrainingManagement}
+          initialParams={{ initialTab: 'TrainingCategoryMaster' }}
         />
         <RootStackScreen.Screen
           name="AddTrainingCategory"
@@ -386,7 +384,8 @@ const RootNavigatorAdmin = () => {
         />
         <RootStackScreen.Screen
           name="TrainingDetails"
-          component={TrainingDetails}
+          component={TrainingManagement}
+          initialParams={{ initialTab: 'TrainingDetails' }}
         />
         <RootStackScreen.Screen
           name="TrainingDetailsScreen"
@@ -396,7 +395,11 @@ const RootNavigatorAdmin = () => {
           name="AddTrainingDetails"
           component={AddTrainingDetails}
         />
-        <RootStackScreen.Screen name="BatchDetails" component={BatchDetails} />
+        <RootStackScreen.Screen
+          name="BatchDetails"
+          component={TrainingManagement}
+          initialParams={{ initialTab: 'BatchDetails' }}
+        />
         <RootStackScreen.Screen
           name="BatchDetailsList"
           component={BatchDetailsList}

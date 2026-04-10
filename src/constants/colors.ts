@@ -7,7 +7,7 @@ text_black: '#111827',
 text_grey: '#4B5563',
 
 text_light_grey: '#666666',
-new_ui_screen_bg: '#F2F2F4',
+new_ui_screen_bg: '#F8F8F8',
 new_ui_tab_text: '#111827',
 new_ui_heading: '#343A42',
 new_ui_count: '#8A9099',

@@ -1,19 +1,140 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useLayoutEffect } from 'react';
+import {
+  Dimensions,
+  LayoutChangeEvent,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../../constants';
+import {
+  createMaterialTopTabNavigator,
+  MaterialTopTabBarProps,
+} from '@react-navigation/material-top-tabs';
+import { colors, fonts, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../components/atoms/TextAtom';
+import TrainingCategoryMaster from './TrainingCategoryMaster';
+import TrainingDetails from './TrainingDetails';
+import BatchDetails from './BatchDetails';
 
 interface Props {
+  route: any;
   navigation: NavigationType;
 }
 
+const TopTabs = createMaterialTopTabNavigator();
+
+const CustomTrainingTabBar = ({
+  state,
+  descriptors,
+  navigation,
+}: MaterialTopTabBarProps) => {
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [tabLayouts, setTabLayouts] = useState<{
+    [key: string]: { x: number; width: number };
+  }>({});
+  const screenWidth = Dimensions.get('window').width;
+
+  useEffect(() => {
+    const activeRoute = state.routes[state.index];
+    const layout = tabLayouts[activeRoute.key];
+
+    if (layout && scrollViewRef.current) {
+      const offset = layout.x + layout.width / 2 - screenWidth / 2;
+      scrollViewRef.current.scrollTo({
+        x: offset > 0 ? offset : 0,
+        animated: true,
+      });
+    }
+  }, [screenWidth, state.index, state.routes, tabLayouts]);
+
+  const onTabLayout = (key: string) => (event: LayoutChangeEvent) => {
+    const { x, width } = event.nativeEvent.layout;
+    setTabLayouts(prev => ({ ...prev, [key]: { x, width } }));
+  };
+
+  return (
+    <View style={styles.customTabBarContainer}>
+      <ScrollView
+        horizontal
+        ref={scrollViewRef}
+        showsHorizontalScrollIndicator={false}
+        style={styles.customTabScroll}
+        contentContainerStyle={styles.customTabWrap}
+      >
+        {state.routes.map((route, index) => {
+          const isFocused = state.index === index;
+          const { options } = descriptors[route.key];
+
+          const label =
+            typeof options.tabBarLabel === 'string'
+              ? options.tabBarLabel
+              : typeof options.title === 'string'
+              ? options.title
+              : route.name;
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
+          return (
+            <TouchableOpacity
+              key={route.key}
+              accessibilityRole="button"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              onLayout={onTabLayout(route.key)}
+              onPress={onPress}
+              style={[
+                styles.customTabItem,
+                isFocused && styles.customTabItemActive,
+              ]}
+              activeOpacity={0.9}
+            >
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.customTabText,
+                  isFocused && styles.customTabTextActive,
+                ]}
+              >
+                {label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+};
+
 const TrainingManagement = (props: Props) => {
-  const { navigation } = props;
+  const { navigation, route } = props;
+
+  const initialRouteName = useMemo(() => {
+    const initialTab = route?.params?.initialTab;
+    if (initialTab === 'TrainingDetails') return 'TrainingDetailsTab';
+    if (initialTab === 'BatchDetails') return 'BatchDetailsTab';
+    return 'TrainingCategoryTab';
+  }, [route?.params?.initialTab]);
 
   useLayoutEffect(() => {
     Header.setNavigation(
@@ -33,45 +154,35 @@ const TrainingManagement = (props: Props) => {
     };
   }, []);
 
-  const DATA = [
-    {
-      id: 1,
-      name: 'Training Category Master',
-      onPress: () => {
-        navigation.navigate(screensName.TrainingCategoryMaster);
-      },
-    },
-    {
-      id: 2,
-      name: 'Training Details',
-      onPress: () => {
-        navigation.navigate(screensName.TrainingDetails);
-      },
-    },
-    {
-      id: 3,
-      name: 'Batch Details',
-      onPress: () => {
-        navigation.navigate(screensName.BatchDetails);
-      },
-    },
-  ];
-
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <View style={{ flex: 1 }}>
-        {DATA.map(item => {
-          return (
-            <TouchableOpacity
-              key={item.id.toString()}
-              style={styles.touchable}
-              onPress={item.onPress}
-            >
-              <TextAtom>{item.name}</TextAtom>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+      <TopTabs.Navigator
+        key={initialRouteName}
+        initialRouteName={initialRouteName}
+        tabBar={tabBarProps => <CustomTrainingTabBar {...tabBarProps} />}
+        screenOptions={{
+          swipeEnabled: true,
+          sceneStyle: {
+            backgroundColor: colors.new_ui_screen_bg,
+          },
+        }}
+      >
+        <TopTabs.Screen
+          name="TrainingCategoryTab"
+          component={TrainingCategoryMaster}
+          options={{ tabBarLabel: 'Training Category' }}
+        />
+        <TopTabs.Screen
+          name="TrainingDetailsTab"
+          component={TrainingDetails}
+          options={{ tabBarLabel: 'Training Details' }}
+        />
+        <TopTabs.Screen
+          name="BatchDetailsTab"
+          component={BatchDetails}
+          options={{ tabBarLabel: 'Batch Details' }}
+        />
+      </TopTabs.Navigator>
     </SafeAreaView>
   );
 };
@@ -81,20 +192,49 @@ export default TrainingManagement;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
+    backgroundColor: colors.new_ui_screen_bg,
   },
-  logoutBtn: {
-    alignSelf: 'center',
-    width: '90%',
+  customTabBarContainer: {
+    marginHorizontal: vw(8),
+    marginTop: vh(8),
+    borderRadius: vw(8),
   },
-  touchable: {
-    width: vw(328),
-    height: vh(55),
-    borderRadius: vw(6),
-    backgroundColor: colors.primary,
-    alignSelf: 'center',
+  customTabScroll: {
+    maxHeight: vh(42),
+  },
+  customTabWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: vw(6),
+    paddingVertical: vh(2),
+  },
+  customTabItem: {
+    height: vh(34),
+    minWidth: vw(110),
+
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: vh(15),
+    backgroundColor: colors.white,
+    marginRight: vw(6),
+    paddingHorizontal: vw(8),
+    paddingVertical: vw(8),
+    borderRadius: vw(8),
+  },
+  customTabItemActive: {
+    backgroundColor: colors.primary_sky_blue,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.primary_dark_blue,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    elevation: 2,
+  },
+  customTabText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(14),
+    lineHeight: vw(17),
+    color: colors.text_black,
+  },
+  customTabTextActive: {
+    color: colors.text_black,
   },
 });

@@ -5,19 +5,18 @@ import React, {
   useState,
 } from 'react';
 import {
+  ActivityIndicator,
+  FlatList,
+  ImageBackground,
+  LayoutAnimation,
+  RefreshControl,
   StyleSheet,
   View,
-  FlatList,
-  ActivityIndicator,
-  RefreshControl,
-  LayoutAnimation,
-  ScrollView,
-  TextInput,
-  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
+import moment from 'moment';
+import Toast from 'react-native-toast-message';
 import {
   colors,
   fonts,
@@ -27,37 +26,27 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
+import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
-import moment from 'moment';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import { useAppSelector } from '../../../../../../hooks';
 import {
-  downloadAndOpenFile,
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
-import {
-  useAddFileNoTrainingDetailsMutation,
   useDeleteTrainingDetailsMutation,
-  useDownloadTrainingCategoryMutation,
-  useExtendTrainingEndDateMutation,
   useListTrainingDetailsMutation,
-  useUpdateTraineeLoginDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 
 interface Props {
   navigation: NavigationType;
 }
+
+const ITEMS_PER_PAGE = 10;
 
 const debounce = (func: any, delay: number) => {
   let timer: any;
@@ -73,590 +62,54 @@ const TrainingDetails = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
-
-  const [downloadApi] = useDownloadTrainingCategoryMutation();
   const [listTrainingDetailsApi] = useListTrainingDetailsMutation();
-  const [addFileNoTrainingDetailsApi] = useAddFileNoTrainingDetailsMutation();
-  const [updateTraineeLoginDetailsApi] = useUpdateTraineeLoginDetailsMutation();
-  const [extendTrainingEndDateApi] = useExtendTrainingEndDateMutation();
   const [deleteTrainingDetailsApi] = useDeleteTrainingDetailsMutation();
 
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<any[]>([]);
   const [page, setPage] = useState(1);
-
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
-
-  const [dateExtendedModal, setDateExtendedModal] = useState(false);
-  const [selectedDate, setSelectedDate] = useState('');
-  const [selectedItem, setSelectedItem] = useState<any>(null);
-
-  const [selectedItems, setSelectedItems] = useState<any>([]);
   const [totalCount, setTotalCount] = useState(0);
 
-  const [startDate, setStartDate] = useState<any>('');
-  const [endDate, setEndDate] = useState<any>('');
+  const [search, setSearch] = useState('');
+  const [centerSearch, setCenterSearch] = useState<any>({});
+  const [showSearch, setShowSearch] = useState(false);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
 
-  const ITEMS_PER_PAGE = 10;
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
-  const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
-
-  const [activeTab, setActiveTab] = useState<
-    'Current Training' | 'Complete Training'
+  const [activeStatus, setActiveStatus] = useState<
+    'Current Training' | 'Completed Training'
   >('Current Training');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Training Details');
-    navigation.BackButtonPress = () => navigation.goBack();
-  });
-
-  useFocusEffect(
-    useCallback(() => {
-      if (firstTimeLoad && !centerSerach?.name && search === '') {
-        setFirstTimeLoad(false);
-        listTrainingDetais(1, true, '');
-      }
-    }, [firstTimeLoad, centerSerach, search]),
-  );
-
-  useEffect(() => {
-    if (!centerSerach?.name) return;
-    listTrainingDetais(1, true, '');
-  }, [centerSerach]);
-
-  useEffect(() => {
-    listTrainingDetais(1, true, search);
-  }, [activeTab]);
-
-  const getCentreFilter = () => {
-    if (!centerSerach?.name) return null;
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
-    }
-    return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
-  };
-
-  const listTrainingDetais = (
-    pageNumber: number,
-    initial: boolean,
-    keyword: string,
-    filtersArray: any[] = [],
-  ) => {
-    initial ? setInitialCall(true) : setInitialCall(false);
-
-    const centreFilter = getCentreFilter();
-    const params: any = {
-      search: keyword,
-      sort: {
-        attributes: ['created_at'],
-        sorts: ['desc'],
+    Header.setNavigation(
+      navigation,
+      'Training Management',
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
       },
-      filters: filtersArray,
-      pageNo: pageNumber,
-      itemsPerPage: ITEMS_PER_PAGE,
-
-      bipardCentre: [],
-    };
-
-    if (centreFilter) {
-      params.bipardCentre = centreFilter;
-    }
-
-    if (activeTab === 'Complete Training') {
-      params.isCourseActive = false;
-    } else {
-      params.isCourseActive = true;
-    }
-
-    listTrainingDetailsApi(params)
-      .unwrap()
-      .then((res: any) => {
-        const newData = res.data?.data ?? [];
-        setInitialCall(false);
-        setPagination(false);
-        setRefreshing(false);
-
-        if (pageNumber !== 1 && data.length > 0) {
-          setData((prev: any) => [...prev, ...newData]);
-        } else {
-          setData(newData);
-        }
-
-        setPage(pageNumber);
-
-        const totalCount = res?.data?.totalCount ?? 0;
-        setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
-
-        const totalCountApi = res?.data?.totalCount ?? 0;
-        setTotalCount(totalCountApi);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        setPagination(false);
-        setRefreshing(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || 'Something went wrong',
-        });
-      });
-  };
-
-  const handleSearch = useCallback(
-    debounce((text: string) => {
-      listTrainingDetais(1, true, text);
-    }, 500),
-    [],
-  );
-
-  const onChangeSearch = (text: string) => {
-    setSearch(text);
-    handleSearch(text);
-  };
-
-  const onClearSearch = () => {
-    setSearch('');
-    listTrainingDetais(1, true, '');
-  };
-
-  const handleSelectAll = () => {
-    if (selectedItems.length === totalCount) {
-      setSelectedItems([]);
-      listTrainingDetais(1, true, search);
-    } else {
-      setInitialCall(true);
-
-      const params: any = {
-        search,
-        sort: {
-          attributes: ['created_at'],
-          sorts: ['desc'],
-        },
-        filters: [],
-        pageNo: 1,
-        itemsPerPage: totalCount,
-
-        bipardCentre: getCentreFilter() ?? [],
-      };
-
-      if (activeTab === 'Complete Training') {
-        params.isCourseActive = false;
-      } else {
-        params.isCourseActive = true;
-      }
-
-      listTrainingDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          const fullData = res.data?.data ?? [];
-          setData(fullData);
-          setSelectedItems(fullData);
-          setNextPageAvailable(false);
-          setInitialCall(false);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    }
-  };
-
-  const downloadTraining = async () => {
-    setInitialCall(true);
-
-    const params: any = {
-      category: selectedItems,
-    };
-
-    downloadApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setInitialCall(false);
-        const fileUrl = res.data?.fileUrl ?? '';
-        if (fileUrl) {
-          // Download and open file
-        }
-        downloadAndOpenFile(fileUrl);
-        setSelectedItems([]);
-        listTrainingDetais(1, true, search);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || 'Something went wrong',
-        });
-      });
-  };
-
-  const TraineeCard = ({ item, index, isSelected }: any) => {
-    const [statusValue] = useState(item.isLoginAllowed ?? null);
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-    const [fileNo, setFileNo] = useState(item.fileNo || '');
-    const [isEditingFile, setIsEditingFile] = useState(!item.fileNo);
-    const [loadingFileSave, setLoadingFileSave] = useState(false);
-
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
-
-      if (newStatus === statusValue) return;
-
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Status Change Confirmation',
-        message: `Are you sure you want to change the status to "${newStatus}"?`,
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          updateTraineeLoginDetails(item.id, newStatus);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const updateTraineeLoginDetails = (id: any, newStatus: string) => {
-      setInitialCall(true);
-      const params = {
-        trainingId: id,
-        isLoginAllowed: newStatus,
-      };
-      updateTraineeLoginDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
-
-    const saveFileNo = () => {
-      if (!fileNo?.trim()) {
-        Toast.show({ type: 'error', text2: 'File No cannot be empty!' });
-        return;
-      }
-
-      setLoadingFileSave(true);
-
-      const params = {
-        id: item.id,
-        fileNo: fileNo,
-      };
-
-      addFileNoTrainingDetailsApi(params)
-        .unwrap()
-        .then(res => {
-          Toast.show({ type: 'success', text2: res.data.message });
-          setIsEditingFile(false);
-          setLoadingFileSave(false);
-          listTrainingDetais(1, false, '');
-        })
-        .catch(err => {
-          setLoadingFileSave(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Error updating File No',
-          });
-        });
-    };
-
-    const handleDelete = () => {
-      navigation.navigate(screensName.AlertOrganism, {
-        title: 'Delete Confirmation',
-        message: 'Are you sure you want to delete this item?',
-        okText: 'Confirm',
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          deleteTrainingDetails(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const deleteTrainingDetails = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        course_id: id,
-      };
-      deleteTrainingDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || 'Something went wrong',
-          });
-        });
-    };
-
-    return (
-      <TouchableAtom
-        onPress={() => {
-          navigation.navigate(screensName.TrainingDetailsScreen, {
-            data: item,
-          });
-        }}
-        style={[styles.card, isSelected && styles.selectedCard]}
-      >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
-          </TextAtom>
-          <View style={{ flexDirection: 'row', gap: vw(15) }}>
-            <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                setSelectedItem(item);
-                setDateExtendedModal(true);
-                setSelectedDate('');
-              }}
-            >
-              <ImageAtom
-                source={images.extended}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                  resizeMode: 'contain',
-                }}
-              />
-            </TouchableAtom>
-
-            <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
-            </TouchableAtom>
-          </View>
-        </View>
-
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Training Category</TextAtom>
-          <TextAtom style={styles.value}>
-            {item.trainingCategory || '-'}
-          </TextAtom>
-        </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Name</TextAtom>
-          <TextAtom style={styles.value}>
-            {item.trainingFullName || '-'}
-          </TextAtom>
-        </View>
-
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Start Date</TextAtom>
-            <TextAtom style={styles.value}>
-              {moment(item.courseStartDate).format('DD-MM-YYYY')}
-            </TextAtom>
-          </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>End Date</TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {moment(item.courseEndDate).format('DD-MM-YYYY')}
-            </TextAtom>
-          </View>
-        </View>
-        {/* FILE NO SECTION */}
-        <View style={{ marginTop: vh(4) }}>
-          <TextAtom style={styles.label}>File No.</TextAtom>
-
-          {isEditingFile ? (
-            // SHOW INPUT + ✓ SAVE
-            <View style={styles.fileInputRow}>
-              <TextInput
-                value={fileNo}
-                onChangeText={setFileNo}
-                placeholder="Enter File No"
-                style={styles.fileInput}
-                placeholderTextColor={colors.grey}
-              />
-
-              <TouchableAtom
-                onPress={saveFileNo}
-                disabled={loadingFileSave}
-                style={styles.checkBtn}
-              >
-                <ImageAtom
-                  source={images.tick}
-                  style={{
-                    width: vw(20),
-                    height: vw(20),
-                    tintColor: colors.green,
-                  }}
-                />
-              </TouchableAtom>
-            </View>
-          ) : (
-            // SHOW LABEL + EDIT ICON
-            <TouchableAtom
-              style={styles.fileDisplayBox}
-              onPress={() => setIsEditingFile(true)}
-            >
-              <TextAtom style={styles.fileText}>{fileNo}</TextAtom>
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  width: vw(16),
-                  height: vw(16),
-                  tintColor: colors.black,
-                }}
-              />
-            </TouchableAtom>
-          )}
-        </View>
-
-        {activeTab === 'Complete Training' && (
-          <View style={{ marginTop: vh(4), zIndex: 999 }}>
-            <TextAtom style={styles.label}>Is Login Allowed</TextAtom>
-
-            <TouchableAtom
-              onPress={() => setShowStatusMenu(!showStatusMenu)}
-              style={[
-                styles.statusBox,
-                statusValue === 'Yes' ? styles.activeBox : styles.inActiveBox,
-              ]}
-            >
-              <TextAtom
-                style={[
-                  styles.statusText,
-                  statusValue === 'Yes'
-                    ? styles.activeText
-                    : styles.inActiveText,
-                ]}
-              >
-                {statusValue}
-              </TextAtom>
-              <ImageAtom source={images.downArrow} />
-            </TouchableAtom>
-
-            {showStatusMenu && (
-              <View style={styles.dropMenu}>
-                <TouchableAtom
-                  style={styles.dropItem}
-                  onPress={() => onSelectStatus('Yes')}
-                >
-                  <TextAtom style={{ color: colors.black }}>Yes</TextAtom>
-                </TouchableAtom>
-
-                <TouchableAtom
-                  style={styles.dropItem}
-                  onPress={() => onSelectStatus('No')}
-                >
-                  <TextAtom style={{ color: colors.black }}>No</TextAtom>
-                </TouchableAtom>
-              </View>
-            )}
-          </View>
-        )}
-      </TouchableAtom>
     );
-  };
+    navigation.BackButtonPress = () => navigation.goBack();
+  }, [navigation]);
 
-  const renderListRoomDetails = ({ item, index }: any) => {
-    return (
-      <TraineeCard
-        item={item}
-        index={index}
-        navigation={navigation}
-        isSelected={selectedItems.some((x: any) => x.id === item.id)}
-      />
-    );
-  };
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DateInputOrganism
-        label={'Start Date'}
-        placeholder={'Start Date'}
-        value={startDate}
-        onChangeText={(val: any) => {
-          setStartDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <DateInputOrganism
-        label={'End Date'}
-        placeholder={'End Date'}
-        value={endDate}
-        onChangeText={(val: any) => {
-          setEndDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText="Apply Filter"
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText="Clear Filter"
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
-        />
-      </ViewAtom>
-    </View>
-  );
-  const clearFilter = () => {
-    setStartDate('');
-    setEndDate('');
-    listTrainingDetais(1, true, search, []);
-  };
+  const getCentreFilter = useCallback(() => {
+    if (!centerSearch?.name) return null;
+    if (centerSearch.name === 'All Centers') return ['Gaya', 'Patna'];
+    return [centerSearch.name];
+  }, [centerSearch]);
 
-  const applyFilter = (isExport = false) => {
-    const filters = [];
+  const buildDateFilters = useCallback(() => {
+    const filters: any[] = [];
 
     if (startDate) {
       const formatted = moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
@@ -667,314 +120,469 @@ const TrainingDetails = (props: Props) => {
       const formatted = moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
       filters.push(['courseEndDate', '<=', formatted]);
     }
-    listTrainingDetais(1, true, search, filters);
+
+    return filters;
+  }, [startDate, endDate]);
+
+  const listTrainingDetails = useCallback(
+    (
+      pageNumber: number,
+      initial: boolean,
+      keyword: string,
+      forcedFilters?: any[],
+    ) => {
+      initial ? setInitialCall(true) : setInitialCall(false);
+
+      const params: any = {
+        search: keyword,
+        sort: {
+          attributes: ['created_at'],
+          sorts: ['desc'],
+        },
+        filters: forcedFilters ?? buildDateFilters(),
+        pageNo: pageNumber,
+        itemsPerPage: ITEMS_PER_PAGE,
+        bipardCentre: getCentreFilter() ?? [],
+        isCourseActive: activeStatus === 'Current Training',
+      };
+
+      listTrainingDetailsApi(params)
+        .unwrap()
+        .then((res: any) => {
+          const newData = res?.data?.data ?? [];
+          const count = res?.data?.totalCount ?? 0;
+
+          setData(prev => (pageNumber === 1 ? newData : [...prev, ...newData]));
+          setTotalCount(count);
+          setPage(pageNumber);
+          setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < count);
+
+          setInitialCall(false);
+          setPagination(false);
+          setRefreshing(false);
+        })
+        .catch((err: any) => {
+          setInitialCall(false);
+          setPagination(false);
+          setRefreshing(false);
+          Toast.show({
+            type: 'error',
+            text2: err?.data?.message || 'Something went wrong',
+          });
+        });
+    },
+    [activeStatus, buildDateFilters, getCentreFilter, listTrainingDetailsApi],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (firstTimeLoad) {
+        setFirstTimeLoad(false);
+        listTrainingDetails(1, true, search);
+      }
+    }, [firstTimeLoad, listTrainingDetails, search]),
+  );
+
+  useEffect(() => {
+    if (firstTimeLoad) return;
+    listTrainingDetails(1, true, search);
+  }, [activeStatus, centerSearch?.name]);
+
+  const handleSearch = useCallback(
+    debounce((text: string) => {
+      listTrainingDetails(1, true, text);
+    }, 500),
+    [listTrainingDetails],
+  );
+
+  const onChangeSearch = (text: string) => {
+    setSearch(text);
+    handleSearch(text);
   };
 
-  const DateExtendModal = () => {
-    return (
-      <Modal
-        visible={dateExtendedModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => {
-          setDateExtendedModal(false);
-          setSelectedDate('');
-          setSelectedItem({});
-        }}
-      >
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 9999,
-          }}
-        >
-          <View
-            style={{
-              width: '90%',
-              backgroundColor: colors.white,
-              borderRadius: 10,
-              padding: 20,
-              position: 'relative',
-            }}
-          >
-            <TouchableAtom
-              style={{ position: 'absolute', top: 10, right: 10, padding: 5 }}
-              onPress={() => {
-                setDateExtendedModal(false);
-                setSelectedDate('');
-                setSelectedItem({});
-              }}
-            >
-              <TextAtom style={{ fontSize: vw(22), color: colors.red_2 }}>
-                ×
-              </TextAtom>
-            </TouchableAtom>
-
-            <TextAtom
-              style={{
-                fontSize: vw(16),
-                fontFamily: fonts.Roboto_Bold,
-                marginBottom: vh(15),
-                color: colors.primary,
-                textAlign: 'center',
-              }}
-            >
-              Extended Date
-            </TextAtom>
-
-            {selectedItem && (
-              <View style={{ marginBottom: vh(12) }}>
-                <TextAtom
-                  numberOfLines={0}
-                  style={{
-                    fontSize: vw(14),
-                    fontFamily: fonts.Roboto_Medium,
-                    color: colors.black,
-                  }}
-                >
-                  Extend Date of: "{selectedItem.trainingFullName}"
-                </TextAtom>
-
-                <TextAtom
-                  style={{
-                    fontSize: vw(14),
-                    fontFamily: fonts.Roboto_Regular,
-                    color: colors.grey,
-                    marginTop: vh(4),
-                  }}
-                >
-                  Duration:{' '}
-                  {moment(selectedItem?.courseStartDate).format('DD-MMM-YYYY')}
-                  {' to '}
-                  {moment(selectedItem?.courseEndDate).format('DD-MMM-YYYY')}
-                </TextAtom>
-              </View>
-            )}
-
-            <DateInputOrganism
-              label="Start Date"
-              placeholder="Start Date"
-              value={selectedDate}
-              onChangeText={(val: any) => {
-                setSelectedDate(val);
-              }}
-              fieldName="date"
-              dateFormat="DD-MM-YYYY"
-              isMandatory
-              containerStyle={{ width: vw(300) }}
-              labelStyle={{ width: vw(300) }}
-            />
-
-            {/* Action Buttons */}
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'flex-end',
-                marginTop: 25,
-              }}
-            >
-              <TouchableAtom
-                style={{
-                  paddingVertical: vh(8),
-                  paddingHorizontal: vw(20),
-                  backgroundColor: colors.green,
-                  borderRadius: vw(6),
-                }}
-                onPress={() => {
-                  if (isNullUndefined(selectedDate)) {
-                    Toast.show({
-                      type: 'error',
-                      text2: 'Date is required',
-                    });
-                    return;
-                  }
-                  extendTrainingEndDate(selectedItem.id, selectedDate);
-                }}
-              >
-                <TextAtom
-                  style={{
-                    color: colors.white,
-                    fontFamily: fonts.Roboto_Medium,
-                  }}
-                >
-                  Extend
-                </TextAtom>
-              </TouchableAtom>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    );
+  const onClearSearch = () => {
+    setSearch('');
+    listTrainingDetails(1, true, '');
   };
 
-  const extendTrainingEndDate = (id: any, date: string) => {
+  const openCenterFilter = () => {
+    if (crediantialData?.user?.[0]?.tenantId !== 3) return;
+
+    navigation.navigate('DropDownModal', {
+      name: 'Center',
+      Data: [
+        { id: 'All Centers', name: 'All Centers' },
+        { id: 'Gaya', name: 'Gaya' },
+        { id: 'Patna', name: 'Patna' },
+      ],
+      selectedData: centerSearch,
+      setSelectedData: (selectedData: any) => {
+        setCenterSearch(selectedData);
+      },
+      typeName: 'name',
+      typeId: 'id',
+    });
+  };
+
+  const clearFilter = () => {
+    setStartDate('');
+    setEndDate('');
+    listTrainingDetails(1, true, search, []);
+  };
+
+  const applyFilter = () => {
+    listTrainingDetails(1, true, search, buildDateFilters());
+  };
+
+  const handleDelete = (id: any) => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: 'Delete Confirmation',
+      message: 'Are you sure you want to delete this item?',
+      okText: 'Confirm',
+      double: true,
+      cancelText: strings.cancel,
+      okFunction: () => deleteTrainingDetails(id),
+      cancelFunction: () => {},
+    });
+  };
+
+  const deleteTrainingDetails = (id: any) => {
     setInitialCall(true);
-    const params = {
-      trainingId: id,
-      newEndDate: moment(date, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-    };
-    extendTrainingEndDateApi(params)
+
+    deleteTrainingDetailsApi({ course_id: id })
       .unwrap()
       .then((res: any) => {
         Toast.show({
           type: 'success',
-          text2: res.data.message,
+          text2: res?.data?.message,
         });
-        setInitialCall(false);
-        setFirstTimeLoad(true);
+        listTrainingDetails(1, true, search);
       })
       .catch((err: any) => {
         setInitialCall(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err?.data?.message || 'Something went wrong',
         });
       });
+  };
+
+  const renderTrainingCard = ({ item }: any) => {
+    const locationRaw =
+      item?.isLocationRequired ??
+      item?.locationRequired ??
+      item?.isCourseLocationRequired ??
+      item?.locationRequiredForCourse;
+
+    const isLocationRequired =
+      locationRaw === true ||
+      locationRaw === 1 ||
+      String(locationRaw).toLowerCase() === 'yes';
+
+    return (
+      <View style={styles.card}>
+        <View style={styles.cardHeaderRow}>
+          <TextAtom numberOfLines={1} style={styles.cardTitle}>
+            {item?.trainingCategory || '-'}
+          </TextAtom>
+
+          <View style={styles.cardActionsRow}>
+            <TouchableAtom
+              style={[styles.cardIconBtn, styles.cardDeleteBtn]}
+              onPress={() => handleDelete(item?.id)}
+            >
+              <ImageAtom source={images.delete} style={styles.deleteIcon} />
+            </TouchableAtom>
+
+            <TouchableAtom
+              style={styles.cardIconBtn}
+              onPress={() =>
+                navigation.navigate(screensName.AddTrainingDetails, { item })
+              }
+            >
+              <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
+            </TouchableAtom>
+          </View>
+        </View>
+
+        <TextAtom numberOfLines={2} style={styles.cardSubTitle}>
+          {item?.trainingFullName || '-'}
+        </TextAtom>
+
+        <View style={styles.metaRow}>
+          <View style={styles.metaCol}>
+            <TextAtom style={styles.metaLabel}>Start & End Date</TextAtom>
+            <TextAtom style={styles.metaValue}>
+              {`${moment(item?.courseStartDate).format('DD/MM/YY')} - ${moment(
+                item?.courseEndDate,
+              ).format('DD/MM/YY')}`}
+            </TextAtom>
+          </View>
+
+          <View style={styles.metaCol}>
+            <TextAtom style={styles.metaLabel}>Participants</TextAtom>
+            <TextAtom style={styles.metaValue}>{item?.noOfParticipants || '-'}</TextAtom>
+          </View>
+        </View>
+
+        <View style={styles.metaRow}>
+          <View style={styles.metaCol}>
+            <TextAtom style={styles.metaLabel}>Total Registration</TextAtom>
+            <TextAtom style={styles.metaValue}>
+              {item?.totalRegisteredTrainees || '-'}
+            </TextAtom>
+          </View>
+
+          <View style={styles.metaCol}>
+            <TextAtom style={styles.metaLabel}>Sections Batches</TextAtom>
+            <TextAtom style={styles.metaValue}>{item?.noOfSections || '-'}</TextAtom>
+          </View>
+        </View>
+
+        <View style={styles.metaRow}>
+          <View style={styles.metaCol}>
+            <TextAtom style={styles.metaLabel}>Course Coordinator</TextAtom>
+            <TextAtom numberOfLines={1} style={styles.metaValueBold}>
+              {item?.courseCoordinator || '-'}
+            </TextAtom>
+          </View>
+
+          <View style={styles.metaCol}>
+            <TextAtom style={styles.metaLabel}>Location Required</TextAtom>
+            <View style={styles.locationPillRow}>
+              <View
+                style={[
+                  styles.locationPill,
+                  isLocationRequired
+                    ? styles.locationPillActive
+                    : styles.locationPillInactive,
+                ]}
+              >
+                <TextAtom
+                  style={[
+                    styles.locationPillText,
+                    isLocationRequired
+                      ? styles.locationPillTextActive
+                      : styles.locationPillTextInactive,
+                  ]}
+                >
+                  Yes
+                </TextAtom>
+              </View>
+              <View
+                style={[
+                  styles.locationPill,
+                  !isLocationRequired
+                    ? styles.locationPillActive
+                    : styles.locationPillInactive,
+                ]}
+              >
+                <TextAtom
+                  style={[
+                    styles.locationPillText,
+                    !isLocationRequired
+                      ? styles.locationPillTextActive
+                      : styles.locationPillTextInactive,
+                  ]}
+                >
+                  No
+                </TextAtom>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <TouchableAtom
+          style={styles.viewMoreBtn}
+          onPress={() =>
+            navigation.navigate(screensName.TrainingDetailsScreen, {
+              data: item,
+            })
+          }
+        >
+          <TextAtom style={styles.viewMoreText}>View More</TextAtom>
+        </TouchableAtom>
+      </View>
+    );
   };
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={{ height: 'auto' }}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'flex-end',
+      <View style={styles.headerRow}>
+        <View style={styles.titleRow}>
+          <TextAtom style={styles.headerTitle}>Training Details</TextAtom>
+          <TextAtom style={styles.headerCount}>({totalCount})</TextAtom>
+        </View>
+
+        <View style={styles.actionsRow}>
+          <TouchableAtom
+            style={styles.iconBtn}
+            onPress={() => setShowSearch(prev => !prev)}
+          >
+            <ImageAtom source={images.search} style={styles.actionIcon} />
+          </TouchableAtom>
+
+          <TouchableAtom
+            style={styles.iconBtn}
+            onPress={() => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setShowFilterPanel(prev => !prev);
             }}
           >
-            <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-              <TextAtom style={styles.filterText}>
-                {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-              </TextAtom>
-            </TouchableAtom>
-            <TouchableAtom
-              style={styles.filterButton}
-              onPress={handleSelectAll}
+            <View style={styles.filterGlyph}>
+              <View style={[styles.filterLine, { width: vw(12) }]} />
+              <View style={[styles.filterLine, { width: vw(9) }]} />
+              <View style={[styles.filterLine, { width: vw(6) }]} />
+            </View>
+          </TouchableAtom>
+
+          <TouchableAtom
+            style={styles.createButtonTouchable}
+            onPress={() => navigation.navigate(screensName.AddTrainingDetails)}
+          >
+            <ImageBackground
+              source={images.buttonGrad_25}
+              style={styles.createButton}
+              imageStyle={styles.createButtonImage}
+              resizeMode="stretch"
             >
-              <TextAtom style={styles.filterText}>
-                {selectedItems?.length === totalCount
-                  ? 'Unselect All'
-                  : 'Select All'}
+              <TextAtom style={styles.createButtonText}>+ Create</TextAtom>
+            </ImageBackground>
+          </TouchableAtom>
+        </View>
+      </View>
+
+      {showSearch && (
+        <SearchBoxOrganism
+          onChangeText={onChangeSearch}
+          searchText={search}
+          onPressCross={onClearSearch}
+          searchBox={styles.searchBox}
+        />
+      )}
+
+      {showFilterPanel && (
+        <View style={styles.filterPanel}>
+          {crediantialData?.user?.[0]?.tenantId === 3 && (
+            <TouchableAtom style={styles.centerBtn} onPress={openCenterFilter}>
+              <TextAtom
+                style={[
+                  styles.centerBtnText,
+                  !centerSearch?.name && styles.centerBtnPlaceholder,
+                ]}
+              >
+                {centerSearch?.name || 'Select Center'}
               </TextAtom>
+              <ImageAtom source={images.downArrow} style={styles.centerBtnIcon} />
             </TouchableAtom>
-            <TouchableAtom
-              style={styles.filterButton}
-              onPress={() => {
-                if (selectedItems.length === 0) {
-                  Toast.show({
-                    type: 'error',
-                    text2: 'Select to download',
-                  });
-                  return;
-                }
-                downloadTraining();
-              }}
-            >
-              <ImageAtom
-                source={images.download}
-                style={{ tintColor: colors.black }}
-              />
+          )}
+
+          <View style={styles.filterDateRow}>
+            <DateInputOrganism
+              label={'Start Date'}
+              placeholder={'Start Date'}
+              value={startDate}
+              onChangeText={(val: any) => setStartDate(val)}
+              fieldName={'date'}
+              dateFormat="DD-MM-YYYY"
+              containerStyle={styles.dateInput}
+            />
+            <DateInputOrganism
+              label={'End Date'}
+              placeholder={'End Date'}
+              value={endDate}
+              onChangeText={(val: any) => setEndDate(val)}
+              fieldName={'date'}
+              dateFormat="DD-MM-YYYY"
+              containerStyle={styles.dateInput}
+            />
+          </View>
+
+          <View style={styles.filterActionRow}>
+            <TouchableAtom style={styles.clearFilterBtn} onPress={clearFilter}>
+              <TextAtom style={styles.clearFilterText}>Clear</TextAtom>
+            </TouchableAtom>
+            <TouchableAtom style={styles.applyFilterBtn} onPress={applyFilter}>
+              <TextAtom style={styles.applyFilterText}>Apply</TextAtom>
             </TouchableAtom>
           </View>
-          {showFilter && <FilterForm />}
+        </View>
+      )}
 
-          {crediantialData.user[0].tenantId === 3 && (
-            <DropDownOrganism
-              label={''}
-              placeholder={'Centers'}
-              onPress={() => {
-                navigation.navigate('DropDownModal', {
-                  name: 'Center',
-                  Data: [
-                    { id: 'All Centers', name: 'All Centers' },
-                    { id: 'Gaya', name: 'Gaya' },
-                    { id: 'Patna', name: 'Patna' },
-                  ],
-                  selectedData: centerSerach,
-                  setSelectedData: setCenterSerach,
-                  typeName: 'name',
-                  typeId: 'id',
-                });
-              }}
-              inputText={centerSerach?.name}
-              containerStyle={{ marginBottom: vh(5) }}
-            />
-          )}
-          <SearchBoxOrganism
-            onChangeText={onChangeSearch}
-            searchText={search}
-            onPressCross={onClearSearch}
-            searchBox={{ marginTop: vh(10) }}
-          />
-        </ScrollView>
-      </View>
-      <View style={styles.tabRow}>
-        {['Current Training', 'Complete Training'].map(tab => (
-          <TouchableAtom
-            key={tab}
-            style={[styles.tabButton, activeTab === tab && styles.activeTab]}
-            onPress={() => setActiveTab(tab as any)}
+      <View style={styles.statusTabWrap}>
+        <TouchableAtom
+          style={[
+            styles.statusTab,
+            activeStatus === 'Current Training' && styles.statusTabActive,
+          ]}
+          onPress={() => setActiveStatus('Current Training')}
+        >
+          <TextAtom
+            style={[
+              styles.statusTabText,
+              activeStatus === 'Current Training' && styles.statusTabTextActive,
+            ]}
           >
-            <TextAtom
-              style={[
-                styles.tabText,
-                activeTab === tab && styles.activeTabText,
-              ]}
-            >
-              {tab}
-            </TextAtom>
-          </TouchableAtom>
-        ))}
+            Current Training
+          </TextAtom>
+        </TouchableAtom>
+
+        <TouchableAtom
+          style={[
+            styles.statusTab,
+            activeStatus === 'Completed Training' && styles.statusTabActive,
+          ]}
+          onPress={() => setActiveStatus('Completed Training')}
+        >
+          <TextAtom
+            style={[
+              styles.statusTabText,
+              activeStatus === 'Completed Training' && styles.statusTabTextActive,
+            ]}
+          >
+            Completed Training
+          </TextAtom>
+        </TouchableAtom>
       </View>
 
       <FlatList
-        showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListRoomDetails}
-        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderTrainingCard}
+        keyExtractor={(item, index) =>
+          item?.id ? item.id.toString() : index.toString()
+        }
+        showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          initialCall ? null : (
-            <TextAtom style={styles.emptyText}>No data found</TextAtom>
-          )
+          initialCall ? null : <TextAtom style={styles.emptyText}>No data found</TextAtom>
         }
         ListFooterComponent={
           <ActivityIndicator
             size={'small'}
             color={colors.primary}
             animating={pagination}
-            style={{ marginTop: vh(10) }}
+            style={{ marginTop: vh(12) }}
           />
         }
         refreshControl={
           <RefreshControl
             tintColor={colors.primary}
-            colors={[colors.primary]}
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listTrainingDetais(1, false, '');
+              listTrainingDetails(1, false, search);
             }}
           />
         }
         onEndReached={() => {
+          if (!nextPageAvailable || pagination || initialCall) return;
           setPagination(true);
-          nextPageAvailable
-            ? listTrainingDetais(page + 1, false, search)
-            : setPagination(false);
+          listTrainingDetails(page + 1, false, search);
         }}
-        contentContainerStyle={styles.flatListContainer}
+        contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
-      <DateExtendModal />
     </SafeAreaView>
   );
 };
@@ -982,216 +590,310 @@ const TrainingDetails = (props: Props) => {
 export default TrainingDetails;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
-  flatListContainer: {
-    paddingVertical: vh(10),
+  container: {
+    flex: 1,
+    backgroundColor: colors.new_ui_screen_bg,
   },
 
-  tabRow: {
+  headerRow: {
+    marginTop: vh(10),
+    paddingHorizontal: vw(14),
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: vw(10),
-    marginTop: vh(5),
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  tabButton: {
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(20),
-    backgroundColor: '#EAEAEA',
-    borderRadius: vw(6),
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
   },
-  activeTab: {
-    backgroundColor: colors.primary,
+  headerTitle: {
+    fontFamily: fonts.Inter_Bold,
+    fontSize: vw(16),
+    color: colors.new_ui_heading,
   },
-  tabText: {
-    color: colors.black,
-    fontFamily: fonts.Roboto_Medium,
+  headerCount: {
+    marginLeft: vw(4),
+    fontFamily: fonts.Inter_Regular,
     fontSize: vw(14),
+    color: colors.new_ui_count,
   },
-  activeTabText: {
+
+  actionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconBtn: {
+    width: vw(22),
+    height: vw(22),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: vw(8),
+  },
+  actionIcon: {
+    width: vw(17),
+    height: vw(17),
+    tintColor: colors.new_ui_icon,
+  },
+  filterGlyph: {
+    alignItems: 'flex-end',
+  },
+  filterLine: {
+    height: vh(2),
+    backgroundColor: colors.new_ui_icon,
+    marginVertical: vh(1),
+    borderRadius: vw(2),
+  },
+  createButtonTouchable: {
+    borderRadius: vw(8),
+    overflow: 'hidden',
+  },
+  createButton: {
+    paddingHorizontal: vw(14),
+    paddingVertical: vh(9),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  createButtonImage: {
+    borderRadius: vw(8),
+  },
+  createButtonText: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(14),
     color: colors.white,
   },
 
-  card: {
-    backgroundColor: colors.white,
-    marginHorizontal: vw(15),
-    borderRadius: vw(8),
-    paddingHorizontal: vw(15),
-    paddingVertical: vh(8),
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
+  searchBox: {
+    marginTop: vh(10),
   },
 
-  label: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
+  filterPanel: {
+    marginTop: vh(8),
+    marginHorizontal: vw(14),
+    borderRadius: vw(12),
+    borderWidth: 1,
+    borderColor: colors.new_ui_card_border,
+    backgroundColor: colors.new_ui_card_bg,
+    padding: vw(10),
   },
-  labelRight: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    textAlign: 'right',
+  centerBtn: {
+    height: vh(42),
+    borderRadius: vw(8),
+    borderWidth: 1,
+    borderColor: '#E1E4E8',
+    backgroundColor: '#F2F3F5',
+    paddingHorizontal: vw(12),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: vh(8),
   },
-  value: {
-    fontFamily: fonts.Roboto_Regular,
+  centerBtnText: {
+    fontFamily: fonts.Inter_Regular,
     fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
+    color: '#344054',
   },
-  valueRight: {
-    fontFamily: fonts.Roboto_Regular,
+  centerBtnPlaceholder: {
+    color: '#B3BCC8',
+  },
+  centerBtnIcon: {
+    width: vw(14),
+    height: vw(14),
+    tintColor: '#1F2937',
+  },
+  filterDateRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  dateInput: {
+    width: '48.5%',
+  },
+  filterActionRow: {
+    marginTop: vh(8),
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  clearFilterBtn: {
+    borderWidth: 1,
+    borderColor: colors.primary_dark_blue,
+    borderRadius: vw(6),
+    paddingHorizontal: vw(14),
+    paddingVertical: vh(6),
+    marginRight: vw(8),
+  },
+  clearFilterText: {
+    color: colors.primary_dark_blue,
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(12),
+  },
+  applyFilterBtn: {
+    borderRadius: vw(6),
+    backgroundColor: colors.primary_dark_blue,
+    paddingHorizontal: vw(14),
+    paddingVertical: vh(6),
+  },
+  applyFilterText: {
+    color: colors.white,
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(12),
+  },
+
+  statusTabWrap: {
+    marginTop: vh(10),
+    marginHorizontal: vw(14),
+    padding: vw(2),
+    borderRadius: vw(8),
+    backgroundColor: '#DCE8F6',
+    flexDirection: 'row',
+  },
+  statusTab: {
+    flex: 1,
+    height: vh(34),
+    borderRadius: vw(7),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statusTabActive: {
+    backgroundColor: colors.primary_blue,
+  },
+  statusTabText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(13),
+    color: '#3D4B5C',
+  },
+  statusTabTextActive: {
+    color: colors.white,
+  },
+
+  listContent: {
+    paddingTop: vh(10),
+    paddingBottom: vh(20),
+  },
+
+  card: {
+    backgroundColor: '#F8F8F9',
+    marginHorizontal: vw(14),
+    borderRadius: vw(12),
+    borderWidth: 1,
+    borderColor: '#ECEEF2',
+    paddingHorizontal: vw(12),
+    paddingVertical: vh(12),
+  },
+  cardHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  cardTitle: {
+    flex: 1,
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(16),
+    color: '#2F3742',
+    marginRight: vw(8),
+  },
+  cardActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cardIconBtn: {
+    width: vw(24),
+    height: vw(24),
+    borderRadius: vw(6),
+    borderWidth: 1,
+    borderColor: '#E2E5EA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.white,
+    marginLeft: vw(8),
+  },
+  cardDeleteBtn: {
+    borderColor: '#F3D7D7',
+  },
+  deleteIcon: {
+    width: vw(12),
+    height: vw(12),
+    tintColor: '#FF6B6B',
+  },
+  editIcon: {
+    width: vw(12),
+    height: vw(12),
+    tintColor: '#6D7581',
+  },
+  cardSubTitle: {
+    marginTop: vh(2),
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(13.5),
+    color: '#737A84',
+  },
+
+  metaRow: {
+    marginTop: vh(8),
+    flexDirection: 'row',
+  },
+  metaCol: {
+    flex: 1,
+    paddingRight: vw(10),
+  },
+  metaLabel: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(12),
+    color: '#8A9099',
+    marginBottom: vh(2),
+  },
+  metaValue: {
+    fontFamily: fonts.Inter_Medium,
     fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
-    textAlign: 'right',
+    color: '#49505A',
+  },
+  metaValueBold: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(14),
+    color: '#3B424E',
+  },
+
+  locationPillRow: {
+    flexDirection: 'row',
+    marginTop: vh(2),
+  },
+  locationPill: {
+    minWidth: vw(26),
+    height: vh(20),
+    borderRadius: vw(3),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: vw(4),
+    paddingHorizontal: vw(5),
+  },
+  locationPillActive: {
+    backgroundColor: colors.primary_blue,
+  },
+  locationPillInactive: {
+    backgroundColor: '#CFE2F7',
+  },
+  locationPillText: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(11),
+  },
+  locationPillTextActive: {
+    color: colors.white,
+  },
+  locationPillTextInactive: {
+    color: '#23406A',
+  },
+
+  viewMoreBtn: {
+    marginTop: vh(10),
+    alignSelf: 'flex-start',
+  },
+  viewMoreText: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(14),
+    color: '#D7A95A',
   },
 
   emptyText: {
     textAlign: 'center',
     marginTop: vh(50),
     color: colors.grey,
-    fontFamily: fonts.Roboto_Medium,
-  },
-
-  rowBetween: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-
-  filterButton: {
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    borderRadius: vw(4),
-    marginTop: vh(10),
-    alignSelf: 'flex-end',
-    marginRight: vh(15),
-    paddingHorizontal: vw(10),
-    paddingVertical: vh(5),
-  },
-  filterText: {
-    color: colors.black,
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-  },
-  filterContainer: { paddingHorizontal: vw(15) },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: vh(5),
-  },
-  applyBtn: { width: vw(150), height: vh(35) },
-  clearBtn: {
-    width: vw(150),
-    height: vh(35),
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    backgroundColor: colors.white,
-  },
-  selectedCard: {
-    borderWidth: 1,
-    borderColor: colors.primary,
-    backgroundColor: '#F3F8FF',
-  },
-  statusBox: {
-    marginTop: vh(8),
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(12),
-    borderRadius: vw(6),
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
-  },
-
-  inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
-  },
-
-  statusText: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-  },
-
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
-
-  dropMenu: {
-    marginTop: vh(6),
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.grey,
-    borderRadius: vw(6),
-    overflow: 'hidden',
-  },
-
-  dropItem: {
-    paddingVertical: vh(10),
-    paddingHorizontal: vw(12),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.chinese_silver,
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'transparent',
-    zIndex: 998,
-  },
-  fileInputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: vh(6),
-  },
-
-  fileInput: {
-    flex: 1,
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    borderRadius: vw(6),
-    paddingHorizontal: vw(10),
-    paddingVertical: vh(6),
-    fontSize: vw(14),
-    color: colors.black,
-  },
-
-  checkBtn: {
-    marginLeft: vw(10),
-    padding: vw(6),
-    borderRadius: vw(6),
-    backgroundColor: colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 2,
-  },
-
-  fileDisplayBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(10),
-    borderWidth: vw(1),
-    borderColor: colors.grey_3,
-    borderRadius: vw(6),
-    backgroundColor: colors.lightGrey,
-    marginTop: vh(6),
-  },
-
-  fileText: {
-    fontSize: vw(14),
-    color: colors.grey,
-    fontFamily: fonts.Roboto_Medium,
+    fontFamily: fonts.Inter_Medium,
   },
 });

@@ -220,31 +220,6 @@ const TrainingCategoryMaster = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={styles.tabRow}>
-        <TouchableAtom
-          onPress={() =>
-            navigation.navigate(screensName.TrainingCategoryMaster)
-          }
-          style={[styles.tabItem, styles.tabItemActive]}
-        >
-          <TextAtom style={[styles.tabText]}>Training Category</TextAtom>
-        </TouchableAtom>
-
-        <TouchableAtom
-          style={styles.tabItem}
-          onPress={() => navigation.navigate(screensName.TrainingDetails)}
-        >
-          <TextAtom style={styles.tabText}>Training Details</TextAtom>
-        </TouchableAtom>
-
-        <TouchableAtom
-          style={styles.tabItem}
-          onPress={() => navigation.navigate(screensName.BatchDetails)}
-        >
-          <TextAtom style={styles.tabText}>Batch Details</TextAtom>
-        </TouchableAtom>
-      </View>
-
       <View style={styles.headerRow}>
         <View style={styles.titleRow}>
           <TextAtom style={styles.headerTitle}>Training Category</TextAtom>
@@ -346,38 +321,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.new_ui_screen_bg,
   },
 
-  tabRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: vw(14),
-    paddingTop: vh(10),
-    paddingBottom: vh(8),
-    backgroundColor: colors.white,
-  },
-
-  tabItem: {
-    paddingHorizontal: vw(8),
-    paddingVertical: vh(7),
-    marginRight: vw(8),
-  },
-
-  tabItemActive: {
-    backgroundColor: colors.primary_sky_blue,
-    borderTopRightRadius: vh(8),
-    borderTopLeftRadius: vh(8),
-    borderBottomColor: colors.primary_dark_blue,
-    borderBottomWidth: 1,
-    // elevation: 2,
-  },
-
-  tabText: {
-    fontFamily: fonts.Inter_Medium,
-    fontSize: vw(14),
-    color: colors.new_ui_tab_text,
-  },
-
   headerRow: {
-    marginTop: vh(8),
+    marginTop: vh(10),
     paddingHorizontal: vw(14),
     flexDirection: 'row',
     alignItems: 'center',
@@ -464,9 +409,9 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: colors.new_ui_card_bg,
+    backgroundColor: colors.white,
     marginHorizontal: vw(14),
-    borderRadius: vw(12),
+    borderRadius: vw(10),
     paddingHorizontal: vw(12),
     paddingVertical: vh(12),
     borderWidth: 1,
