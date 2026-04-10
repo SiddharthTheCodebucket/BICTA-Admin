@@ -1,66 +1,182 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useLayoutEffect, useState } from 'react';
+import {
+  Dimensions,
+  LayoutChangeEvent,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, strings, vh, vw } from '../../../../../constants';
+import {
+  createMaterialTopTabNavigator,
+  MaterialTopTabBarProps,
+} from '@react-navigation/material-top-tabs';
+import { colors, fonts, strings, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../components/atoms/TextAtom';
+import FacultyDetails from './FacultyDetails';
+import FacultyConfirmation from './FacultyConfirmation';
+import FacultyClassReportFeedback from './FacultyClassReportFeedback';
 
 interface Props {
+  route: any;
   navigation: NavigationType;
 }
 
-const FacultyManagement = (props: Props) => {
-  const { navigation } = props;
+const TopTabs = createMaterialTopTabNavigator();
 
-  useLayoutEffect(() => {
-    Header.setNavigation(navigation, strings.lms.facultyManagement.main.title);
-    navigation.BackButtonPress = () => {
-      navigation.goBack();
-    };
-  }, []);
+const CustomFacultyTabBar = ({
+  state,
+  descriptors,
+  navigation,
+}: MaterialTopTabBarProps) => {
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [tabLayouts, setTabLayouts] = useState<{
+    [key: string]: { x: number; width: number };
+  }>({});
+  const screenWidth = Dimensions.get('window').width;
 
-  const managementMenuItems = [
-    {
-      id: 1,
-      name: strings.lms.facultyManagement.main.facultyDetails,
-      onPress: () => {
-        navigation.navigate(screensName.FacultyDetails);
-      },
-    },
-    {
-      id: 2,
-      name: strings.lms.facultyManagement.main.facultyConfirmation,
-      onPress: () => {
-        navigation.navigate(screensName.FacultyConfirmation);
-      },
-    },
-    {
-      id: 3,
-      name: strings.lms.facultyManagement.main.facultyFeedback,
-      onPress: () => {
-        navigation.navigate(screensName.FacultyClassReportFeedback);
-      },
-    },
-  ];
+  useEffect(() => {
+    const activeRoute = state.routes[state.index];
+    const layout = tabLayouts[activeRoute.key];
+
+    if (layout && scrollViewRef.current) {
+      const offset = layout.x + layout.width / 2 - screenWidth / 2;
+      scrollViewRef.current.scrollTo({
+        x: offset > 0 ? offset : 0,
+        animated: true,
+      });
+    }
+  }, [screenWidth, state.index, state.routes, tabLayouts]);
+
+  const onTabLayout = (key: string) => (event: LayoutChangeEvent) => {
+    const { x, width } = event.nativeEvent.layout;
+    setTabLayouts(prev => ({ ...prev, [key]: { x, width } }));
+  };
 
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
-      <View style={styles.flex1}>
-        {managementMenuItems.map(item => {
+    <View style={styles.customTabBarContainer}>
+      <ScrollView
+        horizontal
+        ref={scrollViewRef}
+        showsHorizontalScrollIndicator={false}
+        style={styles.customTabScroll}
+        contentContainerStyle={styles.customTabWrap}
+      >
+        {state.routes.map((route, index) => {
+          const isFocused = state.index === index;
+          const { options } = descriptors[route.key];
+
+          const label =
+            typeof options.tabBarLabel === 'string'
+              ? options.tabBarLabel
+              : typeof options.title === 'string'
+              ? options.title
+              : route.name;
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
           return (
             <TouchableOpacity
-              key={item.id.toString()}
-              style={styles.touchable}
-              onPress={item.onPress}
+              key={route.key}
+              accessibilityRole="button"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              onLayout={onTabLayout(route.key)}
+              onPress={onPress}
+              style={[
+                styles.customTabItem,
+                isFocused && styles.customTabItemActive,
+              ]}
+              activeOpacity={0.9}
             >
-              <TextAtom>{item.name}</TextAtom>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.customTabText,
+                  isFocused && styles.customTabTextActive,
+                ]}
+              >
+                {label}
+              </Text>
             </TouchableOpacity>
           );
         })}
-      </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+const FacultyManagement = (props: Props) => {
+  const { navigation, route } = props;
+
+  const initialRouteName = useMemo(() => {
+    const initialTab = route?.params?.initialTab;
+    if (initialTab === 'FacultyConfirmation') return 'FacultyConfirmationTab';
+    if (initialTab === 'FacultyClassReport') return 'FacultyClassReportTab';
+    return 'FacultyDetailsTab';
+  }, [route?.params?.initialTab]);
+
+  useLayoutEffect(() => {
+    Header.setNavigation(
+      navigation,
+      strings.lms.facultyManagement.main.title,
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+    );
+    navigation.BackButtonPress = () => {
+      navigation.goBack();
+    };
+  }, [navigation]);
+
+  return (
+    <SafeAreaView edges={['bottom']} style={styles.container}>
+      <TopTabs.Navigator
+        key={initialRouteName}
+        initialRouteName={initialRouteName}
+        tabBar={tabBarProps => <CustomFacultyTabBar {...tabBarProps} />}
+        screenOptions={{
+          swipeEnabled: true,
+          sceneStyle: { backgroundColor: colors.new_ui_screen_bg },
+        }}
+      >
+        <TopTabs.Screen
+          name="FacultyDetailsTab"
+          component={FacultyDetails}
+          options={{ tabBarLabel: strings.lms.facultyManagement.main.facultyDetails }}
+        />
+        <TopTabs.Screen
+          name="FacultyConfirmationTab"
+          component={FacultyConfirmation}
+          options={{
+            tabBarLabel: strings.lms.facultyManagement.main.facultyConfirmation,
+          }}
+        />
+        <TopTabs.Screen
+          name="FacultyClassReportTab"
+          component={FacultyClassReportFeedback}
+          options={{ tabBarLabel: 'Faculty Class Report' }}
+        />
+      </TopTabs.Navigator>
     </SafeAreaView>
   );
 };
@@ -70,21 +186,49 @@ export default FacultyManagement;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
+    backgroundColor: colors.new_ui_screen_bg,
   },
-  flex1: { flex: 1 },
-  logoutBtn: {
-    alignSelf: 'center',
-    width: '90%',
+  customTabBarContainer: {
+    marginHorizontal: vw(8),
+    marginTop: vh(8),
+    borderRadius: vw(8),
   },
-  touchable: {
-    width: vw(328),
-    height: vh(55),
-    borderRadius: vw(6),
-    backgroundColor: colors.primary,
-    alignSelf: 'center',
+  customTabScroll: {
+    maxHeight: vh(42),
+  },
+  customTabWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: vw(6),
+    paddingVertical: vh(2),
+  },
+  customTabItem: {
+    height: vh(34),
+    minWidth: vw(110),
+
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: vh(15),
+    backgroundColor: colors.white,
+    marginRight: vw(6),
+    paddingHorizontal: vw(8),
+    paddingVertical: vw(8),
+    borderRadius: vw(8),
+  },
+  customTabItemActive: {
+    backgroundColor: colors.primary_sky_blue,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.primary_dark_blue,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    elevation: 2,
+  },
+  customTabText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(14),
+    lineHeight: vw(17),
+    color: colors.text_black,
+  },
+  customTabTextActive: {
+    color: colors.text_black,
   },
 });

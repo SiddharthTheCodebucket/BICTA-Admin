@@ -2,6 +2,7 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -10,30 +11,26 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
 import {
+  adminFontSizes,
   colors,
   fonts,
-  images,
   screensName,
+  SvgSearch,
   strings,
   vh,
   vw,
 } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
-import {
-  Header,
-  NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
+import { NavigationType } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import {
   useListFacultyConfirmationMutation,
@@ -43,16 +40,6 @@ import {
 interface Props {
   navigation: NavigationType;
 }
-
-const debounce = (func: any, delay: number) => {
-  let timer: any;
-  return (...args: any[]) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      func(...args);
-    }, delay);
-  };
-};
 
 const FacultyConfirmation = (props: Props) => {
   const { navigation } = props;
@@ -70,35 +57,20 @@ const FacultyConfirmation = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
 
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useLayoutEffect(() => {
-    Header.setNavigation(
-      navigation,
-      strings.lms.facultyManagement.confirmation.title,
-    );
-    navigation.BackButtonPress = () => navigation.goBack();
+    // Header handled by FacultyManagement tabbed screen
   });
 
-  useFocusEffect(
-    useCallback(() => {
-      if (firstTimeLoad && !centerSerach?.name && search === '') {
-        setFirstTimeLoad(false);
-        listFacultyConfirmations(1, true, '');
-      }
-    }, [firstTimeLoad, centerSerach, search]),
-  );
-
-  useEffect(() => {
-    if (!centerSerach?.name) return;
-    listFacultyConfirmations(1, true, '');
-  }, [centerSerach]);
-
-  const getCentreFilter = () => {
+  const getCentreFilter = useCallback(() => {
     if (!centerSerach?.name) return null;
 
     if (centerSerach.name === strings.dashboardIndex.allCenters) {
@@ -106,9 +78,9 @@ const FacultyConfirmation = (props: Props) => {
     }
 
     return [centerSerach.name];
-  };
+  }, [centerSerach]);
 
-  const listFacultyConfirmations = (
+  const listFacultyConfirmations = useCallback((
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -135,16 +107,15 @@ const FacultyConfirmation = (props: Props) => {
         setInitialCall(false);
         setPagination(false);
         setRefreshing(false);
-        if (pageNumber !== 1 && data.length > 0) {
-          setData((prev: any) => [...prev, ...newData]);
-        } else {
-          setData(newData);
-        }
+        setData((prev: any) =>
+          pageNumber !== 1 ? [...prev, ...newData] : newData,
+        );
 
         setPage(pageNumber);
 
-        const totalCount = res?.data?.totalCount ?? 0;
-        setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
+        const count = res?.data?.totalCount ?? 0;
+        setTotalCount(count);
+        setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < count);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -155,34 +126,43 @@ const FacultyConfirmation = (props: Props) => {
           text2: err.data?.message || strings.something_went_wrong,
         });
       });
-  };
+  }, [getCentreFilter, listFacultyDetailsApi]);
 
-  const handleSearch = useCallback(
-    debounce((text: string) => {
-      listFacultyConfirmations(1, true, text);
-    }, 500),
-    [],
+  useFocusEffect(
+    useCallback(() => {
+      if (firstTimeLoad && !centerSerach?.name && search === '') {
+        setFirstTimeLoad(false);
+        listFacultyConfirmations(1, true, '');
+      }
+    }, [firstTimeLoad, centerSerach, listFacultyConfirmations, search]),
   );
+
+  useEffect(() => {
+    if (!centerSerach?.name) return;
+    listFacultyConfirmations(1, true, '');
+  }, [centerSerach, listFacultyConfirmations]);
 
   const onChangeSearch = (text: string) => {
     setSearch(text);
-    handleSearch(text);
+
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => {
+      listFacultyConfirmations(1, true, text);
+    }, 500);
   };
 
   const onClearSearch = () => {
     setSearch('');
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     listFacultyConfirmations(1, true, '');
   };
 
-  const FacultyConfirmationCard = ({ item, index, navigation }: any) => {
+  const FacultyConfirmationCard = ({ item, index: _index, navigation }: any) => {
     const [statusValue, setStatusValue] = useState(
       item.classConfirmation ?? strings.no,
     );
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
 
     const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
-
       if (newStatus === statusValue) return;
 
       navigation.navigate(screensName.AlertOrganism, {
@@ -211,6 +191,7 @@ const FacultyConfirmation = (props: Props) => {
             type: 'success',
             text2: res.data?.message,
           });
+          setStatusValue(status);
           setInitialCall(false);
           listFacultyConfirmations(1, true, search);
         })
@@ -223,6 +204,9 @@ const FacultyConfirmation = (props: Props) => {
         });
     };
 
+    const displayName = item.facultyName ?? '-';
+    const avatarLetter = `${displayName}`.trim().charAt(0).toUpperCase() || 'F';
+
     return (
       <TouchableAtom
         style={styles.card}
@@ -232,89 +216,101 @@ const FacultyConfirmation = (props: Props) => {
           });
         }}
       >
-        <View style={styles.cardHeader}>
-          <TextAtom style={styles.flex1Label}>
-            {strings.lms.facultyManagement.confirmation.srNo} {index + 1}
-          </TextAtom>
-        </View>
+        <View style={styles.cardTopRow}>
+          <View style={styles.avatarRow}>
+            <View style={styles.avatarCircle}>
+              <TextAtom style={styles.avatarLetter}>{avatarLetter}</TextAtom>
+            </View>
+            <TextAtom style={styles.nameText}>{displayName}</TextAtom>
+          </View>
 
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.facultyManagement.confirmation.facultyName}
-          </TextAtom>
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.facultyName ?? '-'}
-          </TextAtom>
-        </View>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.facultyManagement.confirmation.trainingName}
-          </TextAtom>
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.trainingName ?? '-'}
-          </TextAtom>
-        </View>
-
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.facultyManagement.confirmation.subject}
-          </TextAtom>
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.subject ?? '-'}
-          </TextAtom>
-        </View>
-        {showStatusMenu && (
-          <TouchableOpacity
-            onPress={() => setShowStatusMenu(false)}
-            style={styles.overlay}
-          />
-        )}
-
-        <View style={styles.statusSection}>
-          <TextAtom style={styles.label}>
-            {strings.lms.facultyManagement.confirmation.classConfirmation}
-          </TextAtom>
-
-          <TouchableAtom
-            onPress={() => setShowStatusMenu(!showStatusMenu)}
-            style={[
-              styles.statusBox,
-              statusValue === strings.yes
-                ? styles.activeBox
-                : styles.inActiveBox,
-            ]}
-          >
-            <TextAtom
-              style={[
-                styles.statusText,
-                statusValue === strings.yes
-                  ? styles.activeText
-                  : styles.inActiveText,
-              ]}
-            >
-              {statusValue}
+          <View style={styles.classToggleWrap}>
+            <TextAtom style={styles.classLabel}>
+              {strings.lms.facultyManagement.confirmation.classConfirmation}
             </TextAtom>
-            <ImageAtom source={images.downArrow} />
-          </TouchableAtom>
-
-          {showStatusMenu && (
-            <View style={styles.dropMenu}>
+            <View style={styles.classToggle}>
               <TouchableAtom
-                style={styles.dropItem}
+                style={[
+                  styles.toggleBtn,
+                  statusValue === strings.yes && styles.toggleBtnActive,
+                ]}
                 onPress={() => onSelectStatus(strings.yes)}
               >
-                <TextAtom style={styles.blackText}>{strings.yes}</TextAtom>
+                <TextAtom
+                  style={[
+                    styles.toggleText,
+                    statusValue === strings.yes && styles.toggleTextActive,
+                  ]}
+                >
+                  {strings.yes}
+                </TextAtom>
               </TouchableAtom>
-
               <TouchableAtom
-                style={styles.dropItem}
+                style={[
+                  styles.toggleBtn,
+                  statusValue === strings.no && styles.toggleBtnActive,
+                ]}
                 onPress={() => onSelectStatus(strings.no)}
               >
-                <TextAtom style={styles.blackText}>{strings.no}</TextAtom>
+                <TextAtom
+                  style={[
+                    styles.toggleText,
+                    statusValue === strings.no && styles.toggleTextActive,
+                  ]}
+                >
+                  {strings.no}
+                </TextAtom>
               </TouchableAtom>
             </View>
-          )}
+          </View>
         </View>
+
+        <TextAtom style={styles.infoLabel}>
+          {strings.lms.facultyManagement.confirmation.trainingName}
+        </TextAtom>
+        <TextAtom numberOfLines={0} style={styles.infoValue}>
+          {item.trainingName ?? '-'}
+        </TextAtom>
+
+        <View style={styles.twoColRow}>
+          <View style={styles.infoCol}>
+            <TextAtom style={styles.infoLabel}>
+              {strings.lms.facultyManagement.confirmation.subject}
+            </TextAtom>
+            <TextAtom numberOfLines={0} style={styles.infoValue}>
+              {item.subject ?? '-'}
+            </TextAtom>
+          </View>
+          <View style={styles.infoCol}>
+            <TextAtom style={styles.infoLabel}>
+              {strings.lms.facultyManagement.confirmation.topic}
+            </TextAtom>
+            <TextAtom numberOfLines={0} style={styles.infoValue}>
+              {item.topic ?? '-'}
+            </TextAtom>
+          </View>
+        </View>
+
+        <View style={styles.twoColRow}>
+          <View style={styles.infoCol}>
+            <TextAtom style={styles.infoLabel}>
+              {strings.lms.facultyManagement.confirmation.classDate}
+            </TextAtom>
+            <TextAtom numberOfLines={0} style={styles.infoValue}>
+              {item.classDate ?? '-'}
+            </TextAtom>
+          </View>
+          <View style={styles.infoCol}>
+            <TextAtom style={styles.infoLabel}>
+              {strings.lms.facultyManagement.confirmation.sessionTime}
+            </TextAtom>
+            <TextAtom numberOfLines={0} style={styles.infoValue}>
+              {item.sessionTime ?? '-'}
+            </TextAtom>
+          </View>
+        </View>
+
+        <TextAtom style={styles.viewMoreText}>View More</TextAtom>
       </TouchableAtom>
     );
   };
@@ -366,12 +362,30 @@ const FacultyConfirmation = (props: Props) => {
           containerStyle={styles.centerDropdown}
         />
       )}
-      <SearchBoxOrganism
-        onChangeText={onChangeSearch}
-        searchText={search}
-        onPressCross={onClearSearch}
-        searchBox={styles.searchBox}
-      />
+
+      <View style={styles.headerRow}>
+        <View style={styles.titleRow}>
+          <TextAtom style={styles.headerTitle}>
+            {strings.lms.facultyManagement.confirmation.title}
+          </TextAtom>
+          <TextAtom style={styles.headerCount}>({totalCount})</TextAtom>
+        </View>
+        <TouchableAtom
+          style={styles.iconBtn}
+          onPress={() => setIsSearchVisible(v => !v)}
+        >
+          <SvgSearch width={vw(17)} height={vw(17)} />
+        </TouchableAtom>
+      </View>
+
+      {isSearchVisible && (
+        <SearchBoxOrganism
+          onChangeText={onChangeSearch}
+          searchText={search}
+          onPressCross={onClearSearch}
+          searchBox={styles.searchBox}
+        />
+      )}
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -420,45 +434,130 @@ const FacultyConfirmation = (props: Props) => {
 export default FacultyConfirmation;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
+  headerRow: {
+    marginTop: vh(10),
+    paddingHorizontal: vw(14),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  headerTitle: {
+    fontFamily: fonts.Inter_Bold,
+    fontSize: adminFontSizes.md,
+    color: colors.new_ui_heading,
+  },
+  headerCount: {
+    marginLeft: vw(4),
+    fontFamily: fonts.Inter_Regular,
+    fontSize: adminFontSizes.sm,
+    color: colors.new_ui_count,
+  },
+  iconBtn: {
+    width: vw(22),
+    height: vw(22),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   flatListContainer: {
     paddingVertical: vh(10),
   },
   card: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.new_ui_card_bg,
     marginHorizontal: vw(15),
-    borderRadius: vw(8),
+    borderRadius: vw(10),
     paddingHorizontal: vw(15),
     paddingVertical: vh(8),
-    elevation: 3,
+    borderWidth: vw(1),
+    borderColor: colors.new_ui_card_border,
+    elevation: 1,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
   },
-  cardHeader: { marginBottom: vh(10) },
-  flex1Label: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    flex: 1,
+  cardTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: vh(10),
   },
-  label: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
+  avatarRow: { flexDirection: 'row', alignItems: 'center', gap: vw(10) },
+  avatarCircle: {
+    width: vw(36),
+    height: vw(36),
+    borderRadius: vw(18),
+    backgroundColor: colors.primary_sky_blue,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  labelRight: {
+  avatarLetter: {
     fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    textAlign: 'right',
+    fontSize: adminFontSizes.md,
+    color: colors.text_black,
   },
-  value: {
+  nameText: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.md,
+    color: colors.new_ui_card_title,
+  },
+  classToggleWrap: { alignItems: 'flex-end' },
+  classLabel: {
     fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
+    fontSize: adminFontSizes.xs,
+    color: colors.new_ui_card_description,
+    marginBottom: vh(4),
+  },
+  classToggle: {
+    flexDirection: 'row',
+    borderRadius: vw(8),
+    overflow: 'hidden',
+    borderWidth: vw(1),
+    borderColor: colors.new_ui_card_border,
+  },
+  toggleBtn: {
+    paddingHorizontal: vw(10),
+    paddingVertical: vh(5),
+    backgroundColor: colors.white,
+  },
+  toggleBtnActive: {
+    backgroundColor: colors.primary_blue,
+  },
+  toggleText: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.xs,
+    color: colors.new_ui_card_description,
+  },
+  toggleTextActive: {
+    color: colors.white,
+  },
+  infoLabel: {
+    fontFamily: fonts.Roboto_Regular,
+    fontSize: adminFontSizes.xs,
+    color: colors.new_ui_card_description,
+  },
+  infoValue: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.sm,
+    color: colors.new_ui_card_title,
+    marginTop: vh(3),
+  },
+  twoColRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: vw(10),
+    marginTop: vh(10),
+  },
+  infoCol: { flex: 1 },
+  viewMoreText: {
+    marginTop: vh(10),
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.sm,
+    color: '#D38B00',
   },
   valueRight: {
     fontFamily: fonts.Roboto_Regular,

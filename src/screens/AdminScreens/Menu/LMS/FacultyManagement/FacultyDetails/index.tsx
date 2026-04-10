@@ -2,6 +2,8 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -10,61 +12,47 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  ImageBackground,
   TouchableOpacity,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
+import BottomSheet from '@gorhom/bottom-sheet';
 import {
+  adminFontSizes,
   colors,
   fonts,
   images,
   screensName,
+  SvgCross,
+  SvgDelete,
+  SvgEditPencile,
+  SvgFilterLines,
+  SvgSearch,
   strings,
   vh,
   vw,
 } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
-import {
-  Header,
-  NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
+import { NavigationType } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useBedDetailsRoomMutation,
-  useDeleteBedDetailsRoomMutation,
-  useUpdateBedDetailsRoomMutation,
-} from '../../../../../../injectEndpoints/hostelEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import {
   useDeleteFacultyDetailsMutation,
   useListFacultyDetailsMutation,
-  useUpdateFacultyDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 
 interface Props {
   route: any;
   navigation: NavigationType;
 }
-
-const debounce = (func: any, delay: number) => {
-  let timer: any;
-  return (...args: any[]) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      func(...args);
-    }, delay);
-  };
-};
 
 const FacultyDetails = (props: Props) => {
   const { navigation } = props;
@@ -73,7 +61,6 @@ const FacultyDetails = (props: Props) => {
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
   const [listFacultyDetailsApi] = useListFacultyDetailsMutation();
-  const [updateFacultyDetailsApi] = useUpdateFacultyDetailsMutation();
   const [deletebedDetailsRoomApi] = useDeleteFacultyDetailsMutation();
 
   const [data, setData] = useState<any>([]);
@@ -85,6 +72,11 @@ const FacultyDetails = (props: Props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const filterSheetRef = useRef<BottomSheet>(null);
+  const filterSnapPoints = useMemo(() => ['55%'], []);
 
   const [facultyTypeList, setFacultyTypeList] = useState<any>([]);
   const [departmentList, setDepartmentList] = useState<any>([]);
@@ -97,33 +89,13 @@ const FacultyDetails = (props: Props) => {
 
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useLayoutEffect(() => {
-    Header.setNavigation(
-      navigation,
-      strings.lms.facultyManagement.details.title,
-    );
-    navigation.BackButtonPress = () => navigation.goBack();
+    // Header handled by FacultyManagement tabbed screen
   });
 
-  useFocusEffect(
-    useCallback(() => {
-      if (firstTimeLoad && !centerSerach?.name && search === '') {
-        setFirstTimeLoad(false);
-        fetchFacultyDetails(1, true, '');
-        getFacultyType();
-        getDepartment();
-        getOrganization();
-      }
-    }, [firstTimeLoad, centerSerach, search]),
-  );
-
-  useEffect(() => {
-    if (!centerSerach?.name) return;
-    fetchFacultyDetails(1, true, '');
-  }, [centerSerach]);
-
-  const getCentreFilter = () => {
+  const getCentreFilter = useCallback(() => {
     if (!centerSerach?.name) return null;
 
     if (centerSerach.name === strings.dashboardIndex.allCenters) {
@@ -131,130 +103,88 @@ const FacultyDetails = (props: Props) => {
     }
 
     return [centerSerach.name];
-  };
+  }, [centerSerach]);
 
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
-  };
+  const openFilter = () => setShowFilter(true);
+  const closeFilter = () => filterSheetRef.current?.close();
 
-  const fetchFacultyDetails = (
-    pageNumber: number,
-    initial: boolean,
-    keyword: string,
-    filtersArray: any[] = [],
-  ) => {
-    initial ? setInitialCall(true) : setInitialCall(false);
-
-    const centreFilter = getCentreFilter();
-    const params: any = {
-      search: keyword,
-      sort: {
-        attributes: ['id'],
-        sorts: ['desc'],
-      },
-      filters: filtersArray,
-      pageNo: pageNumber,
-      itemsPerPage: ITEMS_PER_PAGE,
-    };
-    if (centreFilter) {
-      params.bipardCentre = centreFilter;
-    }
-
-    listFacultyDetailsApi(params)
-      .unwrap()
-      .then((res: any) => {
-        const newData = res.data?.data ?? [];
-        setInitialCall(false);
-        setPagination(false);
-        setRefreshing(false);
-        if (pageNumber !== 1 && data.length > 0) {
-          setData((prev: any) => [...prev, ...newData]);
-        } else {
-          setData(newData);
-        }
-
-        setPage(pageNumber);
-
-        const totalCount = res?.data?.totalCount ?? 0;
-        setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        setPagination(false);
-        setRefreshing(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || strings.something_went_wrong,
-        });
-      });
-  };
-
-  const handleSearch = useCallback(
-    debounce((text: string) => {
-      fetchFacultyDetails(1, true, text);
-    }, 500),
+  const handleFilterSheetAnimate = useCallback(
+    (_fromIndex: number, toIndex: number) => {
+      if (toIndex === -1) setShowFilter(false);
+    },
     [],
   );
 
-  const onChangeSearch = (text: string) => {
-    setSearch(text);
-    handleSearch(text);
-  };
+  const fetchFacultyDetails = useCallback(
+    (
+      pageNumber: number,
+      initial: boolean,
+      keyword: string,
+      filtersArray: any[] = [],
+    ) => {
+      initial ? setInitialCall(true) : setInitialCall(false);
 
-  const onClearSearch = () => {
-    setSearch('');
-    fetchFacultyDetails(1, true, '');
-  };
-
-  const FacultyDetailCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(
-      item.status ?? strings.lms.facultyManagement.details.active,
-    );
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
-
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
-
-      if (newStatus === statusValue) return;
-
-      navigation.navigate(screensName.AlertOrganism, {
-        title: strings.lms.facultyManagement.details.statusChangeConf,
-        message: strings.lms.facultyManagement.details.statusChangeMsg,
-        okText: strings.lms.facultyManagement.details.confirm,
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          updateStatus(item.id);
+      const centreFilter = getCentreFilter();
+      const params: any = {
+        search: keyword,
+        sort: {
+          attributes: ['id'],
+          sorts: ['desc'],
         },
-        cancelFunction: () => {},
-      });
-    };
-
-    const updateStatus = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        idForChangeStatus: id,
+        filters: filtersArray,
+        pageNo: pageNumber,
+        itemsPerPage: ITEMS_PER_PAGE,
       };
-      updateFacultyDetailsApi(params)
+      if (centreFilter) {
+        params.bipardCentre = centreFilter;
+      }
+
+      listFacultyDetailsApi(params)
         .unwrap()
         .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data?.message,
-          });
+          const newData = res.data?.data ?? [];
           setInitialCall(false);
-          fetchFacultyDetails(1, true, search);
+          setPagination(false);
+          setRefreshing(false);
+          setData((prev: any) =>
+            pageNumber !== 1 ? [...prev, ...newData] : newData,
+          );
+
+          setPage(pageNumber);
+
+          const count = res?.data?.totalCount ?? 0;
+          setTotalCount(count);
+          setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < count);
         })
         .catch((err: any) => {
           setInitialCall(false);
+          setPagination(false);
+          setRefreshing(false);
           Toast.show({
             type: 'error',
             text2: err.data?.message || strings.something_went_wrong,
           });
         });
-    };
+    },
+    [getCentreFilter, listFacultyDetailsApi],
+  );
 
+  const onChangeSearch = (text: string) => {
+    setSearch(text);
+
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => {
+      fetchFacultyDetails(1, true, text);
+    }, 500);
+  };
+
+  const onClearSearch = () => {
+    setSearch('');
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    fetchFacultyDetails(1, true, '');
+  };
+
+  const FacultyDetailCard = ({ item, index: _index, navigation }: any) => {
     const handleDelete = () => {
       navigation.navigate(screensName.AlertOrganism, {
         title: strings.lms.facultyManagement.details.deleteConf,
@@ -293,124 +223,119 @@ const FacultyDetails = (props: Props) => {
         });
     };
 
+    const handleEdit = () => {
+      navigation.navigate(screensName.AddFacultyDetails, { item });
+    };
+
+    const displayName = item.facultyName ?? '-';
+    const avatarLetter = `${displayName}`.trim().charAt(0).toUpperCase() || 'F';
+
     return (
       <TouchableAtom
         style={styles.card}
-        onPress={() => {
-          navigation.navigate(screensName.FacultyDetailDetails, { data: item });
-        }}
+        activeOpacity={0.9}
+        onPress={() =>
+          navigation.navigate(screensName.FacultyDetailDetails, { data: item })
+        }
       >
-        <View style={styles.cardHeader}>
-          <TextAtom style={styles.flex1Label}>
-            {strings.lms.facultyManagement.details.srNo} {index + 1}
-          </TextAtom>
+        <View style={styles.cardTopRow}>
+          <View style={styles.avatarRow}>
+            <View style={styles.avatarCircle}>
+              <TextAtom style={styles.avatarLetter}>{avatarLetter}</TextAtom>
+            </View>
+            <View style={styles.nameBlock}>
+              <TextAtom style={styles.nameText}>{displayName}</TextAtom>
+              <View style={styles.badge}>
+                <TextAtom style={styles.badgeText}>
+                  {strings.lms.facultyManagement.details.facultyId} -{' '}
+                  {item.facultyId ?? '-'}
+                </TextAtom>
+              </View>
+            </View>
+          </View>
 
-          <View style={styles.actionRow}>
+          <View style={styles.iconActions}>
+            <TouchableAtom style={styles.cardIconBtn} onPress={handleDelete}>
+              <SvgDelete width={vw(30)} height={vw(30)} />
+            </TouchableAtom>
             <TouchableAtom
-              style={styles.deleteButton}
-              onPress={() => handleDelete()}
+              style={[styles.cardIconBtn, { marginLeft: 10 }]}
+              onPress={handleEdit}
             >
-              <ImageAtom source={images.delete} style={styles.icon15} />
+              <SvgEditPencile width={vw(30)} height={vw(30)} />
             </TouchableAtom>
           </View>
         </View>
 
-        <View style={styles.rowBetween}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.lms.facultyManagement.details.facultyUID}
-            </TextAtom>
-            <TextAtom style={styles.value}>
-              {item.facultyUniqueId ?? '-'}
-            </TextAtom>
-          </View>
-          <View style={styles.labelValueAlignEnd}>
-            <TextAtom style={styles.labelRight}>
-              {strings.lms.facultyManagement.details.facultyId}
-            </TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {item.facultyId ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
-        <View style={styles.rowBetween}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.lms.facultyManagement.details.name}
-            </TextAtom>
-            <TextAtom style={styles.value}>{item.facultyName ?? '-'}</TextAtom>
-          </View>
-
-          <View style={styles.labelValueAlignEnd}>
-            <TextAtom style={styles.labelRight}>
-              {strings.lms.facultyManagement.details.designation}
-            </TextAtom>
-            <TextAtom numberOfLines={0} style={styles.valueRight}>
-              {item.designation ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
-
-        {showStatusMenu && (
-          <TouchableOpacity
-            onPress={() => setShowStatusMenu(false)}
-            style={styles.overlay}
-          />
-        )}
-
-        <View style={styles.statusSection}>
-          <TextAtom style={styles.label}>
-            {strings.lms.facultyManagement.details.status}
-          </TextAtom>
-
-          <TouchableAtom
-            onPress={() => setShowStatusMenu(!showStatusMenu)}
-            style={[
-              styles.statusBox,
-              statusValue === strings.lms.facultyManagement.details.active
-                ? styles.activeBox
-                : styles.inActiveBox,
-            ]}
-          >
-            <TextAtom
-              style={[
-                styles.statusText,
-                statusValue === strings.lms.facultyManagement.details.active
-                  ? styles.activeText
-                  : styles.inActiveText,
-              ]}
-            >
-              {statusValue}
-            </TextAtom>
-            <ImageAtom source={images.downArrow} />
-          </TouchableAtom>
-
-          {showStatusMenu && (
-            <View style={styles.dropMenu}>
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() =>
-                  onSelectStatus(strings.lms.facultyManagement.details.active)
-                }
-              >
-                <TextAtom style={styles.blackText}>
-                  {strings.lms.facultyManagement.details.active}
-                </TextAtom>
-              </TouchableAtom>
-
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() =>
-                  onSelectStatus(strings.lms.facultyManagement.details.inactive)
-                }
-              >
-                <TextAtom style={styles.blackText}>
-                  {strings.lms.facultyManagement.details.inActive}
-                </TextAtom>
-              </TouchableAtom>
+        <View style={styles.infoGrid}>
+          <View style={styles.infoRow}>
+            <View style={styles.infoCol}>
+              <TextAtom style={styles.infoLabel}>
+                {strings.lms.facultyManagement.details.facultyUID}
+              </TextAtom>
+              <TextAtom style={styles.infoValue}>
+                {item.facultyUniqueId ?? '-'}
+              </TextAtom>
             </View>
-          )}
+            <View style={styles.infoCol}>
+              <TextAtom style={styles.infoLabel}>
+                {strings.lms.facultyManagement.details.facultyType}
+              </TextAtom>
+              <TextAtom style={styles.infoValue}>
+                {item.facultyType ?? '-'}
+              </TextAtom>
+            </View>
+          </View>
+
+          <View style={styles.infoRow}>
+            <View style={styles.infoCol}>
+              <TextAtom style={styles.infoLabel}>
+                {strings.lms.facultyManagement.details.designation}
+              </TextAtom>
+              <TextAtom style={styles.infoValue}>
+                {item.designation ?? '-'}
+              </TextAtom>
+            </View>
+            <View style={styles.infoCol}>
+              <TextAtom style={styles.infoLabel}>
+                {strings.lms.facultyManagement.details.department}
+              </TextAtom>
+              <TextAtom style={styles.infoValue}>
+                {item.department ?? '-'}
+              </TextAtom>
+            </View>
+          </View>
+
+          <View style={styles.infoRow}>
+            <View style={styles.infoCol}>
+              <TextAtom style={styles.infoLabel}>
+                {strings.lms.facultyManagement.details.facultyOrganisation}
+              </TextAtom>
+              <TextAtom style={styles.infoValue}>
+                {item.facultyOrganisation ?? '-'}
+              </TextAtom>
+            </View>
+            <View style={styles.infoCol}>
+              <TextAtom style={styles.infoLabel}>
+                {strings.lms.facultyManagement.details.mobileNumber}
+              </TextAtom>
+              <TextAtom style={styles.infoValue}>
+                {item.mobileNo ?? '-'}
+              </TextAtom>
+            </View>
+          </View>
         </View>
+
+        <TouchableAtom
+          onPress={() =>
+            navigation.navigate(screensName.FacultyDetailDetails, {
+              data: item,
+            })
+          }
+          style={styles.viewMoreRow}
+        >
+          <TextAtom style={styles.viewMoreText}>View More</TextAtom>
+        </TouchableAtom>
       </TouchableAtom>
     );
   };
@@ -478,11 +403,18 @@ const FacultyDetails = (props: Props) => {
       />
 
       <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText={strings.lms.facultyManagement.details.applyFilter}
-          containerStyle={styles.applyBtn}
-        />
+        <TouchableAtom style={styles.applyTouchable} onPress={applyFilter}>
+          <ImageBackground
+            source={images.buttonGrad_50}
+            style={styles.applyButton}
+            imageStyle={styles.applyButtonImage}
+            resizeMode="stretch"
+          >
+            <TextAtom style={styles.applyText}>
+              {strings.lms.facultyManagement.details.applyFilter}
+            </TextAtom>
+          </ImageBackground>
+        </TouchableAtom>
         <ButtonOrganism
           onPress={clearFilter}
           bttnText={strings.lms.facultyManagement.details.clearFilter}
@@ -516,9 +448,10 @@ const FacultyDetails = (props: Props) => {
     }
 
     fetchFacultyDetails(1, true, search, filters);
+    closeFilter();
   };
 
-  const getFacultyType = () => {
+  const getFacultyType = useCallback(() => {
     setInitialCall(true);
     const params = {
       listType: 'faculty_category',
@@ -539,9 +472,9 @@ const FacultyDetails = (props: Props) => {
           autoHide: true,
         });
       });
-  };
+  }, [commonDropdownApi]);
 
-  const getDepartment = () => {
+  const getDepartment = useCallback(() => {
     setInitialCall(true);
     const params = {
       listType: 'filter_by_faculty_department',
@@ -561,9 +494,9 @@ const FacultyDetails = (props: Props) => {
           text2: err.data?.message || strings.something_went_wrong,
         });
       });
-  };
+  }, [commonDropdownApi]);
 
-  const getOrganization = () => {
+  const getOrganization = useCallback(() => {
     setInitialCall(true);
     const params = {
       listType: 'filter_by_faculty_organisation',
@@ -583,19 +516,36 @@ const FacultyDetails = (props: Props) => {
           text2: err.data?.message || strings.something_went_wrong,
         });
       });
-  };
+  }, [commonDropdownApi]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (firstTimeLoad && !centerSerach?.name && search === '') {
+        setFirstTimeLoad(false);
+        fetchFacultyDetails(1, true, '');
+        getFacultyType();
+        getDepartment();
+        getOrganization();
+      }
+    }, [
+      firstTimeLoad,
+      centerSerach,
+      fetchFacultyDetails,
+      getFacultyType,
+      getDepartment,
+      getOrganization,
+      search,
+    ]),
+  );
+
+  useEffect(() => {
+    if (!centerSerach?.name) return;
+    fetchFacultyDetails(1, true, '');
+  }, [centerSerach, fetchFacultyDetails]);
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-        <TextAtom style={styles.filterText}>
-          {showFilter
-            ? strings.lms.facultyManagement.details.hideFilter
-            : strings.lms.facultyManagement.details.showFilter}
-        </TextAtom>
-      </TouchableAtom>
-      {showFilter && <FilterForm />}
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
@@ -629,12 +579,49 @@ const FacultyDetails = (props: Props) => {
           containerStyle={styles.centerDropdown}
         />
       )}
-      <SearchBoxOrganism
-        onChangeText={onChangeSearch}
-        searchText={search}
-        onPressCross={onClearSearch}
-        searchBox={styles.searchBox}
-      />
+
+      <View style={styles.headerRow}>
+        <View style={styles.titleRow}>
+          <TextAtom style={styles.headerTitle}>
+            {strings.lms.facultyManagement.details.title}
+          </TextAtom>
+          <TextAtom style={styles.headerCount}>({totalCount})</TextAtom>
+        </View>
+
+        <View style={styles.actionsRow}>
+          <TouchableAtom
+            style={styles.iconBtn}
+            onPress={() => setIsSearchVisible(v => !v)}
+          >
+            <SvgSearch width={vw(17)} height={vw(17)} />
+          </TouchableAtom>
+          <TouchableAtom style={styles.iconBtn} onPress={openFilter}>
+            <SvgFilterLines width={vw(17)} height={vw(17)} />
+          </TouchableAtom>
+          <TouchableAtom
+            style={styles.createButtonTouchable}
+            onPress={() => navigation.navigate(screensName.AddFacultyDetails)}
+          >
+            <ImageBackground
+              source={images.buttonGrad_25}
+              style={styles.createButton}
+              imageStyle={styles.createButtonImage}
+              resizeMode="stretch"
+            >
+              <TextAtom style={styles.createButtonText}>+ Create</TextAtom>
+            </ImageBackground>
+          </TouchableAtom>
+        </View>
+      </View>
+
+      {isSearchVisible && (
+        <SearchBoxOrganism
+          onChangeText={onChangeSearch}
+          searchText={search}
+          onPressCross={onClearSearch}
+          searchBox={styles.searchBox}
+        />
+      )}
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -676,6 +663,34 @@ const FacultyDetails = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
+
+      {showFilter && (
+        <View style={styles.sheetOverlay}>
+          <TouchableOpacity
+            style={styles.overlayPressable}
+            onPress={closeFilter}
+          />
+          <BottomSheet
+            ref={filterSheetRef}
+            index={0}
+            snapPoints={filterSnapPoints}
+            enablePanDownToClose={true}
+            onAnimate={handleFilterSheetAnimate}
+            handleComponent={() => <View style={styles.sheetHandle} />}
+          >
+            <View style={styles.sheetContainer}>
+              <View style={styles.sheetHeader}>
+                <TextAtom style={styles.sheetTitle}>Filters</TextAtom>
+                <TouchableAtom style={styles.sheetClose} onPress={closeFilter}>
+                  <SvgCross width={vw(18)} height={vw(18)} />
+                </TouchableAtom>
+              </View>
+              <View style={styles.sheetSeparator} />
+              <FilterForm />
+            </View>
+          </BottomSheet>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -683,21 +698,158 @@ const FacultyDetails = (props: Props) => {
 export default FacultyDetails;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: {
+    flex: 1,
+    backgroundColor: colors.new_ui_screen_bg,
+  },
+  headerRow: {
+    marginTop: vh(10),
+    paddingHorizontal: vw(14),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  headerTitle: {
+    fontFamily: fonts.Inter_Bold,
+    fontSize: adminFontSizes.md,
+    color: colors.new_ui_heading,
+  },
+  headerCount: {
+    marginLeft: vw(4),
+    fontFamily: fonts.Inter_Regular,
+    fontSize: adminFontSizes.sm,
+    color: colors.new_ui_count,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: vw(8),
+  },
+  iconBtn: {
+    width: vw(22),
+    height: vw(22),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardIconBtn: {
+    width: vw(22),
+    height: vw(22),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  createButtonTouchable: {
+    borderRadius: vw(8),
+    overflow: 'hidden',
+  },
+  createButton: {
+    paddingHorizontal: vw(14),
+    paddingVertical: vh(9),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  createButtonImage: {
+    borderRadius: vw(8),
+  },
+  createButtonText: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: adminFontSizes.sm,
+    color: colors.white,
+  },
   flatListContainer: {
     paddingVertical: vh(10),
   },
   card: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.new_ui_card_bg,
     marginHorizontal: vw(15),
-    borderRadius: vw(8),
+    borderRadius: vw(10),
     paddingHorizontal: vw(15),
     paddingVertical: vh(8),
-    elevation: 3,
+    borderWidth: vw(1),
+    borderColor: colors.new_ui_card_border,
+    elevation: 1,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
+  },
+  cardTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: vh(6),
+  },
+  avatarRow: { flexDirection: 'row', alignItems: 'center', gap: vw(10) },
+  avatarCircle: {
+    width: vw(36),
+    height: vw(36),
+    borderRadius: vw(18),
+    backgroundColor: colors.primary_sky_blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarLetter: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.md,
+    color: colors.text_black,
+  },
+  nameBlock: { flexShrink: 1 },
+  nameText: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.md,
+    color: colors.new_ui_card_title,
+  },
+  badge: {
+    alignSelf: 'flex-start',
+    marginTop: vh(4),
+    paddingHorizontal: vw(8),
+    paddingVertical: vh(2),
+    borderRadius: vw(6),
+    backgroundColor: colors.lightBlue,
+  },
+  badgeText: {
+    fontFamily: fonts.Roboto_Regular,
+    fontSize: adminFontSizes.xs,
+    color: colors.new_ui_card_description,
+  },
+  iconActions: { flexDirection: 'row', alignItems: 'center', gap: vw(8) },
+  iconButton: {
+    width: vw(34),
+    height: vw(34),
+    borderRadius: vw(8),
+    borderWidth: vw(1),
+    borderColor: colors.new_ui_edit_border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.white,
+  },
+  infoGrid: { marginTop: vh(6) },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: vw(10),
+    marginTop: vh(10),
+  },
+  infoCol: { flex: 1 },
+  infoLabel: {
+    fontFamily: fonts.Roboto_Regular,
+    fontSize: adminFontSizes.xs,
+    color: colors.new_ui_card_description,
+  },
+  infoValue: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.sm,
+    color: colors.new_ui_card_title,
+    marginTop: vh(3),
+  },
+  viewMoreRow: { marginTop: vh(12) },
+  viewMoreText: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.sm,
+    color: '#D38B00',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -834,7 +986,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: vh(5),
   },
-  applyBtn: { width: vw(150), height: vh(35) },
+  applyTouchable: {
+    width: vw(150),
+    borderRadius: vw(8),
+    overflow: 'hidden',
+    height: vh(35),
+  },
+  applyButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  applyButtonImage: {
+    borderRadius: vw(8),
+  },
+  applyText: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: adminFontSizes.sm,
+    color: colors.white,
+  },
   clearBtn: {
     width: vw(150),
     height: vh(35),
@@ -859,4 +1029,48 @@ const styles = StyleSheet.create({
   searchBox: { marginTop: vh(15) },
   paginationLoader: { marginTop: vh(15) },
   itemSeparator: { height: vh(10) },
+  sheetOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.black_20,
+    zIndex: 20,
+  },
+  overlayPressable: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  sheetHandle: {
+    width: vw(44),
+    height: vh(4),
+    borderRadius: vw(10),
+    backgroundColor: colors.grey_1,
+    alignSelf: 'center',
+    marginTop: vh(8),
+    marginBottom: vh(10),
+  },
+  sheetContainer: {
+    flex: 1,
+    backgroundColor: colors.white,
+    paddingHorizontal: vw(20),
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  sheetTitle: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.lg,
+    color: colors.text_black,
+  },
+  sheetClose: {
+    width: vw(34),
+    height: vw(34),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetSeparator: {
+    height: vh(1),
+    backgroundColor: colors.borderGrayLight,
+    marginTop: vh(10),
+    marginBottom: vh(10),
+  },
 });

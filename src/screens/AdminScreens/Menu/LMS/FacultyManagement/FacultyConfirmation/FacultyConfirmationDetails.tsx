@@ -1,11 +1,22 @@
-import React, { useLayoutEffect } from 'react';
-import { StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useLayoutEffect, useState } from 'react';
+import { StyleSheet, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
+import {
+  adminFontSizes,
+  colors,
+  fonts,
+  screensName,
+  strings,
+  vh,
+  vw,
+} from '../../../../../../constants';
 import { Header } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import moment from 'moment';
+import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import Toast from 'react-native-toast-message';
+import { useUpdateFacultyConfirmationMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 
 const FieldRow = ({ label, value }: any) => (
   <ViewAtom style={styles.row}>
@@ -25,24 +36,18 @@ const FullWidthField = ({ label, value }: any) => (
   </ViewAtom>
 );
 
-const ImageField = ({ label, uri }: any) => (
-  <ViewAtom style={styles.fullWidthBox}>
-    <TextAtom style={styles.fullLabel}>{label}</TextAtom>
-
-    {uri ? (
-      <Image
-        source={{ uri }}
-        style={{ width: '100%', height: vh(160), borderRadius: vw(8) }}
-        resizeMode="contain"
-      />
-    ) : (
-      <TextAtom style={styles.fullValue}>-</TextAtom>
-    )}
-  </ViewAtom>
-);
-
 const FacultyConfirmationDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
+  const [updateFacultyConfirmationApi] = useUpdateFacultyConfirmationMutation();
+
+  const initialStatus =
+    data?.classConfirmation === null
+      ? strings.no
+      : data?.classConfirmation
+      ? strings.yes
+      : strings.no;
+
+  const [statusValue, setStatusValue] = useState(initialStatus);
 
   useLayoutEffect(() => {
     Header.setNavigation(
@@ -52,6 +57,39 @@ const FacultyConfirmationDetails = ({ route, navigation }: any) => {
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
+  const onSelectStatus = (newStatus: string) => {
+    if (newStatus === statusValue) return;
+
+    navigation.navigate(screensName.AlertOrganism, {
+      title: strings.lms.facultyManagement.confirmation.statusChangeConf,
+      message: strings.lms.facultyManagement.confirmation.statusChangeMsg,
+      okText: strings.lms.facultyManagement.confirmation.confirm,
+      double: true,
+      cancelText: strings.lms.facultyManagement.confirmation.cancel,
+      okFunction: () => updateStatus(data?.id, newStatus),
+      cancelFunction: () => {},
+    });
+  };
+
+  const updateStatus = (id: any, status: string) => {
+    const params = { class_confirmation: status, id };
+    updateFacultyConfirmationApi(params)
+      .unwrap()
+      .then((res: any) => {
+        setStatusValue(status);
+        Toast.show({ type: 'success', text2: res.data?.message });
+      })
+      .catch((err: any) => {
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || strings.something_went_wrong,
+        });
+      });
+  };
+
+  const displayName = data?.facultyName ?? '-';
+  const avatarLetter = `${displayName}`.trim().charAt(0).toUpperCase() || 'F';
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <ScrollView
@@ -59,6 +97,15 @@ const FacultyConfirmationDetails = ({ route, navigation }: any) => {
         contentContainerStyle={styles.scrollContainer}
       >
         <ViewAtom style={styles.card}>
+          <View style={styles.profileRow}>
+            <View style={styles.avatarCircle}>
+              <TextAtom style={styles.avatarLetter}>{avatarLetter}</TextAtom>
+            </View>
+            <View style={styles.profileInfo}>
+              <TextAtom style={styles.profileName}>{displayName}</TextAtom>
+            </View>
+          </View>
+
           <FullWidthField
             label={strings.lms.facultyManagement.confirmation.facultyName}
             value={data?.facultyName}
@@ -114,16 +161,45 @@ const FacultyConfirmationDetails = ({ route, navigation }: any) => {
             }
           />
 
-          <FieldRow
-            label={strings.lms.facultyManagement.confirmation.classConfirmation}
-            value={
-              data?.classConfirmation === null
-                ? strings.no
-                : data?.classConfirmation
-                ? strings.yes
-                : strings.no
-            }
-          />
+          <View style={styles.confirmationSection}>
+            <TextAtom style={styles.sectionTitle}>
+              {strings.lms.facultyManagement.confirmation.classConfirmation}
+            </TextAtom>
+            <View style={styles.classToggle}>
+              <TouchableAtom
+                style={[
+                  styles.toggleBtn,
+                  statusValue === strings.yes && styles.toggleBtnActive,
+                ]}
+                onPress={() => onSelectStatus(strings.yes)}
+              >
+                <TextAtom
+                  style={[
+                    styles.toggleText,
+                    statusValue === strings.yes && styles.toggleTextActive,
+                  ]}
+                >
+                  {strings.yes}
+                </TextAtom>
+              </TouchableAtom>
+              <TouchableAtom
+                style={[
+                  styles.toggleBtn,
+                  statusValue === strings.no && styles.toggleBtnActive,
+                ]}
+                onPress={() => onSelectStatus(strings.no)}
+              >
+                <TextAtom
+                  style={[
+                    styles.toggleText,
+                    statusValue === strings.no && styles.toggleTextActive,
+                  ]}
+                >
+                  {strings.no}
+                </TextAtom>
+              </TouchableAtom>
+            </View>
+          </View>
         </ViewAtom>
       </ScrollView>
     </SafeAreaView>
@@ -138,11 +214,36 @@ const styles = StyleSheet.create({
   scrollContainer: { paddingBottom: vh(40), paddingHorizontal: vw(15) },
 
   card: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.new_ui_card_bg,
     borderRadius: vw(10),
     padding: vw(15),
     marginTop: vh(15),
     elevation: 2,
+  },
+  profileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: vw(10),
+    marginBottom: vh(12),
+  },
+  avatarCircle: {
+    width: vw(36),
+    height: vw(36),
+    borderRadius: vw(18),
+    backgroundColor: colors.primary_sky_blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarLetter: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.md,
+    color: colors.text_black,
+  },
+  profileInfo: { flex: 1 },
+  profileName: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.md,
+    color: colors.new_ui_card_title,
   },
 
   row: {
@@ -153,15 +254,15 @@ const styles = StyleSheet.create({
 
   label: {
     fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
+    fontSize: adminFontSizes.sm,
+    color: colors.text_black,
     flex: 1,
   },
 
   value: {
     fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
+    fontSize: adminFontSizes.sm,
+    color: colors.new_ui_card_description,
     flex: 1,
     textAlign: 'right',
   },
@@ -170,14 +271,41 @@ const styles = StyleSheet.create({
 
   fullLabel: {
     fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
+    fontSize: adminFontSizes.sm,
+    color: colors.text_black,
     marginBottom: vh(5),
   },
 
   fullValue: {
     fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
+    fontSize: adminFontSizes.sm,
+    color: colors.new_ui_card_description,
   },
+  confirmationSection: { marginTop: vh(6) },
+  sectionTitle: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.sm,
+    color: colors.text_black,
+    marginBottom: vh(8),
+  },
+  classToggle: {
+    flexDirection: 'row',
+    borderRadius: vw(8),
+    overflow: 'hidden',
+    borderWidth: vw(1),
+    borderColor: colors.new_ui_card_border,
+    alignSelf: 'flex-start',
+  },
+  toggleBtn: {
+    paddingHorizontal: vw(12),
+    paddingVertical: vh(6),
+    backgroundColor: colors.white,
+  },
+  toggleBtnActive: { backgroundColor: colors.primary_blue },
+  toggleText: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.xs,
+    color: colors.new_ui_card_description,
+  },
+  toggleTextActive: { color: colors.white },
 });
