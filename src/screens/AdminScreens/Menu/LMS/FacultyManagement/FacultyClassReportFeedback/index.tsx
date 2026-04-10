@@ -45,6 +45,7 @@ import { useReportListFacultyFeedbackReportMutation } from '../../../../../../in
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
+import { useFacultyCenter } from '../context/FacultyCenterContext';
 
 interface Props {
   navigation: NavigationType;
@@ -80,7 +81,7 @@ const FacultyClassReportFeedback = (props: Props) => {
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const { center: centerSerach, setCenter: setCenterSerach } = useFacultyCenter();
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const openFilter = () => setShowFilter(true);
@@ -259,20 +260,12 @@ const FacultyClassReportFeedback = (props: Props) => {
         placeholder={
           strings.lms.facultyManagement.facultyClassReportFeedback.main.faculty
         }
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.facultyManagement.facultyClassReportFeedback.main
-              .faculty,
-            Data: facultyNameList,
-            selectedData: selectedFaculty,
-            setSelectedData: (data: any) => {
-              setSelectedFaculty(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedFaculty?.name}
+        data={facultyNameList}
+        value={selectedFaculty?.id}
+        onChange={(item: any) => setSelectedFaculty(item)}
+        labelField="name"
+        valueField="id"
+        searchable={true}
       />
 
       <ViewAtom style={styles.buttonRow}>
@@ -391,33 +384,24 @@ const FacultyClassReportFeedback = (props: Props) => {
             strings.lms.facultyManagement.facultyClassReportFeedback.main
               .centers
           }
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.lms.facultyManagement.facultyClassReportFeedback
-                .main.center,
-              Data: [
-                {
-                  id: strings.dashboardIndex.allCenters,
-                  name: strings.dashboardIndex.allCenters,
-                },
-                {
-                  id: strings.dashboardIndex.gaya,
-                  name: strings.dashboardIndex.gaya,
-                },
-                {
-                  id: strings.dashboardIndex.patna,
-                  name: strings.dashboardIndex.patna,
-                },
-              ],
-              selectedData: centerSerach,
-              setSelectedData: (data: any) => {
-                setCenterSerach(data);
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={centerSerach?.name}
+          data={[
+            {
+              id: strings.dashboardIndex.allCenters,
+              name: strings.dashboardIndex.allCenters,
+            },
+            {
+              id: strings.dashboardIndex.gaya,
+              name: strings.dashboardIndex.gaya,
+            },
+            {
+              id: strings.dashboardIndex.patna,
+              name: strings.dashboardIndex.patna,
+            },
+          ]}
+          value={centerSerach?.id}
+          onChange={(item: any) => setCenterSerach(item)}
+          labelField="name"
+          valueField="id"
           containerStyle={styles.centerDropdown}
         />
       )}

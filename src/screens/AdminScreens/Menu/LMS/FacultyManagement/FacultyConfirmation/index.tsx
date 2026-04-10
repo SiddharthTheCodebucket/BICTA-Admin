@@ -36,6 +36,7 @@ import {
   useListFacultyConfirmationMutation,
   useUpdateFacultyConfirmationMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
+import { useFacultyCenter } from '../context/FacultyCenterContext';
 
 interface Props {
   navigation: NavigationType;
@@ -63,7 +64,7 @@ const FacultyConfirmation = (props: Props) => {
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const { center: centerSerach, setCenter: setCenterSerach } = useFacultyCenter();
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useLayoutEffect(() => {
@@ -333,32 +334,24 @@ const FacultyConfirmation = (props: Props) => {
         <DropDownOrganism
           label={''}
           placeholder={strings.lms.locationDetails.centers}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.dashboardIndex.center,
-              Data: [
-                {
-                  id: strings.dashboardIndex.allCenters,
-                  name: strings.dashboardIndex.allCenters,
-                },
-                {
-                  id: strings.dashboardIndex.gaya,
-                  name: strings.dashboardIndex.gaya,
-                },
-                {
-                  id: strings.dashboardIndex.patna,
-                  name: strings.dashboardIndex.patna,
-                },
-              ],
-              selectedData: centerSerach,
-              setSelectedData: (data: any) => {
-                setCenterSerach(data);
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={centerSerach?.name}
+          data={[
+            {
+              id: strings.dashboardIndex.allCenters,
+              name: strings.dashboardIndex.allCenters,
+            },
+            {
+              id: strings.dashboardIndex.gaya,
+              name: strings.dashboardIndex.gaya,
+            },
+            {
+              id: strings.dashboardIndex.patna,
+              name: strings.dashboardIndex.patna,
+            },
+          ]}
+          value={centerSerach?.id}
+          onChange={(item: any) => setCenterSerach(item)}
+          labelField="name"
+          valueField="id"
           containerStyle={styles.centerDropdown}
         />
       )}

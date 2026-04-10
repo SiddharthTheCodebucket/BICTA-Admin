@@ -1,14 +1,18 @@
-import { Keyboard, Linking, StyleSheet, TouchableOpacity } from 'react-native';
-import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
+import { Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import { CommonActions } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {
   colors,
   fonts,
-  screensName,
   strings,
   vh,
   vw,
@@ -84,53 +88,15 @@ const AddFacultyDetails = (props: Props) => {
         : strings.lms.facultyManagement.details.addTitle,
     );
     navigation.BackButtonPress = () => navigation.goBack();
-  }, []);
+  }, [item, navigation]);
 
   const [loader, setLoader] = useState(false);
   const [form, setForm] = useState<any>(initialForm);
   const [errors, setErrors] = useState<any>({});
 
-  const setValue = (key: any, value: any) => {
+  const setValue = useCallback((key: any, value: any) => {
     setForm((prev: any) => ({ ...prev, [key]: value }));
-  };
-
-  useEffect(() => {
-    getBipardCenter();
-    getFacultyType();
-    if (!item) return;
-
-    const locationMap: any = {
-      1: { id: strings.dashboardIndex.gaya, name: strings.dashboardIndex.gaya },
-      2: {
-        id: strings.dashboardIndex.patna,
-        name: strings.dashboardIndex.patna,
-      },
-    };
-
-    const selectedLocation = locationMap[item.tenantId] || {};
-
-    // getHostelName(selectedLocation.name);
-    // getGenderTypeName(selectedLocation.name);
-
-    // setForm((prev: any) => ({
-    //   ...prev,
-
-    //   bipardLocation: selectedLocation,
-
-    //   hostel: {
-    //     id: item.selectHostelNameId,
-    //     name: item.selectHostelName,
-    //   },
-
-    //   genderType: {
-    //     id: item.floorType,
-    //     name: item.floorType,
-    //   },
-
-    //   nameOfFloor: item.nameOfFloors ?? '',
-    //   noOfRooms: item.noOfRooms?.toString() ?? '',
-    // }));
-  }, [item]);
+  }, []);
 
   const schema = Yup.object().shape({
     status: Yup.object({
@@ -270,7 +236,7 @@ const AddFacultyDetails = (props: Props) => {
       });
   };
 
-  const getFacultyType = () => {
+  const getFacultyType = useCallback(() => {
     setLoader(true);
     const params = {
       listType: 'select_faculty_type',
@@ -291,8 +257,8 @@ const AddFacultyDetails = (props: Props) => {
           autoHide: true,
         });
       });
-  };
-  const getBipardCenter = () => {
+  }, [commonDropdownApi, setValue]);
+  const getBipardCenter = useCallback(() => {
     setLoader(true);
     const params = {
       listType: 'select_training_centre',
@@ -312,7 +278,14 @@ const AddFacultyDetails = (props: Props) => {
           autoHide: true,
         });
       });
-  };
+  }, [commonDropdownApi, setValue]);
+
+  useEffect(() => {
+    getBipardCenter();
+    getFacultyType();
+    if (!item) return;
+    // Prefill can be added here when API contract is confirmed.
+  }, [getBipardCenter, getFacultyType, item]);
 
   const getSalutation = (id: any) => {
     setLoader(true);
@@ -509,24 +482,18 @@ const AddFacultyDetails = (props: Props) => {
         <DropDownOrganism
           label={strings.lms.facultyManagement.details.facultyType}
           placeholder={strings.lms.facultyManagement.details.facultyType}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.lms.facultyManagement.details.facultyType,
-              Data: form.facultyTypeList,
-              selectedData: form.selectedFacultyType,
-              setSelectedData: (data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  selectedFacultyType: data,
-                }));
-
-                setErrors({ ...errors, 'selectedFacultyType.id': '' });
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
+          data={form.facultyTypeList}
+          value={form.selectedFacultyType?.id}
+          onChange={(item: any) => {
+            setForm((prev: any) => ({
+              ...prev,
+              selectedFacultyType: item,
+            }));
+            setErrors({ ...errors, 'selectedFacultyType.id': '' });
           }}
-          inputText={form.selectedFacultyType?.name}
+          labelField="name"
+          valueField="id"
+          searchable={true}
           isMandatory
           errorMessage={errors['selectedFacultyType.id']}
         />
@@ -534,37 +501,31 @@ const AddFacultyDetails = (props: Props) => {
         <DropDownOrganism
           label={strings.lms.facultyManagement.details.bipardLocation}
           placeholder={strings.lms.facultyManagement.details.bipardLocation}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.lms.facultyManagement.details.bipardLocation,
-              Data: [
-                {
-                  id: strings.dashboardIndex.gaya,
-                  name: strings.dashboardIndex.gaya,
-                },
-                {
-                  id: strings.dashboardIndex.patna,
-                  name: strings.dashboardIndex.patna,
-                },
-              ],
-              selectedData: form.bipardLocation,
-              setSelectedData: (data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  bipardLocation: data,
-                }));
-                getSalutation(data.name);
-                getFaculty(data.name);
-                getCategory(data.name);
-                getPayLevel(data.name);
-                getState(data.name);
-                setErrors({ ...errors, 'bipardLocation.id': '' });
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
+          data={[
+            {
+              id: strings.dashboardIndex.gaya,
+              name: strings.dashboardIndex.gaya,
+            },
+            {
+              id: strings.dashboardIndex.patna,
+              name: strings.dashboardIndex.patna,
+            },
+          ]}
+          value={form.bipardLocation?.id}
+          onChange={(item: any) => {
+            setForm((prev: any) => ({
+              ...prev,
+              bipardLocation: item,
+            }));
+            getSalutation(item.name);
+            getFaculty(item.name);
+            getCategory(item.name);
+            getPayLevel(item.name);
+            getState(item.name);
+            setErrors({ ...errors, 'bipardLocation.id': '' });
           }}
-          inputText={form.bipardLocation?.name}
+          labelField="name"
+          valueField="id"
           isMandatory
           errorMessage={errors['bipardLocation.id']}
         />
@@ -572,48 +533,36 @@ const AddFacultyDetails = (props: Props) => {
         <DropDownOrganism
           label={strings.lms.facultyManagement.details.salutation}
           placeholder={strings.lms.facultyManagement.details.salutation}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.lms.facultyManagement.details.salutation,
-              Data: form.saluationList,
-              selectedData: form.selectedSaluation,
-              setSelectedData: (data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  selectedSaluation: data,
-                }));
-
-                setErrors({ ...errors, 'selectedSaluation.id': '' });
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
+          data={form.saluationList}
+          value={form.selectedSaluation?.id}
+          onChange={(item: any) => {
+            setForm((prev: any) => ({
+              ...prev,
+              selectedSaluation: item,
+            }));
+            setErrors({ ...errors, 'selectedSaluation.id': '' });
           }}
-          inputText={form.selectedSaluation?.name}
+          labelField="name"
+          valueField="id"
+          searchable={true}
           isMandatory
           errorMessage={errors['selectedSaluation.id']}
         />
         <DropDownOrganism
           label={strings.lms.facultyManagement.details.facultyName}
           placeholder={strings.lms.facultyManagement.details.facultyName}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.lms.facultyManagement.details.facultyName,
-              Data: form.facultyNameList,
-              selectedData: form.selectedFacultyName,
-              setSelectedData: (data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  selectedFacultyName: data,
-                }));
-
-                setErrors({ ...errors, 'selectedFacultyName.id': '' });
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
+          data={form.facultyNameList}
+          value={form.selectedFacultyName?.id}
+          onChange={(item: any) => {
+            setForm((prev: any) => ({
+              ...prev,
+              selectedFacultyName: item,
+            }));
+            setErrors({ ...errors, 'selectedFacultyName.id': '' });
           }}
-          inputText={form.selectedFacultyName?.name}
+          labelField="name"
+          valueField="id"
+          searchable={true}
           isMandatory
           errorMessage={errors['selectedFacultyName.id']}
         />
@@ -652,48 +601,36 @@ const AddFacultyDetails = (props: Props) => {
         <DropDownOrganism
           label={strings.lms.facultyManagement.details.category}
           placeholder={strings.lms.facultyManagement.details.category}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.lms.facultyManagement.details.category,
-              Data: form.categoryList,
-              selectedData: form.selectedCategory,
-              setSelectedData: (data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  selectedCategory: data,
-                }));
-
-                setErrors({ ...errors, 'selectedCategory.id': '' });
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
+          data={form.categoryList}
+          value={form.selectedCategory?.id}
+          onChange={(item: any) => {
+            setForm((prev: any) => ({
+              ...prev,
+              selectedCategory: item,
+            }));
+            setErrors({ ...errors, 'selectedCategory.id': '' });
           }}
-          inputText={form.selectedCategory?.name}
+          labelField="name"
+          valueField="id"
+          searchable={true}
           isMandatory
           errorMessage={errors['selectedCategory.id']}
         />
         <DropDownOrganism
           label={strings.lms.facultyManagement.details.payLevel}
           placeholder={strings.lms.facultyManagement.details.payLevel}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.lms.facultyManagement.details.payLevel,
-              Data: form.payLevelList,
-              selectedData: form.selectedPayLevel,
-              setSelectedData: (data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  selectedPayLevel: data,
-                }));
-
-                setErrors({ ...errors, 'selectedPayLevel.id': '' });
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
+          data={form.payLevelList}
+          value={form.selectedPayLevel?.id}
+          onChange={(item: any) => {
+            setForm((prev: any) => ({
+              ...prev,
+              selectedPayLevel: item,
+            }));
+            setErrors({ ...errors, 'selectedPayLevel.id': '' });
           }}
-          inputText={form.selectedPayLevel?.name}
+          labelField="name"
+          valueField="id"
+          searchable={true}
           isMandatory
           errorMessage={errors['selectedPayLevel.id']}
         />
@@ -740,24 +677,18 @@ const AddFacultyDetails = (props: Props) => {
           <DropDownOrganism
             label={strings.lms.facultyManagement.details.state}
             placeholder={strings.lms.facultyManagement.details.state}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: strings.lms.facultyManagement.details.state,
-                Data: form.stateList,
-                selectedData: form.selectedState,
-                setSelectedData: (data: any) => {
-                  setForm((prev: any) => ({
-                    ...prev,
-                    selectedState: data,
-                  }));
-
-                  setErrors({ ...errors, 'selectedState.id': '' });
-                },
-                typeName: 'state',
-                typeId: 'id',
-              });
+            data={form.stateList}
+            value={form.selectedState?.id}
+            onChange={(item: any) => {
+              setForm((prev: any) => ({
+                ...prev,
+                selectedState: item,
+              }));
+              setErrors({ ...errors, 'selectedState.id': '' });
             }}
-            inputText={form.selectedState?.name}
+            labelField={form.stateList?.[0]?.state ? 'state' : 'name'}
+            valueField="id"
+            searchable={true}
             isMandatory
             errorMessage={errors['selectedState.id']}
           />

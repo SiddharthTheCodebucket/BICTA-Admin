@@ -21,6 +21,7 @@ import {
 import FacultyDetails from './FacultyDetails';
 import FacultyConfirmation from './FacultyConfirmation';
 import FacultyClassReportFeedback from './FacultyClassReportFeedback';
+import { FacultyCenterProvider } from './context/FacultyCenterContext';
 
 interface Props {
   route: any;
@@ -149,35 +150,40 @@ const FacultyManagement = (props: Props) => {
   }, [navigation]);
 
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
-      <TopTabs.Navigator
-        key={initialRouteName}
-        initialRouteName={initialRouteName}
-        tabBar={tabBarProps => <CustomFacultyTabBar {...tabBarProps} />}
-        screenOptions={{
-          swipeEnabled: true,
-          sceneStyle: { backgroundColor: colors.new_ui_screen_bg },
-        }}
-      >
-        <TopTabs.Screen
-          name="FacultyDetailsTab"
-          component={FacultyDetails}
-          options={{ tabBarLabel: strings.lms.facultyManagement.main.facultyDetails }}
-        />
-        <TopTabs.Screen
-          name="FacultyConfirmationTab"
-          component={FacultyConfirmation}
-          options={{
-            tabBarLabel: strings.lms.facultyManagement.main.facultyConfirmation,
+    <FacultyCenterProvider>
+      <SafeAreaView edges={['bottom']} style={styles.container}>
+        <TopTabs.Navigator
+          key={initialRouteName}
+          initialRouteName={initialRouteName}
+          tabBar={tabBarProps => <CustomFacultyTabBar {...tabBarProps} />}
+          screenOptions={{
+            swipeEnabled: true,
+            sceneStyle: { backgroundColor: colors.new_ui_screen_bg },
           }}
-        />
-        <TopTabs.Screen
-          name="FacultyClassReportTab"
-          component={FacultyClassReportFeedback}
-          options={{ tabBarLabel: 'Faculty Class Report' }}
-        />
-      </TopTabs.Navigator>
-    </SafeAreaView>
+        >
+          <TopTabs.Screen
+            name="FacultyDetailsTab"
+            component={FacultyDetails}
+            options={{
+              tabBarLabel: strings.lms.facultyManagement.main.facultyDetails,
+            }}
+          />
+          <TopTabs.Screen
+            name="FacultyConfirmationTab"
+            component={FacultyConfirmation}
+            options={{
+              tabBarLabel:
+                strings.lms.facultyManagement.main.facultyConfirmation,
+            }}
+          />
+          <TopTabs.Screen
+            name="FacultyClassReportTab"
+            component={FacultyClassReportFeedback}
+            options={{ tabBarLabel: 'Faculty Class Report' }}
+          />
+        </TopTabs.Navigator>
+      </SafeAreaView>
+    </FacultyCenterProvider>
   );
 };
 

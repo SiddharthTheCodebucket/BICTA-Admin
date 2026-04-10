@@ -1,14 +1,12 @@
 import {
-  Image,
   Keyboard,
   StyleSheet,
   TextInput,
   ViewStyle,
 } from 'react-native';
 import React from 'react';
-import { colors, fonts, images, vh, vw } from '../../constants';
+import { colors, fonts, SvgCross, SvgSearch, vh, vw } from '../../constants';
 import PressableAtom from '../atoms/PressableAtom';
-import ImageAtom from '../atoms/ImageAtom';
 import TouchableAtom from '../atoms/TouchableAtom';
 interface Props {
   onChangeText: any;
@@ -40,7 +38,7 @@ const SearchBoxOrganism = (props: Props) => {
       />
 
       {props.searchText.length === 0 ? (
-        <ImageAtom source={images.search} style={styles.crossIconStyle} />
+        <SvgSearch width={vw(18)} height={vw(18)} />
       ) : (
         <TouchableAtom
           activeOpacity={0.8}
@@ -49,7 +47,7 @@ const SearchBoxOrganism = (props: Props) => {
             props.onPressCross();
           }}
         >
-          <Image source={images.cross} style={styles.crossIconStyle} />
+          <SvgCross width={vw(18)} height={vw(18)} />
         </TouchableAtom>
       )}
     </PressableAtom>
@@ -79,11 +77,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.Roboto_Regular,
     includeFontPadding: false,
     paddingVertical: 0,
-  },
-  crossIconStyle: {
-    width: vw(18),
-    height: vh(18),
-    resizeMode: 'contain',
   },
   hitSlop: {
     left: 10,

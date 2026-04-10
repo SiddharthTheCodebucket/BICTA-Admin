@@ -48,6 +48,7 @@ import {
   useDeleteFacultyDetailsMutation,
   useListFacultyDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
+import { useFacultyCenter } from '../context/FacultyCenterContext';
 
 interface Props {
   route: any;
@@ -88,7 +89,8 @@ const FacultyDetails = (props: Props) => {
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const { center: centerSerach, setCenter: setCenterSerach } =
+    useFacultyCenter();
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useLayoutEffect(() => {
@@ -351,55 +353,34 @@ const FacultyDetails = (props: Props) => {
       <DropDownOrganism
         label={strings.lms.facultyManagement.details.facultyType}
         placeholder={strings.lms.facultyManagement.details.facultyType}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.facultyManagement.details.facultyType,
-            Data: facultyTypeList,
-            selectedData: selectedFacultyType,
-            setSelectedData: (data: any) => {
-              setSelectedFacultyType(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedFacultyType?.name}
+        data={facultyTypeList}
+        value={selectedFacultyType?.id}
+        onChange={(item: any) => setSelectedFacultyType(item)}
+        labelField="name"
+        valueField="id"
+        searchable={true}
       />
 
       <DropDownOrganism
         label={strings.lms.facultyManagement.details.department}
         placeholder={strings.lms.facultyManagement.details.department}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.facultyManagement.details.department,
-            Data: departmentList,
-            selectedData: selectedDepartment,
-            setSelectedData: (data: any) => {
-              setSelectedDepartment(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedDepartment?.name}
+        data={departmentList}
+        value={selectedDepartment?.id}
+        onChange={(item: any) => setSelectedDepartment(item)}
+        labelField="name"
+        valueField="id"
+        searchable={true}
       />
 
       <DropDownOrganism
         label={strings.lms.facultyManagement.details.facultyOrganisation}
         placeholder={strings.lms.facultyManagement.details.facultyOrganisation}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.facultyManagement.details.facultyOrganisation,
-            Data: organisationList,
-            selectedData: selectedOrganisation,
-            setSelectedData: (data: any) => {
-              setSelectedOrganisation(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedOrganisation?.name}
+        data={organisationList}
+        value={selectedOrganisation?.id}
+        onChange={(item: any) => setSelectedOrganisation(item)}
+        labelField="name"
+        valueField="id"
+        searchable={true}
       />
 
       <ViewAtom style={styles.buttonRow}>
@@ -546,44 +527,39 @@ const FacultyDetails = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      {crediantialData.user[0].tenantId === 3 && (
+      {/* {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
           placeholder={strings.lms.locationDetails.centers}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.dashboardIndex.center,
-              Data: [
-                {
-                  id: strings.dashboardIndex.allCenters,
-                  name: strings.dashboardIndex.allCenters,
-                },
-                {
-                  id: strings.dashboardIndex.gaya,
-                  name: strings.dashboardIndex.gaya,
-                },
-                {
-                  id: strings.dashboardIndex.patna,
-                  name: strings.dashboardIndex.patna,
-                },
-              ],
-              selectedData: centerSerach,
-              setSelectedData: (data: any) => {
-                setCenterSerach(data);
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={centerSerach?.name}
+          data={[
+            {
+              id: strings.dashboardIndex.allCenters,
+              name: strings.dashboardIndex.allCenters,
+            },
+            {
+              id: strings.dashboardIndex.gaya,
+              name: strings.dashboardIndex.gaya,
+            },
+            {
+              id: strings.dashboardIndex.patna,
+              name: strings.dashboardIndex.patna,
+            },
+          ]}
+          value={centerSerach?.id}
+          onChange={(item: any) => setCenterSerach(item)}
+          labelField="name"
+          valueField="id"
           containerStyle={styles.centerDropdown}
         />
-      )}
+      )} */}
 
       <View style={styles.headerRow}>
         <View style={styles.titleRow}>
           <TextAtom style={styles.headerTitle}>
-            {strings.lms.facultyManagement.details.title}
+            {
+              strings.lms.facultyManagement.facultyClassReportFeedback.main
+                .faculty
+            }
           </TextAtom>
           <TextAtom style={styles.headerCount}>({totalCount})</TextAtom>
         </View>
