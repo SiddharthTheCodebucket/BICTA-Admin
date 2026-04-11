@@ -5,7 +5,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
@@ -20,23 +20,52 @@ import FullscreenLoading from '../../../../../../components/organisms/Fullscreen
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
+import AdminTextInputField from '../../../../../../components/molecules/AdminTextInputField';
+import { globalStyles } from '../../../../../../utils/globalStyles';
 
 import {
   useAddTrainingCategoryMutation,
   useUpdateTrainingCategoryMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 
+type BipardLocation = { id: string; name: string } | null;
+
+interface TrainingCategoryItem {
+  categoryId: number;
+  categoryName: string;
+  description?: string | null;
+  tenantId: number;
+}
+
+interface AddTrainingCategoryRouteParams {
+  item?: TrainingCategoryItem;
+  onDone?: () => void;
+}
+
 interface Props {
-  route: any;
+  route: { params?: AddTrainingCategoryRouteParams };
   navigation: NavigationType;
+}
+
+type FormErrors = Partial<
+  Record<
+    'bipardLocation' | 'bipardLocation.name' | 'categoryName' | 'desc',
+    string
+  >
+>;
+
+interface FormState {
+  bipardLocation: BipardLocation;
+  categoryName: string;
+  desc: string;
 }
 
 const AddTrainingCategory = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
   const isEdit = !!item;
-  const input1_ref: any = createRef();
-  const input2_ref: any = createRef();
+  const input1_ref = useRef<TextInput>(null);
+  const input2_ref = useRef<TextInput>(null);
 
   const { crediantialData } = useAppSelector(state => state.Auth);
   const tenantId = crediantialData?.user?.[0]?.tenantId;
@@ -63,31 +92,31 @@ const AddTrainingCategory = (props: Props) => {
   const [loader, setLoader] = useState(false);
 
   // Auto-select location based on tenantId
-  const getInitialLocation = () => {
+  const getInitialLocation = (): BipardLocation => {
     if (tenantId === 1) return { id: 'Gaya', name: 'Gaya' };
     if (tenantId === 2) return { id: 'Patna', name: 'Patna' };
-    return {}; // tenantId === 3 (superadmin) - no auto-selection
+    return null; // tenantId === 3 (superadmin) - no auto-selection
   };
 
-  const [form, setForm] = useState<any>({
+  const [form, setForm] = useState<FormState>({
     bipardLocation: getInitialLocation(),
     categoryName: '',
     desc: '',
   });
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
-  const setValue = (key: any, value: any) => {
-    setForm((prev: any) => ({ ...prev, [key]: value }));
+  const setValue = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+    setForm(prev => ({ ...prev, [key]: value }));
   };
   useEffect(() => {
     if (!item) return;
 
-    const locationMap: any = {
+    const locationMap: Record<number, BipardLocation> = {
       1: { id: 'Gaya', name: 'Gaya' },
       2: { id: 'Patna', name: 'Patna' },
     };
 
-    const selectedLocation = locationMap[item.tenantId] || {};
+    const selectedLocation = locationMap[item.tenantId] ?? null;
 
     setForm({
       bipardLocation: selectedLocation,
@@ -101,7 +130,9 @@ const AddTrainingCategory = (props: Props) => {
     categoryName: Yup.string().required('Category name is required'),
     bipardLocation: Yup.object({
       name: Yup.string().required('Bipard location is required'),
-    }),
+    })
+      .nullable()
+      .required('Bipard location is required'),
   });
 
   const onSubmit = () => {
@@ -113,17 +144,20 @@ const AddTrainingCategory = (props: Props) => {
       } else {
         addTrainingCategoryDetails();
       }
-    } catch (err: any) {
-      const nextErrors: any = {};
-      if (err?.inner?.length) {
-        err.inner.forEach((validationErr: any) => {
-          if (validationErr.path && !nextErrors[validationErr.path]) {
-            nextErrors[validationErr.path] = validationErr.message;
-          }
+    } catch (err: unknown) {
+      if (!(err instanceof Yup.ValidationError)) return;
+
+      const nextErrors: FormErrors = {};
+      if (err.inner?.length) {
+        err.inner.forEach(validationErr => {
+          const path = validationErr.path as keyof FormErrors | undefined;
+          if (path && !nextErrors[path]) nextErrors[path] = validationErr.message;
         });
       } else if (err.path) {
-        nextErrors[err.path] = err.message;
+        const path = err.path as keyof FormErrors;
+        nextErrors[path] = err.message;
       }
+
       setErrors(nextErrors);
     }
   };
@@ -159,6 +193,10 @@ const AddTrainingCategory = (props: Props) => {
 
   const updateTrainingCategoryDetails = () => {
     setLoader(true);
+    if (!item) {
+      setLoader(false);
+      return;
+    }
 
     let params: any = {
       bipardCentre: [form.bipardLocation?.name],
@@ -214,22 +252,15 @@ const AddTrainingCategory = (props: Props) => {
           </TextAtom>
         </TouchableAtom>
 
-        <View style={styles.formCard}>
-          <View
-            style={{
-              backgroundColor: colors.backgroundColor,
-              padding: vw(8),
-
-              borderRadius: vw(8),
-            }}
-          >
-            <View style={styles.fieldBlock}>
-              <TextAtom style={styles.labelText}>
+        <View style={globalStyles.adminFormCard}>
+          <View style={[globalStyles.adminFieldCard, { marginTop: 0 }]}>
+            <View style={globalStyles.adminFieldBlock}>
+              <TextAtom style={globalStyles.adminLabelText}>
                 Select Bipard Location
-                <TextAtom style={styles.requiredMark}>*</TextAtom>
+                <TextAtom style={globalStyles.adminRequiredMark}>*</TextAtom>
               </TextAtom>
               <TouchableAtom
-                style={styles.inputContainer}
+                style={globalStyles.adminInputContainer}
                 onPress={() => {
                   if (tenantId !== 3) return;
 
@@ -240,12 +271,12 @@ const AddTrainingCategory = (props: Props) => {
                       { id: 'Patna', name: 'Patna' },
                     ],
                     selectedData: form.bipardLocation,
-                    setSelectedData: (data: any) => {
-                      setForm((prev: any) => ({
+                    setSelectedData: (data: BipardLocation) => {
+                      setForm(prev => ({
                         ...prev,
                         bipardLocation: data,
                       }));
-                      setErrors((prev: any) => ({
+                      setErrors(prev => ({
                         ...prev,
                         bipardLocation: '',
                         'bipardLocation.name': '',
@@ -259,90 +290,51 @@ const AddTrainingCategory = (props: Props) => {
               >
                 <TextAtom
                   style={[
-                    styles.inputText,
-                    !form.bipardLocation?.name && styles.placeholderText,
+                    globalStyles.adminInputText,
+                    !form.bipardLocation?.name && { color: colors.new_ui_count },
                   ]}
                 >
-                  {form.bipardLocation?.name || 'Select'}
+                  {form.bipardLocation?.name ?? 'Select'}
                 </TextAtom>
                 <ImageAtom source={images.downArrow} style={styles.dropIcon} />
               </TouchableAtom>
               {!!(errors['bipardLocation.name'] || errors.bipardLocation) && (
-                <TextAtom style={styles.errorText}>
+                <TextAtom style={globalStyles.adminErrorText}>
                   {errors['bipardLocation.name'] || errors.bipardLocation}
                 </TextAtom>
               )}
             </View>
           </View>
 
-          <View
-            style={{
-              backgroundColor: colors.backgroundColor,
-              padding: vw(8),
-
-              borderRadius: vw(8),
-              marginTop: vh(10),
+          <AdminTextInputField
+            ref={input1_ref}
+            label="Category Name"
+            required
+            value={form.categoryName}
+            placeholder="Enter"
+            returnKeyType="next"
+            onSubmitEditing={() => input2_ref.current?.focus()}
+            onChangeText={(val: string) => {
+              setValue('categoryName', val);
+              setErrors(prev => ({ ...prev, categoryName: '' }));
             }}
-          >
-            <View style={styles.fieldBlock}>
-              <TextAtom style={styles.labelText}>
-                Category Name
-                <TextAtom style={styles.requiredMark}>*</TextAtom>
-              </TextAtom>
-              <TextInput
-                ref={input1_ref}
-                style={styles.input}
-                value={form.categoryName}
-                placeholder="Enter"
-                placeholderTextColor={colors.new_ui_count}
-                returnKeyType="next"
-                onSubmitEditing={() => input2_ref.current?.focus()}
-                onChangeText={(val: string) => {
-                  setValue('categoryName', val);
-                  setErrors((prev: any) => ({ ...prev, categoryName: '' }));
-                }}
-              />
-              {!!errors.categoryName && (
-                <TextAtom style={styles.errorText}>
-                  {errors.categoryName}
-                </TextAtom>
-              )}
-            </View>
-          </View>
+            error={errors.categoryName}
+          />
 
-          <View
-            style={{
-              backgroundColor: colors.backgroundColor,
-              padding: vw(8),
-
-              borderRadius: vw(8),
-              marginTop: vh(10),
+          <AdminTextInputField
+            ref={input2_ref}
+            label="Description"
+            required
+            value={form.desc}
+            placeholder="Enter"
+            multiline
+            onSubmitEditing={() => Keyboard.dismiss()}
+            onChangeText={(val: string) => {
+              setValue('desc', val);
+              setErrors(prev => ({ ...prev, desc: '' }));
             }}
-          >
-            <View style={styles.fieldBlock}>
-              <TextAtom style={styles.labelText}>
-                Description
-                <TextAtom style={styles.requiredMark}>*</TextAtom>
-              </TextAtom>
-              <TextInput
-                ref={input2_ref}
-                style={[styles.input, styles.descriptionInput]}
-                value={form.desc}
-                placeholder="Enter"
-                placeholderTextColor={colors.new_ui_count}
-                multiline
-                textAlignVertical="top"
-                onSubmitEditing={() => Keyboard.dismiss()}
-                onChangeText={(val: string) => {
-                  setValue('desc', val);
-                  setErrors((prev: any) => ({ ...prev, desc: '' }));
-                }}
-              />
-              {!!errors.desc && (
-                <TextAtom style={styles.errorText}>{errors.desc}</TextAtom>
-              )}
-            </View>
-          </View>
+            error={errors.desc}
+          />
         </View>
       </KeyboardAwareScrollView>
 
@@ -401,71 +393,10 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: colors.text_black,
   },
-  formCard: {
-    backgroundColor: colors.white,
-    borderRadius: vw(16),
-    borderWidth: 1,
-    borderColor: '#EFEFF2',
-    padding: vw(10),
-  },
-  fieldBlock: {
-    marginBottom: vh(12),
-  },
-  labelText: {
-    fontFamily: fonts.Inter_Medium,
-    fontSize: vw(14),
-    color: '#6D7480',
-    marginBottom: vh(6),
-  },
-  requiredMark: {
-    color: '#D11A2A',
-    fontFamily: fonts.Inter_Medium,
-    fontSize: vw(14),
-  },
-  inputContainer: {
-    height: vh(42),
-    borderWidth: 1,
-    borderColor: '#ECECEC',
-    borderRadius: vw(8),
-    backgroundColor: colors.white,
-    paddingHorizontal: vw(12),
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  inputText: {
-    fontFamily: fonts.Inter_Regular,
-    fontSize: vw(16),
-    color: '#2E3440',
-  },
   dropIcon: {
     width: vw(16),
     height: vw(16),
     tintColor: '#414955',
-  },
-  placeholderText: {
-    color: colors.new_ui_count,
-  },
-  input: {
-    height: vh(42),
-    borderWidth: 1,
-    borderColor: '#E1E4E8',
-    borderRadius: vw(8),
-    backgroundColor: colors.white,
-    paddingHorizontal: vw(12),
-    fontFamily: fonts.Inter_Regular,
-    fontSize: vw(16),
-    color: '#2E3440',
-  },
-  descriptionInput: {
-    height: vh(100),
-    paddingTop: vh(10),
-  },
-  errorText: {
-    marginTop: vh(5),
-    color: colors.red_2,
-    fontFamily: fonts.Inter_Regular,
-    fontSize: vw(12),
   },
   footerRow: {
     position: 'absolute',
