@@ -20,6 +20,9 @@ import {
   fonts,
   images,
   screensName,
+  SvgEditPencile,
+  SvgFilterLines,
+  SvgSearch,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -196,7 +199,7 @@ const TrainingCategoryMaster = (props: Props) => {
           </TextAtom>
 
           <TouchableAtom
-            style={styles.editBtn}
+            style={{}}
             onPress={() =>
               navigation.navigate(screensName.AddTrainingCategory, {
                 item,
@@ -204,7 +207,7 @@ const TrainingCategoryMaster = (props: Props) => {
               })
             }
           >
-            <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
+            <SvgEditPencile />
           </TouchableAtom>
         </View>
 
@@ -231,15 +234,11 @@ const TrainingCategoryMaster = (props: Props) => {
             style={styles.iconBtn}
             onPress={() => setShowSearch(prev => !prev)}
           >
-            <ImageAtom source={images.search} style={styles.actionIcon} />
+            <SvgSearch />
           </TouchableAtom>
 
           <TouchableAtom style={styles.iconBtn} onPress={openCenterFilter}>
-            <View style={styles.filterGlyph}>
-              <View style={[styles.filterLine, { width: vw(12) }]} />
-              <View style={[styles.filterLine, { width: vw(9) }]} />
-              <View style={[styles.filterLine, { width: vw(6) }]} />
-            </View>
+            <SvgFilterLines />
           </TouchableAtom>
 
           <TouchableAtom
@@ -319,11 +318,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.new_ui_screen_bg,
+    paddingHorizontal: vw(16),
   },
 
   headerRow: {
     marginTop: vh(10),
-    paddingHorizontal: vw(14),
+
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -350,6 +350,7 @@ const styles = StyleSheet.create({
   actionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    height: vh(44),
   },
 
   iconBtn: {
@@ -404,13 +405,13 @@ const styles = StyleSheet.create({
   },
 
   flatListContainer: {
-    paddingTop: vh(12),
+    paddingTop: vh(10),
     paddingBottom: vh(20),
   },
 
   card: {
     backgroundColor: colors.white,
-    marginHorizontal: vw(14),
+
     borderRadius: vw(10),
     paddingHorizontal: vw(12),
     paddingVertical: vh(12),
@@ -422,7 +423,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: vh(8),
+    marginBottom: vh(10),
   },
 
   title: {
@@ -430,14 +431,15 @@ const styles = StyleSheet.create({
     fontFamily: fonts.Inter_SemiBold,
     fontSize: vw(16),
     color: colors.new_ui_card_title,
+    lineHeight: vh(19),
     marginRight: vw(8),
   },
 
   description: {
     fontFamily: fonts.Inter_Regular,
-    fontSize: vw(12),
+    fontSize: vw(14),
     color: colors.new_ui_card_description,
-    lineHeight: vh(20),
+    lineHeight: vh(19),
   },
 
   emptyText: {
@@ -445,22 +447,5 @@ const styles = StyleSheet.create({
     marginTop: vh(50),
     color: colors.grey,
     fontFamily: fonts.Inter_Medium,
-  },
-
-  editBtn: {
-    borderWidth: 1,
-    borderColor: colors.new_ui_edit_border,
-    borderRadius: vw(8),
-    width: vw(28),
-    height: vw(28),
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.white,
-  },
-
-  editIcon: {
-    tintColor: colors.new_ui_edit_icon,
-    width: vw(14),
-    height: vw(14),
   },
 });
