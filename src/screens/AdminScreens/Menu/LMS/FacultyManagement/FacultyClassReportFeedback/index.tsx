@@ -81,7 +81,8 @@ const FacultyClassReportFeedback = (props: Props) => {
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const { center: centerSerach, setCenter: setCenterSerach } = useFacultyCenter();
+  const { center: centerSerach, setCenter: setCenterSerach } =
+    useFacultyCenter();
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const openFilter = () => setShowFilter(true);
@@ -108,57 +109,60 @@ const FacultyClassReportFeedback = (props: Props) => {
     return [centerSerach.name];
   }, [centerSerach]);
 
-  const listFacultyFeedbackReports = useCallback((
-    pageNumber: number,
-    initial: boolean,
-    keyword: string,
-    filtersArray: any[] = [],
-  ) => {
-    initial ? setInitialCall(true) : setInitialCall(false);
+  const listFacultyFeedbackReports = useCallback(
+    (
+      pageNumber: number,
+      initial: boolean,
+      keyword: string,
+      filtersArray: any[] = [],
+    ) => {
+      initial ? setInitialCall(true) : setInitialCall(false);
 
-    const centreFilter = getCentreFilter();
-    const params: any = {
-      search: keyword,
-      sort: {
-        attributes: ['id'],
-        sorts: ['desc'],
-      },
-      filters: filtersArray,
-      pageNo: pageNumber,
-      itemsPerPage: ITEMS_PER_PAGE,
-      exportFlag: true,
-    };
+      const centreFilter = getCentreFilter();
+      const params: any = {
+        search: keyword,
+        sort: {
+          attributes: ['id'],
+          sorts: ['desc'],
+        },
+        filters: filtersArray,
+        pageNo: pageNumber,
+        itemsPerPage: ITEMS_PER_PAGE,
+        exportFlag: true,
+      };
 
-    if (centreFilter) {
-      params.bipardCentre = centreFilter;
-    }
+      if (centreFilter) {
+        params.bipardCentre = centreFilter;
+      }
 
-    reportListFacultyFeedbackReportApi(params)
-      .unwrap()
-      .then((res: any) => {
-        const newData = res.data?.data ?? [];
-        setInitialCall(false);
-        setPagination(false);
-        setRefreshing(false);
-        setData((prev: any) =>
-          pageNumber !== 1 ? [...prev, ...newData] : newData,
-        );
+      reportListFacultyFeedbackReportApi(params)
+        .unwrap()
+        .then((res: any) => {
+          const newData = res.data?.data ?? [];
+          setInitialCall(false);
+          setPagination(false);
+          setRefreshing(false);
+          setData((prev: any) =>
+            pageNumber !== 1 ? [...prev, ...newData] : newData,
+          );
 
-        setPage(pageNumber);
-        const count = res?.data?.totalCount ?? 0;
-        setTotalCount(count);
-        setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < count);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        setPagination(false);
-        setRefreshing(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || strings.something_went_wrong_,
+          setPage(pageNumber);
+          const count = res?.data?.totalCount ?? 0;
+          setTotalCount(count);
+          setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < count);
+        })
+        .catch((err: any) => {
+          setInitialCall(false);
+          setPagination(false);
+          setRefreshing(false);
+          Toast.show({
+            type: 'error',
+            text2: err.data?.message || strings.something_went_wrong_,
+          });
         });
-      });
-  }, [getCentreFilter, reportListFacultyFeedbackReportApi]);
+    },
+    [getCentreFilter, reportListFacultyFeedbackReportApi],
+  );
 
   const onChangeSearch = (text: string) => {
     setSearch(text);
@@ -377,38 +381,14 @@ const FacultyClassReportFeedback = (props: Props) => {
           </TextAtom>
         </TouchableAtom>
       </View>
-      {crediantialData.user[0].tenantId === 3 && (
-        <DropDownOrganism
-          label={''}
-          placeholder={
-            strings.lms.facultyManagement.facultyClassReportFeedback.main
-              .centers
-          }
-          data={[
-            {
-              id: strings.dashboardIndex.allCenters,
-              name: strings.dashboardIndex.allCenters,
-            },
-            {
-              id: strings.dashboardIndex.gaya,
-              name: strings.dashboardIndex.gaya,
-            },
-            {
-              id: strings.dashboardIndex.patna,
-              name: strings.dashboardIndex.patna,
-            },
-          ]}
-          value={centerSerach?.id}
-          onChange={(item: any) => setCenterSerach(item)}
-          labelField="name"
-          valueField="id"
-          containerStyle={styles.centerDropdown}
-        />
-      )}
+
       <View style={styles.headerRow}>
         <View style={styles.titleRow}>
           <TextAtom style={styles.headerTitle}>
-            {strings.lms.facultyManagement.facultyClassReportFeedback.main.title}
+            {
+              strings.lms.facultyManagement.facultyClassReportFeedback.main
+                .title
+            }
           </TextAtom>
           <TextAtom style={styles.headerCount}>({totalCount})</TextAtom>
         </View>

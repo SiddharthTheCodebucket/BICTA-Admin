@@ -20,7 +20,7 @@ type Props = {
   isMandatory?: boolean;
   data: SwitchItem[];
   selectedValue?: string | number;
-  onSelect: (item: SwitchItem) => void;
+  onSelect: (item: SwitchItem | any) => void;
   errorMessage?: string;
   containerStyle?: ViewStyle;
   titleStyle?: TextStyle;

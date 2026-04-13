@@ -17,6 +17,7 @@ import moment from 'moment';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import Toast from 'react-native-toast-message';
 import { useUpdateFacultyConfirmationMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
+import { FormSwitchWithTitle } from '../../../../../../components/templates';
 
 const FieldRow = ({ label, value }: any) => (
   <ViewAtom style={styles.row}>
@@ -48,6 +49,24 @@ const FacultyConfirmationDetails = ({ route, navigation }: any) => {
       : strings.no;
 
   const [statusValue, setStatusValue] = useState(initialStatus);
+
+  useLayoutEffect(() => {
+    Header.setNavigation(
+      navigation,
+      strings.lms.facultyManagement.main.title,
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+    );
+    navigation.BackButtonPress = () => {
+      navigation.goBack();
+    };
+  }, [navigation]);
 
   useLayoutEffect(() => {
     Header.setNavigation(
@@ -161,7 +180,7 @@ const FacultyConfirmationDetails = ({ route, navigation }: any) => {
             }
           />
 
-          <View style={styles.confirmationSection}>
+          {/* <View style={styles.confirmationSection}>
             <TextAtom style={styles.sectionTitle}>
               {strings.lms.facultyManagement.confirmation.classConfirmation}
             </TextAtom>
@@ -199,7 +218,19 @@ const FacultyConfirmationDetails = ({ route, navigation }: any) => {
                 </TextAtom>
               </TouchableAtom>
             </View>
-          </View>
+          </View> */}
+
+          <FormSwitchWithTitle
+            title={strings.lms.facultyManagement.confirmation.class}
+            data={[
+              { id: strings.yes, label: strings.yes },
+              { id: strings.no, label: strings.no },
+            ]}
+            selectedValue={statusValue}
+            onSelect={item => {
+              onSelectStatus(item?.id);
+            }}
+          />
         </ViewAtom>
       </ScrollView>
     </SafeAreaView>
