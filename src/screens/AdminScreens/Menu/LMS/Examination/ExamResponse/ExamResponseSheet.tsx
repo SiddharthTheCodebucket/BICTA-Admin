@@ -28,6 +28,14 @@ const ExamResponseSheet = (props: Props) => {
     Header.setNavigation(
       navigation,
       strings.lms.examination.examResponseSheet.title,
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
@@ -137,7 +145,7 @@ const ExamResponseSheet = (props: Props) => {
 export default ExamResponseSheet;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
   listContainer: {
     paddingVertical: vh(10),
     paddingHorizontal: vw(10),

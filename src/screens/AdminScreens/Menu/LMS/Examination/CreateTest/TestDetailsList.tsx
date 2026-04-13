@@ -70,9 +70,17 @@ const TestDetailsList = (props: Props) => {
     Header.setNavigation(
       navigation,
       strings.lms.examination.testDetailsList.title,
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
     );
     navigation.BackButtonPress = () => navigation.goBack();
-  });
+  }, [navigation]);
 
   useFocusEffect(
     useCallback(() => {
@@ -379,7 +387,7 @@ const TestDetailsList = (props: Props) => {
 export default TestDetailsList;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
   flatListContainer: {
     paddingVertical: vh(10),
   },

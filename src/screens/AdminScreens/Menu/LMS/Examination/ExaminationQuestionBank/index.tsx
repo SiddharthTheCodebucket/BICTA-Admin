@@ -36,6 +36,7 @@ import { useListAssessmentQuestionBankMutation } from '../../../../../../injectE
 
 interface Props {
   navigation: NavigationType;
+  route?: any;
 }
 
 const debounce = (func: any, delay: number) => {
@@ -56,7 +57,7 @@ const DescriptionRow = ({ label, value }: any) => (
 );
 
 const ExaminationQuestionBank = (props: Props) => {
-  const { navigation } = props;
+  const { navigation, route } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
@@ -77,12 +78,21 @@ const ExaminationQuestionBank = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
+    if (route?.params?.suppressHeader) return;
     Header.setNavigation(
       navigation,
       strings.lms.examination.questionBank.title,
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
     );
     navigation.BackButtonPress = () => navigation.goBack();
-  });
+  }, [navigation, route?.params?.suppressHeader]);
 
   useFocusEffect(
     useCallback(() => {
@@ -313,7 +323,7 @@ const ExaminationQuestionBank = (props: Props) => {
 export default ExaminationQuestionBank;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
   flatListContainer: {
     paddingVertical: vh(10),
   },

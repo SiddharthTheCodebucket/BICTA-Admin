@@ -21,6 +21,14 @@ const ExamResponseDetailsListTrainee = (props: Props) => {
     Header.setNavigation(
       navigation,
       strings.lms.examination.examResponseDetails.title,
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
@@ -98,7 +106,7 @@ export default ExamResponseDetailsListTrainee;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
+    backgroundColor: colors.new_ui_screen_bg,
     paddingTop: vh(10),
   },
   scrollContent: {
