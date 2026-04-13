@@ -34,6 +34,7 @@ import { useListKnowledgeManagementSubTopicMutation } from '../../../../../../in
 
 interface Props {
   navigation: NavigationType;
+  route?: any;
 }
 
 const debounce = (func: any, delay: number) => {
@@ -47,7 +48,7 @@ const debounce = (func: any, delay: number) => {
 };
 
 const SubjectTopic = (props: Props) => {
-  const { navigation } = props;
+  const { navigation, route } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
@@ -73,12 +74,13 @@ const SubjectTopic = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
+    if (route?.params?.suppressHeader) return;
     Header.setNavigation(
       navigation,
       strings.lms.curriculumManagement.subjectTopicDetails,
     );
     navigation.BackButtonPress = () => navigation.goBack();
-  });
+  }, [navigation, route?.params?.suppressHeader]);
 
   useFocusEffect(
     useCallback(() => {
