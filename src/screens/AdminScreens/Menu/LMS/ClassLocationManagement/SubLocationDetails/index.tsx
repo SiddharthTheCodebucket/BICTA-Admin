@@ -43,6 +43,7 @@ import {
 
 interface Props {
   navigation: NavigationType;
+  route?: any;
 }
 
 const debounce = (func: any, delay: number) => {
@@ -56,7 +57,7 @@ const debounce = (func: any, delay: number) => {
 };
 
 const SubLocationDetails = (props: Props) => {
-  const { navigation } = props;
+  const { navigation, route } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
@@ -79,12 +80,21 @@ const SubLocationDetails = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
+    if (route?.params?.suppressHeader) return;
     Header.setNavigation(
       navigation,
       strings.lms.locationDetails.subLocationDetailsTitle,
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
     );
     navigation.BackButtonPress = () => navigation.goBack();
-  });
+  }, [navigation, route?.params?.suppressHeader]);
 
   useFocusEffect(
     useCallback(() => {
@@ -455,7 +465,7 @@ const SubLocationDetails = (props: Props) => {
 export default SubLocationDetails;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
   flatListContainer: {
     paddingVertical: vh(10),
   },

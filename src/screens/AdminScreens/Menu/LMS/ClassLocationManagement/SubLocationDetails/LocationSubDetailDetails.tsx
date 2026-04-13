@@ -47,9 +47,17 @@ const LocationSubDetailDetails = ({ route, navigation }: any) => {
     Header.setNavigation(
       navigation,
       strings.lms.locationDetails.subLocationDetailsTitle,
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
     );
     navigation.BackButtonPress = () => navigation.goBack();
-  });
+  }, [navigation]);
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
@@ -106,7 +114,7 @@ const LocationSubDetailDetails = ({ route, navigation }: any) => {
 export default LocationSubDetailDetails;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
 
   scrollContainer: { paddingBottom: vh(40), paddingHorizontal: vw(15) },
 
