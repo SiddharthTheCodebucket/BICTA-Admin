@@ -38,7 +38,18 @@ const AssessmentDetails = (props: Props) => {
   const [refreshing, setRefreshing] = useState(false);
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, strings.lms.assessmentDetails.title);
+    Header.setNavigation(
+      navigation,
+      strings.lms.assessmentDetails.title,
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
 
@@ -306,7 +317,7 @@ const AssessmentDetails = (props: Props) => {
 export default AssessmentDetails;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
   flatListContainer: {
     paddingVertical: vh(10),
   },

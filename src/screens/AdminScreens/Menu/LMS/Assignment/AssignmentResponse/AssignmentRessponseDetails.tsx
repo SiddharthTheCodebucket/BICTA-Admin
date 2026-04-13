@@ -96,9 +96,20 @@ const AssignmentRessponseDetails = (props: Props) => {
   const [endDate, setEndDate] = useState<any>('');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, strings.lms.assignmentResponse.title);
+    Header.setNavigation(
+      navigation,
+      strings.lms.assignmentResponse.title,
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+    );
     navigation.BackButtonPress = () => navigation.goBack();
-  });
+  }, [navigation]);
 
   useFocusEffect(
     useCallback(() => {
@@ -533,7 +544,7 @@ const AssignmentRessponseDetails = (props: Props) => {
 export default AssignmentRessponseDetails;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
   flatListContainer: {
     paddingVertical: vh(10),
   },

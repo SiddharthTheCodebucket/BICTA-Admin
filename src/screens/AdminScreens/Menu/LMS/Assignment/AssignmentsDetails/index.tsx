@@ -37,6 +37,7 @@ import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints
 
 interface Props {
   navigation: NavigationType;
+  route?: any;
 }
 
 const debounce = (func: any, delay: number) => {
@@ -50,7 +51,7 @@ const debounce = (func: any, delay: number) => {
 };
 
 const AssignmentsDetails = (props: Props) => {
-  const { navigation } = props;
+  const { navigation, route } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
@@ -67,9 +68,21 @@ const AssignmentsDetails = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, strings.lms.assignmentDetails.title);
+    if (route?.params?.suppressHeader) return;
+    Header.setNavigation(
+      navigation,
+      strings.lms.assignmentDetails.title,
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+    );
     navigation.BackButtonPress = () => navigation.goBack();
-  });
+  }, [navigation, route?.params?.suppressHeader]);
 
   useFocusEffect(
     useCallback(() => {
@@ -315,7 +328,7 @@ const AssignmentsDetails = (props: Props) => {
 export default AssignmentsDetails;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
   flatListContainer: {
     paddingVertical: vh(10),
   },
