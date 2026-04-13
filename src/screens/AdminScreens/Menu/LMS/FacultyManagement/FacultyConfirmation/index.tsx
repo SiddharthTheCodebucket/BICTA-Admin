@@ -37,6 +37,7 @@ import {
   useUpdateFacultyConfirmationMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 import { useFacultyCenter } from '../context/FacultyCenterContext';
+import { FormSwitchForCard } from '../../../../../../components/templates';
 
 interface Props {
   navigation: NavigationType;
@@ -64,7 +65,8 @@ const FacultyConfirmation = (props: Props) => {
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
-  const { center: centerSerach, setCenter: setCenterSerach } = useFacultyCenter();
+  const { center: centerSerach, setCenter: setCenterSerach } =
+    useFacultyCenter();
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useLayoutEffect(() => {
@@ -81,53 +83,56 @@ const FacultyConfirmation = (props: Props) => {
     return [centerSerach.name];
   }, [centerSerach]);
 
-  const listFacultyConfirmations = useCallback((
-    pageNumber: number,
-    initial: boolean,
-    keyword: string,
-    filtersArray: any[] = [],
-  ) => {
-    initial ? setInitialCall(true) : setInitialCall(false);
+  const listFacultyConfirmations = useCallback(
+    (
+      pageNumber: number,
+      initial: boolean,
+      keyword: string,
+      filtersArray: any[] = [],
+    ) => {
+      initial ? setInitialCall(true) : setInitialCall(false);
 
-    const centreFilter = getCentreFilter();
-    const params: any = {
-      search: keyword,
-      sort: { attributes: ['id'], sorts: ['desc'] },
-      filters: filtersArray,
-      pageNo: pageNumber,
-      itemsPerPage: ITEMS_PER_PAGE,
-    };
-    if (centreFilter) {
-      params.bipardCentre = centreFilter;
-    }
+      const centreFilter = getCentreFilter();
+      const params: any = {
+        search: keyword,
+        sort: { attributes: ['id'], sorts: ['desc'] },
+        filters: filtersArray,
+        pageNo: pageNumber,
+        itemsPerPage: ITEMS_PER_PAGE,
+      };
+      if (centreFilter) {
+        params.bipardCentre = centreFilter;
+      }
 
-    listFacultyDetailsApi(params)
-      .unwrap()
-      .then((res: any) => {
-        const newData = res.data?.data ?? [];
-        setInitialCall(false);
-        setPagination(false);
-        setRefreshing(false);
-        setData((prev: any) =>
-          pageNumber !== 1 ? [...prev, ...newData] : newData,
-        );
+      listFacultyDetailsApi(params)
+        .unwrap()
+        .then((res: any) => {
+          const newData = res.data?.data ?? [];
+          setInitialCall(false);
+          setPagination(false);
+          setRefreshing(false);
+          setData((prev: any) =>
+            pageNumber !== 1 ? [...prev, ...newData] : newData,
+          );
 
-        setPage(pageNumber);
+          setPage(pageNumber);
 
-        const count = res?.data?.totalCount ?? 0;
-        setTotalCount(count);
-        setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < count);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        setPagination(false);
-        setRefreshing(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || strings.something_went_wrong,
+          const count = res?.data?.totalCount ?? 0;
+          setTotalCount(count);
+          setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < count);
+        })
+        .catch((err: any) => {
+          setInitialCall(false);
+          setPagination(false);
+          setRefreshing(false);
+          Toast.show({
+            type: 'error',
+            text2: err.data?.message || strings.something_went_wrong,
+          });
         });
-      });
-  }, [getCentreFilter, listFacultyDetailsApi]);
+    },
+    [getCentreFilter, listFacultyDetailsApi],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -158,12 +163,16 @@ const FacultyConfirmation = (props: Props) => {
     listFacultyConfirmations(1, true, '');
   };
 
-  const FacultyConfirmationCard = ({ item, index: _index, navigation }: any) => {
+  const FacultyConfirmationCard = ({
+    item,
+    index: _index,
+    navigation,
+  }: any) => {
     const [statusValue, setStatusValue] = useState(
       item.classConfirmation ?? strings.no,
     );
 
-    const onSelectStatus = (newStatus: string) => {
+    const onSelectStatus = (newStatus: any) => {
       if (newStatus === statusValue) return;
 
       navigation.navigate(screensName.AlertOrganism, {
@@ -225,7 +234,7 @@ const FacultyConfirmation = (props: Props) => {
             <TextAtom style={styles.nameText}>{displayName}</TextAtom>
           </View>
 
-          <View style={styles.classToggleWrap}>
+          {/* <View style={styles.classToggleWrap}>
             <TextAtom style={styles.classLabel}>
               {strings.lms.facultyManagement.confirmation.classConfirmation}
             </TextAtom>
@@ -263,6 +272,20 @@ const FacultyConfirmation = (props: Props) => {
                 </TextAtom>
               </TouchableAtom>
             </View>
+          </View> */}
+
+          <View style={styles.classToggleWrap}>
+            <FormSwitchForCard
+              title={strings.lms.facultyManagement.confirmation.class}
+              data={[
+                { id: strings.yes, label: strings.yes },
+                { id: strings.no, label: strings.no },
+              ]}
+              selectedValue={statusValue}
+              onSelect={item => {
+                onSelectStatus(item?.id);
+              }}
+            />
           </View>
         </View>
 
@@ -330,7 +353,7 @@ const FacultyConfirmation = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      {crediantialData.user[0].tenantId === 3 && (
+      {/* {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
           placeholder={strings.lms.locationDetails.centers}
@@ -354,7 +377,7 @@ const FacultyConfirmation = (props: Props) => {
           valueField="id"
           containerStyle={styles.centerDropdown}
         />
-      )}
+      )} */}
 
       <View style={styles.headerRow}>
         <View style={styles.titleRow}>

@@ -1128,6 +1128,7 @@ export default {
         facultyFeedback: 'Faculty Class Report Feedback',
       },
       confirmation: {
+        class:"Class",
         title: 'Faculty Confirmation',
         detailsTitle: 'Faculty Details',
         facultyName: 'Faculty Name',
