@@ -26,7 +26,6 @@ import {
   strings,
   SvgEditPencile,
   SvgMerge,
-  SvgSearch,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -34,6 +33,9 @@ import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
+import AdminListHeader, {
+  AdminListHeaderConfig,
+} from '../../../../../../components/organisms/AdminListHeader';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
@@ -405,25 +407,23 @@ const BatchDetails = (props: Props) => {
     );
   };
 
+  const headerConfig = useMemo<AdminListHeaderConfig>(
+    () => ({
+      title: 'Batch Details',
+      count: filteredTrainings.length,
+      search: {
+        visible: true,
+        onPress: () => setShowSearch(prev => !prev),
+      },
+    }),
+    [filteredTrainings.length],
+  );
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={styles.headerRow}>
-        <View style={styles.titleRow}>
-          <TextAtom style={styles.headerTitle}>Batch Details</TextAtom>
-          <TextAtom style={styles.headerCount}>
-            ({filteredTrainings.length})
-          </TextAtom>
-        </View>
-
-        <TouchableAtom
-          style={styles.headerIconBtn}
-          onPress={() => setShowSearch(prev => !prev)}
-        >
-          <SvgSearch />
-        </TouchableAtom>
-      </View>
+      <AdminListHeader config={headerConfig} />
 
       {showSearch && (
         <SearchBoxOrganism

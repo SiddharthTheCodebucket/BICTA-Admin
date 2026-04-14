@@ -26,8 +26,6 @@ import {
   images,
   screensName,
   SvgCross,
-  SvgFilterLines,
-  SvgSearch,
   SvgStar,
   strings,
   vh,
@@ -35,6 +33,9 @@ import {
 } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import { NavigationType } from '../../../../../../components/organisms/HeaderOrganism';
+import AdminListHeader, {
+  AdminListHeaderConfig,
+} from '../../../../../../components/organisms/AdminListHeader';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
@@ -85,8 +86,11 @@ const FacultyClassReportFeedback = (props: Props) => {
     useFacultyCenter();
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const openFilter = () => setShowFilter(true);
-  const closeFilter = () => filterSheetRef.current?.close();
+  const openFilter = useCallback(() => setShowFilter(true), []);
+  const closeFilter = useCallback(
+    () => filterSheetRef.current?.close(),
+    [],
+  );
 
   const handleFilterSheetAnimate = useCallback(
     (_fromIndex: number, toIndex: number) => {
@@ -367,6 +371,23 @@ const FacultyClassReportFeedback = (props: Props) => {
     listFacultyFeedbackReports(1, true, '');
   }, [centerSerach, listFacultyFeedbackReports]);
 
+  const headerConfig: AdminListHeaderConfig = useMemo(
+    () => ({
+      title:
+        strings.lms.facultyManagement.facultyClassReportFeedback.main.title,
+      count: totalCount,
+      search: {
+        visible: true,
+        onPress: () => setIsSearchVisible(v => !v),
+      },
+      filter: {
+        visible: true,
+        onPress: openFilter,
+      },
+    }),
+    [openFilter, totalCount],
+  );
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
@@ -382,29 +403,7 @@ const FacultyClassReportFeedback = (props: Props) => {
         </TouchableAtom>
       </View>
 
-      <View style={styles.headerRow}>
-        <View style={styles.titleRow}>
-          <TextAtom style={styles.headerTitle}>
-            {
-              strings.lms.facultyManagement.facultyClassReportFeedback.main
-                .title
-            }
-          </TextAtom>
-          <TextAtom style={styles.headerCount}>({totalCount})</TextAtom>
-        </View>
-
-        <View style={styles.actionsRow}>
-          <TouchableAtom
-            style={styles.iconBtn}
-            onPress={() => setIsSearchVisible(v => !v)}
-          >
-            <SvgSearch width={vw(17)} height={vw(17)} />
-          </TouchableAtom>
-          <TouchableAtom style={styles.iconBtn} onPress={openFilter}>
-            <SvgFilterLines width={vw(17)} height={vw(17)} />
-          </TouchableAtom>
-        </View>
-      </View>
+      <AdminListHeader config={headerConfig} />
 
       {isSearchVisible && (
         <SearchBoxOrganism

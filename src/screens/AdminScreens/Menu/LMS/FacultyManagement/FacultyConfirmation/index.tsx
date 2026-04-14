@@ -2,6 +2,7 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -20,13 +21,15 @@ import {
   colors,
   fonts,
   screensName,
-  SvgSearch,
   strings,
   vh,
   vw,
 } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import { NavigationType } from '../../../../../../components/organisms/HeaderOrganism';
+import AdminListHeader, {
+  AdminListHeaderConfig,
+} from '../../../../../../components/organisms/AdminListHeader';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
@@ -162,6 +165,18 @@ const FacultyConfirmation = (props: Props) => {
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     listFacultyConfirmations(1, true, '');
   };
+
+  const headerConfig = useMemo<AdminListHeaderConfig>(
+    () => ({
+      title: strings.lms.facultyManagement.confirmation.title,
+      count: totalCount,
+      search: {
+        visible: true,
+        onPress: () => setIsSearchVisible(v => !v),
+      },
+    }),
+    [totalCount],
+  );
 
   const FacultyConfirmationCard = ({
     item,
@@ -379,20 +394,7 @@ const FacultyConfirmation = (props: Props) => {
         />
       )} */}
 
-      <View style={styles.headerRow}>
-        <View style={styles.titleRow}>
-          <TextAtom style={styles.headerTitle}>
-            {strings.lms.facultyManagement.confirmation.title}
-          </TextAtom>
-          <TextAtom style={styles.headerCount}>({totalCount})</TextAtom>
-        </View>
-        <TouchableAtom
-          style={styles.iconBtn}
-          onPress={() => setIsSearchVisible(v => !v)}
-        >
-          <SvgSearch width={vw(17)} height={vw(17)} />
-        </TouchableAtom>
-      </View>
+      <AdminListHeader config={headerConfig} />
 
       {isSearchVisible && (
         <SearchBoxOrganism

@@ -2,6 +2,7 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useState,
 } from 'react';
 import {
@@ -10,7 +11,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  ImageBackground,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -18,11 +18,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
-  images,
   screensName,
   SvgEditPencile,
-  SvgFilterLines,
-  SvgSearch,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -31,14 +28,15 @@ import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
+import AdminListHeader, {
+  AdminListHeaderConfig,
+} from '../../../../../../components/organisms/AdminListHeader';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { useListTrainingCategoryMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import DropDownModal from '../../../../../../modal/DropDownModal';
-import { globalStyles } from '../../../../../../utils/globalStyles';
 
 interface Props {
   navigation: NavigationType;
@@ -177,10 +175,10 @@ const TrainingCategoryMaster = (props: Props) => {
     listTrainingCategoryDetails(1, true, '');
   }, [centerSerach?.name, listTrainingCategoryDetails]);
 
-  const openCenterFilter = () => {
+  const openCenterFilter = useCallback(() => {
     if (crediantialData?.user?.[0]?.tenantId !== 3) return;
     setIsCenterModalVisible(true);
-  };
+  }, [crediantialData]);
 
   useFocusEffect(
     useCallback(() => {
@@ -225,49 +223,35 @@ const TrainingCategoryMaster = (props: Props) => {
     [navigation, search, listTrainingCategoryDetails],
   );
 
+  const headerConfig = useMemo<AdminListHeaderConfig>(
+    () => ({
+      title: 'Training Category',
+      count: totalCount,
+      search: {
+        visible: true,
+        onPress: () => setShowSearch(prev => !prev),
+      },
+      filter: {
+        visible: true,
+        onPress: openCenterFilter,
+      },
+      create: {
+        visible: true,
+        onPress: () => {
+          navigation.navigate(screensName.AddTrainingCategory, {
+            onDone: () => listTrainingCategoryDetails(1, true, search),
+          });
+        },
+      },
+    }),
+    [navigation, openCenterFilter, search, totalCount, listTrainingCategoryDetails],
+  );
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={styles.headerRow}>
-        <View style={styles.titleRow}>
-          <TextAtom style={styles.headerTitle}>Training Category</TextAtom>
-          <TextAtom style={styles.headerCount}>({totalCount})</TextAtom>
-        </View>
-
-        <View style={styles.actionsRow}>
-          <TouchableAtom
-            style={styles.iconBtn}
-            onPress={() => setShowSearch(prev => !prev)}
-          >
-            <SvgSearch />
-          </TouchableAtom>
-
-          <TouchableAtom style={styles.iconBtn} onPress={openCenterFilter}>
-            <SvgFilterLines />
-          </TouchableAtom>
-
-          <TouchableAtom
-            style={globalStyles.createButtonTouchable}
-            onPress={() => {
-              navigation.navigate(screensName.AddTrainingCategory, {
-                onDone: () => listTrainingCategoryDetails(1, true, search),
-              });
-            }}
-          >
-            <ImageBackground
-              source={images.buttonGrad_25}
-              style={globalStyles.createButton}
-              imageStyle={globalStyles.createButtonImage}
-              resizeMode="stretch"
-            >
-              <TextAtom style={globalStyles.createButtonText}>
-                + Create
-              </TextAtom>
-            </ImageBackground>
-          </TouchableAtom>
-        </View>
-      </View>
+      <AdminListHeader config={headerConfig} />
 
       {showSearch && (
         <SearchBoxOrganism

@@ -28,14 +28,15 @@ import {
   SvgCross,
   SvgDelete,
   SvgEditPencile,
-  SvgFilterLines,
-  SvgSearch,
   strings,
   vh,
   vw,
 } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import { NavigationType } from '../../../../../../components/organisms/HeaderOrganism';
+import AdminListHeader, {
+  AdminListHeaderConfig,
+} from '../../../../../../components/organisms/AdminListHeader';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
@@ -107,8 +108,11 @@ const FacultyDetails = (props: Props) => {
     return [centerSerach.name];
   }, [centerSerach]);
 
-  const openFilter = () => setShowFilter(true);
-  const closeFilter = () => filterSheetRef.current?.close();
+  const openFilter = useCallback(() => setShowFilter(true), []);
+  const closeFilter = useCallback(
+    () => filterSheetRef.current?.close(),
+    [],
+  );
 
   const handleFilterSheetAnimate = useCallback(
     (_fromIndex: number, toIndex: number) => {
@@ -524,71 +528,32 @@ const FacultyDetails = (props: Props) => {
     fetchFacultyDetails(1, true, '');
   }, [centerSerach, fetchFacultyDetails]);
 
+  const headerConfig: AdminListHeaderConfig = useMemo(
+    () => ({
+      title:
+        strings.lms.facultyManagement.facultyClassReportFeedback.main.faculty,
+      count: totalCount,
+      search: {
+        visible: true,
+        onPress: () => setIsSearchVisible(v => !v),
+      },
+      filter: {
+        visible: true,
+        onPress: openFilter,
+      },
+      create: {
+        visible: true,
+        onPress: () => navigation.navigate(screensName.AddFacultyDetails),
+      },
+    }),
+    [navigation, openFilter, totalCount],
+  );
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      {/* {crediantialData.user[0].tenantId === 3 && (
-        <DropDownOrganism
-          label={''}
-          placeholder={strings.lms.locationDetails.centers}
-          data={[
-            {
-              id: strings.dashboardIndex.allCenters,
-              name: strings.dashboardIndex.allCenters,
-            },
-            {
-              id: strings.dashboardIndex.gaya,
-              name: strings.dashboardIndex.gaya,
-            },
-            {
-              id: strings.dashboardIndex.patna,
-              name: strings.dashboardIndex.patna,
-            },
-          ]}
-          value={centerSerach?.id}
-          onChange={(item: any) => setCenterSerach(item)}
-          labelField="name"
-          valueField="id"
-          containerStyle={styles.centerDropdown}
-        />
-      )} */}
 
-      <View style={styles.headerRow}>
-        <View style={styles.titleRow}>
-          <TextAtom style={styles.headerTitle}>
-            {
-              strings.lms.facultyManagement.facultyClassReportFeedback.main
-                .faculty
-            }
-          </TextAtom>
-          <TextAtom style={styles.headerCount}>({totalCount})</TextAtom>
-        </View>
-
-        <View style={styles.actionsRow}>
-          <TouchableAtom
-            style={styles.iconBtn}
-            onPress={() => setIsSearchVisible(v => !v)}
-          >
-            <SvgSearch width={vw(17)} height={vw(17)} />
-          </TouchableAtom>
-          <TouchableAtom style={styles.iconBtn} onPress={openFilter}>
-            <SvgFilterLines width={vw(17)} height={vw(17)} />
-          </TouchableAtom>
-          <TouchableAtom
-            style={styles.createButtonTouchable}
-            onPress={() => navigation.navigate(screensName.AddFacultyDetails)}
-          >
-            <ImageBackground
-              source={images.buttonGrad_25}
-              style={styles.createButton}
-              imageStyle={styles.createButtonImage}
-              resizeMode="stretch"
-            >
-              <TextAtom style={styles.createButtonText}>+ Create</TextAtom>
-            </ImageBackground>
-          </TouchableAtom>
-        </View>
-      </View>
+      <AdminListHeader config={headerConfig} />
 
       {isSearchVisible && (
         <SearchBoxOrganism

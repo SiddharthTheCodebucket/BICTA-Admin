@@ -2,12 +2,12 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useState,
 } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  ImageBackground,
   LayoutAnimation,
   Modal,
   Pressable,
@@ -29,13 +29,14 @@ import {
   vh,
   vw,
   SvgCross,
-  SvgSearch,
-  SvgFilterLines,
 } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
+import AdminListHeader, {
+  AdminListHeaderConfig,
+} from '../../../../../../components/organisms/AdminListHeader';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
@@ -403,51 +404,34 @@ const TrainingDetails = (props: Props) => {
     );
   };
 
+  const headerConfig = useMemo<AdminListHeaderConfig>(
+    () => ({
+      title: 'Training Details',
+      count: totalCount,
+      search: {
+        visible: true,
+        onPress: () => setShowSearch(prev => !prev),
+      },
+      filter: {
+        visible: true,
+        onPress: () => {
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+          setShowFilterPanel(true);
+        },
+      },
+      create: {
+        visible: true,
+        onPress: () => navigation.navigate(screensName.AddTrainingDetails),
+      },
+    }),
+    [navigation, totalCount],
+  );
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View style={styles.headerRow}>
-        <View style={styles.titleRow}>
-          <TextAtom style={styles.headerTitle}>Training Details</TextAtom>
-          <TextAtom style={styles.headerCount}>({totalCount})</TextAtom>
-        </View>
-
-        <View style={styles.actionsRow}>
-          <TouchableAtom
-            style={styles.iconBtn}
-            onPress={() => setShowSearch(prev => !prev)}
-          >
-            <SvgSearch width={vw(18)} height={vw(18)} />
-          </TouchableAtom>
-
-          <TouchableAtom
-            style={styles.iconBtn}
-            onPress={() => {
-              LayoutAnimation.configureNext(
-                LayoutAnimation.Presets.easeInEaseOut,
-              );
-              setShowFilterPanel(true);
-            }}
-          >
-            <SvgFilterLines />
-          </TouchableAtom>
-
-          <TouchableAtom
-            style={styles.createButtonTouchable}
-            onPress={() => navigation.navigate(screensName.AddTrainingDetails)}
-          >
-            <ImageBackground
-              source={images.buttonGrad_25}
-              style={styles.createButton}
-              imageStyle={styles.createButtonImage}
-              resizeMode="stretch"
-            >
-              <TextAtom style={styles.createButtonText}>+ Create</TextAtom>
-            </ImageBackground>
-          </TouchableAtom>
-        </View>
-      </View>
+      <AdminListHeader config={headerConfig} />
 
       {showSearch && (
         <SearchBoxOrganism
