@@ -33,6 +33,7 @@ import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxO
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import ExaminationListHeader from '../components/ExaminationListHeader';
 
 interface Props {
   navigation: NavigationType;
@@ -65,6 +66,7 @@ const CreateTest = (props: Props) => {
 
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
+  const [showSearch, setShowSearch] = useState(false);
 
   useLayoutEffect(() => {
     if (route?.params?.suppressHeader) return;
@@ -162,6 +164,15 @@ const CreateTest = (props: Props) => {
   };
 
   const TrainingTestCard = ({ item, index, navigation }: any) => {
+    const batchCount = item?.noOfBatch ?? item?.noOfBatches;
+    const subtitle =
+      typeof batchCount !== 'undefined' && batchCount !== null
+        ? `${batchCount} Batch`
+        : typeof item?.totalAssignment !== 'undefined' &&
+          item?.totalAssignment !== null
+        ? `${item.totalAssignment} ${strings.lms.examination.testDetails.totalAssignment}`
+        : '-';
+
     return (
       <TouchableAtom
         style={styles.card}
@@ -171,34 +182,13 @@ const CreateTest = (props: Props) => {
           });
         }}
       >
-        <View style={styles.cardHeader}>
-          <TextAtom style={styles.flex1Label}>
-            {strings.lms.examination.testDetails.srNo} {index + 1}
-          </TextAtom>
-
-          <View style={styles.actionRow}></View>
-        </View>
-
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.examination.testDetails.trainingName}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
-        </View>
-        <DescriptionRow
-          label={strings.lms.examination.testDetails.totalAssignment}
-          value={item.totalAssignment ?? '-'}
-        />
+        <TextAtom numberOfLines={2} style={styles.cardTitle}>
+          {item.name ?? '-'}
+        </TextAtom>
+        <TextAtom style={styles.cardSubtitle}>{subtitle}</TextAtom>
       </TouchableAtom>
     );
   };
-
-  const DescriptionRow = ({ label, value }: any) => (
-    <View style={styles.flex1}>
-      <TextAtom style={styles.label}>{label}</TextAtom>
-      <TextAtom style={styles.value}>{value}</TextAtom>
-    </View>
-  );
 
   const renderTrainingTestItem = ({ item, index }: any) => {
     return (
@@ -209,6 +199,19 @@ const CreateTest = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
+
+      <ExaminationListHeader
+        title={strings.lms.examination.examinationIndex.createTest}
+        count={data?.length ?? 0}
+        onPressSearch={() => setShowSearch(prev => !prev)}
+        onPressCreate={() => {
+          Toast.show({
+            type: 'info',
+            text2: 'Select a training to create test',
+          });
+        }}
+      />
+
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
@@ -242,12 +245,15 @@ const CreateTest = (props: Props) => {
           containerStyle={styles.centerDropdown}
         />
       )}
-      <SearchBoxOrganism
-        onChangeText={onChangeSearch}
-        searchText={search}
-        onPressCross={onClearSearch}
-        searchBox={styles.searchBox}
-      />
+
+      {showSearch && (
+        <SearchBoxOrganism
+          onChangeText={onChangeSearch}
+          searchText={search}
+          onPressCross={onClearSearch}
+          searchBox={styles.searchBox}
+        />
+      )}
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -290,57 +296,47 @@ const CreateTest = (props: Props) => {
 export default CreateTest;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
+  container: {
+    flex: 1,
+    backgroundColor: colors.new_ui_screen_bg,
+    paddingHorizontal: vw(16),
+  },
   flatListContainer: {
-    paddingVertical: vh(10),
+    paddingTop: vh(10),
+    paddingBottom: vh(20),
   },
   card: {
     backgroundColor: colors.white,
-    marginHorizontal: vw(15),
-    borderRadius: vw(8),
-    paddingHorizontal: vw(15),
-    paddingVertical: vh(8),
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
+    borderRadius: vw(10),
+    paddingHorizontal: vw(12),
+    paddingVertical: vh(12),
+    borderWidth: 1,
+    borderColor: colors.new_ui_card_border,
   },
-  label: {
-    fontFamily: fonts.Roboto_Medium,
+  cardTitle: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(16),
+    color: colors.new_ui_card_title,
+    lineHeight: vh(19),
+  },
+  cardSubtitle: {
+    fontFamily: fonts.Inter_Regular,
     fontSize: vw(14),
-    color: colors.black,
-  },
-  labelRight: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    textAlign: 'right',
-  },
-  value: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
-  },
-  valueRight: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
-    textAlign: 'right',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.chinese_silver,
-    marginVertical: vh(5),
+    color: colors.new_ui_card_description,
+    lineHeight: vh(19),
   },
   emptyText: {
     textAlign: 'center',
     marginTop: vh(50),
     color: colors.grey,
-    fontFamily: fonts.Roboto_Medium,
+    fontFamily: fonts.Inter_Medium,
   },
+  searchBox: {
+    marginTop: vh(10),
+  },
+  centerDropdown: { marginBottom: vh(-10), marginTop: vh(8) },
+  paginationLoader: { marginTop: vh(15) },
+  itemSeparator: { height: vh(10) },
   rowBetween: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -449,8 +445,4 @@ const styles = StyleSheet.create({
   },
   actionRow: { flexDirection: 'row', gap: vw(15) },
   flex1: { flex: 1 },
-  centerDropdown: { marginBottom: vh(-10) },
-  searchBox: { marginTop: vh(15) },
-  paginationLoader: { marginTop: vh(15) },
-  itemSeparator: { height: vh(10) },
 });
