@@ -37,6 +37,7 @@ export const Header = {
     renderLeft?: Function | undefined,
     headerTextContainer?: StyleProp<ViewStyle> | undefined,
     options?: HeaderNavigationOptions,
+    showDrawerIcon?: boolean,
   ) => {
     const backgroundColor = options?.backgroundColor ?? colors.grey_5;
     const titleColor = options?.titleColor ?? colors.primary;
@@ -60,6 +61,21 @@ export const Header = {
       headerLeft: () =>
         renderLeft ? (
           renderLeft()
+        ) : showDrawerIcon ? (
+          <TouchableOpacity
+            hitSlop={styles.backBttnHitSlop}
+            onPress={() => {
+              if ((navigation as any).openDrawer) {
+                (navigation as any).openDrawer();
+              } else if ((navigation as any).getParent()?.openDrawer) {
+                (navigation as any).getParent().openDrawer();
+              } else {
+                console.warn('Drawer navigator not found in hierarchy');
+              }
+            }}
+          >
+            <Icon name="menu" size={24} color={backIconColor} />
+          </TouchableOpacity>
         ) : (
           <TouchableOpacity
             hitSlop={styles.backBttnHitSlop}

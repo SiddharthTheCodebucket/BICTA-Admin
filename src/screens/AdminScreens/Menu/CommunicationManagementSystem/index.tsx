@@ -16,7 +16,19 @@ const CommunicationManagementSystem = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Communication Management');
+    Header.setNavigation(
+      navigation,
+      'Communication Management',
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+      true,
+    );
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };

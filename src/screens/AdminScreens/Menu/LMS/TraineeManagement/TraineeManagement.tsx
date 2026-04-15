@@ -82,8 +82,8 @@ const CustomTraineeTabBar = ({
             typeof options.tabBarLabel === 'string'
               ? options.tabBarLabel
               : typeof options.title === 'string'
-              ? options.title
-              : route.name;
+                ? options.title
+                : route.name;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -133,9 +133,9 @@ const TraineeManagement = (props: Props) => {
   const initialRouteName = useMemo(() => {
     const initialTab = route?.params?.initialTab;
     if (initialTab === 'TraineeDetails') return 'TrainingDetailsTab';
-    if (initialTab === 'OthersRegistration') return 'OthersRegistrationTab';
-    if (initialTab === 'TraineeRelease') return 'TraineeReleaseTab';
-    return 'TraineeRegistrationTab';
+    if (initialTab === 'OthersRegistration') return 'BatchDetailsTab';
+    if (initialTab === 'TraineeRelease') return 'TraineeRelease';
+    return 'TrainingCategoryTab';
   }, [route?.params?.initialTab]);
 
   useLayoutEffect(() => {
@@ -150,6 +150,7 @@ const TraineeManagement = (props: Props) => {
         titleColor: colors.white,
         backIconColor: colors.white,
       },
+      true,
     );
     navigation.BackButtonPress = () => {
       navigation.goBack();

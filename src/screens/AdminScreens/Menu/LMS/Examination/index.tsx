@@ -76,8 +76,8 @@ const CustomExaminationTabBar = ({
             typeof options.tabBarLabel === 'string'
               ? options.tabBarLabel
               : typeof options.title === 'string'
-              ? options.title
-              : route.name;
+                ? options.title
+                : route.name;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -136,6 +136,7 @@ const Examination = (props: Props) => {
         titleColor: colors.white,
         backIconColor: colors.white,
       },
+      true,
     );
     navigation.BackButtonPress = () => {
       navigation.goBack();
@@ -166,7 +167,8 @@ const Examination = (props: Props) => {
           component={AssignQuestionList}
           initialParams={{ suppressHeader: true }}
           options={{
-            tabBarLabel: strings.lms.examination.examinationIndex.assignQuestion,
+            tabBarLabel:
+              strings.lms.examination.examinationIndex.assignQuestion,
           }}
         />
         <TopTabs.Screen

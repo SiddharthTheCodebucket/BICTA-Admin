@@ -1,59 +1,184 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useLayoutEffect } from 'react';
+import {
+  Dimensions,
+  LayoutChangeEvent,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../constants';
+import {
+  createMaterialTopTabNavigator,
+  MaterialTopTabBarProps,
+} from '@react-navigation/material-top-tabs';
+import { colors, fonts, vh, vw } from '../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../components/atoms/TextAtom';
+import VendorEmployeeMangement from './VendorEmployeeMangement';
+import LeaveManagement from './LeaveManagement';
 
 interface Props {
+  route: any;
   navigation: NavigationType;
 }
 
-const HRMS = (props: Props) => {
-  const { navigation } = props;
+const TopTabs = createMaterialTopTabNavigator();
 
-  useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'HRMS');
-    navigation.BackButtonPress = () => {
-      navigation.goBack();
-    };
-  }, []);
+const CustomHRMSTabBar = ({
+  state,
+  descriptors,
+  navigation,
+}: MaterialTopTabBarProps) => {
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [tabLayouts, setTabLayouts] = useState<{
+    [key: string]: { x: number; width: number };
+  }>({});
+  const screenWidth = Dimensions.get('window').width;
 
-  const DATA = [
-    {
-      id: 1,
-      name: 'Vendor Employee Management',
-      onPress: () => {
-        navigation.navigate(screensName.VendorEmployeeMangement);
-      },
-    },
-    {
-      id: 2,
-      name: 'Leave Management',
-      onPress: () => {
-        navigation.navigate(screensName.LeaveManagement);
-      },
-    },
-  ];
+  useEffect(() => {
+    const activeRoute = state.routes[state.index];
+    const layout = tabLayouts[activeRoute.key];
+
+    if (layout && scrollViewRef.current) {
+      const offset = layout.x + layout.width / 2 - screenWidth / 2;
+      scrollViewRef.current.scrollTo({
+        x: offset > 0 ? offset : 0,
+        animated: true,
+      });
+    }
+  }, [screenWidth, state.index, state.routes, tabLayouts]);
+
+  const onTabLayout = (key: string) => (event: LayoutChangeEvent) => {
+    const { x, width } = event.nativeEvent.layout;
+    setTabLayouts(prev => ({ ...prev, [key]: { x, width } }));
+  };
 
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
-      <View style={{ flex: 1 }}>
-        {DATA.map(item => {
+    <View style={styles.customTabBarContainer}>
+      <ScrollView
+        horizontal
+        ref={scrollViewRef}
+        showsHorizontalScrollIndicator={false}
+        style={styles.customTabScroll}
+        contentContainerStyle={styles.customTabWrap}
+      >
+        {state.routes.map((route, index) => {
+          const isFocused = state.index === index;
+          const { options } = descriptors[route.key];
+
+          const label =
+            typeof options.tabBarLabel === 'string'
+              ? options.tabBarLabel
+              : typeof options.title === 'string'
+                ? options.title
+                : route.name;
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
           return (
             <TouchableOpacity
-              key={item.id.toString()}
-              style={styles.touchable}
-              onPress={item.onPress}
+              key={route.key}
+              accessibilityRole="button"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              onLayout={onTabLayout(route.key)}
+              onPress={onPress}
+              style={[
+                styles.customTabItem,
+                isFocused && styles.customTabItemActive,
+              ]}
+              activeOpacity={0.9}
             >
-              <TextAtom>{item.name}</TextAtom>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.customTabText,
+                  isFocused && styles.customTabTextActive,
+                ]}
+              >
+                {label}
+              </Text>
             </TouchableOpacity>
           );
         })}
-      </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+const HRMS = (props: Props) => {
+  const { navigation, route } = props;
+
+  const initialRouteName = useMemo(() => {
+    const initialTab = route?.params?.initialTab;
+    if (initialTab === 'LeaveManagement') return 'LeaveManagementTab';
+    return 'VendorEmployeeTab';
+  }, [route?.params?.initialTab]);
+
+  useLayoutEffect(() => {
+    Header.setNavigation(
+      navigation,
+      'HRMS',
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+      true,
+    );
+    navigation.BackButtonPress = () => {
+      navigation.goBack();
+    };
+  }, [navigation]);
+
+  return (
+    <SafeAreaView edges={['bottom']} style={styles.container}>
+      <TopTabs.Navigator
+        key={initialRouteName}
+        initialRouteName={initialRouteName}
+        tabBar={tabBarProps => <CustomHRMSTabBar {...tabBarProps} />}
+        screenOptions={{
+          swipeEnabled: true,
+          sceneStyle: {
+            backgroundColor: colors.new_ui_screen_bg,
+          },
+        }}
+      >
+        <TopTabs.Screen
+          name="VendorEmployeeTab"
+          component={VendorEmployeeMangement}
+          initialParams={{ suppressHeader: true }}
+          options={{ tabBarLabel: 'Vendor Employee Management' }}
+        />
+        <TopTabs.Screen
+          name="LeaveManagementTab"
+          component={LeaveManagement}
+          initialParams={{ suppressHeader: true }}
+          options={{ tabBarLabel: 'Leave Management' }}
+        />
+      </TopTabs.Navigator>
     </SafeAreaView>
   );
 };
@@ -63,20 +188,49 @@ export default HRMS;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
+    backgroundColor: colors.new_ui_screen_bg,
   },
-  logoutBtn: {
-    alignSelf: 'center',
-    width: '90%',
+  customTabBarContainer: {
+    marginHorizontal: vw(8),
+    marginTop: vh(8),
+    borderRadius: vw(8),
   },
-  touchable: {
-    width: vw(328),
-    height: vh(55),
-    borderRadius: vw(6),
-    backgroundColor: colors.primary,
-    alignSelf: 'center',
+  customTabScroll: {
+    maxHeight: vh(42),
+  },
+  customTabWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: vw(6),
+    paddingVertical: vh(2),
+  },
+  customTabItem: {
+    height: vh(34),
+    minWidth: vw(110),
+
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: vh(15),
+    backgroundColor: colors.white,
+    marginRight: vw(6),
+    paddingHorizontal: vw(8),
+    paddingVertical: vw(8),
+    borderRadius: vw(8),
+  },
+  customTabItemActive: {
+    backgroundColor: colors.primary_sky_blue,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.primary_dark_blue,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    elevation: 2,
+  },
+  customTabText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(14),
+    lineHeight: vw(17),
+    color: colors.text_black,
+  },
+  customTabTextActive: {
+    color: colors.text_black,
   },
 });

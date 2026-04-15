@@ -16,7 +16,19 @@ const VisitorManagementSystem = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Visitor Management System');
+    Header.setNavigation(
+      navigation,
+      'Visitor Management System',
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+      true,
+    );
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };

@@ -7,7 +7,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   createMaterialTopTabNavigator,
@@ -76,8 +82,8 @@ const CustomFacultyTabBar = ({
             typeof options.tabBarLabel === 'string'
               ? options.tabBarLabel
               : typeof options.title === 'string'
-              ? options.title
-              : route.name;
+                ? options.title
+                : route.name;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -143,6 +149,7 @@ const FacultyManagement = (props: Props) => {
         titleColor: colors.white,
         backIconColor: colors.white,
       },
+      true,
     );
     navigation.BackButtonPress = () => {
       navigation.goBack();

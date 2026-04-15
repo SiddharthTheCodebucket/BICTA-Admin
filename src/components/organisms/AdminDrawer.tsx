@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -93,8 +93,20 @@ const MENU_ITEMS: MenuItem[] = [
 
 const AdminDrawer = (props: DrawerContentComponentProps) => {
   const { navigation } = props;
-  const [openAccordion, setOpenAccordion] = useState<string | null>('lms');
+  const currentRouteName = props.state.routes[props.state.index].name;
+  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const activeMenuItem = MENU_ITEMS.find(
+      item =>
+        item.screen === currentRouteName ||
+        item.subItems?.some(sub => sub.screen === currentRouteName),
+    );
+    if (activeMenuItem && activeMenuItem.subItems) {
+      setOpenAccordion(activeMenuItem.id);
+    }
+  }, [currentRouteName]);
 
   const { crediantialData } = useAppSelector(state => state.Auth);
   const user = crediantialData?.user?.[0];
@@ -185,20 +197,36 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
                   </TouchableOpacity>
                   {isOpen && (
                     <View style={styles.subMenuItemContainer}>
-                      {item.subItems?.map((sub, index) => (
-                        <TouchableOpacity
-                          key={index}
-                          style={styles.subMenuItem}
-                          onPress={() => navigation.navigate(sub.screen)}
-                        >
-                          <View style={styles.subMenuItemLeft}>
-                            <View style={styles.bullet} />
-                            <Text style={styles.subMenuItemText}>
-                              {sub.name}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      ))}
+                      {item.subItems?.map((sub, index) => {
+                        const isSubActive = currentRouteName === sub.screen;
+                        return (
+                          <TouchableOpacity
+                            key={index}
+                            style={[
+                              styles.subMenuItem,
+                              isSubActive && styles.subMenuItemActive,
+                            ]}
+                            onPress={() => navigation.navigate(sub.screen)}
+                          >
+                            <View style={styles.subMenuItemLeft}>
+                              <View
+                                style={[
+                                  styles.bullet,
+                                  isSubActive && styles.bulletActive,
+                                ]}
+                              />
+                              <Text
+                                style={[
+                                  styles.subMenuItemText,
+                                  isSubActive && styles.subMenuItemTextActive,
+                                ]}
+                              >
+                                {sub.name}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
                     </View>
                   )}
                 </View>
@@ -345,6 +373,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F3E5AB',
   },
+  subMenuItemActive: {
+    backgroundColor: colors.primary_sky_blue,
+  },
   subMenuItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -356,10 +387,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     marginRight: vw(8),
   },
+  bulletActive: {
+    backgroundColor: colors.primary_dark_blue,
+  },
   subMenuItemText: {
     fontSize: vw(14),
     fontFamily: fonts.Roboto_Regular,
     color: colors.text_grey || '#4B5563',
+  },
+  subMenuItemTextActive: {
+    color: colors.primary_dark_blue,
+    fontFamily: fonts.Roboto_Bold,
   },
   singleMenuItem: {
     flexDirection: 'row',

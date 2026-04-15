@@ -16,7 +16,19 @@ const FeedbackManagement = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Feedback Management');
+    Header.setNavigation(
+      navigation,
+      'Feedback Management',
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+      true,
+    );
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
