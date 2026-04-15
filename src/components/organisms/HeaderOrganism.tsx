@@ -11,9 +11,9 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ParamListBase } from '@react-navigation/native';
 import { colors, fonts, images, vh, vw } from '../../constants';
 import ImageAtom from '../atoms/ImageAtom';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export interface NavigationType
-  extends NativeStackNavigationProp<ParamListBase> {
+export interface NavigationType extends NativeStackNavigationProp<ParamListBase> {
   BackButtonPress: Function;
   onCartBttnPress: Function;
 }
@@ -46,7 +46,10 @@ export const Header = {
       headerTitle: () =>
         title ? (
           <View style={[styles.headerTextView, headerTextContainer]}>
-            <Text numberOfLines={1} style={[styles.titleText, { color: titleColor }]}>
+            <Text
+              numberOfLines={1}
+              style={[styles.titleText, { color: titleColor }]}
+            >
               {title}
             </Text>
           </View>
@@ -162,6 +165,12 @@ export const Header = {
 
       headerLeft: () => (
         <View style={styles.leftContainer}>
+          <TouchableOpacity
+            onPress={() => (navigation as any).openDrawer()}
+            style={styles.drawerToggle}
+          >
+            <Icon name="menu" size={24} color={colors.primary} />
+          </TouchableOpacity>
           <ImageAtom
             source={logo}
             style={[
@@ -237,8 +246,13 @@ const styles = StyleSheet.create({
   },
   leftContainer: {
     paddingLeft: vw(15),
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-
+  drawerToggle: {
+    marginRight: vw(10),
+    padding: vw(4),
+  },
   rightContainer: {
     paddingRight: vw(15),
   },
