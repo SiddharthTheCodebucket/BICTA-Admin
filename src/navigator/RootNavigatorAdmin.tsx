@@ -1,4 +1,3 @@
-import { StyleSheet } from 'react-native';
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -7,7 +6,7 @@ import DropDownModal from '../modal/DropDownModal';
 import AlertOrganism from '../components/organisms/AlertOrganism';
 import ErrorModal from '../components/organisms/ErrorModal';
 import BottomTabNavigatorAdmin from './BottomTabNavigatorAdmin';
-import AdminDrawer from '../components/organisms/AdminDrawer';
+import AdminDrawer from './AdminDrawer';
 import VehicleManagement from '../screens/AdminScreens/Menu/VehicleManagement';
 import VehicleRegistration from '../screens/AdminScreens/Menu/VehicleManagement/VehicleRegistration';
 import AddVehicle from '../screens/AdminScreens/Menu/VehicleManagement/VehicleRegistration/AddVehicle';
@@ -259,25 +258,24 @@ import DeviceList from '../screens/AdminScreens/Profile/FaceScan/DeviceList';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
+const RootStackScreen = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
+
+const ADMIN_APP_DRAWER = 'AdminAppDrawer';
+const ADMIN_MAIN_TABS = 'AdminMainTabs';
+
+const AppDrawer = () => (
+  <Drawer.Navigator
+    drawerContent={props => <AdminDrawer {...props} />}
+    screenOptions={{
+      headerShown: false,
+    }}
+  >
+    <Drawer.Screen name={ADMIN_MAIN_TABS} component={BottomTabNavigatorAdmin} />
+  </Drawer.Navigator>
+);
 
 const RootNavigatorAdmin = () => {
-  const RootStackScreen = createNativeStackNavigator();
-  const Drawer = createDrawerNavigator();
-
-  const DrawerNavigator = () => (
-    <Drawer.Navigator
-      drawerContent={props => <AdminDrawer {...props} />}
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Drawer.Screen
-        name="BottomTabNavigatorAdmin"
-        component={BottomTabNavigatorAdmin}
-      />
-    </Drawer.Navigator>
-  );
-
   return (
     <RootStackScreen.Navigator>
       <RootStackScreen.Group
@@ -288,8 +286,8 @@ const RootNavigatorAdmin = () => {
         }}
       >
         <RootStackScreen.Screen
-          name="BottomTabNavigatorAdmin"
-          component={DrawerNavigator}
+          name={ADMIN_APP_DRAWER}
+          component={AppDrawer}
         />
         <RootStackScreen.Screen
           name="VehicleManagement"
@@ -1151,5 +1149,3 @@ const RootNavigatorAdmin = () => {
 };
 
 export default RootNavigatorAdmin;
-
-const styles = StyleSheet.create({});

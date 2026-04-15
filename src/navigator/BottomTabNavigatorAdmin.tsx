@@ -3,9 +3,9 @@ import { Image, Platform, Pressable, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { vh, vw } from '../constants/dimensions';
 import { colors, fonts, images, screensName } from '../constants';
-import Dashboard from '../screens/AdminScreens/Dashboard';
-import Menu from '../screens/AdminScreens/Menu';
-import Profile from '../screens/AdminScreens/Profile';
+import Dashboard from './stacks/AdminDashboardStack';
+import Menu from './stacks/AdminMenuStack';
+import Profile from './stacks/AdminProfileStack';
 import { useAppSelector } from '../hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 

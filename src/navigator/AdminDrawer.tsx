@@ -9,8 +9,8 @@ import {
   TextInput,
 } from 'react-native';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
-import { colors, fonts, vw, vh, images, screensName } from '../../constants';
-import { useAppSelector } from '../../hooks';
+import { colors, fonts, vw, vh, images, screensName } from '../constants';
+import { useAppSelector } from '../hooks';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 interface SubMenuItem {
@@ -25,6 +25,23 @@ interface MenuItem {
   screen?: string;
   subItems?: SubMenuItem[];
 }
+
+const ADMIN_MAIN_TABS = 'AdminMainTabs';
+
+const DASHBOARD_STACK_ROUTES = new Set([
+  screensName.Dashboard,
+  screensName.HostelPlanningDetails,
+  screensName.HostelDetailsDashbaord,
+  screensName.BlockDetails,
+  screensName.BlockedForm,
+]);
+
+const PROFILE_STACK_ROUTES = new Set([
+  screensName.Profile,
+  screensName.ScanQRAndFace,
+  screensName.DeviceRegistration,
+  screensName.DeviceList,
+]);
 
 const MENU_ITEMS: MenuItem[] = [
   {
@@ -91,9 +108,23 @@ const MENU_ITEMS: MenuItem[] = [
   },
 ];
 
+const getActiveRouteName = (state: any): string => {
+  if (!state?.routes?.length) {
+    return screensName.Menu;
+  }
+
+  const route = state.routes[state.index ?? 0];
+
+  if (route?.state) {
+    return getActiveRouteName(route.state);
+  }
+
+  return route?.name ?? screensName.Menu;
+};
+
 const AdminDrawer = (props: DrawerContentComponentProps) => {
   const { navigation } = props;
-  const currentRouteName = props.state.routes[props.state.index].name;
+  const currentRouteName = getActiveRouteName(props.state);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -115,14 +146,36 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
     setOpenAccordion(openAccordion === id ? null : id);
   };
 
+  const navigateToScreen = (screen: string) => {
+    if (DASHBOARD_STACK_ROUTES.has(screen)) {
+      (navigation as any).navigate(ADMIN_MAIN_TABS, {
+        screen: screensName.Dashboard,
+        params:
+          screen === screensName.Dashboard ? undefined : { screen },
+      });
+      return;
+    }
+
+    if (PROFILE_STACK_ROUTES.has(screen)) {
+      (navigation as any).navigate(ADMIN_MAIN_TABS, {
+        screen: screensName.Profile,
+        params: screen === screensName.Profile ? undefined : { screen },
+      });
+      return;
+    }
+
+    (navigation as any).navigate(ADMIN_MAIN_TABS, {
+      screen: screensName.Menu,
+      params: screen === screensName.Menu ? undefined : { screen },
+    });
+  };
+
   return (
     <View style={styles.container}>
       {/* User Profile Header */}
       <View style={styles.profileHeader}>
         <Image
-          source={
-            images.user_profile || { uri: 'https://via.placeholder.com/100' }
-          }
+          source={{ uri: 'https://via.placeholder.com/100' }}
           style={styles.avatar}
         />
         <View style={styles.profileInfo}>
@@ -206,7 +259,7 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
                               styles.subMenuItem,
                               isSubActive && styles.subMenuItemActive,
                             ]}
-                            onPress={() => navigation.navigate(sub.screen)}
+                            onPress={() => navigateToScreen(sub.screen)}
                           >
                             <View style={styles.subMenuItemLeft}>
                               <View
@@ -233,9 +286,7 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
               ) : (
                 <TouchableOpacity
                   style={styles.singleMenuItem}
-                  onPress={() =>
-                    item.screen && navigation.navigate(item.screen)
-                  }
+                  onPress={() => item.screen && navigateToScreen(item.screen)}
                 >
                   <View style={styles.menuItemLeft}>
                     <Icon name={item.icon} size={20} color={colors.primary} />
