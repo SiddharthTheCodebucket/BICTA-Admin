@@ -313,7 +313,7 @@ const Subject = (props: Props) => {
                   </TextAtom>
                 </View>
               )}
-              <TouchableAtom style={styles.viewBtn}>
+              <TouchableAtom onPress={() => {}} style={styles.viewBtn}>
                 <TextAtom style={styles.viewBtnText}>View</TextAtom>
               </TouchableAtom>
             </View>
@@ -330,8 +330,9 @@ const Subject = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-
-      <AdminListHeader config={headerConfig} />
+      <View style={{ paddingHorizontal: vw(16) }}>
+        <AdminListHeader config={headerConfig} />
+      </View>
 
       {showSearch && (
         <SearchBoxOrganism

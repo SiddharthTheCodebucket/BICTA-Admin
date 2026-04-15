@@ -26,6 +26,7 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import SubTab from '../../../../../../components/molecules/SubTab';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
@@ -413,27 +414,20 @@ const TimeTable = (props: Props) => {
           />
         </ScrollView>
       </View>
-      <View style={styles.tabRow}>
-        {[
-          strings.lms.classRoomManagement.currentTraining,
-          strings.lms.classRoomManagement.previousTraining,
-        ].map(tab => (
-          <TouchableAtom
-            key={tab}
-            style={[styles.tabButton, activeTab === tab && styles.activeTab]}
-            onPress={() => setActiveTab(tab as any)}
-          >
-            <TextAtom
-              style={[
-                styles.tabText,
-                activeTab === tab && styles.activeTabText,
-              ]}
-            >
-              {tab}
-            </TextAtom>
-          </TouchableAtom>
-        ))}
-      </View>
+      <SubTab
+        tabs={[
+          {
+            label: strings.lms.classRoomManagement.currentTraining,
+            value: strings.lms.classRoomManagement.currentTraining,
+          },
+          {
+            label: strings.lms.classRoomManagement.previousTraining,
+            value: strings.lms.classRoomManagement.previousTraining,
+          },
+        ]}
+        activeTab={activeTab}
+        onTabChange={value => setActiveTab(value)}
+      />
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -487,30 +481,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
   flatListContainer: {
     paddingVertical: vh(10),
-  },
-
-  tabRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: vw(10),
-    marginTop: vh(5),
-  },
-  tabButton: {
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(20),
-    backgroundColor: colors.lightGray2,
-    borderRadius: vw(6),
-  },
-  activeTab: {
-    backgroundColor: colors.primary,
-  },
-  tabText: {
-    color: colors.black,
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-  },
-  activeTabText: {
-    color: colors.white,
   },
 
   card: {

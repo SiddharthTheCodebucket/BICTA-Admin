@@ -36,6 +36,7 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import SubTab from '../../../../../../components/molecules/SubTab';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
@@ -77,6 +78,9 @@ const SubjectTopic = (props: Props) => {
 
   const [showSearch, setShowSearch] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [activeStatus, setActiveStatus] = useState<'Active' | 'Inactive'>(
+    'Active',
+  );
 
   const [userTypesList, setUserTypesList] = useState<any[]>([]);
   const [selectedUserType, setSelectedUserType] = useState<any>({});
@@ -91,6 +95,11 @@ const SubjectTopic = (props: Props) => {
     Header.setNavigation(
       navigation,
       strings.lms.curriculumManagement.subjectTopicDetails,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation, route?.params?.suppressHeader]);
@@ -323,8 +332,18 @@ const SubjectTopic = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
+      <View style={{ paddingHorizontal: vw(16) }}>
+        <AdminListHeader config={headerConfig} />
+      </View>
 
-      <AdminListHeader config={headerConfig} />
+      <SubTab
+        tabs={[
+          { label: 'Active', value: 'Active' },
+          { label: 'Inactive', value: 'Inactive' },
+        ]}
+        activeTab={activeStatus}
+        onTabChange={value => setActiveStatus(value as 'Active' | 'Inactive')}
+      />
 
       {showSearch && (
         <SearchBoxOrganism
@@ -415,7 +434,9 @@ const SubjectTopic = (props: Props) => {
           <TouchableAtom
             style={styles.overlayPressable}
             onPress={() => setShowFilter(false)}
-          />
+          >
+            <View style={{ flex: 1 }} />
+          </TouchableAtom>
           <View style={styles.sheetContainer}>
             <View style={styles.sheetHeader}>
               <TextAtom style={styles.sheetTitle}>Filters</TextAtom>
@@ -596,7 +617,7 @@ const styles = StyleSheet.create({
     borderRadius: vw(10),
     backgroundColor: colors.primary_blue,
     alignItems: 'center',
-    justifyTcenter: 'center',
+    justifyContent: 'center',
   },
   applyBtnText: {
     fontFamily: fonts.Inter_Medium,
@@ -608,5 +629,34 @@ const styles = StyleSheet.create({
     marginTop: vh(50),
     color: colors.grey,
     fontFamily: fonts.Roboto_Medium,
+  },
+  cardStatusRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: vh(8),
+  },
+  statusPill: {
+    paddingHorizontal: vw(8),
+    paddingVertical: vh(4),
+    borderRadius: vw(12),
+    borderWidth: 1,
+  },
+  statusPillActive: {
+    backgroundColor: '#E6FFFA',
+    borderColor: colors.green,
+  },
+  statusPillInactive: {
+    backgroundColor: '#FFF5F5',
+    borderColor: colors.red,
+  },
+  statusPillText: {
+    fontSize: vw(12),
+    fontFamily: fonts.Roboto_Medium,
+  },
+  statusPillTextActive: {
+    color: colors.green,
+  },
+  statusPillTextInactive: {
+    color: colors.red,
   },
 });

@@ -40,6 +40,7 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import SubTab from '../../../../../../components/molecules/SubTab';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
@@ -423,7 +424,9 @@ const BatchDetails = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <AdminListHeader config={headerConfig} />
+      <View style={{ paddingHorizontal: vw(16) }}>
+        <AdminListHeader config={headerConfig} />
+      </View>
 
       {showSearch && (
         <SearchBoxOrganism
@@ -434,27 +437,16 @@ const BatchDetails = (props: Props) => {
         />
       )}
 
-      <View style={styles.statusTabWrap}>
-        {(['Current Training', 'Completed Training'] as const).map(tab => (
-          <TouchableAtom
-            key={tab}
-            style={[
-              styles.statusTab,
-              activeTab === tab && styles.statusTabActive,
-            ]}
-            onPress={() => setActiveTab(tab)}
-          >
-            <TextAtom
-              style={[
-                styles.statusTabText,
-                activeTab === tab && styles.statusTabTextActive,
-              ]}
-            >
-              {tab}
-            </TextAtom>
-          </TouchableAtom>
-        ))}
-      </View>
+      <SubTab
+        tabs={[
+          { label: 'Current Training', value: 'Current Training' },
+          { label: 'Completed Training', value: 'Completed Training' },
+        ]}
+        activeTab={activeTab}
+        onTabChange={value =>
+          setActiveTab(value as 'Current Training' | 'Completed Training')
+        }
+      />
 
       <TouchableAtom
         style={styles.trainingSelect}
@@ -606,33 +598,6 @@ const styles = StyleSheet.create({
 
   searchBox: {
     marginTop: vh(10),
-  },
-
-  statusTabWrap: {
-    marginTop: vh(10),
-    marginHorizontal: vw(14),
-    padding: vw(2),
-    borderRadius: vw(8),
-    backgroundColor: '#DCE8F6',
-    flexDirection: 'row',
-  },
-  statusTab: {
-    flex: 1,
-    height: vh(34),
-    borderRadius: vw(7),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  statusTabActive: {
-    backgroundColor: colors.primary_blue,
-  },
-  statusTabText: {
-    fontFamily: fonts.Inter_Medium,
-    fontSize: adminFontSizes.sm,
-    color: '#3D4B5C',
-  },
-  statusTabTextActive: {
-    color: colors.white,
   },
 
   trainingSelect: {
