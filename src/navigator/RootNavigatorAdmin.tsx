@@ -69,7 +69,10 @@ import TopicFeedbackCountDetails from '../screens/AdminScreens/Menu/LMS/FacultyM
 import AddFacultyDetails from '../screens/AdminScreens/Menu/LMS/FacultyManagement/FacultyDetails/AddFacultyDetails';
 import CurriculumManagemnet from '../screens/AdminScreens/Menu/LMS/CurriculumManagemnet';
 import Subject from '../screens/AdminScreens/Menu/LMS/CurriculumManagemnet/Subject';
+import AddSubject from '../screens/AdminScreens/Menu/LMS/CurriculumManagemnet/Subject/AddSubject';
+import SubjectDetails from '../screens/AdminScreens/Menu/LMS/CurriculumManagemnet/Subject/SubjectDetails';
 import SubjectTopic from '../screens/AdminScreens/Menu/LMS/CurriculumManagemnet/SubjectTopic';
+import AddSubjectTopic from '../screens/AdminScreens/Menu/LMS/CurriculumManagemnet/SubjectTopic/AddSubjectTopic';
 import ClassLocationManagement from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement';
 import LocationDetails from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement/LocationDetails';
 import LocationDetailDetails from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement/LocationDetails/LocationDetailDetails';
@@ -501,7 +504,16 @@ const RootNavigatorAdmin = () => {
           component={CurriculumManagemnet}
         />
         <RootStackScreen.Screen name="Subject" component={Subject} />
+        <RootStackScreen.Screen
+          name="SubjectDetails"
+          component={SubjectDetails}
+        />
+        <RootStackScreen.Screen name="AddSubject" component={AddSubject} />
         <RootStackScreen.Screen name="SubjectTopic" component={SubjectTopic} />
+        <RootStackScreen.Screen
+          name="AddSubjectTopic"
+          component={AddSubjectTopic}
+        />
         <RootStackScreen.Screen
           name="ClassLocationManagement"
           component={ClassLocationManagement}

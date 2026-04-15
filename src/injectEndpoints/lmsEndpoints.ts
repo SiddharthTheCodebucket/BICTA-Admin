@@ -269,6 +269,20 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    deleteKnowledgeManagement: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.delete_knowledge_management,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    deleteKnowledgeManagementSubTopic: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.delete_knowledge_management_sub_topic,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
     listClassLocationDetails: builder.mutation<any, any>({
       query: requestParams => ({
         url: endpoints.list_class_location_details,
@@ -444,6 +458,8 @@ export const {
   useDeleteFacultyDetailsMutation,
   useListKnowledgeManagementMutation,
   useListKnowledgeManagementSubTopicMutation,
+  useDeleteKnowledgeManagementMutation,
+  useDeleteKnowledgeManagementSubTopicMutation,
   useListClassLocationDetailsMutation,
   useUpdateClassLocationDetailsMutation,
   useListClassSubLocationDetailsMutation,

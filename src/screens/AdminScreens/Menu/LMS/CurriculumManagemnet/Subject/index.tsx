@@ -2,6 +2,7 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useState,
 } from 'react';
 import {
@@ -14,19 +15,35 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
+import {
+  adminFontSizes,
+  colors,
+  fonts,
+  images,
+  screensName,
+  strings,
+  vh,
+  vw,
+} from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
+import AdminListHeader, {
+  AdminListHeaderConfig,
+} from '../../../../../../components/organisms/AdminListHeader';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import { useListKnowledgeManagementMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
+import {
+  useListKnowledgeManagementMutation,
+  useDeleteKnowledgeManagementMutation,
+} from '../../../../../../injectEndpoints/lmsEndpoints';
+import { SvgDelete, SvgEditPencile } from '../../../../../../constants/svgs';
 
 interface Props {
   navigation: NavigationType;
@@ -49,15 +66,23 @@ const Subject = (props: Props) => {
   const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [listSubjectsApi] = useListKnowledgeManagementMutation();
+  const [deleteSubjectApi] = useDeleteKnowledgeManagementMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
+
+  const [showSearch, setShowSearch] = useState(false);
+
+  const [activeStatus, setActiveStatus] = useState<
+    'All' | 'Active' | 'Inactive'
+  >('All');
 
   const ITEMS_PER_PAGE = 10;
 
@@ -87,6 +112,44 @@ const Subject = (props: Props) => {
     listSubjects(1, true, '');
   }, [centerSerach]);
 
+  useEffect(() => {
+    if (firstTimeLoad) return;
+    listSubjects(1, true, search);
+  }, [activeStatus]);
+
+  const handleDelete = (id: any) => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: 'Delete Confirmation',
+      message: 'Are you sure you want to delete this subject?',
+      okText: 'Confirm',
+      double: true,
+      cancelText: strings.cancel,
+      okFunction: () => deleteSubject(id),
+      cancelFunction: () => {},
+    });
+  };
+
+  const deleteSubject = (id: any) => {
+    setInitialCall(true);
+    const params = { id };
+    deleteSubjectApi(params)
+      .unwrap()
+      .then((res: any) => {
+        Toast.show({
+          type: 'success',
+          text2: res.data.message,
+        });
+        listSubjects(1, true, search);
+      })
+      .catch((err: any) => {
+        setInitialCall(false);
+        Toast.show({
+          type: 'error',
+          text2: err.data?.message || strings.something_went_wrong,
+        });
+      });
+  };
+
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
 
@@ -106,13 +169,23 @@ const Subject = (props: Props) => {
     initial ? setInitialCall(true) : setInitialCall(false);
 
     const centreFilter = getCentreFilter();
+
+    const statusFilters: any[] = [];
+    if (activeStatus === 'Active') {
+      statusFilters.push(['status', '=', 'Active']);
+    } else if (activeStatus === 'Inactive') {
+      statusFilters.push(['status', '=', 'Inactive']);
+    }
+
+    const combinedFilters = [...statusFilters, ...filtersArray];
+
     const params: any = {
       search: keyword,
       sort: {
         attributes: ['id'],
         sorts: ['desc'],
       },
-      filters: filtersArray,
+      filters: combinedFilters,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
       bipardCentre: [],
@@ -138,6 +211,7 @@ const Subject = (props: Props) => {
         setPage(pageNumber);
 
         const totalCount = res?.data?.totalCount ?? 0;
+        setTotalCount(totalCount);
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
       })
       .catch((err: any) => {
@@ -167,6 +241,23 @@ const Subject = (props: Props) => {
     setSearch('');
     listSubjects(1, true, '');
   };
+
+  const headerConfig = useMemo<AdminListHeaderConfig>(
+    () => ({
+      title: strings.lms.curriculumManagement.subject,
+      count: totalCount,
+      search: {
+        visible: true,
+        onPress: () => setShowSearch(prev => !prev),
+      },
+      filter: { visible: false },
+      create: {
+        visible: true,
+        onPress: () => navigation.navigate(screensName.AddSubject),
+      },
+    }),
+    [navigation, totalCount],
+  );
   const SubjectCard = ({ item, index, navigation }: any) => {
     const thumbnail =
       item?.thumbnail && item.thumbnail !== null && item.thumbnail !== ''
@@ -174,40 +265,59 @@ const Subject = (props: Props) => {
         : null;
 
     return (
-      <TouchableAtom style={styles.card} onPress={() => {}}>
-        <View style={styles.cardHeader}>
-          <TextAtom style={styles.flex1Label}>
-            {strings.lms.curriculumManagement.srNo} {index + 1}
-          </TextAtom>
+      <TouchableAtom
+        style={styles.card}
+        activeOpacity={0.9}
+        onPress={() =>
+          navigation.navigate(screensName.SubjectDetails, { data: item })
+        }
+      >
+        <View style={styles.cardTopRow}>
+          <TextAtom style={styles.subjectName}>{item.name ?? '-'}</TextAtom>
+          <View style={styles.cardActions}>
+            <TouchableAtom
+              style={styles.cardIconBtn}
+              onPress={() => handleDelete(item.id)}
+            >
+              <SvgDelete width={vw(14)} height={vw(14)} />
+            </TouchableAtom>
+            <TouchableAtom
+              style={styles.cardIconBtn}
+              onPress={() =>
+                navigation.navigate(screensName.AddSubject, { item })
+              }
+            >
+              <SvgEditPencile width={vw(14)} height={vw(14)} />
+            </TouchableAtom>
+          </View>
         </View>
 
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.curriculumManagement.subject}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
-        </View>
-
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.curriculumManagement.description}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.description ?? '-'}</TextAtom>
-        </View>
-
-        <TextAtom style={styles.label}>
-          {strings.lms.curriculumManagement.thumbnail}
-        </TextAtom>
-        <View style={styles.thumbnailContainer}>
-          {thumbnail ? (
-            <ImageAtom
-              source={thumbnail}
-              style={styles.thumbnailImage}
-              resizeMode="cover"
-            />
-          ) : (
-            <TextAtom style={styles.value}>{'-'}</TextAtom>
-          )}
+        <View style={styles.cardBody}>
+          <View style={styles.descriptionCol}>
+            <TextAtom style={styles.label}>Description</TextAtom>
+            <TextAtom style={styles.value}>{item.description ?? '-'}</TextAtom>
+          </View>
+          <View style={styles.thumbnailCol}>
+            <TextAtom style={styles.label}>Thumbnail</TextAtom>
+            <View style={styles.thumbnailRow}>
+              {thumbnail ? (
+                <ImageAtom
+                  source={thumbnail}
+                  style={styles.thumbnailImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.thumbnailPlaceholder}>
+                  <TextAtom style={styles.thumbnailPlaceholderText}>
+                    {item.name?.charAt(0)?.toUpperCase() || 'S'}
+                  </TextAtom>
+                </View>
+              )}
+              <TouchableAtom style={styles.viewBtn}>
+                <TextAtom style={styles.viewBtnText}>View</TextAtom>
+              </TouchableAtom>
+            </View>
+          </View>
         </View>
       </TouchableAtom>
     );
@@ -220,6 +330,18 @@ const Subject = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
+
+      <AdminListHeader config={headerConfig} />
+
+      {showSearch && (
+        <SearchBoxOrganism
+          onChangeText={onChangeSearch}
+          searchText={search}
+          onPressCross={onClearSearch}
+          searchBox={styles.searchBox}
+        />
+      )}
+
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
@@ -253,12 +375,6 @@ const Subject = (props: Props) => {
           containerStyle={styles.centerDropdown}
         />
       )}
-      <SearchBoxOrganism
-        onChangeText={onChangeSearch}
-        searchText={search}
-        onPressCross={onClearSearch}
-        searchBox={styles.searchBox}
-      />
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -307,50 +423,106 @@ const Subject = (props: Props) => {
 export default Subject;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
   flatListContainer: {
     paddingVertical: vh(10),
   },
   card: {
     backgroundColor: colors.white,
-    marginHorizontal: vw(15),
-    borderRadius: vw(8),
-    paddingHorizontal: vw(15),
-    paddingVertical: vh(8),
-    elevation: 3,
+    marginHorizontal: vw(14),
+    borderRadius: vw(12),
+    borderWidth: 1,
+    borderColor: colors.new_ui_card_border,
+    paddingHorizontal: vw(12),
+    paddingVertical: vh(12),
+    elevation: 2,
     shadowColor: '#000',
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
   },
-  label: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
+  cardTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: vh(12),
   },
-  labelRight: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    textAlign: 'right',
+  subjectName: {
+    fontFamily: fonts.Roboto_Bold,
+    fontSize: adminFontSizes.md,
+    color: colors.text_black,
+  },
+  cardActions: {
+    flexDirection: 'row',
+    gap: vw(8),
+  },
+  cardIconBtn: {
+    width: vw(30),
+    height: vw(30),
+    borderRadius: vw(6),
+    borderWidth: 1,
+    borderColor: colors.grey_1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.white,
+  },
+  cardBody: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: vw(10),
+  },
+  descriptionCol: {
+    flex: 1,
+  },
+  thumbnailCol: {
+    flex: 1,
+  },
+  thumbnailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: vw(8),
+    marginTop: vh(4),
+  },
+  label: {
+    fontFamily: fonts.Roboto_Regular,
+    fontSize: vw(12),
+    color: colors.grey,
   },
   value: {
     fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
+    fontSize: adminFontSizes.sm,
+    color: colors.text_black,
+    marginTop: vh(2),
   },
-  valueRight: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
-    textAlign: 'right',
+  thumbnailImage: {
+    width: vw(40),
+    height: vw(40),
+    borderRadius: vw(4),
+    backgroundColor: colors.grey,
   },
-  divider: {
-    height: 1,
-    backgroundColor: colors.chinese_silver,
-    marginVertical: vh(5),
+  thumbnailPlaceholder: {
+    width: vw(40),
+    height: vw(40),
+    borderRadius: vw(4),
+    backgroundColor: colors.light_sky_blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbnailPlaceholderText: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+    color: colors.primary_blue,
+  },
+  viewBtn: {
+    backgroundColor: colors.primary_blue,
+    paddingHorizontal: vw(12),
+    paddingVertical: vh(6),
+    borderRadius: vw(4),
+  },
+  viewBtnText: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(12),
+    color: colors.white,
   },
   emptyText: {
     textAlign: 'center',
@@ -358,123 +530,8 @@ const styles = StyleSheet.create({
     color: colors.grey,
     fontFamily: fonts.Roboto_Medium,
   },
-  rowBetween: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  thumbnail: {
-    width: 70,
-    height: 70,
-    backgroundColor: colors.lightGray2,
-    borderRadius: 8,
-    marginTop: 6,
-  },
-  statusBox: {
-    marginTop: vh(8),
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(12),
-    borderRadius: vw(6),
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  activeBox: {
-    backgroundColor: colors.lightGreenBg,
-    borderColor: colors.darkGreen,
-  },
-
-  inActiveBox: {
-    backgroundColor: colors.lightRedBg,
-    borderColor: colors.darkRed,
-  },
-
-  statusText: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-  },
-
-  activeText: { color: colors.greenText },
-  inActiveText: { color: colors.redText },
-
-  dropMenu: {
-    marginTop: vh(6),
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.grey,
-    borderRadius: vw(6),
-    overflow: 'hidden',
-  },
-
-  dropItem: {
-    paddingVertical: vh(10),
-    paddingHorizontal: vw(12),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.chinese_silver,
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'transparent',
-    zIndex: 998,
-  },
-  filterButton: {
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    borderRadius: vw(4),
-    marginTop: vh(10),
-    alignSelf: 'flex-end',
-    marginRight: vh(15),
-    paddingHorizontal: vw(10),
-    paddingVertical: vh(5),
-  },
-  filterText: {
-    color: colors.black,
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-  },
-  filterContainer: { paddingHorizontal: vw(15) },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: vh(5),
-  },
-  applyBtn: { width: vw(150), height: vh(35) },
-  clearBtn: {
-    width: vw(150),
-    height: vh(35),
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    backgroundColor: colors.white,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: vh(10),
-  },
-  flex1Label: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    flex: 1,
-  },
-  flex1: { flex: 1 },
-  thumbnailContainer: { marginTop: vh(10) },
-  thumbnailImage: {
-    width: vw(60),
-    height: vw(60),
-    borderRadius: vw(6),
-    backgroundColor: colors.grey,
-  },
   paginationLoader: { marginTop: vh(15) },
   itemSeparator: { height: vh(10) },
-  clearBtnText: { color: colors.primary },
-  centerDropdown: { marginBottom: vh(-10) },
-  searchBox: { marginTop: vh(15) },
+  centerDropdown: { marginTop: vh(10), marginHorizontal: vw(14) },
+  searchBox: { marginTop: vh(10) },
 });

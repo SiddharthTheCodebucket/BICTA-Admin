@@ -111,6 +111,9 @@ export default {
   list_knowledge_managemnet: 'lms/list-knowledge-management-subject',
   list_knowledge_managemnet_sub_topic:
     '/lms/list-knowledge-management-subject-topic',
+  delete_knowledge_management: 'lms/delete-knowledge-management-subject',
+  delete_knowledge_management_sub_topic:
+    'lms/delete-knowledge-management-subject-topic',
   list_class_location_details: 'lms/list-class-location-details',
   update_class_location_details: 'lms/update-class-location-details',
   list_class_sub_location_details: 'lms/list-class-sub-locations-details',
