@@ -48,7 +48,7 @@ import AddTrainingDetails from '../screens/AdminScreens/Menu/LMS/TrainingManagem
 import BatchDetailsList from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails/BatchDetailsList';
 import EditBatchDetails from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails/EditBatchDetails';
 import MergedBatchForm from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails/MergedBatchForm';
-import TraineeManagement from '../screens/AdminScreens/Menu/LMS/TraineeManagement';
+import { TraineeManagement } from '../screens/AdminScreens/Menu/LMS/TraineeManagement';
 import TraineeRegistration from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeRegistration';
 import TraineeRegistrationDetails from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeRegistration/TraineeRegistrationDetails';
 import AddTraineeRegistration from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeRegistration/AddTraineeRegistration';
