@@ -152,5 +152,27 @@ backButtonText: {
   color: '#111827',
 },
 
+  infoSection: {
+    marginTop: vh(8),
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: vw(10),
+    marginBottom: vh(10),
+  },
+  infoCol: { flex: 1 },
+  infoLabel: {
+    fontFamily: fonts.Roboto_Regular,
+    fontSize: adminFontSizes.xs,
+    color: colors.new_ui_card_description,
+  },
+  infoValue: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: adminFontSizes.sm,
+    color: colors.new_ui_card_title,
+    marginTop: vh(3),
+  },
+
 
 });

@@ -13,7 +13,6 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
-import Svg, { Path, Line } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
@@ -25,7 +24,6 @@ import {
   strings,
   vh,
   vw,
-  adminFontSizes,
   SvgEditPencile,
   SvgDelete,
 } from '../../../../../../constants';
@@ -34,22 +32,23 @@ import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
-import AdminListHeader, {
-  AdminListHeaderConfig,
-} from '../../../../../../components/organisms/AdminListHeader';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import FormSwitchForCard from '../../../../../../components/templates/FormSwitchForCard';
 
 import {
-  useListClassLocationDetailsMutation,
-  useUpdateClassLocationDetailsMutation,
+  useListClassSubLocationDetailsMutation,
+  useUpdateClassSubLocationDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
+import AdminListHeader, {
+  AdminListHeaderConfig,
+  AdminListHeaderCreateConfig,
+} from '../../../../../../components/organisms/AdminListHeader';
 import { globalStyles } from '../../../../../../utils/globalStyles';
+import { FormSwitchForCard } from '../../../../../../components/templates';
 
 interface Props {
   navigation: NavigationType;
@@ -66,13 +65,14 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const LocationDetailsList = (props: Props) => {
+const SubLocationDetailsList = (props: Props) => {
   const { navigation, route } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
-  const [listFacultyDetailsApi] = useListClassLocationDetailsMutation();
-  const [updateFacultyDetailsApi] = useUpdateClassLocationDetailsMutation();
+  const [listSubLocationDetailsApi] = useListClassSubLocationDetailsMutation();
+  const [updateSubLocationDetailsApi] =
+    useUpdateClassSubLocationDetailsMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -82,10 +82,10 @@ const LocationDetailsList = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   const ITEMS_PER_PAGE = 10;
 
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
@@ -93,7 +93,7 @@ const LocationDetailsList = (props: Props) => {
     if (route?.params?.suppressHeader) return;
     Header.setNavigation(
       navigation,
-      strings.lms.locationDetails.title,
+      strings.lms.locationDetails.subLocationDetailsTitle,
       undefined,
       undefined,
       undefined,
@@ -110,14 +110,14 @@ const LocationDetailsList = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listLocationDetails(1, true, '');
+        listSubLocationDetails(1, true, '');
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listLocationDetails(1, true, '');
+    listSubLocationDetails(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
@@ -130,7 +130,7 @@ const LocationDetailsList = (props: Props) => {
     return [centerSerach.name];
   };
 
-  const listLocationDetails = (
+  const listSubLocationDetails = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -154,7 +154,7 @@ const LocationDetailsList = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    listFacultyDetailsApi(params)
+    listSubLocationDetailsApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -178,14 +178,14 @@ const LocationDetailsList = (props: Props) => {
         setRefreshing(false);
         Toast.show({
           type: 'error',
-          text2: err.data?.message || 'Something went wrong',
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
   const headerConfig: AdminListHeaderConfig = useMemo(
     () => ({
-      title: strings.lms.locationDetails.title,
+      title: strings.lms.locationDetails.subLocationDetailsTitle,
       count: data.length,
       search: {
         visible: true,
@@ -196,7 +196,7 @@ const LocationDetailsList = (props: Props) => {
       },
       create: {
         visible: true,
-        onPress: () => navigation.navigate(screensName.AddLocation),
+        onPress: () => navigation.navigate(screensName.AddSubLocation),
       },
     }),
     [data.length, navigation],
@@ -204,7 +204,7 @@ const LocationDetailsList = (props: Props) => {
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listLocationDetails(1, true, text);
+      listSubLocationDetails(1, true, text);
     }, 500),
     [],
   );
@@ -216,35 +216,37 @@ const LocationDetailsList = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listLocationDetails(1, true, '');
+    listSubLocationDetails(1, true, '');
   };
 
-  const LocationDetailsCard = ({ item, index, navigation }: any) => {
-    const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
+  const SubLocationDetailsCard = ({ item, index, navigation }: any) => {
+    const [statusValue] = useState(item.status ?? 'Active');
+    const [showStatusMenu, setShowStatusMenu] = useState(false);
 
     const handleEdit = () => {
-      navigation.navigate(screensName.AddLocation, { data: item });
+      navigation.navigate(screensName.AddSubLocation, { data: item });
     };
 
     const handleDelete = () => {
       navigation.navigate(screensName.AlertOrganism, {
         title: strings.cancel || 'Delete Confirmation',
-        message: `Are you sure you want to delete ${item.locationName}?`,
+        message: `Are you sure you want to delete ${item.subLocationName}?`,
         okText: (strings as any).confirm || 'Delete',
         double: true,
         cancelText: strings.cancel || 'Cancel',
         okFunction: () => {
           Toast.show({
             type: 'success',
-            text2: 'Location deleted successfully',
+            text2: 'Sub-location deleted successfully',
           });
         },
         cancelFunction: () => {},
       });
     };
 
-    const onSelectStatus = (selectedItem: any) => {
-      const newStatus = selectedItem.label;
+    const onSelectStatus = () => {
+      let newStatus = statusValue === 'Active' ? 'Inactive' : 'Active';
+      setShowStatusMenu(false);
 
       if (newStatus === statusValue) return;
 
@@ -255,34 +257,32 @@ const LocationDetailsList = (props: Props) => {
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
-          updateStatus(item.id, item.selectCity, newStatus);
+          updateStatus(item.id);
         },
         cancelFunction: () => {},
       });
     };
 
-    const updateStatus = (id: any, selectCity: string, newStatus: string) => {
+    const updateStatus = (id: any) => {
       setInitialCall(true);
-      const formData = new FormData();
-      formData.append('select_city', selectCity);
-      formData.append('id_for_change_status', id);
-      formData.append('status', newStatus);
-      updateFacultyDetailsApi(formData)
+      const params = {
+        id_for_change_sub_location_status: id,
+      };
+      updateSubLocationDetailsApi(params)
         .unwrap()
         .then((res: any) => {
           Toast.show({
             type: 'success',
-            text2: res.data.message,
+            text2: res.data?.message.message,
           });
-          setStatusValue(newStatus);
           setInitialCall(false);
-          listLocationDetails(1, true, search);
+          listSubLocationDetails(1, true, search);
         })
         .catch((err: any) => {
           setInitialCall(false);
           Toast.show({
             type: 'error',
-            text2: err.data?.message || 'Something went wrong',
+            text2: err.data?.message || strings.something_went_wrong_,
           });
         });
     };
@@ -291,73 +291,74 @@ const LocationDetailsList = (props: Props) => {
       <TouchableAtom style={styles.card} onPress={() => {}}>
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
-            {item.locationName ?? '-'}
+            {item.selectLocationName ?? '-'}
           </TextAtom>
+
           <View style={styles.iconRow}>
-            <TouchableOpacity onPress={handleEdit} style={{}}>
+            <TouchableOpacity onPress={handleEdit} style={styles.iconButton}>
               <SvgEditPencile />
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleDelete} style={{}}>
+            <TouchableOpacity onPress={handleDelete} style={styles.iconButton}>
               <SvgDelete />
             </TouchableOpacity>
           </View>
         </View>
-        <View style={globalStyles.infoCol}>
-          <TextAtom style={globalStyles.infoLabel}>Address</TextAtom>
+
+        <View style={{ flex: 1 }}>
+          <TextAtom style={globalStyles.infoLabel}>
+            {strings.lms.locationDetails.subLocationName}
+          </TextAtom>
           <TextAtom style={globalStyles.infoValue}>
-            {item.address ?? '-'}
+            {item.subLocationName ?? '-'}
           </TextAtom>
         </View>
-
         <View style={globalStyles.infoSection}>
           <View style={globalStyles.infoRow}>
             <View style={globalStyles.infoCol}>
               <TextAtom style={globalStyles.infoLabel}>Contact Person</TextAtom>
               <TextAtom style={globalStyles.infoValue}>
-                {item.contactPerson ?? '-'}
+                {item.subLocationContactPerson || item.contactPerson || '-'}
               </TextAtom>
             </View>
             <View style={globalStyles.infoCol}>
-              <TextAtom style={globalStyles.infoLabel}>Contact No</TextAtom>
+              <TextAtom style={globalStyles.infoLabel}>Contact No.</TextAtom>
               <TextAtom style={globalStyles.infoValue}>
-                {item.contactNo ?? '-'}
+                {item.subLocationContactNo || item.contactNo || '-'}
               </TextAtom>
             </View>
           </View>
-
           <View style={globalStyles.infoRow}>
             <View style={globalStyles.infoCol}>
-              <TextAtom style={globalStyles.infoLabel}>Alt Contact No</TextAtom>
+              <TextAtom style={globalStyles.infoLabel}>Total Capacity</TextAtom>
               <TextAtom style={globalStyles.infoValue}>
-                {item.altContactNo ?? '-'}
+                {item.totalCapacity ?? '-'}
               </TextAtom>
             </View>
             <View style={globalStyles.infoCol}>
-              <TextAtom style={globalStyles.infoLabel}>Email</TextAtom>
-              <TextAtom style={globalStyles.infoValue}>
-                {item.email ?? '-'}
-              </TextAtom>
+              <FormSwitchForCard
+                title={strings.lms.locationDetails.status}
+                data={[
+                  { id: 'Active', label: 'Active' },
+                  { id: 'Inactive', label: 'In-Active' },
+                ]}
+                selectedValue={statusValue}
+                onSelect={onSelectStatus}
+                containerStyle={{ marginTop: vh(10) }}
+              />
             </View>
           </View>
         </View>
-
-        <FormSwitchForCard
-          title={strings.lms.locationDetails.status}
-          data={[
-            { id: 'Active', label: 'Active' },
-            { id: 'Inactive', label: 'In-Active' },
-          ]}
-          selectedValue={statusValue}
-          onSelect={onSelectStatus}
-          containerStyle={{ marginTop: vh(10) }}
-        />
       </TouchableAtom>
     );
   };
 
-  const renderLocationDetailsItem = ({ item, index }: any) => {
+  const renderSubLocationDetailsItem = ({ item, index }: any) => {
     return (
-      <LocationDetailsCard item={item} index={index} navigation={navigation} />
+      <SubLocationDetailsCard
+        item={item}
+        index={index}
+        navigation={navigation}
+      />
     );
   };
 
@@ -381,7 +382,7 @@ const LocationDetailsList = (props: Props) => {
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderLocationDetailsItem}
+        renderItem={renderSubLocationDetailsItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           initialCall ? null : (
@@ -405,14 +406,14 @@ const LocationDetailsList = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listLocationDetails(1, false, '');
+              listSubLocationDetails(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listLocationDetails(page + 1, false, search)
+            ? listSubLocationDetails(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
@@ -422,7 +423,7 @@ const LocationDetailsList = (props: Props) => {
   );
 };
 
-export default LocationDetailsList;
+export default SubLocationDetailsList;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
@@ -441,27 +442,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
   },
-  // infoSection: {
-  //   marginTop: vh(8),
-  // },
-  // infoRow: {
-  //   flexDirection: 'row',
-  //   justifyContent: 'space-between',
-  //   gap: vw(10),
-  //   marginBottom: vh(10),
-  // },
-  // infoCol: { flex: 1 },
-  // infoLabel: {
-  //   fontFamily: fonts.Roboto_Regular,
-  //   fontSize: adminFontSizes.xs,
-  //   color: colors.new_ui_card_description,
-  // },
-  // infoValue: {
-  //   fontFamily: fonts.Roboto_Medium,
-  //   fontSize: adminFontSizes.sm,
-  //   color: colors.new_ui_card_title,
-  //   marginTop: vh(3),
-  // },
   label: {
     fontFamily: fonts.Roboto_Medium,
     fontSize: vw(14),
