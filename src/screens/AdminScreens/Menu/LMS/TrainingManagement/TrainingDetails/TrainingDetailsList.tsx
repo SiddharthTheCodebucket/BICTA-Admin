@@ -9,8 +9,6 @@ import {
   ActivityIndicator,
   FlatList,
   LayoutAnimation,
-  Modal,
-  Pressable,
   RefreshControl,
   StyleSheet,
   View,
@@ -28,7 +26,6 @@ import {
   strings,
   vh,
   vw,
-  SvgCross,
 } from '../../../../../../constants';
 import {
   Header,
@@ -45,6 +42,7 @@ import UniversalDropdown from '../../../../../../components/atoms/UniversalDropd
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
+import AdminFilterModal from '../../../../../../components/organisms/AdminFilterModal';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   useDeleteTrainingDetailsMutation,
@@ -445,83 +443,56 @@ const TrainingDetailsList = (props: Props) => {
         />
       )}
 
-      <Modal
+      <AdminFilterModal
         visible={showFilterPanel}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowFilterPanel(false)}
+        onClose={() => setShowFilterPanel(false)}
       >
-        <View style={styles.filterModalRoot}>
-          <Pressable
-            style={styles.filterModalOverlay}
-            onPress={() => setShowFilterPanel(false)}
+        {crediantialData?.user?.[0]?.tenantId === 3 && (
+          <UniversalDropdown
+            label="Center"
+            placeholder="Select Center"
+            data={[
+              { id: 'All Centers', name: 'All Centers' },
+              { id: 'Gaya', name: 'Gaya' },
+              { id: 'Patna', name: 'Patna' },
+            ]}
+            value={centerSearch?.id}
+            onChange={(item: any) => setCenterSearch(item)}
+            labelField="name"
+            valueField="id"
+            containerStyle={{ marginBottom: vh(2) }}
           />
+        )}
 
-          <View style={styles.filterSheet}>
-            <View style={styles.filterSheetHeader}>
-              <TextAtom style={styles.filterSheetTitle}>Filters</TextAtom>
-              <TouchableAtom
-                style={styles.filterSheetCloseBtn}
-                onPress={() => setShowFilterPanel(false)}
-              >
-                <SvgCross />
-              </TouchableAtom>
-            </View>
+        <DateInputOrganism
+          label={'Start Date*'}
+          placeholder={'Select'}
+          value={startDate}
+          onChangeText={(val: any) => setStartDate(val)}
+          fieldName={'date'}
+          dateFormat="DD-MM-YYYY"
+          containerStyle={styles.fullDateInput}
+        />
 
-            {crediantialData?.user?.[0]?.tenantId === 3 && (
-              <UniversalDropdown
-                label="Center"
-                placeholder="Select Center"
-                data={[
-                  { id: 'All Centers', name: 'All Centers' },
-                  { id: 'Gaya', name: 'Gaya' },
-                  { id: 'Patna', name: 'Patna' },
-                ]}
-                value={centerSearch?.id}
-                onChange={(item: any) => setCenterSearch(item)}
-                labelField="name"
-                valueField="id"
-                containerStyle={{ marginBottom: vh(2) }}
-              />
-            )}
+        <DateInputOrganism
+          label={'End Date*'}
+          placeholder={'Select'}
+          value={endDate}
+          onChangeText={(val: any) => setEndDate(val)}
+          fieldName={'date'}
+          dateFormat="DD-MM-YYYY"
+          containerStyle={styles.fullDateInput}
+        />
 
-            <DateInputOrganism
-              label={'Start Date*'}
-              placeholder={'Select'}
-              value={startDate}
-              onChangeText={(val: any) => setStartDate(val)}
-              fieldName={'date'}
-              dateFormat="DD-MM-YYYY"
-              containerStyle={styles.fullDateInput}
-            />
-
-            <DateInputOrganism
-              label={'End Date*'}
-              placeholder={'Select'}
-              value={endDate}
-              onChangeText={(val: any) => setEndDate(val)}
-              fieldName={'date'}
-              dateFormat="DD-MM-YYYY"
-              containerStyle={styles.fullDateInput}
-            />
-
-            <View style={styles.filterActionRow}>
-              <TouchableAtom
-                style={styles.clearFilterBtn}
-                onPress={clearFilter}
-              >
-                <TextAtom style={styles.clearFilterText}>Clear</TextAtom>
-              </TouchableAtom>
-              <TouchableAtom
-                style={styles.applyFilterBtn}
-                onPress={applyFilter}
-              >
-                <TextAtom style={styles.applyFilterText}>Apply</TextAtom>
-              </TouchableAtom>
-            </View>
-          </View>
+        <View style={styles.filterActionRow}>
+          <TouchableAtom style={styles.clearFilterBtn} onPress={clearFilter}>
+            <TextAtom style={styles.clearFilterText}>Clear</TextAtom>
+          </TouchableAtom>
+          <TouchableAtom style={styles.applyFilterBtn} onPress={applyFilter}>
+            <TextAtom style={styles.applyFilterText}>Apply</TextAtom>
+          </TouchableAtom>
         </View>
-      </Modal>
+      </AdminFilterModal>
 
       <SubTab
         tabs={[
@@ -656,46 +627,6 @@ const styles = StyleSheet.create({
 
   searchBox: {
     marginTop: vh(10),
-  },
-
-  filterModalRoot: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  filterModalOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-  },
-  filterSheet: {
-    backgroundColor: colors.white,
-    borderTopLeftRadius: vw(18),
-    borderTopRightRadius: vw(18),
-    paddingHorizontal: vw(16),
-    paddingTop: vh(14),
-    paddingBottom: vh(18),
-  },
-  filterSheetHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: vh(10),
-  },
-  filterSheetTitle: {
-    fontFamily: fonts.Inter_SemiBold,
-    fontSize: adminFontSizes.md,
-    color: colors.text_black,
-  },
-  filterSheetCloseBtn: {
-    width: vw(28),
-    height: vw(28),
-    borderRadius: vw(8),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  closeIcon: {
-    width: vw(16),
-    height: vw(16),
-    tintColor: colors.new_ui_icon,
   },
 
   centerBtn: {

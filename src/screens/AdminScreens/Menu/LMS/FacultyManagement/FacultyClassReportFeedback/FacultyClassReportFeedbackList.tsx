@@ -13,19 +13,16 @@ import {
   ActivityIndicator,
   RefreshControl,
   ImageBackground,
-  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import BottomSheet from '@gorhom/bottom-sheet';
 import {
   adminFontSizes,
   colors,
   fonts,
   images,
   screensName,
-  SvgCross,
   SvgStar,
   strings,
   vh,
@@ -46,6 +43,7 @@ import { useReportListFacultyFeedbackReportMutation } from '../../../../../../in
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
+import AdminFilterModal from '../../../../../../components/organisms/AdminFilterModal';
 import { useFacultyCenter } from '../context/FacultyCenterContext';
 
 interface Props {
@@ -73,9 +71,6 @@ const FacultyClassReportFeedbackList = (props: Props) => {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
 
-  const filterSheetRef = useRef<BottomSheet>(null);
-  const filterSnapPoints = useMemo(() => ['45%'], []);
-
   const [facultyNameList, setFacultyNameList] = useState<any>([]);
   const [selectedFaculty, setSelectedFaculty] = useState<any>({});
 
@@ -87,14 +82,7 @@ const FacultyClassReportFeedbackList = (props: Props) => {
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const openFilter = useCallback(() => setShowFilter(true), []);
-  const closeFilter = useCallback(() => filterSheetRef.current?.close(), []);
-
-  const handleFilterSheetAnimate = useCallback(
-    (_fromIndex: number, toIndex: number) => {
-      if (toIndex === -1) setShowFilter(false);
-    },
-    [],
-  );
+  const closeFilter = useCallback(() => setShowFilter(false), []);
 
   useLayoutEffect(() => {
     // Header handled by FacultyManagement tabbed screen
@@ -455,33 +443,9 @@ const FacultyClassReportFeedbackList = (props: Props) => {
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
 
-      {showFilter && (
-        <View style={styles.sheetOverlay}>
-          <TouchableOpacity
-            style={styles.overlayPressable}
-            onPress={closeFilter}
-          />
-          <BottomSheet
-            ref={filterSheetRef}
-            index={0}
-            snapPoints={filterSnapPoints}
-            enablePanDownToClose={true}
-            onAnimate={handleFilterSheetAnimate}
-            handleComponent={() => <View style={styles.sheetHandle} />}
-          >
-            <View style={styles.sheetContainer}>
-              <View style={styles.sheetHeader}>
-                <TextAtom style={styles.sheetTitle}>Filters</TextAtom>
-                <TouchableAtom style={styles.sheetClose} onPress={closeFilter}>
-                  <SvgCross width={vw(18)} height={vw(18)} />
-                </TouchableAtom>
-              </View>
-              <View style={styles.sheetSeparator} />
-              <FilterForm />
-            </View>
-          </BottomSheet>
-        </View>
-      )}
+      <AdminFilterModal visible={showFilter} onClose={closeFilter}>
+        <FilterForm />
+      </AdminFilterModal>
     </SafeAreaView>
   );
 };
