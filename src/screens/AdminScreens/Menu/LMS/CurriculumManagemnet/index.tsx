@@ -80,8 +80,8 @@ const CustomCurriculumTabBar = ({
             typeof options.tabBarLabel === 'string'
               ? options.tabBarLabel
               : typeof options.title === 'string'
-                ? options.title
-                : route.name;
+              ? options.title
+              : route.name;
 
           const onPress = () => {
             const event = navigation.emit({

@@ -6,6 +6,7 @@ import {
   ViewStyle,
   TextStyle,
   ActivityIndicator,
+  ImageStyle,
 } from 'react-native';
 import TextAtom from '../atoms/TextAtom';
 import { colors, fonts, images, vh, vw } from '../../constants';
@@ -19,6 +20,7 @@ type Props = {
   buttonStyle?: ViewStyle;
   textStyle?: TextStyle;
   imageSource?: any;
+  imageStyle?: ImageStyle;
 };
 
 const FormGradientButton = ({
@@ -30,6 +32,7 @@ const FormGradientButton = ({
   buttonStyle,
   textStyle,
   imageSource = images.buttonGrad_100,
+  imageStyle,
 }: Props) => {
   return (
     <TouchableOpacity
@@ -42,7 +45,7 @@ const FormGradientButton = ({
         source={imageSource}
         resizeMode="stretch"
         style={[styles.button, buttonStyle, disabled ? styles.disabled : null]}
-        imageStyle={styles.image}
+        imageStyle={[styles.image, imageStyle]}
       >
         {loading ? (
           <ActivityIndicator color={colors.white} />

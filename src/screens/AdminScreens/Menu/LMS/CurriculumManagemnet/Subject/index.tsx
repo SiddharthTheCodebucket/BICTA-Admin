@@ -44,6 +44,7 @@ import {
   useDeleteKnowledgeManagementMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 import { SvgDelete, SvgEditPencile } from '../../../../../../constants/svgs';
+import { FormGradientButton } from '../../../../../../components/templates';
 
 interface Props {
   navigation: NavigationType;
@@ -275,19 +276,15 @@ const Subject = (props: Props) => {
         <View style={styles.cardTopRow}>
           <TextAtom style={styles.subjectName}>{item.name ?? '-'}</TextAtom>
           <View style={styles.cardActions}>
-            <TouchableAtom
-              style={styles.cardIconBtn}
-              onPress={() => handleDelete(item.id)}
-            >
-              <SvgDelete width={vw(14)} height={vw(14)} />
+            <TouchableAtom onPress={() => handleDelete(item.id)}>
+              <SvgDelete />
             </TouchableAtom>
             <TouchableAtom
-              style={styles.cardIconBtn}
               onPress={() =>
                 navigation.navigate(screensName.AddSubject, { item })
               }
             >
-              <SvgEditPencile width={vw(14)} height={vw(14)} />
+              <SvgEditPencile />
             </TouchableAtom>
           </View>
         </View>
@@ -313,9 +310,19 @@ const Subject = (props: Props) => {
                   </TextAtom>
                 </View>
               )}
-              <TouchableAtom onPress={() => {}} style={styles.viewBtn}>
+              {/* <TouchableAtom onPress={() => {}} style={styles.viewBtn}>
                 <TextAtom style={styles.viewBtnText}>View</TextAtom>
-              </TouchableAtom>
+              </TouchableAtom> */}
+
+              <FormGradientButton
+                onPress={() => {}}
+                title="View"
+                containerStyle={styles.viewBtn}
+                textStyle={{ fontSize: 14 }}
+                buttonStyle={{ height: vh(24), borderRadius: vw(2) }}
+                imageStyle={{ borderRadius: 2 }}
+                imageSource={images.buttonGrad_25}
+              />
             </View>
           </View>
         </View>
@@ -340,40 +347,6 @@ const Subject = (props: Props) => {
           searchText={search}
           onPressCross={onClearSearch}
           searchBox={styles.searchBox}
-        />
-      )}
-
-      {crediantialData.user[0].tenantId === 3 && (
-        <DropDownOrganism
-          label={''}
-          placeholder={strings.lms.locationDetails.centers}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: 'Center',
-              Data: [
-                {
-                  id: strings.dashboardIndex.allCenters,
-                  name: strings.dashboardIndex.allCenters,
-                },
-                {
-                  id: strings.dashboardIndex.gaya,
-                  name: strings.dashboardIndex.gaya,
-                },
-                {
-                  id: strings.dashboardIndex.patna,
-                  name: strings.dashboardIndex.patna,
-                },
-              ],
-              selectedData: centerSerach,
-              setSelectedData: (data: any) => {
-                setCenterSerach(data);
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={centerSerach?.name}
-          containerStyle={styles.centerDropdown}
         />
       )}
 
@@ -515,10 +488,8 @@ const styles = StyleSheet.create({
     color: colors.primary_blue,
   },
   viewBtn: {
-    backgroundColor: colors.primary_blue,
-    paddingHorizontal: vw(12),
-    paddingVertical: vh(6),
-    borderRadius: vw(4),
+    width: vw(45),
+    height: vh(24),
   },
   viewBtnText: {
     fontFamily: fonts.Roboto_Medium,

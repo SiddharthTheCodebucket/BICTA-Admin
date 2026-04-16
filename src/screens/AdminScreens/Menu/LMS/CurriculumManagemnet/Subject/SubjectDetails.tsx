@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLayoutEffect } from 'react-native';
 import {
   adminFontSizes,
   colors,
@@ -19,6 +18,11 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { SvgEditPencile } from '../../../../../../constants/svgs';
+import ViewAtom from '../../../../../../components/atoms/ViewAtom';
+import {
+  FormGradientButton,
+  FormWhiteButton,
+} from '../../../../../../components/templates';
 
 interface Props {
   navigation: NavigationType;
@@ -76,7 +80,7 @@ const SubjectDetails = (props: Props) => {
                   </TextAtom>
                 </View>
               )}
-              <TouchableAtom style={styles.viewBtn}>
+              <TouchableAtom style={styles.viewBtn} onPress={() => {}}>
                 <TextAtom style={styles.viewBtnText}>View</TextAtom>
               </TouchableAtom>
             </View>
@@ -84,7 +88,7 @@ const SubjectDetails = (props: Props) => {
         </View>
       </ScrollView>
 
-      <View style={styles.bottomActions}>
+      {/* <View style={styles.bottomActions}>
         <TouchableAtom
           style={styles.deleteBtn}
           onPress={() => {
@@ -103,7 +107,29 @@ const SubjectDetails = (props: Props) => {
         >
           <TextAtom style={styles.editBtnText}>Edit</TextAtom>
         </TouchableAtom>
-      </View>
+      </View> */}
+
+      <ViewAtom style={styles.bottomActions}>
+        <View style={{ marginRight: vw(4), flex: 1 }}>
+          <FormWhiteButton
+            onPress={() => {
+              // Implement delete logic here
+              navigation.goBack();
+            }}
+            title={'Delete'}
+            buttonStyle={{ height: vh(40) }}
+          />
+        </View>
+        <View style={{ marginLeft: vw(4), flex: 1 }}>
+          <FormGradientButton
+            onPress={() =>
+              navigation.navigate(screensName.AddSubject, { item: data })
+            }
+            title={'Edit'}
+            buttonStyle={{ height: vh(40) }}
+          />
+        </View>
+      </ViewAtom>
     </SafeAreaView>
   );
 };
