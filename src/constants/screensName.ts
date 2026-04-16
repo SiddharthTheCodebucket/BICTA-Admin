@@ -89,6 +89,7 @@ export default {
   FacultyClassApproveDetails: 'FacultyClassApproveDetails',
   Assignment: 'Assignment',
   Question: 'Question',
+  AddQuestion: 'AddQuestion',
   QuestionBankDetails: 'QuestionBankDetails',
   AssignQuestion: 'AssignQuestion',
   AssignmentsDetails: 'AssignmentsDetails',

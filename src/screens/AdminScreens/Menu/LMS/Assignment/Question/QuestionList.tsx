@@ -23,6 +23,7 @@ import {
   vw,
   images,
   SvgDelete,
+  SvgEye,
 } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
@@ -195,7 +196,7 @@ const QuestionList = (props: Props) => {
                 // Handle delete
               }}
             >
-              <SvgDelete width={vw(18)} height={vw(18)} />
+              <SvgDelete />
             </TouchableAtom>
             <TouchableAtom
               onPress={() => {
@@ -204,10 +205,7 @@ const QuestionList = (props: Props) => {
                 });
               }}
             >
-              <ImageAtom
-                source={images.eyeOpen}
-                style={{ width: vw(18), height: vw(18) }}
-              />
+              <SvgEye />
             </TouchableAtom>
           </View>
         </View>
@@ -244,22 +242,24 @@ const QuestionList = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <AdminListHeader
-        config={{
-          title: strings.assignment.questionBankDetails,
-          search: {
-            visible: true,
-            onPress: () => {},
-          },
-          create: {
-            visible: true,
-            onPress: () => {
-              // navigation.navigate(screensName.AddQuestionBank);
+      <View style={{ paddingHorizontal: vw(16) }}>
+        <AdminListHeader
+          config={{
+            title: strings.assignment.questionBankDetails,
+            search: {
+              visible: true,
+              onPress: () => {},
             },
-            label: '+ Create',
-          },
-        }}
-      />
+            create: {
+              visible: true,
+              onPress: () => {
+                navigation.navigate(screensName.AddQuestion);
+              },
+              label: '+ Create',
+            },
+          }}
+        />
+      </View>
 
       <SearchBoxOrganism
         onChangeText={onChangeSearch}

@@ -10,4 +10,5 @@ export {default as SvgSearch} from '../assets/images/svgs/search.svg';
 export {default as SvgStar} from '../assets/images/svgs/star.svg';
 export {default as SvgStepSuccess} from '../assets/images/svgs/step_success.svg';
 export {default as SvgUpload} from '../assets/images/svgs/upload.svg';
+export {default as SvgEye} from '../assets/images/svgs/eye.svg';
 
