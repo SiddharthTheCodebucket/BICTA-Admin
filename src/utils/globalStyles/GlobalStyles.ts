@@ -168,7 +168,7 @@ backButtonText: {
     color: colors.new_ui_card_description,
   },
   infoValue: {
-    fontFamily: fonts.Roboto_Medium,
+    fontFamily: fonts.Inter_Medium,
     fontSize: adminFontSizes.sm,
     color: colors.new_ui_card_title,
     marginTop: vh(3),
