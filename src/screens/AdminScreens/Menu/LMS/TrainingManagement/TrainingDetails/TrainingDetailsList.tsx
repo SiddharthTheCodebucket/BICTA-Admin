@@ -42,13 +42,13 @@ import UniversalDropdown from '../../../../../../components/atoms/UniversalDropd
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
-import AdminFilterModal from '../../../../../../components/organisms/AdminFilterModal';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   useDeleteTrainingDetailsMutation,
   useListTrainingDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 import { globalStyles } from '../../../../../../utils/globalStyles';
+import AdminBottomModal from '../../../../../../components/organisms/AdminBottomModal';
 
 interface Props {
   navigation: NavigationType;
@@ -443,7 +443,7 @@ const TrainingDetailsList = (props: Props) => {
         />
       )}
 
-      <AdminFilterModal
+      <AdminBottomModal
         visible={showFilterPanel}
         onClose={() => setShowFilterPanel(false)}
       >
@@ -492,7 +492,7 @@ const TrainingDetailsList = (props: Props) => {
             <TextAtom style={styles.applyFilterText}>Apply</TextAtom>
           </TouchableAtom>
         </View>
-      </AdminFilterModal>
+      </AdminBottomModal>
 
       <SubTab
         tabs={[

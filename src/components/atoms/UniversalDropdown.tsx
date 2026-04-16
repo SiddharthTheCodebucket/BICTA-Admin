@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { StyleSheet, ViewStyle } from 'react-native';
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native';
 import { adminFontSizes, colors, fonts, images, vh, vw } from '../../constants';
 import ErrorMolecule from '../molecules/ErrorMolecule';
 import LabelWithMandatoryMolecules from '../molecules/LabelWithMandatoryMolecules';
@@ -12,6 +12,7 @@ export interface UniversalDropdownProps<T extends AnyRecord> {
   label?: string;
   isMandatory?: boolean;
   placeholder: string;
+  labelStyle?: TextStyle;
 
   data: T[];
   value?: any;
@@ -28,7 +29,9 @@ export interface UniversalDropdownProps<T extends AnyRecord> {
   errorMessageView?: ViewStyle;
 }
 
-const UniversalDropdown = <T extends AnyRecord>(props: UniversalDropdownProps<T>) => {
+const UniversalDropdown = <T extends AnyRecord>(
+  props: UniversalDropdownProps<T>,
+) => {
   const Dropdown = useMemo(() => {
     const mod = require('react-native-element-dropdown');
     return mod?.Dropdown as any;
@@ -40,6 +43,7 @@ const UniversalDropdown = <T extends AnyRecord>(props: UniversalDropdownProps<T>
         <LabelWithMandatoryMolecules
           label={props.label}
           isMandatory={props.isMandatory}
+          labelStyle={props.labelStyle}
         />
       )}
 
@@ -121,4 +125,3 @@ const styles = StyleSheet.create({
     borderColor: '#E1E4E8',
   },
 });
-

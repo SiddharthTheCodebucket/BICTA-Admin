@@ -28,7 +28,7 @@ type Props = {
   contentContainerStyle?: StyleProp<ViewStyle>;
 };
 
-const AdminFilterModal = ({
+const AdminBottomModal = ({
   visible,
   onClose,
   title = 'Filters',
@@ -68,7 +68,7 @@ const AdminFilterModal = ({
   );
 };
 
-export default AdminFilterModal;
+export default AdminBottomModal;
 
 const styles = StyleSheet.create({
   root: {

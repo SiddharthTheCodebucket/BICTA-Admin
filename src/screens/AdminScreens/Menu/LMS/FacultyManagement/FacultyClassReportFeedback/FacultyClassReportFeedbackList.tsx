@@ -43,8 +43,13 @@ import { useReportListFacultyFeedbackReportMutation } from '../../../../../../in
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import AdminFilterModal from '../../../../../../components/organisms/AdminFilterModal';
+
 import { useFacultyCenter } from '../context/FacultyCenterContext';
+import AdminBottomModal from '../../../../../../components/organisms/AdminBottomModal';
+import {
+  FormGradientButton,
+  FormWhiteButton,
+} from '../../../../../../components/templates';
 
 interface Props {
   navigation: NavigationType;
@@ -194,9 +199,9 @@ const FacultyClassReportFeedbackList = (props: Props) => {
       <TouchableAtom
         style={styles.card}
         onPress={() => {
-          navigation.navigate(screensName.FacultySubjectFeedbackDetails, {
-            item: item,
-          });
+          // navigation.navigate(screensName.FacultySubjectFeedbackDetails, {
+          //   item: item,
+          // });
         }}
       >
         <TextAtom style={styles.cardTitle}>{item.facultyName ?? '-'}</TextAtom>
@@ -259,31 +264,23 @@ const FacultyClassReportFeedbackList = (props: Props) => {
         labelField="name"
         valueField="id"
         searchable={true}
+        labelStyle={{ fontFamily: fonts.Inter_Regular, color: '#384048' }}
       />
-
       <ViewAtom style={styles.buttonRow}>
-        <TouchableAtom style={styles.applyTouchable} onPress={applyFilter}>
-          <ImageBackground
-            source={images.buttonGrad_50}
-            style={styles.applyButton}
-            imageStyle={styles.applyButtonImage}
-            resizeMode="stretch"
-          >
-            <TextAtom style={styles.applyText}>
-              {strings.lms.facultyManagement.facultyClassReportFeedback.main
-                .applyFilter || 'Apply Filter'}
-            </TextAtom>
-          </ImageBackground>
-        </TouchableAtom>
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText={
-            strings.lms.facultyManagement.facultyClassReportFeedback.main
-              .clearFilter || 'Clear Filter'
-          }
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={styles.primaryText}
-        />
+        <View style={{ marginRight: vw(4), flex: 1 }}>
+          <FormWhiteButton
+            onPress={clearFilter}
+            title={strings.lms.facultyManagement.details.clearFilter}
+            buttonStyle={{ height: vh(40) }}
+          />
+        </View>
+        <View style={{ marginLeft: vw(4), flex: 1 }}>
+          <FormGradientButton
+            onPress={applyFilter}
+            title={strings.lms.facultyManagement.details.applyFilter}
+            buttonStyle={{ height: vh(40) }}
+          />
+        </View>
       </ViewAtom>
     </View>
   );
@@ -443,9 +440,9 @@ const FacultyClassReportFeedbackList = (props: Props) => {
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
 
-      <AdminFilterModal visible={showFilter} onClose={closeFilter}>
+      <AdminBottomModal visible={showFilter} onClose={closeFilter}>
         <FilterForm />
-      </AdminFilterModal>
+      </AdminBottomModal>
     </SafeAreaView>
   );
 };

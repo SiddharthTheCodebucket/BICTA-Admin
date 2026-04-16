@@ -31,15 +31,15 @@ export default LabelWithMandatoryMolecules;
 
 const styles = StyleSheet.create({
   labelStyle: {
-    width: vw(328),
+    // width: vw(328),
     fontSize: vw(14),
-    fontFamily: fonts.Roboto_Medium,
-    alignSelf: 'center',
+    fontFamily: fonts.Inter_Medium,
+    // alignSelf: 'center',
     color: colors.black,
   },
   mandatoryStar: {
     fontSize: vw(16),
-    fontFamily: fonts.Roboto_Medium,
+    fontFamily: fonts.Inter_Medium,
     color: colors.red,
   },
 });

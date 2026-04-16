@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, ViewStyle } from 'react-native';
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native';
 import { isNullUndefined, nFixedLines } from '../../utils/CommonFunction';
 import { colors, fonts, images, vh, vw } from '../../constants';
 import ErrorMolecule from '../molecules/ErrorMolecule';
@@ -37,6 +37,7 @@ interface Props {
   labelField?: string;
   valueField?: string;
   searchable?: boolean;
+  labelStyle?: TextStyle;
 }
 
 const DropDownOrganism = (props: Props) => {
@@ -57,6 +58,7 @@ const DropDownOrganism = (props: Props) => {
         dropdownStyle={props.contentContainerStyle}
         errorMessage={props.errorMessage}
         errorMessageView={props.errorMessageView}
+        labelStyle={props.labelStyle}
       />
     );
   }
