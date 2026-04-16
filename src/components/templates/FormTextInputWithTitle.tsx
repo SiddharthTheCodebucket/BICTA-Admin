@@ -11,7 +11,7 @@ import TextAtom from '../atoms/TextAtom';
 import { colors, fonts, vh, vw } from '../../constants';
 
 type Props = TextInputProps & {
-  ref: React.Ref<TextInput>;
+  ref?: React.Ref<TextInput>;
   title: string;
   isMandatory?: boolean;
   errorMessage?: string;

@@ -34,7 +34,18 @@ const SubjectDetails = (props: Props) => {
   const data = route.params?.data;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Curriculum - Knowledge Management');
+    Header.setNavigation(
+      navigation,
+      'Curriculum - Knowledge Management',
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
 

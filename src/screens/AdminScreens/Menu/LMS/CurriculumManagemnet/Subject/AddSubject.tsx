@@ -21,6 +21,7 @@ import {
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import {
   FormDropdownFieldWithTitle,
+  FormFileUploadWithTitle,
   FormGradientButton,
 } from '../../../../../../components/templates';
 import FormFieldWrapper from '../../../../../../components/templates/FormFieldWrapper';
@@ -54,7 +55,18 @@ const AddSubject = (props: Props) => {
   const [bipardLocationList, setBipardLocationList] = useState<any[]>([]);
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, item ? 'Edit Subject' : 'Add Subject');
+    Header.setNavigation(
+      navigation,
+      item ? 'Edit Subject' : 'Add Subject',
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation, item]);
 
@@ -219,8 +231,20 @@ const AddSubject = (props: Props) => {
             />
           </FormFieldWrapper>
 
-          <View style={styles.uploadContainer}>
-            <TextAtom style={styles.uploadTitle}>Upload Thumbnail*</TextAtom>
+          <View style={{}}>
+            <FormFileUploadWithTitle
+              title="Upload Thumbnail"
+              isMandatory
+              onSelectFile={(file: any) => {
+                setValue('thumbnail', file.uri);
+              }}
+              defaultFile={item?.thumbnail}
+              instruction="Supported formats: JPG, PNG. Max size: 5MB."
+              note=""
+            />
+          </View>
+          {/* <View style={styles.uploadContainer}>
+            <TextAtom style={styles.uploadTitle}>U` `*</TextAtom>
             <View style={styles.uploadBox}>
               <ImageUploadOrganism
                 label=""
@@ -235,7 +259,7 @@ const AddSubject = (props: Props) => {
                 labelStyle={{ display: 'none' }}
               />
             </View>
-          </View>
+          </View> */}
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity
