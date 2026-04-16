@@ -81,6 +81,7 @@ export default {
   LocationDetailDetails: 'LocationDetailDetails',
   SubLocationDetails: 'SubLocationDetails',
   LocationSubDetailDetails: 'LocationSubDetailDetails',
+  AddLocation: 'AddLocation',
   ClassRoomManagement: 'ClassRoomManagement',
   TimeTable: 'TimeTable',
   FacultyClassApprove: 'FacultyClassApprove',

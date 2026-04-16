@@ -195,10 +195,10 @@ const LocationDetailsList = (props: Props) => {
       },
       create: {
         visible: true,
-        onPress: () => {},
+        onPress: () => navigation.navigate(screensName.AddLocation),
       },
     }),
-    [data.length],
+    [data.length, navigation],
   );
 
   const handleSearch = useCallback(
@@ -222,10 +222,7 @@ const LocationDetailsList = (props: Props) => {
     const [statusValue, setStatusValue] = useState(item.status ?? 'Active');
 
     const handleEdit = () => {
-      Toast.show({
-        type: 'info',
-        text2: `Editing ${item.locationName}`,
-      });
+      navigation.navigate(screensName.AddLocation, { data: item });
     };
 
     const handleDelete = () => {

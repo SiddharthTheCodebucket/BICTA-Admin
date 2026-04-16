@@ -79,6 +79,7 @@ import LocationDetails from '../screens/AdminScreens/Menu/LMS/ClassLocationManag
 import LocationDetailDetails from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement/LocationDetails/LocationDetailDetails';
 import SubLocationDetails from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement/SubLocationDetails';
 import LocationSubDetailDetails from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement/SubLocationDetails/LocationSubDetailDetails';
+import AddLocation from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement/LocationDetails/AddLocation';
 import ClassRoomManagement from '../screens/AdminScreens/Menu/LMS/ClassRoomManagement';
 import TimeTable from '../screens/AdminScreens/Menu/LMS/ClassRoomManagement/TimeTable';
 import FacultyClassApprove from '../screens/AdminScreens/Menu/LMS/ClassRoomManagement/FacultyClassApprove';
@@ -285,10 +286,7 @@ const RootNavigatorAdmin = () => {
           headerShadowVisible: false,
         }}
       >
-        <RootStackScreen.Screen
-          name={ADMIN_APP_DRAWER}
-          component={AppDrawer}
-        />
+        <RootStackScreen.Screen name={ADMIN_APP_DRAWER} component={AppDrawer} />
         <RootStackScreen.Screen
           name="VehicleManagement"
           component={VehicleManagement}
@@ -551,9 +549,14 @@ const RootNavigatorAdmin = () => {
           component={LocationSubDetailDetails}
         />
         <RootStackScreen.Screen
+          name={screensName.AddLocation}
+          component={AddLocation}
+        />
+        <RootStackScreen.Screen
           name="ClassRoomManagement"
           component={ClassRoomManagement}
         />
+
         <RootStackScreen.Screen name="TimeTable" component={TimeTable} />
         <RootStackScreen.Screen
           name="FacultyClassApprove"
