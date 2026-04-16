@@ -954,7 +954,7 @@ export default {
     curriculumManagement: {
       title: 'Curriculum Management',
       subjectDetails: 'Subject Details',
-      subjectTopicDetails: 'Subject Topic Details',
+      subjectTopicDetails: 'Subject Topic',
       subject: 'Subject',
       description: 'Description',
       thumbnail: 'Thumbnail',

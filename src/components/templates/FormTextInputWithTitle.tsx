@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.Inter_Medium,
   },
   inputBox: {
-    height: vh(42),
+    minHeight: vh(42),
     borderWidth: 1,
     borderColor: '#E7E9EE',
     borderRadius: vw(8),

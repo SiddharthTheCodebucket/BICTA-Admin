@@ -269,7 +269,7 @@ const AddSubjectTopic = (props: Props) => {
         <View style={styles.formContainer}>
           <FormFieldWrapper>
             <FormDropdownFieldWithTitle
-              title="BIPARD Location*"
+              title="BIPARD Location"
               isMandatory
               data={bipardLocationList}
               value={form.bipardLocation?.id}
@@ -284,7 +284,7 @@ const AddSubjectTopic = (props: Props) => {
             />
 
             <FormDropdownFieldWithTitle
-              title="Select Subject*"
+              title="Select Subject"
               isMandatory
               data={subjectList}
               value={form.subject?.id}
@@ -299,7 +299,7 @@ const AddSubjectTopic = (props: Props) => {
             />
 
             <FormTextInputWithTitle
-              title="Topic*"
+              title="Topic"
               isMandatory
               placeholder="Enter"
               value={form.topic}
@@ -311,7 +311,7 @@ const AddSubjectTopic = (props: Props) => {
             />
 
             <FormTextInputWithTitle
-              title="Description*"
+              title="Description"
               isMandatory
               placeholder="Enter"
               value={form.description}
@@ -327,7 +327,7 @@ const AddSubjectTopic = (props: Props) => {
             />
 
             <FormDropdownFieldWithTitle
-              title="Select Visibility*"
+              title="Select Visibility"
               isMandatory
               data={visibilityList}
               value={form.visibility?.id}
