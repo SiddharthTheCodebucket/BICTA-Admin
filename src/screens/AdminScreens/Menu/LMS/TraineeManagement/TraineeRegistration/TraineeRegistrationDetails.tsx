@@ -16,6 +16,10 @@ import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import moment from 'moment';
 import { globalStyles } from '../../../../../../utils/globalStyles/GlobalStyles';
+import {
+  FormWhiteButton,
+  FormGradientButton,
+} from '../../../../../../components/templates';
 
 interface Props {
   route: any;
@@ -48,6 +52,26 @@ const TraineeRegistrationDetails = ({ route, navigation }: Props) => {
   const navigateToRegistrationList = () => {
     navigation.navigate(screensName.TraineeManagement, {
       initialTab: 'TraineeRegistration',
+    });
+  };
+
+  const handleEdit = () => {
+    navigation.navigate(screensName.AddTraineeRegistration, {
+      item: data,
+    });
+  };
+
+  const handleDelete = () => {
+    navigation.navigate(screensName.AlertOrganism, {
+      title: 'Delete Confirmation',
+      message: 'Are you sure you want to delete this item?',
+      okText: 'Confirm',
+      double: true,
+      cancelText: 'Cancel',
+      okFunction: () => {
+        // Add delete API call here
+      },
+      cancelFunction: () => {},
     });
   };
 
@@ -141,6 +165,19 @@ const TraineeRegistrationDetails = ({ route, navigation }: Props) => {
             <FullWidthField label="Updated By" value={data?.updatedBy?.name} />
           </ViewAtom>
         </View>
+
+        <ViewAtom style={styles.buttonRow}>
+          <FormWhiteButton
+            title="Delete"
+            onPress={handleDelete}
+            containerStyle={styles.button}
+          />
+          <FormGradientButton
+            title="Edit"
+            onPress={handleEdit}
+            containerStyle={styles.button}
+          />
+        </ViewAtom>
       </ScrollView>
     </SafeAreaView>
   );
@@ -187,5 +224,16 @@ const styles = StyleSheet.create({
     fontFamily: fonts.Inter_Medium,
     fontSize: vw(14),
     color: '#2D2D2D',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: vh(20),
+    gap: vw(10),
+  },
+  button: {
+    flex: 1,
+    width: 'auto',
+    marginBottom: 0,
   },
 });
