@@ -171,56 +171,6 @@ const AssignmentResponse = (props: Props) => {
           });
         }}
       >
-        <View style={styles.cardHeader}>
-          <TextAtom style={[styles.label, styles.flex1]}>
-            {strings.lms.assignmentResponse.srNo} {index + 1}
-          </TextAtom>
-
-          <View style={styles.actionRow}>
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.green,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => {
-                // navigation.navigate(screensName.AddFacultyDetails, {
-                //   item: item,
-                // });
-              }}
-            >
-              <ImageAtom
-                source={images.edit_pencil}
-                style={{
-                  tintColor: colors.green,
-                  width: vw(15),
-                  height: vw(15),
-                }}
-              />
-            </TouchableAtom> */}
-
-            {/* <TouchableAtom
-              style={{
-                borderWidth: vw(1),
-                borderColor: colors.red_2,
-                borderRadius: vw(6),
-                padding: vw(3),
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom
-                source={images.delete}
-                style={{ width: vw(15), height: vw(15) }}
-              />
-            </TouchableAtom> */}
-          </View>
-        </View>
-
         <View style={styles.flex1}>
           <TextAtom style={styles.label}>
             {strings.lms.assignmentResponse.trainingName}
@@ -252,46 +202,6 @@ const AssignmentResponse = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-
-      {crediantialData.user[0].tenantId === 3 && (
-        <DropDownOrganism
-          label={''}
-          placeholder={strings.lms.assignmentResponse.centers}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.lms.assignmentResponse.center,
-              Data: [
-                {
-                  id: strings.dashboardIndex.allCenters,
-                  name: strings.dashboardIndex.allCenters,
-                },
-                {
-                  id: strings.dashboardIndex.gaya,
-                  name: strings.dashboardIndex.gaya,
-                },
-                {
-                  id: strings.dashboardIndex.patna,
-                  name: strings.dashboardIndex.patna,
-                },
-              ],
-              selectedData: centerSerach,
-              setSelectedData: (data: any) => {
-                setCenterSerach(data);
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={centerSerach?.name}
-          containerStyle={styles.centerDropdown}
-        />
-      )}
-      <SearchBoxOrganism
-        onChangeText={onChangeSearch}
-        searchText={search}
-        onPressCross={onClearSearch}
-        searchBox={styles.marginTop15}
-      />
 
       <FlatList
         showsVerticalScrollIndicator={false}
