@@ -17,9 +17,7 @@ import {
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import {
-  isNullUndefined,
-} from '../../../../../../utils/CommonFunction';
+import { isNullUndefined } from '../../../../../../utils/CommonFunction';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import moment from 'moment';
 import {
@@ -47,7 +45,7 @@ const AddTraineeRegistration = (props: Props) => {
   const item = props.route.params?.item;
 
   const [otpTimer, setOtpTimer] = useState(0);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(3);
   const steps = ['Personal info', 'Uploads', 'Verify'];
 
   const [commonDropdownListApi] = useCommonDropdownListMutation();
@@ -924,9 +922,7 @@ const AddTraineeRegistration = (props: Props) => {
       ...(show.excelFile ? ['excelFile.uri'] : []),
     ];
 
-    const step3Fields = [
-      ...(show.otp && isNullUndefined(item) ? ['otp'] : []),
-    ];
+    const step3Fields = [...(show.otp && isNullUndefined(item) ? ['otp'] : [])];
 
     const stepMap: Record<number, string[]> = {
       1: step1Fields,
@@ -1039,24 +1035,31 @@ const AddTraineeRegistration = (props: Props) => {
         extraScrollHeight={vh(80)}
       >
         {renderStep()}
-      </KeyboardAwareScrollView>
-      <View style={styles.footer}>
-        {currentStep > 1 && (
-          <View style={styles.secondaryButtonWrap}>
-            <FormWhiteButton
-              title="Back"
-              onPress={() => setCurrentStep(prev => prev - 1)}
+
+        <View style={styles.footer}>
+          {currentStep > 1 && (
+            <View style={styles.secondaryButtonWrap}>
+              <FormWhiteButton
+                title="Back"
+                onPress={() => setCurrentStep(prev => prev - 1)}
+              />
+            </View>
+          )}
+          <View style={styles.primaryButtonWrap}>
+            <FormGradientButton
+              title={
+                currentStep === steps.length
+                  ? item
+                    ? 'Update'
+                    : 'Add'
+                  : 'Next'
+              }
+              onPress={handlePrimaryAction}
+              disabled={isButtonDisabled}
             />
           </View>
-        )}
-        <View style={styles.primaryButtonWrap}>
-          <FormGradientButton
-            title={currentStep === steps.length ? (item ? 'Update' : 'Add') : 'Next'}
-            onPress={handlePrimaryAction}
-            disabled={isButtonDisabled}
-          />
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };
@@ -1072,6 +1075,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: vw(15),
     paddingTop: vh(8),
     paddingBottom: vh(8),
+    marginBottom: vh(8),
   },
   contentScroll: {
     paddingBottom: vh(8),
@@ -1080,14 +1084,15 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: vw(15),
+    // paddingHorizontal: vw(15),
+    marginTop: vh(16),
     paddingBottom: vh(12),
     gap: vw(10),
   },
   secondaryButtonWrap: {
-    flex: 0.35,
+    flex: 1,
   },
   primaryButtonWrap: {
-    flex: 0.65,
+    flex: 1,
   },
 });

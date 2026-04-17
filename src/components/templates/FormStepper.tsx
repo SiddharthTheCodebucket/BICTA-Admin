@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, View, Text, ViewStyle, TextStyle } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Animated, {
   Easing,
-  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
 
-import { colors, fonts, SvgStepSuccess, vh, vw } from '../../constants';
+import { fonts, vh, vw } from '../../constants';
 
 type Props = {
   steps: string[];
@@ -25,11 +25,9 @@ type StepState = 'completed' | 'current' | 'upcoming';
 const StepDot = ({
   index,
   state,
-  totalSteps,
 }: {
   index: number;
   state: StepState;
-  totalSteps: number;
 }) => {
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
@@ -72,9 +70,7 @@ const StepDot = ({
       ]}
     >
       {isCompleted ? (
-        <View style={{}}>
-          <SvgStepSuccess />
-        </View>
+        <Icon name="check" size={12} color="#FFFFFF" />
       ) : (
         <Text
           style={[
@@ -90,22 +86,49 @@ const StepDot = ({
   );
 };
 
-const StepConnector = ({ filled }: { filled: boolean }) => {
-  const progress = useSharedValue(filled ? 1 : 0);
+const StepConnector = ({
+  currentStep,
+  totalSteps,
+}: {
+  currentStep: number;
+  totalSteps: number;
+}) => {
+  const safeCurrentStep = Math.min(Math.max(currentStep, 1), totalSteps);
+  const progress = useSharedValue(
+    totalSteps <= 1 ? 0 : (safeCurrentStep - 1) / (totalSteps - 1),
+  );
 
   useEffect(() => {
-    progress.value = withTiming(filled ? 1 : 0, {
-      duration: 260,
-      easing: Easing.out(Easing.cubic),
-    });
-  }, [filled, progress]);
+    progress.value = withTiming(
+      totalSteps <= 1 ? 0 : (safeCurrentStep - 1) / (totalSteps - 1),
+      {
+        duration: 260,
+        easing: Easing.out(Easing.cubic),
+      },
+    );
+  }, [safeCurrentStep, totalSteps, progress]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scaleX: progress.value }],
+    width: `${progress.value * 100}%`,
   }));
 
+  if (totalSteps <= 1) {
+    return null;
+  }
+
+  const sideInset = `${50 / totalSteps}%`;
+
   return (
-    <View style={styles.connectorTrack}>
+    <View
+      pointerEvents="none"
+      style={[
+        styles.connectorTrack,
+        {
+          left: sideInset,
+          right: sideInset,
+        },
+      ]}
+    >
       <Animated.View style={[styles.connectorFill, animatedStyle]} />
     </View>
   );
@@ -122,6 +145,8 @@ const FormStepper = ({
   return (
     <View style={[styles.container, containerStyle]}>
       <View style={styles.row}>
+        <StepConnector currentStep={currentStep} totalSteps={steps.length} />
+
         {steps.map((label, index) => {
           const stepNumber = index + 1;
           const state: StepState =
@@ -131,37 +156,25 @@ const FormStepper = ({
               ? 'current'
               : 'upcoming';
 
-          const connectorFilled = stepNumber < currentStep;
-
           return (
-            <React.Fragment key={`${label}-${index}`}>
-              <View style={styles.stepWrap}>
-                <StepDot
-                  index={index}
-                  state={state}
-                  totalSteps={steps.length}
-                />
+            <View style={styles.stepWrap} key={`${label}-${index}`}>
+              <StepDot index={index} state={state} />
 
-                <Text
-                  numberOfLines={1}
-                  style={[
-                    styles.stepLabel,
-                    stepTextStyle,
-                    state === 'current' && styles.currentLabel,
-                    state === 'current' && activeStepTextStyle,
-                    state === 'completed' && styles.completedLabel,
-                    state === 'completed' && completedStepTextStyle,
-                    state === 'upcoming' && styles.upcomingLabel,
-                  ]}
-                >
-                  {label}
-                </Text>
-              </View>
-
-              {index < steps.length - 1 ? (
-                <StepConnector filled={connectorFilled} />
-              ) : null}
-            </React.Fragment>
+              <Text
+                numberOfLines={2}
+                style={[
+                  styles.stepLabel,
+                  stepTextStyle,
+                  state === 'current' && styles.currentLabel,
+                  state === 'current' && activeStepTextStyle,
+                  state === 'completed' && styles.completedLabel,
+                  state === 'completed' && completedStepTextStyle,
+                  state === 'upcoming' && styles.upcomingLabel,
+                ]}
+              >
+                {label}
+              </Text>
+            </View>
           );
         })}
       </View>
@@ -174,17 +187,19 @@ export default FormStepper;
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    paddingHorizontal: vw(8),
   },
   row: {
+    position: 'relative',
     flexDirection: 'row',
     alignItems: 'flex-start',
     width: '100%',
   },
   stepWrap: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    width: vw(78),
+    paddingHorizontal: vw(4),
+    zIndex: 1,
   },
   dot: {
     width: vw(24),
@@ -199,61 +214,52 @@ const styles = StyleSheet.create({
     borderWidth: 0,
   },
   currentDot: {
-    backgroundColor: '#111827',
-    borderWidth: 0,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#0C163D',
   },
   upcomingDot: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#9CA3AF',
-  },
-  tickWrap: {
-    width: vw(12),
-    height: vw(12),
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#E5E7EB',
+    borderWidth: 0,
   },
   dotText: {
-    fontSize: 12,
-    fontFamily: fonts.Inter_Medium,
-    color: '#111827',
+    fontSize: 11,
+    fontFamily: fonts.Inter_SemiBold,
+    color: '#0C163D',
   },
   currentDotText: {
-    color: '#FFFFFF',
+    color: '#0C163D',
   },
   upcomingDotText: {
-    color: '#111827',
+    color: '#6B7280',
   },
   connectorTrack: {
-    flex: 1,
+    position: 'absolute',
     height: 2,
-    backgroundColor: '#D7DCE3',
+    backgroundColor: '#24356B',
     marginTop: vh(11),
-    marginHorizontal: vw(6),
     borderRadius: 999,
     overflow: 'hidden',
   },
   connectorFill: {
     height: '100%',
-    width: '100%',
-    backgroundColor: '#4B5572',
+    backgroundColor: '#24356B',
     borderRadius: 999,
-    transformOrigin: 'left',
   },
   stepLabel: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: fonts.Inter_SemiBold,
-    color: '#111827',
+    color: '#0C163D',
     textAlign: 'center',
+    lineHeight: 16,
   },
   currentLabel: {
-    color: '#111827',
+    color: '#0C163D',
   },
   completedLabel: {
-    color: '#111827',
+    color: '#0C163D',
   },
   upcomingLabel: {
-    color: '#1F2937',
-    opacity: 0.7,
+    color: '#0C163D',
   },
 });
