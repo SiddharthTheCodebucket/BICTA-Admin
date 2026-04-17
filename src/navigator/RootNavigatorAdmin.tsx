@@ -48,6 +48,8 @@ import BatchDetailsList from '../screens/AdminScreens/Menu/LMS/TrainingManagemen
 import EditBatchDetails from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails/EditBatchDetails';
 import MergedBatchForm from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails/MergedBatchForm';
 import { TraineeManagement } from '../screens/AdminScreens/Menu/LMS/TraineeManagement';
+import TraineeAttendance from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeAttendance';
+import GateAccess from '../screens/AdminScreens/Menu/LMS/TraineeManagement/GateAccess';
 import TraineeRegistration from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeRegistration';
 import TraineeRegistrationDetails from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeRegistration/TraineeRegistrationDetails';
 import AddTraineeRegistration from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeRegistration/AddTraineeRegistration';
@@ -434,6 +436,14 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="TraineeManagement"
           component={TraineeManagement}
+        />
+        <RootStackScreen.Screen
+          name="TraineeAttendance"
+          component={TraineeAttendance}
+        />
+        <RootStackScreen.Screen
+          name="GateAccess"
+          component={GateAccess}
         />
         <RootStackScreen.Screen
           name="TraineeRegistration"

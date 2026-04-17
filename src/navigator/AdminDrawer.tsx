@@ -43,6 +43,23 @@ const PROFILE_STACK_ROUTES = new Set([
   screensName.DeviceList,
 ]);
 
+const TRAINEE_MANAGEMENT_ROUTE_GROUP = new Set([
+  screensName.TraineeManagement,
+  screensName.TraineeRegistration,
+  screensName.TraineeRegistrationDetails,
+  screensName.AddTraineeRegistration,
+  screensName.TraineeDetails,
+  screensName.TraineeFullDetails,
+  screensName.IndemnityBond,
+  screensName.TraineeRelease,
+  screensName.TraineeReleaseDetails,
+  screensName.TraineeReleaseForm,
+  screensName.OthersRegistration,
+  'TrainingCategoryTab',
+  'TrainingDetailsTab',
+  'BatchDetailsTab',
+]);
+
 const MENU_ITEMS: MenuItem[] = [
   {
     id: 'lms',
@@ -60,8 +77,8 @@ const MENU_ITEMS: MenuItem[] = [
       { name: 'Class Room', screen: screensName.ClassRoomManagement },
       { name: 'Assignment', screen: screensName.Assignment },
       { name: 'Examination', screen: screensName.Examination },
-      { name: 'Trainee Attendance', screen: 'TraineeAttendance' },
-      { name: 'Gate Access', screen: 'GateAccess' },
+      { name: 'Trainee Attendance', screen: screensName.TraineeAttendance },
+      { name: 'Gate Access', screen: screensName.GateAccess },
     ],
   },
   {
@@ -108,36 +125,69 @@ const MENU_ITEMS: MenuItem[] = [
   },
 ];
 
-const getActiveRouteName = (state: any): string => {
+const getActiveRouteNames = (state: any): string[] => {
   if (!state?.routes?.length) {
-    return screensName.Menu;
+    return [screensName.Menu];
   }
 
   const route = state.routes[state.index ?? 0];
+  const routeName = route?.name;
 
   if (route?.state) {
-    return getActiveRouteName(route.state);
+    return routeName
+      ? [routeName, ...getActiveRouteNames(route.state)]
+      : getActiveRouteNames(route.state);
   }
 
-  return route?.name ?? screensName.Menu;
+  return routeName ? [routeName] : [screensName.Menu];
 };
 
 const AdminDrawer = (props: DrawerContentComponentProps) => {
   const { navigation } = props;
-  const currentRouteName = getActiveRouteName(props.state);
+  const activeRouteNames = getActiveRouteNames(props.state);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const getActiveSubItemScreen = () => {
+    if (activeRouteNames.includes(screensName.TraineeAttendance)) {
+      return screensName.TraineeAttendance;
+    }
+
+    if (activeRouteNames.includes(screensName.GateAccess)) {
+      return screensName.GateAccess;
+    }
+
+    if (
+      activeRouteNames.some(routeName =>
+        TRAINEE_MANAGEMENT_ROUTE_GROUP.has(routeName),
+      )
+    ) {
+      return screensName.TraineeManagement;
+    }
+
+    return (
+      activeRouteNames.find(routeName =>
+        MENU_ITEMS.some(
+          item =>
+            item.screen === routeName ||
+            item.subItems?.some(sub => sub.screen === routeName),
+        ),
+      ) ?? screensName.Menu
+    );
+  };
+
+  const activeSubItemScreen = getActiveSubItemScreen();
 
   useEffect(() => {
     const activeMenuItem = MENU_ITEMS.find(
       item =>
-        item.screen === currentRouteName ||
-        item.subItems?.some(sub => sub.screen === currentRouteName),
+        item.screen === activeSubItemScreen ||
+        item.subItems?.some(sub => sub.screen === activeSubItemScreen),
     );
     if (activeMenuItem && activeMenuItem.subItems) {
       setOpenAccordion(activeMenuItem.id);
     }
-  }, [currentRouteName]);
+  }, [activeSubItemScreen]);
 
   const { crediantialData } = useAppSelector(state => state.Auth);
   const user = crediantialData?.user?.[0];
@@ -148,39 +198,27 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
 
   const navigateToScreen = (screen: string) => {
     navigation.closeDrawer();
-    if (screen === 'TraineeAttendance') {
+    requestAnimationFrame(() => {
+      if (DASHBOARD_STACK_ROUTES.has(screen)) {
+        (navigation as any).navigate(ADMIN_MAIN_TABS, {
+          screen: screensName.Dashboard,
+          params: screen === screensName.Dashboard ? undefined : { screen },
+        });
+        return;
+      }
+
+      if (PROFILE_STACK_ROUTES.has(screen)) {
+        (navigation as any).navigate(ADMIN_MAIN_TABS, {
+          screen: screensName.Profile,
+          params: screen === screensName.Profile ? undefined : { screen },
+        });
+        return;
+      }
+
       (navigation as any).navigate(ADMIN_MAIN_TABS, {
         screen: screensName.Menu,
-        params: screensName.TraineeManagement,
+        params: screen === screensName.Menu ? undefined : { screen },
       });
-      return;
-    }
-    if (screen === 'GateAccess') {
-      (navigation as any).navigate(ADMIN_MAIN_TABS, {
-        screen: screensName.Menu,
-        params: screensName.TraineeManagement,
-      });
-      return;
-    }
-    if (DASHBOARD_STACK_ROUTES.has(screen)) {
-      (navigation as any).navigate(ADMIN_MAIN_TABS, {
-        screen: screensName.Dashboard,
-        params: screen === screensName.Dashboard ? undefined : { screen },
-      });
-      return;
-    }
-
-    if (PROFILE_STACK_ROUTES.has(screen)) {
-      (navigation as any).navigate(ADMIN_MAIN_TABS, {
-        screen: screensName.Profile,
-        params: screen === screensName.Profile ? undefined : { screen },
-      });
-      return;
-    }
-
-    (navigation as any).navigate(ADMIN_MAIN_TABS, {
-      screen: screensName.Menu,
-      params: screen === screensName.Menu ? undefined : { screen },
     });
   };
 
@@ -265,7 +303,7 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
                   {isOpen && (
                     <View style={styles.subMenuItemContainer}>
                       {item.subItems?.map((sub, index) => {
-                        const isSubActive = currentRouteName === sub.screen;
+                        const isSubActive = activeSubItemScreen === sub.screen;
                         return (
                           <TouchableOpacity
                             key={index}

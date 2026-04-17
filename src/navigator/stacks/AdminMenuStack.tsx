@@ -7,6 +7,8 @@ import HostelManagement from '../../screens/AdminScreens/Menu/HostelManagement';
 import LMS from '../../screens/AdminScreens/Menu/LMS';
 import TrainingManagement from '../../screens/AdminScreens/Menu/LMS/TrainingManagement';
 import { TraineeManagement } from '../../screens/AdminScreens/Menu/LMS/TraineeManagement';
+import TraineeAttendance from '../../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeAttendance';
+import GateAccess from '../../screens/AdminScreens/Menu/LMS/TraineeManagement/GateAccess';
 import FacultyManagement from '../../screens/AdminScreens/Menu/LMS/FacultyManagement';
 import CurriculumManagemnet from '../../screens/AdminScreens/Menu/LMS/CurriculumManagemnet';
 import ClassLocationManagement from '../../screens/AdminScreens/Menu/LMS/ClassLocationManagement';
@@ -50,6 +52,14 @@ const AdminMenuStack = () => {
       <Stack.Screen
         name={screensName.TraineeManagement}
         component={TraineeManagement}
+      />
+      <Stack.Screen
+        name={screensName.TraineeAttendance}
+        component={TraineeAttendance}
+      />
+      <Stack.Screen
+        name={screensName.GateAccess}
+        component={GateAccess}
       />
       <Stack.Screen
         name={screensName.FacultyManagement}
