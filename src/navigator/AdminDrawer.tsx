@@ -8,6 +8,7 @@ import {
   Image,
   TextInput,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { colors, fonts, vw, vh, images, screensName } from '../constants';
 import { useAppSelector } from '../hooks';
@@ -144,6 +145,7 @@ const getActiveRouteNames = (state: any): string[] => {
 
 const AdminDrawer = (props: DrawerContentComponentProps) => {
   const { navigation } = props;
+  const insets = useSafeAreaInsets();
   const activeRouteNames = getActiveRouteNames(props.state);
   const [openAccordion, setOpenAccordion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -225,7 +227,12 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
   return (
     <View style={styles.container}>
       {/* User Profile Header */}
-      <View style={styles.profileHeader}>
+      <View
+        style={[
+          styles.profileHeader,
+          { paddingTop: Math.max(insets.top, vh(16)) + vh(12) },
+        ]}
+      >
         <Image
           source={{ uri: 'https://via.placeholder.com/100' }}
           style={styles.avatar}
@@ -238,7 +245,7 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
         </View>
         <TouchableOpacity
           onPress={() => navigation.closeDrawer()}
-          style={styles.closeButton}
+          style={[styles.closeButton, { top: Math.max(insets.top, vh(16)) }]}
         >
           <Icon name="close" size={24} color={colors.white} />
         </TouchableOpacity>
@@ -373,7 +380,6 @@ const styles = StyleSheet.create({
   profileHeader: {
     backgroundColor: colors.primary,
     padding: vw(16),
-    paddingTop: vh(40),
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
@@ -403,7 +409,6 @@ const styles = StyleSheet.create({
   closeButton: {
     position: 'absolute',
     right: vw(16),
-    top: vh(45),
   },
   dashboardHeader: {
     flexDirection: 'row',
