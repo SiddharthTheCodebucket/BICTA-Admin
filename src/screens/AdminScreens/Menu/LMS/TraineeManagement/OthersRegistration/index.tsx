@@ -56,41 +56,6 @@ const OthersRegistration = ({ navigation, route }: Props) => {
 
   const [commonListApi] = useCommonDropdownListMutation();
 
-  useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Other Registration');
-
-    navigation.BackButtonPress = () => {
-      navigation.navigate(screensName.AlertOrganism, {
-        message:
-          'Are you sure you want to exit from others Registration Process?',
-        okText: strings.ok,
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          navigation.goBack();
-          dispatch(resetOtherRegistrationState());
-        },
-        cancelFunction: () => {},
-      });
-    };
-  }, []);
-
-  useAndroidBackButton(() => {
-    navigation.navigate(screensName.AlertOrganism, {
-      message:
-        'Are you sure you want to exit from others Registration Process?',
-      okText: strings.ok,
-      double: true,
-      cancelText: strings.cancel,
-      okFunction: () => {
-        dispatch(resetOtherRegistrationState());
-        navigation.goBack();
-      },
-      cancelFunction: () => {},
-    });
-    return true;
-  }, [navigation]);
-
   const [loader, setLoader] = useState(false);
 
   const goNext = () => setStep(s => s + 1);

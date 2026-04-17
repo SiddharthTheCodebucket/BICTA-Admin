@@ -13,7 +13,8 @@ import { colors, fonts, images, vh, vw } from '../../constants';
 import ImageAtom from '../atoms/ImageAtom';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export interface NavigationType extends NativeStackNavigationProp<ParamListBase> {
+export interface NavigationType
+  extends NativeStackNavigationProp<ParamListBase> {
   BackButtonPress: Function;
   onCartBttnPress: Function;
 }
@@ -39,10 +40,12 @@ export const Header = {
     options?: HeaderNavigationOptions,
     showDrawerIcon?: boolean,
   ) => {
-    const backgroundColor = options?.backgroundColor ?? colors.grey_5;
-    const titleColor = options?.titleColor ?? colors.primary;
-    const backIconColor = options?.backIconColor ?? titleColor;
-
+    const backgroundColor = colors.primary_dark_blue;
+    const titleColor = colors.white;
+    const backIconColor = titleColor;
+    // const backgroundColor = options?.backgroundColor ?? colors.primary_dark_blue;
+    // const titleColor = options?.titleColor ?? colors.primary;
+    // const backIconColor = options?.backIconColor ?? titleColor;
     navigation.setOptions({
       headerTitle: () =>
         title ? (

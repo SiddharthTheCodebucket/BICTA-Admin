@@ -5,7 +5,14 @@ import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import { pick } from '@react-native-documents/picker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
+import {
+  colors,
+  fonts,
+  screensName,
+  strings,
+  vh,
+  vw,
+} from '../../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -58,6 +65,12 @@ const AddTraineeRegistration = (props: Props) => {
   const { crediantialData } = useAppSelector(state => state.Auth);
   const tenantId = crediantialData.user[0].tenantId;
 
+  const navigateToRegistrationList = () => {
+    navigation.navigate(screensName.TraineeManagement, {
+      initialTab: 'TraineeRegistration',
+    });
+  };
+
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
@@ -65,7 +78,7 @@ const AddTraineeRegistration = (props: Props) => {
         ? 'Add Trainee Registration'
         : 'Edit Trainee Registration',
     );
-    navigation.BackButtonPress = () => navigation.goBack();
+    navigation.BackButtonPress = () => navigateToRegistrationList();
   }, []);
 
   const [loader, setLoader] = useState(false);
@@ -464,7 +477,7 @@ const AddTraineeRegistration = (props: Props) => {
     addTraineeRegistrationBulkApi(formData)
       .unwrap()
       .then((res: any) => {
-        navigation.goBack();
+        navigateToRegistrationList();
         props.route.params?.onDone?.();
         Toast.show({
           type: 'success',
@@ -580,7 +593,7 @@ const AddTraineeRegistration = (props: Props) => {
     addTraineeRegistrationApi(payload)
       .unwrap()
       .then(res => {
-        navigation.goBack();
+        navigateToRegistrationList();
         props.route.params?.onDone?.();
         Toast.show({
           type: 'success',
@@ -648,7 +661,7 @@ const AddTraineeRegistration = (props: Props) => {
     updateTraineeRegistrationApi(formDataNo)
       .unwrap()
       .then(res => {
-        navigation.goBack();
+        navigateToRegistrationList();
         props.route.params?.onDone?.();
         Toast.show({
           type: 'success',

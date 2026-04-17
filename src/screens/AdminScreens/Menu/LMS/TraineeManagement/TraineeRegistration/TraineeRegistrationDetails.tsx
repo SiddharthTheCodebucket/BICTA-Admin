@@ -1,12 +1,26 @@
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vh, vw } from '../../../../../../constants';
-import AdminPageHeader from '../../../../../../components/organisms/AdminPageHeader';
+import {
+  colors,
+  fonts,
+  screensName,
+  vh,
+  vw,
+} from '../../../../../../constants';
+import {
+  Header,
+  NavigationType,
+} from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import moment from 'moment';
 import { globalStyles } from '../../../../../../utils/globalStyles/GlobalStyles';
+
+interface Props {
+  route: any;
+  navigation: NavigationType;
+}
 
 const InfoField = ({ label, value }: any) => (
   <ViewAtom style={globalStyles.infoCol}>
@@ -28,8 +42,19 @@ const FullWidthField = ({ label, value }: any) => (
   </ViewAtom>
 );
 
-const TraineeRegistrationDetails = ({ route, navigation }: any) => {
+const TraineeRegistrationDetails = ({ route, navigation }: Props) => {
   const { data } = route.params || {};
+
+  const navigateToRegistrationList = () => {
+    navigation.navigate(screensName.TraineeManagement, {
+      initialTab: 'TraineeRegistration',
+    });
+  };
+
+  useLayoutEffect(() => {
+    Header.setNavigation(navigation, 'Trainee Registration Details');
+    navigation.BackButtonPress = () => navigateToRegistrationList();
+  }, [navigation]);
 
   const maskAadhaar = (aadhaar: string) => {
     if (!aadhaar) return '-';
@@ -39,7 +64,6 @@ const TraineeRegistrationDetails = ({ route, navigation }: any) => {
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <AdminPageHeader title="Training Details" navigation={navigation} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}
@@ -117,12 +141,12 @@ const styles = StyleSheet.create({
   scrollContainer: {
     paddingBottom: vh(40),
     paddingHorizontal: vw(15),
+    paddingTop: vh(15),
   },
   card: {
     backgroundColor: colors.white,
     borderRadius: vw(10),
     padding: vw(15),
-    marginTop: vh(15),
     elevation: 2,
   },
   cardTitle: {
