@@ -82,8 +82,8 @@ const CustomTraineeTabBar = ({
             typeof options.tabBarLabel === 'string'
               ? options.tabBarLabel
               : typeof options.title === 'string'
-                ? options.title
-                : route.name;
+              ? options.title
+              : route.name;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -173,7 +173,7 @@ const TraineeManagement = (props: Props) => {
         <TopTabs.Screen
           name="TrainingCategoryTab"
           component={TraineeRegistration}
-          options={{ tabBarLabel: 'Training Category' }}
+          options={{ tabBarLabel: 'Registration' }}
         />
         <TopTabs.Screen
           name="TrainingDetailsTab"
