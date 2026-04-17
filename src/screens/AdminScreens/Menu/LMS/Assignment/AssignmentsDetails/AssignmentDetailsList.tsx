@@ -10,7 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -18,58 +17,62 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
-  images,
   screensName,
   strings,
   vh,
   vw,
 } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
+import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import {
-  useListAssessmentAssignmentMutation,
-  useUpdateAssessmentAssignmentMutation,
-} from '../../../../../../injectEndpoints/lmsEndpoints';
-import moment from 'moment';
+import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
+
+import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import AdminListHeader from '../../../../../../components/organisms/AdminListHeader';
 
 interface Props {
-  route: any;
   navigation: NavigationType;
+  route?: any;
 }
 
-const AssignmentDetailsList = (props: Props) => {
-  const { navigation } = props;
-  const item = props.route?.params?.item;
+const debounce = (func: any, delay: number) => {
+  let timer: any;
+  return (...args: any[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
 
-  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
-  const [listAssessmentAssignmentApi] = useListAssessmentAssignmentMutation();
-  const [updateTrainingBatchDetailsApi] =
-    useUpdateAssessmentAssignmentMutation();
+const AssignmentDetailsList = (props: Props) => {
+  const { navigation, route } = props;
+
+  const { crediantialData } = useAppSelector(state => state.Auth);
+
+  const [commonApi] = useCommonDropdownListMutation();
 
   const [data, setData] = useState<any>([]);
-  const [page, setPage] = useState(1);
 
-  const [nextPageAvailable, setNextPageAvailable] = useState(false);
-
+  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
 
-  const ITEMS_PER_PAGE = 10;
-
-  const [search] = React.useState('');
-  const [centerSerach] = React.useState<any>({});
+  const [search, setSearch] = React.useState('');
+  const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
+    if (route?.params?.suppressHeader) return;
     Header.setNavigation(
       navigation,
-      strings.lms.assignmentDetailsList.title,
+      strings.lms.assignmentDetails.title,
       undefined,
       undefined,
       undefined,
@@ -80,56 +83,57 @@ const AssignmentDetailsList = (props: Props) => {
       },
     );
     navigation.BackButtonPress = () => navigation.goBack();
-  }, [navigation]);
+  }, [navigation, route?.params?.suppressHeader]);
 
   useFocusEffect(
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listAssessmentAssignment(1, true, '');
+        listAssignmentTrainingList();
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listAssessmentAssignment(1, true, '');
+    listAssignmentTrainingList();
   }, [centerSerach]);
 
-  const listAssessmentAssignment = (
-    pageNumber: number,
-    initial: boolean,
-    keyword: string,
-  ) => {
-    initial ? setInitialCall(true) : setInitialCall(false);
+  const getCentreFilter = () => {
+    if (!centerSerach?.name) return;
+
+    if (centerSerach.name === strings.dashboardIndex.allCenters) {
+      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
+    }
+
+    return [centerSerach.name];
+  };
+
+  const listAssignmentTrainingList = () => {
+    setInitialCall(true);
+
+    const centreFilter = getCentreFilter();
+
+    const searchValue = search?.trim() ? `%${search.trim()}%` : `%%`;
+
     const params: any = {
-      search: '',
-      sort: {
-        attributes: ['created_date'],
-        sorts: ['desc'],
-      },
-      filters: item?.id ? ['trainingNameId', '=', item.id] : [],
-      pageNo: pageNumber,
-      itemsPerPage: ITEMS_PER_PAGE,
+      listType: 'assessment_assignment_training_name_list',
       bipardCentre: [],
+      replacements: [searchValue],
     };
-    listAssessmentAssignmentApi(params)
+    if (centreFilter) {
+      params.bipardCentre = centreFilter;
+    }
+
+    commonApi(params)
       .unwrap()
       .then((res: any) => {
-        const newData = res.data?.data ?? [];
+        const newData = res?.data ?? [];
         setInitialCall(false);
         setPagination(false);
         setRefreshing(false);
-        if (pageNumber !== 1 && data.length > 0) {
-          setData((prev: any) => [...prev, ...newData]);
-        } else {
-          setData(newData);
-        }
 
-        setPage(pageNumber);
-
-        const totalCount = res?.data?.totalCount ?? 0;
-        setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
+        setData(newData);
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -142,194 +146,85 @@ const AssignmentDetailsList = (props: Props) => {
       });
   };
 
-  const AssessmentAssignmentCard = ({ item, index, navigation }: any) => {
-    const [statusValue] = useState(
-      item.visibility ?? strings.lms.assignmentDetails.show,
-    );
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const handleSearch = useCallback(
+    debounce((text: string) => {
+      listAssignmentTrainingList();
+    }, 500),
+    [],
+  );
 
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
+  const onChangeSearch = (text: string) => {
+    setSearch(text);
+    handleSearch(text);
+  };
 
-      if (newStatus === statusValue) return;
+  const onClearSearch = () => {
+    setSearch('');
+    listAssignmentTrainingList();
+  };
 
-      navigation.navigate(screensName.AlertOrganism, {
-        title: strings.lms.assignmentDetailsList.statusChangeConf,
-        message: strings.lms.assignmentDetailsList.statusChangeMsg,
-        okText: strings.lms.assignmentDetailsList.confirm,
-        double: true,
-        cancelText: strings.cancel,
-        okFunction: () => {
-          updateAssignmentStatus(item.id);
-        },
-        cancelFunction: () => {},
-      });
-    };
-
-    const updateAssignmentStatus = (id: any) => {
-      setInitialCall(true);
-      const params = {
-        id_for_change_visibility: id,
-      };
-      updateTrainingBatchDetailsApi(params)
-        .unwrap()
-        .then((res: any) => {
-          Toast.show({
-            type: 'success',
-            text2: res.data.message,
-          });
-          setInitialCall(false);
-          setFirstTimeLoad(true);
-        })
-        .catch((err: any) => {
-          setInitialCall(false);
-          Toast.show({
-            type: 'error',
-            text2: err.data?.message || strings.something_went_wrong_,
-          });
-        });
-    };
-
+  const BedCard = ({ item, index, navigation }: any) => {
     return (
-      <View style={styles.card}>
-        <View style={styles.cardHeader}>
-          <TextAtom style={[styles.label, styles.flex1]}>
-            {strings.lms.assignmentResponse.srNo} {index + 1}
-          </TextAtom>
-        </View>
+      <TouchableAtom
+        style={styles.card}
+        onPress={() => {
+          navigation.navigate(screensName.AssignmentDetails, {
+            item: item,
+          });
+        }}
+      >
         <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.assignmentDetailsList.assignmentName}
-          </TextAtom>
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.assignmentName ?? '-'}
+          <TextAtom style={styles.label}>{item.name ?? '-'}</TextAtom>
+          <TextAtom style={styles.value}>
+            {item.totalAssignment ?? '-'} Batch
           </TextAtom>
         </View>
-        <View style={styles.rowBetween}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.lms.assignmentDetailsList.noOfQuestions}
-            </TextAtom>
-            <TextAtom style={styles.value}>
-              {item.noOfQuestions ?? '-'}
-            </TextAtom>
-          </View>
-          <View style={styles.alignEnd}>
-            <TextAtom style={styles.labelRight}>
-              {strings.lms.assignmentDetailsList.submissionType}
-            </TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {item.submissionType ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
-
-        <View style={[styles.rowBetween]}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.lms.assignmentDetailsList.startDate}
-            </TextAtom>
-
-            <TextAtom style={styles.value}>
-              {moment(item.availabilityStartDate, 'YYYY-MM-DD').format(
-                'DD-MM-YYYY',
-              ) ?? '-'}
-            </TextAtom>
-          </View>
-          <View style={styles.alignEnd}>
-            <TextAtom style={styles.labelRight}>
-              {strings.lms.assignmentDetailsList.endDate}
-            </TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {moment(item.availabilityEndDate, 'YYYY-MM-DD').format(
-                'DD-MM-YYYY',
-              ) ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
-
-        {showStatusMenu && (
-          <TouchableOpacity
-            onPress={() => setShowStatusMenu(false)}
-            style={styles.overlay}
-          />
-        )}
-
-        <View style={styles.statusContainer}>
-          <TextAtom style={styles.label}>
-            {strings.lms.assignmentDetailsList.status}
-          </TextAtom>
-
-          <TouchableAtom
-            onPress={() => setShowStatusMenu(!showStatusMenu)}
-            style={[
-              styles.statusBox,
-              statusValue === strings.lms.assignmentDetails.show
-                ? styles.activeBox
-                : styles.inActiveBox,
-            ]}
-          >
-            <TextAtom
-              style={[
-                styles.statusText,
-                statusValue === strings.lms.assignmentDetails.show
-                  ? styles.activeText
-                  : styles.inActiveText,
-              ]}
-            >
-              {statusValue}
-            </TextAtom>
-            <ImageAtom source={images.downArrow} />
-          </TouchableAtom>
-
-          {showStatusMenu && (
-            <View style={styles.dropMenu}>
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() =>
-                  onSelectStatus(strings.lms.assignmentDetails.show)
-                }
-              >
-                <TextAtom style={styles.blackText}>
-                  {strings.lms.assignmentDetails.show}
-                </TextAtom>
-              </TouchableAtom>
-
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() =>
-                  onSelectStatus(strings.lms.assignmentDetails.hide)
-                }
-              >
-                <TextAtom style={styles.blackText}>
-                  {strings.lms.assignmentDetails.hide}
-                </TextAtom>
-              </TouchableAtom>
-            </View>
-          )}
-        </View>
-      </View>
+      </TouchableAtom>
     );
   };
 
-  const renderAssessmentAssignmentItem = ({ item, index }: any) => {
-    return (
-      <AssessmentAssignmentCard
-        item={item}
-        index={index}
-        navigation={navigation}
-      />
-    );
+  const renderListBedDetails = ({ item, index }: any) => {
+    return <BedCard item={item} index={index} navigation={navigation} />;
   };
+
+  const [isSearch, setIsSearch] = useState(false);
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
+      <View style={{ paddingHorizontal: vw(16) }}>
+        <AdminListHeader
+          config={{
+            title: strings.assignment.questionBankDetails,
+            search: {
+              visible: true,
+              onPress: () => {
+                setIsSearch(prev => !prev);
+              },
+            },
+            create: {
+              visible: true,
+              onPress: () => {
+                navigation.navigate(screensName.AddQuestion);
+              },
+              label: '+ Create',
+            },
+          }}
+        />
+      </View>
 
+      {isSearch && (
+        <SearchBoxOrganism
+          onChangeText={onChangeSearch}
+          searchText={search}
+          onPressCross={onClearSearch}
+          searchBox={{ marginTop: vh(15) }}
+        />
+      )}
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderAssessmentAssignmentItem}
+        renderItem={renderListBedDetails}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           initialCall ? null : (
@@ -353,16 +248,10 @@ const AssignmentDetailsList = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listAssessmentAssignment(1, false, '');
+              listAssignmentTrainingList();
             }}
           />
         }
-        onEndReached={() => {
-          setPagination(true);
-          nextPageAvailable
-            ? listAssessmentAssignment(page + 1, false, search)
-            : setPagination(false);
-        }}
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
@@ -489,15 +378,48 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     zIndex: 998,
   },
+  filterButton: {
+    borderWidth: vw(1),
+    borderColor: colors.primary,
+    borderRadius: vw(4),
+    marginTop: vh(10),
+    alignSelf: 'flex-end',
+    marginRight: vh(15),
+    paddingHorizontal: vw(10),
+    paddingVertical: vh(5),
+  },
+  filterText: {
+    color: colors.black,
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
+  },
+  filterContainer: { paddingHorizontal: vw(15) },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: vh(5),
+  },
+  applyBtn: { width: vw(150), height: vh(35) },
+  clearBtn: {
+    width: vw(150),
+    height: vh(35),
+    borderWidth: vw(1),
+    borderColor: colors.primary,
+    backgroundColor: colors.white,
+  },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: vh(10),
   },
+  actionRow: {
+    flexDirection: 'row',
+    gap: vw(15),
+  },
   flex1: { flex: 1 },
-  alignEnd: { flex: 1, alignItems: 'flex-end' },
-  statusContainer: { marginTop: vh(0), zIndex: 999 },
-  blackText: { color: colors.black },
+  centerDropdown: {
+    marginBottom: vh(-10),
+  },
   marginTop15: {
     marginTop: vh(15),
   },

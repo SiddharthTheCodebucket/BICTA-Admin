@@ -96,6 +96,7 @@ export default {
   AssignmentDetailsList: 'AssignmentDetailsList',
   AssignmentResponse: 'AssignmentResponse',
   AssignmentRessponseDetails: 'AssignmentRessponseDetails',
+  EditAssignQuestion: 'EditAssignQuestion',
   AssessmentDetails: 'AssessmentDetails',
   Examination: 'Examination',
   CreateTest: 'CreateTest',
@@ -252,6 +253,7 @@ export default {
   MyCourses: 'MyCourses',
   CourseModule: 'CourseModule',
   AssignmentDetails: 'AssignmentDetails',
+
   CourseModuleDetails: 'CourseModuleDetails',
   AssignmentEdit: 'AssignmentEdit',
   FacultyFeedbackModal: 'FacultyFeedbackModal',

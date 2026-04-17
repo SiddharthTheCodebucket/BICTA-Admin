@@ -21,24 +21,21 @@ import {
   strings,
   vh,
   vw,
-  images,
-  SvgDelete,
-  SvgEye,
 } from '../../../../../../constants';
+import { SvgDelete, SvgEditPencile } from '../../../../../../constants/svgs';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
-import AdminListHeader from '../../../../../../components/organisms/AdminListHeader';
-import { globalStyles } from '../../../../../../utils/globalStyles';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
+import AdminListHeader from '../../../../../../components/organisms/AdminListHeader';
+import { globalStyles } from '../../../../../../utils/globalStyles/GlobalStyles';
+import { useListAssessmentAssignmentAssignQueMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
+import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import { useListAssignmentQuestionBankMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
+import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 
 interface Props {
   navigation: NavigationType;
@@ -55,13 +52,13 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const QuestionList = (props: Props) => {
+const AssignQuestionList = (props: Props) => {
   const { navigation, route } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [listAssignmentQuestionBankApi] =
-    useListAssignmentQuestionBankMutation();
+    useListAssessmentAssignmentAssignQueMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -79,6 +76,18 @@ const QuestionList = (props: Props) => {
 
   useLayoutEffect(() => {
     if (route?.params?.suppressHeader) return;
+    Header.setNavigation(
+      navigation,
+      strings.assignment.assignQuestionDetails,
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation, route?.params?.suppressHeader]);
 
@@ -177,35 +186,23 @@ const QuestionList = (props: Props) => {
     listAssignmentQuestionBank(1, true, '');
   };
 
-  const QuestionBankCard = ({ item, index, navigation }: any) => {
+  const AssignQuestionCard = ({ item, index, navigation }: any) => {
     return (
-      <TouchableAtom
-        style={styles.card}
-        onPress={() => {
-          navigation.navigate(screensName.QuestionBankDetails, {
-            data: item,
-          });
-        }}
-      >
-        <View style={styles.rowBetween}>
-          <TextAtom style={styles.label}>{item.selectSubject ?? '-'}</TextAtom>
-
+      <ViewAtom style={styles.card}>
+        <View style={styles.cardHeader}>
+          <TextAtom style={styles.cardTitle}>
+            {item.assignmentName ?? '-'}
+          </TextAtom>
           <View style={styles.actionContainer}>
-            <TouchableAtom
-              onPress={() => {
-                // Handle delete
-              }}
-            >
+            <TouchableAtom onPress={() => {}}>
               <SvgDelete />
             </TouchableAtom>
             <TouchableAtom
               onPress={() => {
-                navigation.navigate(screensName.QuestionBankDetails, {
-                  data: item,
-                });
+                navigation.navigate(screensName.EditAssignQuestion, { item });
               }}
             >
-              <SvgEye />
+              <SvgEditPencile />
             </TouchableAtom>
           </View>
         </View>
@@ -221,20 +218,32 @@ const QuestionList = (props: Props) => {
           </View>
           <View style={globalStyles.infoCol}>
             <TextAtom style={globalStyles.infoLabel}>
-              {strings.assignment.noOfQuestions}
+              {strings.assignment.faculty}
             </TextAtom>
             <TextAtom style={globalStyles.infoValue}>
-              {item.totalQuestions ?? '-'}
+              {item.selectFaculty ?? '-'}
             </TextAtom>
           </View>
         </View>
-      </TouchableAtom>
+
+        <View style={globalStyles.infoRow}>
+          <View style={globalStyles.infoCol}>
+            <TextAtom style={globalStyles.infoLabel}>
+              {strings.assignment.questionType}
+            </TextAtom>
+            <TextAtom style={globalStyles.infoValue}>
+              {item.selectQuestionType ?? '-'}
+            </TextAtom>
+          </View>
+          <View style={{ flex: 1 }} />
+        </View>
+      </ViewAtom>
     );
   };
 
-  const renderQuestionBankItem = ({ item, index }: any) => {
+  const renderAssignQuestionItem = ({ item, index }: any) => {
     return (
-      <QuestionBankCard item={item} index={index} navigation={navigation} />
+      <AssignQuestionCard item={item} index={index} navigation={navigation} />
     );
   };
 
@@ -247,37 +256,32 @@ const QuestionList = (props: Props) => {
       <View style={{ paddingHorizontal: vw(16) }}>
         <AdminListHeader
           config={{
-            title: strings.assignment.questionBankDetails,
+            title: strings.assignment.assignQuestionDetails,
             search: {
               visible: true,
               onPress: () => {
                 setIsSearch(prev => !prev);
+                onClearSearch();
               },
-            },
-            create: {
-              visible: true,
-              onPress: () => {
-                navigation.navigate(screensName.AddQuestion);
-              },
-              label: '+ Create',
             },
           }}
         />
       </View>
-
       {isSearch && (
-        <SearchBoxOrganism
-          onChangeText={onChangeSearch}
-          searchText={search}
-          onPressCross={onClearSearch}
-          searchBox={{ marginTop: vh(15) }}
-        />
+        <View style={{ paddingHorizontal: vw(16) }}>
+          <SearchBoxOrganism
+            onChangeText={onChangeSearch}
+            searchText={search}
+            onPressCross={onClearSearch}
+            searchBox={{ marginTop: vh(15) }}
+          />
+        </View>
       )}
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderQuestionBankItem}
+        renderItem={renderAssignQuestionItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           initialCall ? null : (
@@ -316,7 +320,7 @@ const QuestionList = (props: Props) => {
   );
 };
 
-export default QuestionList;
+export default AssignQuestionList;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
@@ -326,14 +330,27 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.white,
     marginHorizontal: vw(15),
-    borderRadius: vw(8),
-    paddingHorizontal: vw(15),
-    paddingVertical: vh(8),
-    elevation: 3,
+    borderRadius: vw(10),
+    padding: vw(15),
+    elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
+  },
+  cardTitle: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(14),
+    color: colors.black,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  actionContainer: {
+    flexDirection: 'row',
+    gap: vw(15),
   },
   label: {
     fontFamily: fonts.Roboto_Medium,
@@ -392,25 +409,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-
   activeBox: {
     backgroundColor: colors.lightGreenBg,
     borderColor: colors.darkGreen,
   },
-
   inActiveBox: {
     backgroundColor: colors.lightRedBg,
     borderColor: colors.darkRed,
   },
-
   statusText: {
     fontFamily: fonts.Roboto_Medium,
     fontSize: vw(14),
   },
-
   activeText: { color: colors.greenText },
   inActiveText: { color: colors.redText },
-
   dropMenu: {
     marginTop: vh(6),
     backgroundColor: colors.white,
@@ -419,7 +431,6 @@ const styles = StyleSheet.create({
     borderRadius: vw(6),
     overflow: 'hidden',
   },
-
   dropItem: {
     paddingVertical: vh(10),
     paddingHorizontal: vw(12),
@@ -466,16 +477,6 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: vh(10),
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: vh(10),
-  },
-  actionContainer: {
-    flexDirection: 'row',
-    gap: vw(15),
   },
   flex1: {
     flex: 1,

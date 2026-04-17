@@ -89,6 +89,7 @@ import Assignment from '../screens/AdminScreens/Menu/LMS/Assignment';
 import Question from '../screens/AdminScreens/Menu/LMS/Assignment/Question';
 import QuestionBankDetails from '../screens/AdminScreens/Menu/LMS/Assignment/Question/QuestionBankDetails';
 import AssignQuestion from '../screens/AdminScreens/Menu/LMS/Assignment/AssignQuestion';
+import EditAssignQuestion from '../screens/AdminScreens/Menu/LMS/Assignment/AssignQuestion/EditAssignQuestion';
 import AssignmentsDetails from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentsDetails';
 import AssignmentDetailsList from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentsDetails/AssignmentDetailsList';
 import AssignmentResponse from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentResponse';
@@ -580,6 +581,10 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="AssignQuestion"
           component={AssignQuestion}
+        />
+        <RootStackScreen.Screen
+          name="EditAssignQuestion"
+          component={EditAssignQuestion}
         />
         <RootStackScreen.Screen
           name="AssignmentsDetails"

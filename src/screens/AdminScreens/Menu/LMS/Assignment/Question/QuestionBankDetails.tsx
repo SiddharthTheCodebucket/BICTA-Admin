@@ -5,11 +5,20 @@ import {
   ScrollView,
   RefreshControl,
   FlatList,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
-import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
+import {
+  colors,
+  fonts,
+  strings,
+  SvgDelete,
+  SvgEditPencile,
+  vh,
+  vw,
+} from '../../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -182,12 +191,28 @@ const QuestionBankDetails = (props: Props) => {
     return (
       <View style={styles.subjectiveCard}>
         <View style={styles.rowBetween}>
-          <TextAtom numberOfLines={0} style={styles.subjectiveLabel}>
-            {index + 1}. {item._question || stripHtml(item.question)}
-          </TextAtom>
-          <TextAtom style={styles.labelRight}>
-            {item.marks} {strings.assignment.marks}
-          </TextAtom>
+          <View style={{}}>
+            <TextAtom numberOfLines={0} style={styles.subjectiveLabel}>
+              {index + 1}. {item._question || stripHtml(item.question)}
+            </TextAtom>
+            <TextAtom
+              style={{
+                fontSize: 14,
+                color: colors.grey,
+                fontFamily: fonts.Roboto_Regular,
+                marginTop: vh(6),
+              }}
+            >
+              {strings.assignment.marks} - {item.marks}
+            </TextAtom>
+          </View>
+
+          <TouchableOpacity onPress={() => {}}>
+            <SvgDelete />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {}}>
+            <SvgEditPencile />
+          </TouchableOpacity>
         </View>
       </View>
     );
