@@ -1,14 +1,15 @@
-import React, { useLayoutEffect } from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React from 'react';
+import { StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, vh, vw } from '../../../../../../constants';
-import { Header } from '../../../../../../components/organisms/HeaderOrganism';
+import AdminPageHeader from '../../../../../../components/organisms/AdminPageHeader';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import moment from 'moment';
+import { globalStyles } from '../../../../../../utils/globalStyles/GlobalStyles';
 
-const FieldRow = ({ label, value }: any) => (
-  <ViewAtom style={styles.row}>
+const InfoField = ({ label, value }: any) => (
+  <ViewAtom style={globalStyles.infoCol}>
     <TextAtom style={styles.label}>{label}</TextAtom>
     <TextAtom numberOfLines={0} style={styles.value}>
       {value || '-'}
@@ -17,39 +18,18 @@ const FieldRow = ({ label, value }: any) => (
 );
 
 const FullWidthField = ({ label, value }: any) => (
-  <ViewAtom style={styles.fullWidthBox}>
-    <TextAtom style={styles.fullLabel}>{label}</TextAtom>
-    <TextAtom numberOfLines={0} style={styles.fullValue}>
-      {value || '-'}
-    </TextAtom>
-  </ViewAtom>
-);
-
-const ImageField = ({ label, uri, onPress }: any) => (
-  <ViewAtom style={styles.fullWidthBox}>
-    <TextAtom style={styles.fullLabel}>{label}</TextAtom>
-
-    {uri ? (
-      <TouchableOpacity onPress={onPress}>
-        <Image
-          source={{ uri }}
-          style={{ width: '100%', height: vh(120), borderRadius: vw(8) }}
-          resizeMode="contain"
-        />
-      </TouchableOpacity>
-    ) : (
-      <TextAtom style={styles.fullValue}>-</TextAtom>
-    )}
+  <ViewAtom style={globalStyles.infoRow}>
+    <ViewAtom style={{ flex: 1 }}>
+      <TextAtom style={styles.label}>{label}</TextAtom>
+      <TextAtom numberOfLines={0} style={styles.value}>
+        {value || '-'}
+      </TextAtom>
+    </ViewAtom>
   </ViewAtom>
 );
 
 const TraineeRegistrationDetails = ({ route, navigation }: any) => {
   const { data } = route.params || {};
-
-  useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Trainee Details');
-    navigation.BackButtonPress = () => navigation.goBack();
-  });
 
   const maskAadhaar = (aadhaar: string) => {
     if (!aadhaar) return '-';
@@ -59,67 +39,68 @@ const TraineeRegistrationDetails = ({ route, navigation }: any) => {
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
+      <AdminPageHeader title="Training Details" navigation={navigation} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}
       >
         <ViewAtom style={styles.card}>
-          {/* ID */}
-          <FieldRow label="Id" value={data?.traineeId} />
+          <TextAtom style={styles.cardTitle}>
+            {data?.nameOfTrainingProgramme || 'Course Name'}
+          </TextAtom>
+          <TextAtom style={styles.cardId}>
+            ID: {data?.traineeId || '-'}
+          </TextAtom>
 
-          {/* U.ID */}
-          <FieldRow label="U.Id" value={data?.userUniqueId} />
+          <ViewAtom style={globalStyles.infoRow}>
+            <InfoField label="Attendance Code" value={data?.attendanceCode} />
+            <InfoField label="User Id" value={data?.userUniqueId} />
+          </ViewAtom>
 
-          {/* Name */}
-          <FieldRow label="Name" value={data?.name} />
+          <ViewAtom style={globalStyles.infoRow}>
+            <InfoField label="Training Centre" value={data?.trainingCentre} />
+            <InfoField
+              label="DOB"
+              value={data?.dob ? moment(data?.dob).format('DD-MM-YYYY') : '-'}
+            />
+          </ViewAtom>
 
-          {/* Training Centre */}
-          <FieldRow label="Training Centre" value={data?.trainingCentre} />
+          <ViewAtom style={globalStyles.infoRow}>
+            <InfoField label="Blood Group" value={data?.bloodGroup} />
+            <InfoField
+              label="Aadhaar No"
+              value={maskAadhaar(data?.aadhaarNo)}
+            />
+          </ViewAtom>
 
-          {/* DOB */}
-          <FieldRow
-            label="DOB"
-            value={data?.dob ? moment(data?.dob).format('DD-MM-YYYY') : '-'}
-          />
+          <FullWidthField label="Email" value={data?.officeEmail} />
 
-          {/* Blood Group */}
-          <FieldRow label="Blood Group" value={data?.bloodGroup} />
+          <ViewAtom style={globalStyles.infoRow}>
+            <InfoField label="Mobile Number" value={data?.mobileNo} />
+            <InfoField label="Designation" value={data?.designation} />
+          </ViewAtom>
 
-          {/* Aadhaar */}
-          <FieldRow label="Aadhaar No" value={maskAadhaar(data?.aadhaarNo)} />
+          <ViewAtom style={globalStyles.infoRow}>
+            <InfoField label="Place Of Posting" value={data?.placeOfPosting} />
+            <InfoField label="Gender" value={data?.gender} />
+          </ViewAtom>
 
-          {/* Email */}
-          <FieldRow label="Email" value={data?.officeEmail} />
+          <ViewAtom style={globalStyles.infoRow}>
+            <InfoField label="Pregnancy Status" value={data?.pregnancyStatus} />
+            <InfoField label="Driving Licence" value={data?.drivingLicence} />
+          </ViewAtom>
 
-          {/* Mobile */}
-          <FieldRow label="Mobile Number" value={data?.mobileNo} />
-
-          {/* Designation */}
-          <FieldRow label="Designation" value={data?.designation} />
-
-          {/* Place of Posting */}
-          <FieldRow label="Place Of Posting" value={data?.placeOfPosting} />
-
-          {/* Gender */}
-          <FieldRow label="Gender" value={data?.gender} />
-
-          {/* Pregnancy Status */}
-          <FieldRow label="Pregnancy Status" value={data?.pregnancyStatus} />
-
-          {/* Training Name */}
-          <FieldRow
+          <FullWidthField
             label="Training Name"
             value={data?.nameOfTrainingProgramme}
           />
 
-          {/* Batch No */}
-          <FieldRow label="Batch No" value={data?.batchName} />
+          <ViewAtom style={globalStyles.infoRow}>
+            <InfoField label="Batch No" value={data?.batchName} />
+            <InfoField label="Created By" value={data?.createdBy?.name} />
+          </ViewAtom>
 
-          {/* Created By */}
-          <FieldRow label="Created By" value={data?.createdBy?.name} />
-
-          {/* Updated By */}
-          <FieldRow label="Updated By" value={data?.updatedBy?.name} />
+          <FullWidthField label="Updated By" value={data?.updatedBy?.name} />
         </ViewAtom>
       </ScrollView>
     </SafeAreaView>
@@ -133,12 +114,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.backgroundColor,
   },
-
   scrollContainer: {
     paddingBottom: vh(40),
     paddingHorizontal: vw(15),
   },
-
   card: {
     backgroundColor: colors.white,
     borderRadius: vw(10),
@@ -146,42 +125,29 @@ const styles = StyleSheet.create({
     marginTop: vh(15),
     elevation: 2,
   },
-
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: vh(10),
+  cardTitle: {
+    fontSize: vw(16),
+    fontFamily: fonts.Inter_Bold,
+    color: colors.black,
+    textAlign: 'center',
+    marginBottom: vw(2),
   },
-
+  cardId: {
+    fontSize: vw(12),
+    fontFamily: fonts.Inter_Regular,
+    color: colors.grey,
+    textAlign: 'center',
+    marginBottom: vh(15),
+  },
   label: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    flex: 1,
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(12),
+    color: colors.grey,
+    marginBottom: vh(2),
   },
-
   value: {
-    fontFamily: fonts.Roboto_Regular,
+    fontFamily: fonts.Inter_Medium,
     fontSize: vw(14),
-    color: colors.grey,
-    flex: 1,
-    textAlign: 'right',
-  },
-
-  fullWidthBox: {
-    marginBottom: vh(12),
-  },
-
-  fullLabel: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    marginBottom: vh(5),
-  },
-
-  fullValue: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
+    color: '#2D2D2D',
   },
 });
