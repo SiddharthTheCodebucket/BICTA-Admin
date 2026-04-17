@@ -1,5 +1,5 @@
-import { Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
-import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
@@ -7,7 +7,6 @@ import { pick } from '@react-native-documents/picker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {
   colors,
-  fonts,
   screensName,
   strings,
   vh,
@@ -17,26 +16,26 @@ import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
-import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import {
   isNullUndefined,
-  normalizeNumber,
 } from '../../../../../../utils/CommonFunction';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import moment from 'moment';
-import TextAtom from '../../../../../../components/atoms/TextAtom';
-import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
-import ImageUploadOrganism from '../../../../../../components/organisms/ImageUploadOrganism';
-import ErrorMolecule from '../../../../../../components/molecules/ErrorMolecule';
+import {
+  FormGradientButton,
+  FormStepper,
+  FormWhiteButton,
+} from '../../../../../../components/templates';
 import {
   useAddTraineeRegistrationBulkMutation,
   useAddTraineeRegistrationMutation,
   useUpdateTraineeRegistrationMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
 import { useAppSelector } from '../../../../../../hooks';
+import AddTraineeRegistration_1 from './AddTraineeRegistration_1';
+import AddTraineeRegistration_2 from './AddTraineeRegistration_2';
+import AddTraineeRegistration_3 from './AddTraineeRegistration_3';
 
 interface Props {
   route: any;
@@ -46,14 +45,10 @@ interface Props {
 const AddTraineeRegistration = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
-  const input1_ref: any = createRef();
-  const input2_ref: any = createRef();
-  const input3_ref: any = createRef();
-  const input4_ref: any = createRef();
-  const input5_ref: any = createRef();
-  const input6_ref: any = createRef();
 
   const [otpTimer, setOtpTimer] = useState(0);
+  const [currentStep, setCurrentStep] = useState(1);
+  const steps = ['Personal info', 'Uploads', 'Verify'];
 
   const [commonDropdownListApi] = useCommonDropdownListMutation();
 
@@ -74,12 +69,10 @@ const AddTraineeRegistration = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      isNullUndefined(item)
-        ? 'Add Trainee Registration'
-        : 'Edit Trainee Registration',
+      isNullUndefined(item) ? 'Add Trainee' : 'Edit Trainee',
     );
     navigation.BackButtonPress = () => navigateToRegistrationList();
-  }, []);
+  }, [navigation, item]);
 
   const [loader, setLoader] = useState(false);
   const [form, setForm] = useState<any>({
@@ -87,12 +80,12 @@ const AddTraineeRegistration = (props: Props) => {
       { id: 'Bulk Upload', name: 'Bulk Upload' },
       { id: 'Manual Upload', name: 'Manual Upload' },
     ],
-    selectedRegistration: { id: 'Bulk Upload', name: 'Bulk Upload' },
+    selectedRegistration: { id: 'Manual Upload', name: 'Manual Upload' },
     isAlereadyRegistredList: [
       { id: 'Yes', name: 'Yes' },
       { id: 'No', name: 'No' },
     ],
-    selectedIsAlereadyRegistred: {},
+    selectedIsAlereadyRegistred: { id: 'No', name: 'No' },
     trainingCenterList: [],
     selectedTrainingCenter: {},
     trainingNameList: [],
@@ -905,9 +898,137 @@ const AddTraineeRegistration = (props: Props) => {
     startOtpTimer();
   };
 
+  const validateStep = async (step: number) => {
+    const activeSchema = getActiveSchema();
+    const step1Fields = [
+      'selectedRegistration.name',
+      ...(!isBulk ? ['selectedIsAlereadyRegistred.name'] : []),
+      ...(show.trainingCenter ? ['selectedTrainingCenter.name'] : []),
+      ...(show.trainingName ? ['selectedTrainingName.name'] : []),
+      ...(show.batch ? ['selectedBatchList.name'] : []),
+      ...(show.department ? ['selectedDepartmentList.name'] : []),
+      ...(show.name ? ['name'] : []),
+      ...(show.designation ? ['selectedDesignation.name'] : []),
+      ...(show.posting ? ['placeOfPosting'] : []),
+      ...(show.gender ? ['selectedGender.name'] : []),
+      ...(show.dob ? ['dob'] : []),
+      ...(show.aadhar ? ['aadharNumber'] : []),
+      ...(show.email ? ['officeEmail'] : []),
+      ...(show.mobile ? ['mobileNumber'] : []),
+      ...(show.blood ? ['selectedBloodGroup.name'] : []),
+    ];
+
+    const step2Fields = [
+      ...(show.photo ? ['photo.uri'] : []),
+      ...(show.signature ? ['signature.uri'] : []),
+      ...(show.excelFile ? ['excelFile.uri'] : []),
+    ];
+
+    const step3Fields = [
+      ...(show.otp && isNullUndefined(item) ? ['otp'] : []),
+    ];
+
+    const stepMap: Record<number, string[]> = {
+      1: step1Fields,
+      2: step2Fields,
+      3: step3Fields,
+    };
+
+    const fields = stepMap[step] || [];
+    for (const field of fields) {
+      try {
+        await activeSchema.validateAt(field, form);
+      } catch (err: any) {
+        setErrors((prev: any) => ({ ...prev, [field]: err.message }));
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const handlePrimaryAction = async () => {
+    if (currentStep < steps.length) {
+      const isStepValid = await validateStep(currentStep);
+      if (!isStepValid) return;
+      setCurrentStep(prev => prev + 1);
+      return;
+    }
+
+    onSubmit();
+  };
+
+  const renderStep = () => {
+    if (currentStep === 1) {
+      return (
+        <AddTraineeRegistration_1
+          form={form}
+          errors={errors}
+          setValue={setValue}
+          setErrors={setErrors}
+          trainingCenterList={form.trainingCenterList}
+          trainingNameList={form.trainingNameList}
+          batchNumberList={form.batchNumberList}
+          departmentList={form.departmentList}
+          designationList={form.designationList}
+          genderList={form.genderList}
+          bloodGroupList={form.bloodGroupList}
+          isBulk={isBulk}
+          isManual={isManual}
+          isNo={isNo}
+          tenantId={tenantId}
+          onTrainingCenterChange={(data: any) => {
+            setValue('selectedTrainingCenter', data);
+            getGender(data.name);
+            getDepartment(data.name);
+            getTraineeDesignation(data.name);
+            getBloodGroup(data.name);
+            getTrainingName(data.name);
+            setErrors({ ...errors, 'selectedTrainingCenter.name': '' });
+          }}
+          onTrainingNameChange={(data: any) => {
+            setValue('selectedTrainingName', data);
+            getTrainingBatchNo(data.id);
+            setErrors({ ...errors, 'selectedTrainingName.name': '' });
+          }}
+        />
+      );
+    }
+
+    if (currentStep === 2) {
+      return (
+        <AddTraineeRegistration_2
+          form={form}
+          errors={errors}
+          setValue={setValue}
+          setErrors={setErrors}
+          isBulk={isBulk}
+          isManual={isManual}
+          isNo={isNo}
+          onPickExcelFile={handleFileUpload}
+        />
+      );
+    }
+
+    return (
+      <AddTraineeRegistration_3
+        form={form}
+        errors={errors}
+        setValue={setValue}
+        setErrors={setErrors}
+        isManual={isManual}
+        showOtp={show.otp && isNullUndefined(item)}
+        otpTimer={otpTimer}
+        onGetOtp={handleGetOtp}
+      />
+    );
+  };
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
+      <View style={styles.stepperWrap}>
+        <FormStepper steps={steps} currentStep={currentStep} />
+      </View>
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         style={{ flex: 1 }}
@@ -917,505 +1038,25 @@ const AddTraineeRegistration = (props: Props) => {
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={vh(80)}
       >
-        <DropDownOrganism
-          label={'Registration Type'}
-          placeholder={'Registration Type'}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: 'Registration Type',
-              Data: form.registrationTypeList,
-              selectedData: form.selectedRegistration,
-              setSelectedData: (data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  selectedRegistration: data,
-                }));
-
-                setErrors({ ...errors, 'selectedRegistration.name': '' });
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={form.selectedRegistration?.name}
-          isMandatory
-          errorMessage={errors['selectedRegistration.name']}
-        />
-        {!isBulk && (
-          <DropDownOrganism
-            label={'Is Aleready Registred?'}
-            placeholder={'Is Aleready Registred'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Is Aleready Registred',
-                Data: form.isAlereadyRegistredList,
-                selectedData: form.selectedIsAlereadyRegistred,
-                setSelectedData: (data: any) => {
-                  setForm((prev: any) => ({
-                    ...prev,
-                    selectedIsAlereadyRegistred: data,
-                  }));
-                  setErrors({
-                    ...errors,
-                    'selectedIsAlereadyRegistred.name': '',
-                  });
-                },
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={form.selectedIsAlereadyRegistred?.name}
-            isMandatory
-            errorMessage={errors['selectedIsAlereadyRegistred.name']}
-          />
-        )}
-
-        {show.trainingCenter && (
-          <DropDownOrganism
-            label={'Training Center'}
-            placeholder={'Training Center'}
-            onPress={() => {
-              // Only allow superadmin (tenantId === 3) to change
-              if (tenantId !== 3) return;
-
-              navigation.navigate('DropDownModal', {
-                name: 'Training Center',
-                Data: form.trainingCenterList,
-                selectedData: form.selectedTrainingCenter,
-                setSelectedData: (data: any) => {
-                  setForm((prev: any) => ({
-                    ...prev,
-                    selectedTrainingCenter: data,
-                  }));
-                  getGender(data.name);
-
-                  getDepartment(data.name);
-                  getTraineeDesignation(data.name);
-                  getBloodGroup(data.name);
-                  getTrainingName(data.name);
-                  setErrors({ ...errors, 'selectedTrainingCenter.name': '' });
-                },
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={form.selectedTrainingCenter?.name}
-            isMandatory
-            errorMessage={errors['selectedTrainingCenter.name']}
-            isDisabled={tenantId !== 3}
-          />
-        )}
-
-        {show.trainingName && (
-          <DropDownOrganism
-            label={'Training Name'}
-            placeholder={'Training Name'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Training Name',
-                Data: form.trainingNameList,
-                selectedData: form.selectedTrainingName,
-                setSelectedData: (data: any) => {
-                  setForm((prev: any) => ({
-                    ...prev,
-                    selectedTrainingName: data,
-                  }));
-                  getTrainingBatchNo(data.id);
-                  setErrors({ ...errors, 'selectedTrainingName.name': '' });
-                },
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={form.selectedTrainingName?.name}
-            isMandatory
-            errorMessage={errors['selectedTrainingName.name']}
-          />
-        )}
-
-        {show.batch && (
-          <DropDownOrganism
-            label={'Batch'}
-            placeholder={'Batch'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Batch',
-                Data: form.batchNumberList,
-                selectedData: form.selectedBatchList,
-                setSelectedData: (data: any) => {
-                  setForm((prev: any) => ({
-                    ...prev,
-                    selectedBatchList: data,
-                  }));
-                  setErrors({ ...errors, 'selectedBatchList.name': '' });
-                },
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={form.selectedBatchList?.name}
-            isMandatory
-            errorMessage={errors['selectedBatchList.name']}
-          />
-        )}
-        {show.department && (
-          <DropDownOrganism
-            label={'Department'}
-            placeholder={'Department'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Department',
-                Data: form.departmentList,
-                selectedData: form.selectedDepartmentList,
-                setSelectedData: (data: any) => {
-                  setForm((prev: any) => ({
-                    ...prev,
-                    selectedDepartmentList: data,
-                  }));
-                  setErrors({ ...errors, 'selectedDepartmentList.name': '' });
-                },
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={form.selectedDepartmentList?.name}
-            isMandatory
-            errorMessage={errors['selectedDepartmentList.name']}
-          />
-        )}
-
-        {show.name && (
-          <TextInputOrganisms
-            label={'Name'}
-            placeholder={'Name'}
-            ref={input1_ref}
-            onSubmitEditing={() => input2_ref.current.focus()}
-            value={form.name}
-            onChangeText={(val: any) => {
-              setForm((prev: any) => ({
-                ...prev,
-                name: val,
-              }));
-              setErrors({ ...errors, name: '' });
-            }}
-            isMandatory
-            errorMessage={errors.name}
-            autoCapitalize={'none'}
-            returnKeyType={'next'}
-          />
-        )}
-
-        {show.designation && (
-          <DropDownOrganism
-            label={'Designation'}
-            placeholder={'Designation'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Designation',
-                Data: form.designationList,
-                selectedData: form.selectedDesignation,
-                setSelectedData: (data: any) => {
-                  setForm((prev: any) => ({
-                    ...prev,
-                    selectedDesignation: data,
-                  }));
-                  setErrors({ ...errors, 'selectedDesignation.name': '' });
-                },
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={form.selectedDesignation?.name}
-            isMandatory
-            errorMessage={errors['selectedDesignation.name']}
-          />
-        )}
-
-        {show.posting && (
-          <TextInputOrganisms
-            label={'Place Of Posting'}
-            placeholder={'Place Of Posting'}
-            ref={input2_ref}
-            onSubmitEditing={() => input3_ref.current.focus()}
-            value={form.placeOfPosting}
-            onChangeText={(val: any) => {
-              setForm((prev: any) => ({
-                ...prev,
-                placeOfPosting: val,
-              }));
-              setErrors({ ...errors, placeOfPosting: '' });
-            }}
-            isMandatory
-            errorMessage={errors.placeOfPosting}
-            autoCapitalize={'none'}
-            returnKeyType={'next'}
-          />
-        )}
-
-        {show.gender && (
-          <DropDownOrganism
-            label={'Gender'}
-            placeholder={'Gender'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Gender',
-                Data: form.genderList,
-                selectedData: form.selectedGender,
-                setSelectedData: (data: any) => {
-                  setForm((prev: any) => ({
-                    ...prev,
-                    selectedGender: data,
-                  }));
-                  setErrors({ ...errors, 'selectedGender.name': '' });
-                },
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={form.selectedGender?.name}
-            isMandatory
-            errorMessage={errors['selectedGender.name']}
-          />
-        )}
-
-        {show.dob && (
-          <DateInputOrganism
-            label={'DOB'}
-            placeholder={'DOB'}
-            value={form.dob}
-            onChangeText={(val: any) => {
-              setForm((prev: any) => ({
-                ...prev,
-                dob: val,
-              }));
-              setErrors({ ...errors, dob: '' });
-            }}
-            fieldName={'date'}
-            dateFormat="DD-MM-YYYY"
-            isMandatory
-            errorMessage={errors.dob}
-          />
-        )}
-
-        {show.aadhar && (
-          <TextInputOrganisms
-            label={'Aadhar Number'}
-            placeholder={'Aadhar Number'}
-            ref={input4_ref}
-            onSubmitEditing={() => input5_ref.current.focus()}
-            value={form.aadharNumber}
-            onChangeText={(val: any) => {
-              setForm((prev: any) => ({
-                ...prev,
-                aadharNumber: normalizeNumber(val),
-              }));
-              setErrors({ ...errors, aadharNumber: '' });
-            }}
-            isMandatory
-            errorMessage={errors.aadharNumber}
-            autoCapitalize={'none'}
-            returnKeyType={'next'}
-            maxLength={12}
-            keyboardType="numeric"
-          />
-        )}
-
-        {show.email && (
-          <TextInputOrganisms
-            label={'Office Email'}
-            placeholder={'Office Email'}
-            ref={input4_ref}
-            onSubmitEditing={() => input5_ref.current.focus()}
-            value={form.officeEmail}
-            onChangeText={(val: any) => {
-              setForm((prev: any) => ({
-                ...prev,
-                officeEmail: val,
-              }));
-              setErrors({ ...errors, officeEmail: '' });
-            }}
-            isMandatory
-            errorMessage={errors.officeEmail}
-            autoCapitalize={'none'}
-            returnKeyType={'next'}
-          />
-        )}
-
-        {show.mobile && (
-          <TextInputOrganisms
-            label={'Mobile Number'}
-            placeholder={'Mobile Number'}
-            ref={input5_ref}
-            onSubmitEditing={() => input6_ref.current.focus()}
-            value={form.mobileNumber}
-            onChangeText={(val: any) => {
-              setForm((prev: any) => ({
-                ...prev,
-                mobileNumber: normalizeNumber(val),
-              }));
-              setErrors({ ...errors, mobileNumber: '' });
-            }}
-            isMandatory
-            errorMessage={errors.mobileNumber}
-            autoCapitalize={'none'}
-            returnKeyType={'next'}
-            maxLength={10}
-            keyboardType="numeric"
-          />
-        )}
-
-        {show.blood && (
-          <DropDownOrganism
-            label={'Blood Group'}
-            placeholder={'Blood Group'}
-            onPress={() => {
-              navigation.navigate('DropDownModal', {
-                name: 'Blood Group',
-                Data: form.bloodGroupList,
-                selectedData: form.selectedBloodGroup,
-                setSelectedData: (data: any) => {
-                  setForm((prev: any) => ({
-                    ...prev,
-                    selectedBloodGroup: data,
-                  }));
-                  setErrors({ ...errors, 'selectedBloodGroup.name': '' });
-                },
-                typeName: 'name',
-                typeId: 'id',
-              });
-            }}
-            inputText={form.selectedBloodGroup?.name}
-            isMandatory
-            errorMessage={errors['selectedBloodGroup.name']}
-          />
-        )}
-
-        {show.photo && (
-          <ImageUploadOrganism
-            label={'photo'}
-            buttonText={strings.choose_file}
-            onSelectImage={(file: any) => {
-              setForm((prev: any) => ({
-                ...prev,
-                photo: file,
-              }));
-              setErrors({ ...errors, 'photo.uri': '' });
-            }}
-            defaultImage={form.photo?.uri}
-            isMandatory
-            errorMessage={errors['photo.uri']}
-          />
-        )}
-
-        {show.signature && (
-          <ImageUploadOrganism
-            label={'Signature'}
-            buttonText={strings.choose_file}
-            onSelectImage={(file: any) => {
-              setForm((prev: any) => ({
-                ...prev,
-                signature: file,
-              }));
-              setErrors({ ...errors, 'signature.uri': '' });
-            }}
-            defaultImage={form.signature?.uri}
-            isMandatory
-            errorMessage={errors['signature.uri']}
-          />
-        )}
-
-        {show.otp && isNullUndefined(item) && (
-          <>
-            <TextInputOrganisms
-              label={'OTP'}
-              placeholder={'OTP'}
-              ref={input6_ref}
-              onSubmitEditing={() => Keyboard.dismiss()}
-              value={form.otp}
-              onChangeText={(val: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  otp: normalizeNumber(val),
-                }));
-                setErrors({ ...errors, otp: '' });
-              }}
-              isMandatory
-              errorMessage={errors.otp}
-              autoCapitalize={'none'}
-              returnKeyType={'next'}
-              maxLength={4}
-              keyboardType="numeric"
-            />
-
-            <TextAtom
-              style={{
-                backgroundColor: otpTimer > 0 ? colors.grey : colors.primary,
-                color: colors.white,
-                fontFamily: fonts.Roboto_Regular,
-                fontSize: vw(12),
-                width: vw(100),
-                borderRadius: vw(4),
-                textAlign: 'center',
-                paddingVertical: vh(4),
-                marginLeft: vh(8),
-                opacity: otpTimer > 0 ? 0.7 : 1,
-              }}
-              onPress={otpTimer > 0 ? undefined : handleGetOtp}
-            >
-              {otpTimer > 0 ? `Resend in ${otpTimer}s` : 'Get OTP'}
-            </TextAtom>
-          </>
-        )}
-        {show.excelFile && (
-          <>
-            <TextAtom style={styles.labelStyle} numberOfLines={2}>
-              Upload File
-            </TextAtom>
-            <TouchableOpacity
-              style={[
-                styles.uploadBtn,
-                {
-                  borderColor: errors['uploadFile.uri']
-                    ? colors.red
-                    : colors.grey_1,
-                },
-              ]}
-              activeOpacity={0.8}
-              onPress={handleFileUpload}
-            >
-              <TextAtom numberOfLines={0} style={styles.uploadText}>
-                {isNullUndefined(form.excelFile)
-                  ? strings.choose_file
-                  : form.excelFile.fileName}
-              </TextAtom>
-              <TextAtom style={styles.instructionText}>{'Add Excel'}</TextAtom>
-            </TouchableOpacity>
-
-            <TextAtom
-              style={{
-                backgroundColor: colors.primary,
-                color: colors.white,
-                fontFamily: fonts.Roboto_Regular,
-                fontSize: vw(12),
-                width: vw(120),
-                borderRadius: vw(4),
-                textAlign: 'center',
-                paddingVertical: vh(4),
-                marginLeft: vh(8),
-              }}
-              onPress={() => {}}
-            >
-              Download Sample
-            </TextAtom>
-            <ErrorMolecule errorMessage={errors['excelFile.uri']} />
-          </>
-        )}
+        {renderStep()}
       </KeyboardAwareScrollView>
-      <ButtonOrganism
-        onPress={onSubmit}
-        bttnText={item ? 'Update' : 'Add'}
-        isDisabled={isButtonDisabled}
-      />
+      <View style={styles.footer}>
+        {currentStep > 1 && (
+          <View style={styles.secondaryButtonWrap}>
+            <FormWhiteButton
+              title="Back"
+              onPress={() => setCurrentStep(prev => prev - 1)}
+            />
+          </View>
+        )}
+        <View style={styles.primaryButtonWrap}>
+          <FormGradientButton
+            title={currentStep === steps.length ? (item ? 'Update' : 'Add') : 'Next'}
+            onPress={handlePrimaryAction}
+            disabled={isButtonDisabled}
+          />
+        </View>
+      </View>
     </SafeAreaView>
   );
 };
@@ -1426,42 +1067,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundColor,
-    alignItems: 'center',
-    paddingTop: vw(20),
+  },
+  stepperWrap: {
+    paddingHorizontal: vw(15),
+    paddingTop: vh(8),
+    paddingBottom: vh(8),
   },
   contentScroll: {
-    paddingBottom: vh(10),
-  },
-  uploadBtn: {
-    borderWidth: 1,
-    paddingVertical: vh(10),
+    paddingBottom: vh(8),
     paddingHorizontal: vw(15),
-    borderRadius: vw(8),
+  },
+  footer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    width: vw(320),
-    alignSelf: 'center',
-    backgroundColor: colors.backgroundColor,
-    marginBottom: vh(10),
+    paddingHorizontal: vw(15),
+    paddingBottom: vh(12),
+    gap: vw(10),
   },
-  uploadText: {
-    fontFamily: fonts.Roboto_Medium,
-    color: colors.grey_1,
-    fontSize: vw(12),
-    textAlign: 'center',
+  secondaryButtonWrap: {
+    flex: 0.35,
   },
-  instructionText: {
-    fontFamily: fonts.Roboto_Regular,
-    color: colors.grey,
-    fontSize: vw(12),
-    marginTop: vh(4),
-  },
-  labelStyle: {
-    width: vw(328),
-    fontSize: vw(14),
-    fontFamily: fonts.Roboto_Medium,
-    alignSelf: 'center',
-    color: colors.black,
-    marginBottom: vh(8),
+  primaryButtonWrap: {
+    flex: 0.65,
   },
 });
