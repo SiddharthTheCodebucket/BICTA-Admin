@@ -11,8 +11,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   LayoutAnimation,
-  ScrollView,
-  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -20,7 +18,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
-  images,
   screensName,
   strings,
   vh,
@@ -40,7 +37,6 @@ import SubTab from '../../../../../../components/molecules/SubTab';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { globalStyles } from '../../../../../../utils/globalStyles/GlobalStyles';
 import {
   downloadAndOpenFile,
@@ -52,10 +48,8 @@ import {
   useListTraineeRegistrationMutation,
   useListTrainingBatchDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import { useDeleteTraineeRegistrationMutation } from '../../../../../../injectEndpoints/profileEndpoints';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import ImageUploadOrganism from '../../../../../../components/organisms/ImageUploadOrganism';
 import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
@@ -293,6 +287,9 @@ const TraineeRegistrationList = (props: Props) => {
             </TextAtom>
           </View>
           <View style={styles.actionContainer}>
+            <TouchableAtom onPress={handleDelete}>
+              <SvgDelete />
+            </TouchableAtom>
             <TouchableAtom
               onPress={() => {
                 navigation.navigate(screensName.AddTraineeRegistration, {
@@ -301,14 +298,7 @@ const TraineeRegistrationList = (props: Props) => {
                 });
               }}
             >
-              <SvgEditPencile
-                width={vw(18)}
-                height={vw(18)}
-                fill={colors.black}
-              />
-            </TouchableAtom>
-            <TouchableAtom onPress={handleDelete}>
-              <SvgDelete width={vw(18)} height={vw(18)} fill={colors.red_2} />
+              <SvgEditPencile />
             </TouchableAtom>
           </View>
         </View>
@@ -685,13 +675,6 @@ const TraineeRegistrationList = (props: Props) => {
         }}
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
-      />
-      <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddTraineeRegistration, {
-            onDone: () => listTraineeDetais(1, true, search),
-          });
-        }}
       />
     </SafeAreaView>
   );
