@@ -4,7 +4,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { vh, vw } from '../constants/dimensions';
 import { colors, fonts, images, screensName } from '../constants';
 import Dashboard from './stacks/AdminDashboardStack';
-import Menu from './stacks/AdminMenuStack';
 import Profile from './stacks/AdminProfileStack';
 import { useAppSelector } from '../hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,15 +18,6 @@ const renderHomeIcon = () => {
     <Image
       source={focused ? images.home_active : images.home_inactive}
       style={isTablet ? styles.iconStyleTablet : styles.iconStyle}
-    />
-  );
-};
-
-const renderMenuIcon = () => {
-  return ({ focused }: any) => (
-    <Image
-      source={focused ? images.menu_active : images.menu_inactive}
-      style={styles.iconStyle}
     />
   );
 };
@@ -88,22 +78,6 @@ function BottomTabNavigatorAdmin() {
           listeners={({ navigation }) => ({
             tabPress: () => {
               navigation.navigate(screensName.Dashboard);
-            },
-          })}
-        />
-      )}
-
-      {!isDedicatedScanner && (
-        <BottomTab.Screen
-          name={screensName.Menu}
-          component={Menu}
-          options={{
-            tabBarLabel: 'Menu',
-            tabBarIcon: renderMenuIcon(),
-          }}
-          listeners={({ navigation }) => ({
-            tabPress: () => {
-              navigation.navigate(screensName.Menu);
             },
           })}
         />

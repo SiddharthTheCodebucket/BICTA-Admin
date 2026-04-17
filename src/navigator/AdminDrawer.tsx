@@ -27,7 +27,7 @@ interface MenuItem {
   subItems?: SubMenuItem[];
 }
 
-const ADMIN_MAIN_TABS = 'AdminMainTabs';
+const ADMIN_DASHBOARD_TABS = 'DashboardTabs';
 
 const DASHBOARD_STACK_ROUTES = new Set([
   screensName.Dashboard,
@@ -128,7 +128,7 @@ const MENU_ITEMS: MenuItem[] = [
 
 const getActiveRouteNames = (state: any): string[] => {
   if (!state?.routes?.length) {
-    return [screensName.Menu];
+    return [screensName.Dashboard];
   }
 
   const route = state.routes[state.index ?? 0];
@@ -140,7 +140,7 @@ const getActiveRouteNames = (state: any): string[] => {
       : getActiveRouteNames(route.state);
   }
 
-  return routeName ? [routeName] : [screensName.Menu];
+  return routeName ? [routeName] : [screensName.Dashboard];
 };
 
 const AdminDrawer = (props: DrawerContentComponentProps) => {
@@ -202,7 +202,7 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
     navigation.closeDrawer();
     requestAnimationFrame(() => {
       if (DASHBOARD_STACK_ROUTES.has(screen)) {
-        (navigation as any).navigate(ADMIN_MAIN_TABS, {
+        (navigation as any).navigate(ADMIN_DASHBOARD_TABS, {
           screen: screensName.Dashboard,
           params: screen === screensName.Dashboard ? undefined : { screen },
         });
@@ -210,17 +210,14 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
       }
 
       if (PROFILE_STACK_ROUTES.has(screen)) {
-        (navigation as any).navigate(ADMIN_MAIN_TABS, {
+        (navigation as any).navigate(ADMIN_DASHBOARD_TABS, {
           screen: screensName.Profile,
           params: screen === screensName.Profile ? undefined : { screen },
         });
         return;
       }
 
-      (navigation as any).navigate(ADMIN_MAIN_TABS, {
-        screen: screensName.Menu,
-        params: screen === screensName.Menu ? undefined : { screen },
-      });
+      (navigation as any).navigate(screen);
     });
   };
 

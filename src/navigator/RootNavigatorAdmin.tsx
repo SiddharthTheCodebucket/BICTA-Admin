@@ -263,11 +263,34 @@ import DeviceList from '../screens/AdminScreens/Profile/FaceScan/DeviceList';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
+
+type AdminDrawerParamList = {
+  DashboardTabs: undefined;
+  LMS: undefined;
+  TrainingManagement: undefined;
+  TraineeManagement: undefined;
+  FacultyManagement: undefined;
+  CurriculumManagemnet: undefined;
+  ClassLocationManagement: undefined;
+  ClassRoomManagement: undefined;
+  Assignment: undefined;
+  Examination: undefined;
+  TraineeAttendance: undefined;
+  GateAccess: undefined;
+  HostelManagement: undefined;
+  UserManagement: undefined;
+  FeedbackManagement: undefined;
+  CommunicationManagementSystem: undefined;
+  Report: undefined;
+  HRMS: undefined;
+  VisitorManagementSystem: undefined;
+};
+
 const RootStackScreen = createNativeStackNavigator();
-const Drawer = createDrawerNavigator();
+const Drawer = createDrawerNavigator<AdminDrawerParamList>();
 
 const ADMIN_APP_DRAWER = 'AdminAppDrawer';
-const ADMIN_MAIN_TABS = 'AdminMainTabs';
+const ADMIN_DASHBOARD_TABS = 'DashboardTabs';
 
 const AppDrawer = () => (
   <Drawer.Navigator
@@ -276,7 +299,64 @@ const AppDrawer = () => (
       headerShown: false,
     }}
   >
-    <Drawer.Screen name={ADMIN_MAIN_TABS} component={BottomTabNavigatorAdmin} />
+    <Drawer.Screen
+      name={ADMIN_DASHBOARD_TABS}
+      component={BottomTabNavigatorAdmin}
+    />
+    <Drawer.Screen name={screensName.LMS} component={LMS} />
+    <Drawer.Screen
+      name={screensName.TrainingManagement}
+      component={TrainingManagement}
+    />
+    <Drawer.Screen
+      name={screensName.TraineeManagement}
+      component={TraineeManagement}
+    />
+    <Drawer.Screen
+      name={screensName.FacultyManagement}
+      component={FacultyManagement}
+    />
+    <Drawer.Screen
+      name={screensName.CurriculumManagemnet}
+      component={CurriculumManagemnet}
+    />
+    <Drawer.Screen
+      name={screensName.ClassLocationManagement}
+      component={ClassLocationManagement}
+    />
+    <Drawer.Screen
+      name={screensName.ClassRoomManagement}
+      component={ClassRoomManagement}
+    />
+    <Drawer.Screen name={screensName.Assignment} component={Assignment} />
+    <Drawer.Screen name={screensName.Examination} component={Examination} />
+    <Drawer.Screen
+      name={screensName.TraineeAttendance}
+      component={TraineeAttendance}
+    />
+    <Drawer.Screen name={screensName.GateAccess} component={GateAccess} />
+    <Drawer.Screen
+      name={screensName.HostelManagement}
+      component={HostelManagement}
+    />
+    <Drawer.Screen
+      name={screensName.UserManagement}
+      component={UserManagement}
+    />
+    <Drawer.Screen
+      name={screensName.FeedbackManagement}
+      component={FeedbackManagement}
+    />
+    <Drawer.Screen
+      name={screensName.CommunicationManagementSystem}
+      component={CommunicationManagementSystem}
+    />
+    <Drawer.Screen name={screensName.Report} component={Report} />
+    <Drawer.Screen name={screensName.HRMS} component={HRMS} />
+    <Drawer.Screen
+      name={screensName.VisitorManagementSystem}
+      component={VisitorManagementSystem}
+    />
   </Drawer.Navigator>
 );
 
