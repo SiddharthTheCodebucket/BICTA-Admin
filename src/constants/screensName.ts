@@ -96,7 +96,7 @@ export default {
   AssignmentDetailsList: 'AssignmentDetailsList',
   AssignmentResponse: 'AssignmentResponse',
   AssignmentRessponseDetails: 'AssignmentRessponseDetails',
-  EditAssignQuestion: 'EditAssignQuestion',
+  AssignmentResponseDetails: 'AssignmentResponseDetails',
   AssessmentDetails: 'AssessmentDetails',
   Examination: 'Examination',
   CreateTest: 'CreateTest',

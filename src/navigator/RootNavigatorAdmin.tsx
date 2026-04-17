@@ -93,7 +93,7 @@ import EditAssignQuestion from '../screens/AdminScreens/Menu/LMS/Assignment/Assi
 import AssignmentsDetails from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentsDetails';
 import AssignmentDetailsList from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentsDetails/AssignmentDetailsList';
 import AssignmentResponse from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentResponse';
-import AssignmentRessponseDetails from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentResponse/AssignmentRessponseDetails';
+import AssignmentRessponseDetails from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentResponse/AssignmentRessponseDetailsList';
 import AssessmentDetails from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentsDetails/AssessmentDetails';
 import Examination from '../screens/AdminScreens/Menu/LMS/Examination';
 import CreateTest from '../screens/AdminScreens/Menu/LMS/Examination/CreateTest';

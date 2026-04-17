@@ -199,7 +199,7 @@ const AssignQuestionList = (props: Props) => {
             </TouchableAtom>
             <TouchableAtom
               onPress={() => {
-                navigation.navigate(screensName.EditAssignQuestion, { item });
+                // navigation.navigate(screensName.EditAssignQuestion, { item });
               }}
             >
               <SvgEditPencile />

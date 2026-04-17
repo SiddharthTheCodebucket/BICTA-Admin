@@ -12,6 +12,7 @@ import {
   RefreshControl,
   LayoutAnimation,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -25,13 +26,14 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { SvgEye } from '../../../../../../constants/svgs';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
+import AdminListHeader from '../../../../../../components/organisms/AdminListHeader';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
@@ -58,7 +60,7 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const AssignmentRessponseDetails = (props: Props) => {
+const AssignmentRessponseDetailsList = (props: Props) => {
   const { navigation } = props;
   const item = props.route?.params?.item;
 
@@ -219,6 +221,12 @@ const AssignmentRessponseDetails = (props: Props) => {
   };
 
   const TraineeResponseCard = ({ item, index, isSelected }: any) => {
+    const statusColor = item.assignmentStatus
+      ?.toLowerCase()
+      .includes('not submitted')
+      ? '#FF4444'
+      : '#22C55E';
+
     return (
       <TouchableAtom
         disabled={item.submissionId === 'Not Submitted'}
@@ -230,43 +238,86 @@ const AssignmentRessponseDetails = (props: Props) => {
         style={[styles.card, isSelected && styles.selectedCard]}
       >
         <View style={styles.cardHeader}>
-          <TextAtom style={[styles.label, styles.flex1]}>
-            {strings.lms.assignmentResponse.srNo} {index + 1}
-          </TextAtom>
-          <View style={styles.actionRow}></View>
+          <View style={styles.studentInfo}>
+            <TextAtom style={styles.headerText}>
+              {item.traineeName || '-'}
+            </TextAtom>
+            <TextAtom style={styles.headerSubText}>
+              {item.traineeId || '-'}
+            </TextAtom>
+          </View>
+          <TouchableAtom
+            onPress={() => {
+              navigation.navigate(screensName.AssignmentResponseDetails, {
+                data: item,
+              });
+            }}
+          >
+            <SvgEye />
+          </TouchableAtom>
         </View>
 
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.assignmentResponse.traineeName}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.traineeName || '-'}</TextAtom>
+        <View style={styles.infoRow}>
+          <View style={styles.infoCol}>
+            <TextAtom style={styles.labelText}>
+              {strings.lms.assignmentResponse.batchNo}
+            </TextAtom>
+            <TextAtom style={styles.valueText}>
+              {item.batchName || '-'}
+            </TextAtom>
+          </View>
+          <View style={styles.infoCol}>
+            <TextAtom style={styles.labelText}>
+              {strings.lms.assignmentResponse.assignmentName}
+            </TextAtom>
+            <TextAtom style={styles.valueText}>
+              {item.assignmentName || '-'}
+            </TextAtom>
+          </View>
         </View>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.assignmentResponse.batchNo}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.batchName || '-'}</TextAtom>
-        </View>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.assignmentResponse.assignmentName}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.assignmentName || '-'}</TextAtom>
-        </View>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.assignmentResponse.submissionDate}
-          </TextAtom>
-          <TextAtom style={styles.value}>
-            {moment(item.submissionDate).format('DD-MM-YYYY')}
-          </TextAtom>
-        </View>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.lms.assignmentResponse.assignmentStatus}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.assignmentStatus}</TextAtom>
+
+        <View style={styles.infoRow}>
+          <View style={styles.infoCol}>
+            <TextAtom style={styles.labelText}>
+              {strings.lms.assignmentResponse.submissionDate}
+            </TextAtom>
+            <TextAtom style={styles.valueText}>
+              {item.submissionDate
+                ? moment(item.submissionDate).format('DD-MM-YYYY')
+                : '-'}
+            </TextAtom>
+          </View>
+          <View style={styles.infoCol}>
+            <TextAtom style={styles.labelText}>
+              {strings.lms.assignmentResponse.assignmentStatus}
+            </TextAtom>
+            <View>
+              <View
+                style={{
+                  alignSelf: 'flex-start',
+                  minHeight: vh(23),
+                  paddingHorizontal: vw(8),
+
+                  borderRadius: vw(4),
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: item?.assignmentStatus
+                    ?.toLowerCase()
+                    .includes('not submitted')
+                    ? colors.lightRedBg
+                    : colors.lightGreenBg,
+                }}
+              >
+                <TextAtom style={[styles.valueText, { color: statusColor }]}>
+                  {item?.assignmentStatus == 'Not Submitted'
+                    ? 'Not submitted'
+                    : item.assignmentStatus == 'Submitted waiting for grading'
+                    ? 'Submitted'
+                    : '-'}
+                </TextAtom>
+              </View>
+            </View>
+          </View>
         </View>
       </TouchableAtom>
     );
@@ -465,37 +516,28 @@ const AssignmentRessponseDetails = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-
-      <View style={styles.searchHeader}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.filterRow}>
-            <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-              <TextAtom style={styles.filterText}>
-                {showFilter
-                  ? strings.lms.assignmentResponse.hideFilter
-                  : strings.lms.assignmentResponse.showFilter}
-              </TextAtom>
-            </TouchableAtom>
-            <TouchableAtom
-              style={styles.filterButton}
-              onPress={() => {
-                if (url) {
-                  downloadAndOpenFile(url);
-                }
-              }}
-            >
-              <ImageAtom source={images.download} style={styles.downloadIcon} />
-            </TouchableAtom>
-          </View>
-          <SearchBoxOrganism
-            onChangeText={onChangeSearch}
-            searchText={search}
-            onPressCross={onClearSearch}
-            searchBox={styles.marginTop10}
-          />
-        </ScrollView>
+      <View style={{ paddingHorizontal: vw(16) }}>
+        <AdminListHeader
+          config={{
+            title: item?.name || strings.lms.assignmentResponse.title,
+            count: data.length,
+            showCount: true,
+            search: {
+              visible: true,
+              onPress: () => {
+                // Implementation for search can be added here
+              },
+            },
+            // filter: {
+            //   visible: true,
+            //   onPress: toggleFilter,
+            // },
+            create: {
+              visible: false,
+            },
+          }}
+        />
       </View>
-
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
@@ -541,89 +583,76 @@ const AssignmentRessponseDetails = (props: Props) => {
   );
 };
 
-export default AssignmentRessponseDetails;
+export default AssignmentRessponseDetailsList;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
   flatListContainer: {
     paddingVertical: vh(10),
   },
-
-  tabRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: vw(10),
-    marginTop: vh(5),
-  },
-  tabButton: {
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(20),
-    backgroundColor: colors.lightGray2,
-    borderRadius: vw(6),
-  },
-  activeTab: {
-    backgroundColor: colors.primary,
-  },
-  tabText: {
-    color: colors.black,
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-  },
-  activeTabText: {
-    color: colors.white,
-  },
-
   card: {
     backgroundColor: colors.white,
     marginHorizontal: vw(15),
-    borderRadius: vw(8),
-    paddingHorizontal: vw(15),
-    paddingVertical: vh(8),
+    borderRadius: vw(10),
+    padding: vw(16),
+    marginBottom: vh(12),
     elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
   },
-
-  label: {
-    fontFamily: fonts.Roboto_Medium,
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: vh(12),
+  },
+  studentInfo: {
+    flexDirection: 'column',
+  },
+  headerText: {
     fontSize: vw(14),
+    fontFamily: fonts.Roboto_Bold,
     color: colors.black,
   },
-  labelRight: {
+  headerSubText: {
+    fontSize: vw(12),
+    fontFamily: fonts.Roboto_Regular,
+    color: colors.grey,
+    marginTop: 2,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: vw(10),
+    marginBottom: vh(10),
+  },
+  infoCol: {
+    flex: 1,
+  },
+  labelText: {
+    fontSize: vw(12),
+    color: '#666666',
+    fontFamily: fonts.Roboto_Regular,
+  },
+  valueText: {
+    fontSize: vw(12),
+    color: '#2D2D2D',
     fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    textAlign: 'right',
+    marginTop: 2,
   },
-  value: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
-  },
-  valueRight: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
-    textAlign: 'right',
-  },
-
   emptyText: {
     textAlign: 'center',
     marginTop: vh(50),
     color: colors.grey,
     fontFamily: fonts.Roboto_Medium,
   },
-
   rowBetween: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-
   filterButton: {
     borderWidth: vw(1),
     borderColor: colors.primary,
@@ -671,25 +700,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-
   activeBox: {
     backgroundColor: colors.lightGreenBg,
     borderColor: colors.darkGreen,
   },
-
   inActiveBox: {
     backgroundColor: colors.lightRedBg,
     borderColor: colors.darkRed,
   },
-
   statusText: {
     fontFamily: fonts.Roboto_Medium,
     fontSize: vw(14),
   },
-
   activeText: { color: colors.greenText },
   inActiveText: { color: colors.redText },
-
   dropMenu: {
     marginTop: vh(6),
     backgroundColor: colors.white,
@@ -698,7 +722,6 @@ const styles = StyleSheet.create({
     borderRadius: vw(6),
     overflow: 'hidden',
   },
-
   dropItem: {
     paddingVertical: vh(10),
     paddingHorizontal: vw(12),
@@ -719,7 +742,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: vh(6),
   },
-
   fileInput: {
     flex: 1,
     borderWidth: vw(1),
@@ -730,7 +752,6 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
     color: colors.black,
   },
-
   checkBtn: {
     marginLeft: vw(10),
     padding: vw(6),
@@ -740,7 +761,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 2,
   },
-
   fileDisplayBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -753,38 +773,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.lightGrey,
     marginTop: vh(6),
   },
-
   fileText: {
     fontSize: vw(14),
     color: colors.grey,
     fontFamily: fonts.Roboto_Medium,
-  },
-  searchHeader: {
-    height: vh(100),
-  },
-  filterRow: {
-    flexDirection: 'row',
-    alignSelf: 'flex-end',
-  },
-  downloadIcon: {
-    tintColor: colors.black,
   },
   marginTop10: {
     marginTop: vh(10),
   },
   separator: {
     height: vh(10),
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: vh(10),
-  },
-  actionRow: {
-    flexDirection: 'row',
-    gap: vw(15),
-  },
-  flex1: {
-    flex: 1,
   },
 });

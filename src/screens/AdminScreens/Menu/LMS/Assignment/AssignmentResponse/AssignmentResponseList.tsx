@@ -200,25 +200,27 @@ const AssignmentResponseList = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <AdminListHeader
-        config={{
-          title: strings.lms.assignmentResponse.title,
-          count: data.length,
-          showCount: true,
-          search: {
-            visible: true,
-            onPress: () => {
-              // Implementation for search can be added here
+      <View style={{ paddingHorizontal: vw(16) }}>
+        <AdminListHeader
+          config={{
+            title: strings.lms.assignmentResponse.title,
+            count: data.length,
+            showCount: true,
+            search: {
+              visible: true,
+              onPress: () => {
+                // Implementation for search can be added here
+              },
             },
-          },
-          filter: {
-            visible: false,
-          },
-          create: {
-            visible: false,
-          },
-        }}
-      />
+            filter: {
+              visible: false,
+            },
+            create: {
+              visible: false,
+            },
+          }}
+        />
+      </View>
 
       <FlatList
         showsVerticalScrollIndicator={false}
