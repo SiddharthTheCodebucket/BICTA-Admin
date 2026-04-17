@@ -45,7 +45,7 @@ const AddTraineeRegistration = (props: Props) => {
   const item = props.route.params?.item;
 
   const [otpTimer, setOtpTimer] = useState(0);
-  const [currentStep, setCurrentStep] = useState(3);
+  const [currentStep, setCurrentStep] = useState(1);
   const steps = ['Personal info', 'Uploads', 'Verify'];
 
   const [commonDropdownListApi] = useCommonDropdownListMutation();
@@ -73,6 +73,7 @@ const AddTraineeRegistration = (props: Props) => {
   }, [navigation, item]);
 
   const [loader, setLoader] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
   const [form, setForm] = useState<any>({
     registrationTypeList: [
       { id: 'Bulk Upload', name: 'Bulk Upload' },
@@ -881,18 +882,29 @@ const AddTraineeRegistration = (props: Props) => {
 
   const isButtonDisabled =
     isManual && !form.selectedIsAlereadyRegistred?.id ? true : false;
+  const requiresOtpVerification = show.otp && isNullUndefined(item);
 
   const startOtpTimer = () => {
     setOtpTimer(60);
   };
 
-  const handleGetOtp = () => {
-    if (otpTimer > 0) return;
-
+  const requestOtp = () => {
     if (isManual) {
       sendOtp();
     }
+  };
 
+  const handleGetOtp = () => {
+    if (otpTimer > 0) return;
+
+    requestOtp();
+    startOtpTimer();
+  };
+
+  const handleResendOtp = () => {
+    if (otpTimer > 0) return;
+
+    requestOtp();
     startOtpTimer();
   };
 
@@ -922,7 +934,7 @@ const AddTraineeRegistration = (props: Props) => {
       ...(show.excelFile ? ['excelFile.uri'] : []),
     ];
 
-    const step3Fields = [...(show.otp && isNullUndefined(item) ? ['otp'] : [])];
+    const step3Fields: string[] = [];
 
     const stepMap: Record<number, string[]> = {
       1: step1Fields,
@@ -947,6 +959,14 @@ const AddTraineeRegistration = (props: Props) => {
       const isStepValid = await validateStep(currentStep);
       if (!isStepValid) return;
       setCurrentStep(prev => prev + 1);
+      return;
+    }
+
+    if (requiresOtpVerification) {
+      setShowOtpModal(true);
+      if (otpTimer <= 0) {
+        handleGetOtp();
+      }
       return;
     }
 
@@ -1012,9 +1032,18 @@ const AddTraineeRegistration = (props: Props) => {
         setValue={setValue}
         setErrors={setErrors}
         isManual={isManual}
-        showOtp={show.otp && isNullUndefined(item)}
+        showOtp={requiresOtpVerification}
         otpTimer={otpTimer}
-        onGetOtp={handleGetOtp}
+        showOtpModal={showOtpModal}
+        onCloseOtpModal={() => setShowOtpModal(false)}
+        onOtpChange={(val: string) => {
+          setValue('otp', val);
+          setErrors({ ...errors, otp: '' });
+        }}
+        onResendOtp={handleResendOtp}
+        onVerifyOtp={() => {
+          onSubmit();
+        }}
       />
     );
   };
@@ -1082,8 +1111,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: vw(15),
   },
   footer: {
+    flex: 1,
+
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     // paddingHorizontal: vw(15),
     marginTop: vh(16),
     paddingBottom: vh(12),

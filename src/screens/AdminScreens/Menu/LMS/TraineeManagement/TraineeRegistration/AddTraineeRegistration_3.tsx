@@ -1,71 +1,147 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import {
   FormFieldWrapper,
-  FormTextInputWithTitle,
+  FormGradientButton,
+  FormWhiteButton,
 } from '../../../../../../components/templates';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
+import AdminBottomModal from '../../../../../../components/organisms/AdminBottomModal';
 import { colors, fonts, vh, vw } from '../../../../../../constants';
 import { normalizeNumber } from '../../../../../../utils/CommonFunction';
 
 interface Props {
   form: any;
   errors: any;
-  setValue: (key: string, value: any) => void;
-  setErrors: (errors: any) => void;
-  isManual: boolean;
   showOtp: boolean;
   otpTimer: number;
-  onGetOtp: () => void;
+  showOtpModal: boolean;
+  onCloseOtpModal: () => void;
+  onOtpChange: (val: string) => void;
+  onResendOtp: () => void;
+  onVerifyOtp: () => void;
 }
+
+const maskEmail = (email?: string) => {
+  if (!email) return 'a***d@abcd.com';
+
+  const [localPart = '', domain = ''] = email.split('@');
+  if (!localPart || !domain) return email;
+  if (localPart.length <= 2) return `${localPart[0] || ''}***@${domain}`;
+
+  return `${localPart[0]}***${localPart[localPart.length - 1]}@${domain}`;
+};
+
+const formatResendOtpText = (otpTimer: number) => {
+  const mins = Math.floor(otpTimer / 60)
+    .toString()
+    .padStart(2, '0');
+  const secs = (otpTimer % 60).toString().padStart(2, '0');
+
+  return `Resend OTP in ${mins}:${secs} sec`;
+};
 
 const AddTraineeRegistration_3 = ({
   form,
   errors,
-  setValue,
-  setErrors,
-  isManual,
   showOtp,
   otpTimer,
-  onGetOtp,
+  showOtpModal,
+  onCloseOtpModal,
+  onOtpChange,
+  onResendOtp,
+  onVerifyOtp,
 }: Props) => {
+  const otpDigits = Array.from(
+    { length: 4 },
+    (_, index) => form.otp?.[index] || '',
+  );
+  const maskedEmail = maskEmail(form.officeEmail);
+
   return (
     <FormFieldWrapper>
-      <View style={styles.verifyCard}>
-        <TextAtom style={styles.verifySubTitle}>
-          Review your information before submitting
+      <View style={styles.reviewCard}>
+        <TextAtom style={styles.fieldTitle}>
+          Mobile Number<TextAtom style={styles.mandatory}>*</TextAtom>
         </TextAtom>
+        <View style={styles.inputLikeBox}>
+          <TextAtom style={styles.countryCode}>+91</TextAtom>
+          <View style={styles.divider} />
+          <TextAtom style={styles.inputValue}>
+            {form.mobileNumber || '912345 00001'}
+          </TextAtom>
+        </View>
       </View>
 
-      {isManual && showOtp ? (
-        <>
-          <FormTextInputWithTitle
-            title="OTP"
-            placeholder="Enter 4 digit OTP"
+      <View style={styles.reviewCard}>
+        <TextAtom style={styles.fieldTitle}>
+          Office Email<TextAtom style={styles.mandatory}>*</TextAtom>
+        </TextAtom>
+        <View style={styles.inputLikeBox}>
+          <TextAtom style={styles.inputValue}>
+            {form.officeEmail || 'hello@abcd.com'}
+          </TextAtom>
+        </View>
+      </View>
+
+      {showOtp ? (
+        <AdminBottomModal
+          visible={showOtpModal}
+          onClose={onCloseOtpModal}
+          title="OTP Verification"
+          sheetStyle={styles.modalSheet}
+          contentContainerStyle={styles.modalContent}
+        >
+          <View style={styles.pullIndicator} />
+
+          <TextAtom style={styles.modalLabel}>Enter OTP</TextAtom>
+          <TextAtom style={styles.modalSubText}>
+            Enter the security code sent on {maskedEmail}
+          </TextAtom>
+
+          <View style={styles.otpRow}>
+            {otpDigits.map((digit, index) => (
+              <View style={styles.otpBox} key={`otp-${index}`}>
+                <TextAtom style={styles.otpBoxText}>{digit}</TextAtom>
+              </View>
+            ))}
+          </View>
+
+          <TextInput
             value={form.otp}
-            onChangeText={(val: string) => {
-              setValue('otp', normalizeNumber(val));
-              setErrors({ ...errors, otp: '' });
-            }}
-            isMandatory
-            errorMessage={errors.otp}
+            onChangeText={(val: string) => onOtpChange(normalizeNumber(val))}
             keyboardType="numeric"
             maxLength={4}
+            autoFocus
+            style={styles.hiddenInput}
           />
 
-          <TouchableOpacity
-            style={[
-              styles.otpBtn,
-              { backgroundColor: otpTimer > 0 ? colors.grey : colors.primary },
-            ]}
-            onPress={otpTimer > 0 ? undefined : onGetOtp}
-            activeOpacity={0.85}
-          >
-            <TextAtom style={styles.otpBtnText}>
-              {otpTimer > 0 ? `Resend in ${otpTimer}s` : 'Get OTP'}
+          {!!errors.otp && (
+            <TextAtom style={styles.errorText}>{errors.otp}</TextAtom>
+          )}
+
+          <View style={styles.resendRow}>
+            <TextAtom style={styles.resendHint}>Did not get the OTP?</TextAtom>
+            <TextAtom
+              style={[
+                styles.resendText,
+                otpTimer > 0 ? styles.resendTextDisabled : null,
+              ]}
+              onPress={otpTimer > 0 ? undefined : onResendOtp}
+            >
+              {otpTimer > 0 ? formatResendOtpText(otpTimer) : 'Resend OTP'}
             </TextAtom>
-          </TouchableOpacity>
-        </>
+          </View>
+
+          <View style={styles.modalActions}>
+            <View style={styles.modalSecondaryButton}>
+              <FormWhiteButton title="Cancel" onPress={onCloseOtpModal} />
+            </View>
+            <View style={styles.modalPrimaryButton}>
+              <FormGradientButton title="Verify" onPress={onVerifyOtp} />
+            </View>
+          </View>
+        </AdminBottomModal>
       ) : null}
     </FormFieldWrapper>
   );
@@ -74,27 +150,134 @@ const AddTraineeRegistration_3 = ({
 export default AddTraineeRegistration_3;
 
 const styles = StyleSheet.create({
-  otpBtn: {
-    width: vw(120),
-    borderRadius: vw(6),
-    paddingVertical: vh(8),
-    alignItems: 'center',
-    marginLeft: vw(8),
+  reviewCard: {
+    backgroundColor: '#F8F8F8',
+    borderRadius: vw(16),
+    padding: vw(14),
+    marginBottom: vh(12),
   },
-  otpBtnText: {
-    color: colors.white,
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(12),
-  },
-  verifyCard: {
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(4),
-    borderRadius: vw(10),
+  fieldTitle: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(13),
+    color: '#6B7280',
     marginBottom: vh(10),
   },
-  verifySubTitle: {
+  mandatory: {
+    color: colors.red,
+  },
+  inputLikeBox: {
+    minHeight: vh(44),
+    borderRadius: vw(10),
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    backgroundColor: colors.white,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: vw(12),
+  },
+  countryCode: {
     fontFamily: fonts.Inter_Medium,
     fontSize: vw(14),
     color: colors.black,
+  },
+  divider: {
+    width: 1,
+    height: vh(20),
+    backgroundColor: '#D1D5DB',
+    marginHorizontal: vw(10),
+  },
+  inputValue: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(14),
+    color: colors.black,
+  },
+  modalSheet: {
+    paddingTop: vh(10),
+  },
+  modalContent: {
+    paddingBottom: vh(6),
+  },
+  pullIndicator: {
+    width: vw(68),
+    height: vh(5),
+    borderRadius: 999,
+    backgroundColor: '#1F2937',
+    alignSelf: 'center',
+    marginBottom: vh(18),
+  },
+  modalLabel: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(14),
+    color: colors.text_black,
+    marginBottom: vh(4),
+  },
+  modalSubText: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(12),
+    color: '#6B7280',
+    marginBottom: vh(18),
+  },
+  otpRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: vw(10),
+    marginBottom: vh(16),
+  },
+  otpBox: {
+    width: vw(34),
+    height: vw(34),
+    borderWidth: 1,
+    borderColor: '#9CA3AF',
+    borderRadius: vw(8),
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.white,
+  },
+  otpBoxText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(16),
+    color: colors.black,
+  },
+  hiddenInput: {
+    position: 'absolute',
+    opacity: 0,
+    width: 1,
+    height: 1,
+  },
+  errorText: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(12),
+    color: colors.red,
+    textAlign: 'center',
+    marginBottom: vh(10),
+  },
+  resendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: vh(18),
+  },
+  resendHint: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(12),
+    color: '#6B7280',
+  },
+  resendText: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(12),
+    color: '#D9A441',
+  },
+  resendTextDisabled: {
+    color: '#D9A441',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: vw(10),
+  },
+  modalSecondaryButton: {
+    flex: 1,
+  },
+  modalPrimaryButton: {
+    flex: 1,
   },
 });
