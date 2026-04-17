@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from 'react';
-import { StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   colors,
@@ -68,64 +68,79 @@ const TraineeRegistrationDetails = ({ route, navigation }: Props) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}
       >
-        <ViewAtom style={styles.card}>
-          <TextAtom style={styles.cardTitle}>
-            {data?.nameOfTrainingProgramme || 'Course Name'}
-          </TextAtom>
-          <TextAtom style={styles.cardId}>
-            ID: {data?.traineeId || '-'}
-          </TextAtom>
+        <View
+          style={{
+            padding: vh(8),
+            backgroundColor: colors.white,
+            borderRadius: vw(12),
+            elevation: 2,
+          }}
+        >
+          <ViewAtom style={styles.card}>
+            <TextAtom style={styles.cardTitle}>
+              {data?.nameOfTrainingProgramme || 'Course Name'}
+            </TextAtom>
+            <TextAtom style={styles.cardId}>
+              ID: {data?.traineeId || '-'}
+            </TextAtom>
 
-          <ViewAtom style={globalStyles.infoRow}>
-            <InfoField label="Attendance Code" value={data?.attendanceCode} />
-            <InfoField label="User Id" value={data?.userUniqueId} />
-          </ViewAtom>
+            <ViewAtom style={globalStyles.infoRow}>
+              <InfoField label="Attendance Code" value={data?.attendanceCode} />
+              <InfoField label="User Id" value={data?.userUniqueId} />
+            </ViewAtom>
 
-          <ViewAtom style={globalStyles.infoRow}>
-            <InfoField label="Training Centre" value={data?.trainingCentre} />
-            <InfoField
-              label="DOB"
-              value={data?.dob ? moment(data?.dob).format('DD-MM-YYYY') : '-'}
+            <ViewAtom style={globalStyles.infoRow}>
+              <InfoField label="Training Centre" value={data?.trainingCentre} />
+              <InfoField
+                label="DOB"
+                value={data?.dob ? moment(data?.dob).format('DD-MM-YYYY') : '-'}
+              />
+            </ViewAtom>
+
+            <ViewAtom style={globalStyles.infoRow}>
+              <InfoField label="Blood Group" value={data?.bloodGroup} />
+              <InfoField
+                label="Aadhaar No"
+                value={maskAadhaar(data?.aadhaarNo)}
+              />
+            </ViewAtom>
+
+            <FullWidthField label="Email" value={data?.officeEmail} />
+
+            <ViewAtom style={globalStyles.infoRow}>
+              <InfoField label="Mobile Number" value={data?.mobileNo} />
+              <InfoField label="Designation" value={data?.designation} />
+            </ViewAtom>
+
+            <ViewAtom style={globalStyles.infoRow}>
+              <InfoField
+                label="Place Of Posting"
+                value={data?.placeOfPosting}
+              />
+              <InfoField label="Gender" value={data?.gender} />
+            </ViewAtom>
+
+            <ViewAtom style={globalStyles.infoRow}>
+              <InfoField
+                label="Pregnancy Status"
+                value={data?.pregnancyStatus}
+              />
+              <InfoField label="Driving Licence" value={data?.drivingLicence} />
+            </ViewAtom>
+
+            <FullWidthField
+              label="Training Name"
+              value={data?.nameOfTrainingProgramme}
             />
+
+            <ViewAtom style={globalStyles.infoRow}>
+              <InfoField label="Batch No" value={data?.batchName} />
+              <InfoField label="Created By" value={data?.createdBy?.name} />
+            </ViewAtom>
+
+            <FullWidthField label="Updated By" value={data?.updatedBy?.name} />
           </ViewAtom>
-
-          <ViewAtom style={globalStyles.infoRow}>
-            <InfoField label="Blood Group" value={data?.bloodGroup} />
-            <InfoField
-              label="Aadhaar No"
-              value={maskAadhaar(data?.aadhaarNo)}
-            />
-          </ViewAtom>
-
-          <FullWidthField label="Email" value={data?.officeEmail} />
-
-          <ViewAtom style={globalStyles.infoRow}>
-            <InfoField label="Mobile Number" value={data?.mobileNo} />
-            <InfoField label="Designation" value={data?.designation} />
-          </ViewAtom>
-
-          <ViewAtom style={globalStyles.infoRow}>
-            <InfoField label="Place Of Posting" value={data?.placeOfPosting} />
-            <InfoField label="Gender" value={data?.gender} />
-          </ViewAtom>
-
-          <ViewAtom style={globalStyles.infoRow}>
-            <InfoField label="Pregnancy Status" value={data?.pregnancyStatus} />
-            <InfoField label="Driving Licence" value={data?.drivingLicence} />
-          </ViewAtom>
-
-          <FullWidthField
-            label="Training Name"
-            value={data?.nameOfTrainingProgramme}
-          />
-
-          <ViewAtom style={globalStyles.infoRow}>
-            <InfoField label="Batch No" value={data?.batchName} />
-            <InfoField label="Created By" value={data?.createdBy?.name} />
-          </ViewAtom>
-
-          <FullWidthField label="Updated By" value={data?.updatedBy?.name} />
-        </ViewAtom>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -144,23 +159,22 @@ const styles = StyleSheet.create({
     paddingTop: vh(15),
   },
   card: {
-    backgroundColor: colors.white,
-    borderRadius: vw(10),
-    padding: vw(15),
-    elevation: 2,
+    backgroundColor: colors.backgroundColor,
+    borderRadius: vw(8),
+    padding: vw(8),
   },
   cardTitle: {
     fontSize: vw(16),
     fontFamily: fonts.Inter_Bold,
     color: colors.black,
-    textAlign: 'center',
+    // textAlign: 'center',
     marginBottom: vw(2),
   },
   cardId: {
     fontSize: vw(12),
     fontFamily: fonts.Inter_Regular,
     color: colors.grey,
-    textAlign: 'center',
+    // textAlign: 'center',
     marginBottom: vh(15),
   },
   label: {

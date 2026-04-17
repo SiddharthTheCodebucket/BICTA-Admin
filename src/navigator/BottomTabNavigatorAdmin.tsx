@@ -77,7 +77,9 @@ function BottomTabNavigatorAdmin() {
           }}
           listeners={({ navigation }) => ({
             tabPress: () => {
-              navigation.navigate(screensName.Dashboard);
+              (navigation as any).navigate(screensName.Dashboard, {
+                screen: screensName.Dashboard,
+              });
             },
           })}
         />

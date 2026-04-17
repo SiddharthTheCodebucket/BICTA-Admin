@@ -263,31 +263,8 @@ import DeviceList from '../screens/AdminScreens/Profile/FaceScan/DeviceList';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
-
-type AdminDrawerParamList = {
-  DashboardTabs: undefined;
-  LMS: undefined;
-  TrainingManagement: undefined;
-  TraineeManagement: undefined;
-  FacultyManagement: undefined;
-  CurriculumManagemnet: undefined;
-  ClassLocationManagement: undefined;
-  ClassRoomManagement: undefined;
-  Assignment: undefined;
-  Examination: undefined;
-  TraineeAttendance: undefined;
-  GateAccess: undefined;
-  HostelManagement: undefined;
-  UserManagement: undefined;
-  FeedbackManagement: undefined;
-  CommunicationManagementSystem: undefined;
-  Report: undefined;
-  HRMS: undefined;
-  VisitorManagementSystem: undefined;
-};
-
 const RootStackScreen = createNativeStackNavigator();
-const Drawer = createDrawerNavigator<AdminDrawerParamList>();
+const Drawer = createDrawerNavigator();
 
 const ADMIN_APP_DRAWER = 'AdminAppDrawer';
 const ADMIN_DASHBOARD_TABS = 'DashboardTabs';

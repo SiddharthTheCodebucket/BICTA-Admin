@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DrawerActions } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -198,27 +199,38 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
     setOpenAccordion(openAccordion === id ? null : id);
   };
 
-  const navigateToScreen = (screen: string) => {
-    navigation.closeDrawer();
-    requestAnimationFrame(() => {
-      if (DASHBOARD_STACK_ROUTES.has(screen)) {
-        (navigation as any).navigate(ADMIN_DASHBOARD_TABS, {
-          screen: screensName.Dashboard,
-          params: screen === screensName.Dashboard ? undefined : { screen },
-        });
-        return;
-      }
+  const closeDrawer = () => {
+    navigation.dispatch(DrawerActions.closeDrawer());
+  };
 
-      if (PROFILE_STACK_ROUTES.has(screen)) {
-        (navigation as any).navigate(ADMIN_DASHBOARD_TABS, {
-          screen: screensName.Profile,
-          params: screen === screensName.Profile ? undefined : { screen },
-        });
-        return;
-      }
-
-      (navigation as any).navigate(screen);
+  const openDashboardHome = () => {
+    (navigation as any).navigate(ADMIN_DASHBOARD_TABS, {
+      screen: screensName.Dashboard,
     });
+    closeDrawer();
+  };
+
+  const navigateToScreen = (screen: string) => {
+    if (DASHBOARD_STACK_ROUTES.has(screen)) {
+      (navigation as any).navigate(ADMIN_DASHBOARD_TABS, {
+        screen: screensName.Dashboard,
+        params: screen === screensName.Dashboard ? undefined : { screen },
+      });
+      closeDrawer();
+      return;
+    }
+
+    if (PROFILE_STACK_ROUTES.has(screen)) {
+      (navigation as any).navigate(ADMIN_DASHBOARD_TABS, {
+        screen: screensName.Profile,
+        params: screen === screensName.Profile ? undefined : { screen },
+      });
+      closeDrawer();
+      return;
+    }
+
+    (navigation as any).navigate(screen);
+    closeDrawer();
   };
 
   return (
@@ -241,7 +253,7 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
           </Text>
         </View>
         <TouchableOpacity
-          onPress={() => navigation.closeDrawer()}
+          onPress={closeDrawer}
           style={[styles.closeButton, { top: Math.max(insets.top, vh(16)) }]}
         >
           <Icon name="close" size={24} color={colors.white} />
@@ -250,7 +262,11 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
 
       {/* Dashboard Header */}
       <View style={styles.dashboardHeader}>
-        <View style={styles.dashboardTitleRow}>
+        <TouchableOpacity
+          style={styles.dashboardTitleRow}
+          onPress={openDashboardHome}
+          activeOpacity={0.8}
+        >
           <Icon
             name="view-grid"
             size={24}
@@ -258,7 +274,7 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
             style={styles.dashboardIcon}
           />
           <Text style={styles.dashboardTitle}>Dashboard</Text>
-        </View>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.searchIconContainer}>
           <Icon name="magnify" size={24} color={colors.primary} />
         </TouchableOpacity>
