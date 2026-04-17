@@ -60,8 +60,8 @@ const MENU_ITEMS: MenuItem[] = [
       { name: 'Class Room', screen: screensName.ClassRoomManagement },
       { name: 'Assignment', screen: screensName.Assignment },
       { name: 'Examination', screen: screensName.Examination },
-      { name: 'Trainee Attendance', screen: screensName.TraineeManagement }, // Placeholder
-      { name: 'Gate Access', screen: screensName.TraineeManagement }, // Placeholder
+      { name: 'Trainee Attendance', screen: 'TraineeAttendance' },
+      { name: 'Gate Access', screen: 'GateAccess' },
     ],
   },
   {
@@ -147,11 +147,25 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
   };
 
   const navigateToScreen = (screen: string) => {
+    navigation.closeDrawer();
+    if (screen === 'TraineeAttendance') {
+      (navigation as any).navigate(ADMIN_MAIN_TABS, {
+        screen: screensName.Menu,
+        params: screensName.TraineeManagement,
+      });
+      return;
+    }
+    if (screen === 'GateAccess') {
+      (navigation as any).navigate(ADMIN_MAIN_TABS, {
+        screen: screensName.Menu,
+        params: screensName.TraineeManagement,
+      });
+      return;
+    }
     if (DASHBOARD_STACK_ROUTES.has(screen)) {
       (navigation as any).navigate(ADMIN_MAIN_TABS, {
         screen: screensName.Dashboard,
-        params:
-          screen === screensName.Dashboard ? undefined : { screen },
+        params: screen === screensName.Dashboard ? undefined : { screen },
       });
       return;
     }
