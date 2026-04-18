@@ -21,6 +21,8 @@ import {
   images,
   screensName,
   strings,
+  SvgDelete,
+  SvgEditPencile,
   vh,
   vw,
 } from '../../../../../../constants';
@@ -36,6 +38,9 @@ import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
+import AdminPageHeader from '../../../../../../components/organisms/AdminPageHeader';
+import SubTab from '../../../../../../components/molecules/SubTab';
+import AdminListHeader from '../../../../../../components/organisms/AdminListHeader';
 import {
   useDeleteHostelDetailsMutation,
   useHostelDetailsMutation,
@@ -58,6 +63,39 @@ const debounce = (func: any, delay: number) => {
 
 const HostelItemSeparator = () => <View style={styles.itemSeparator} />;
 
+const StatusBadge = ({ label, value, activeValue }: any) => {
+  const isActive = value === activeValue;
+  return (
+    <View style={styles.statusBadgeContainer}>
+      <TextAtom style={styles.statusBadgeLabel}>{label}: </TextAtom>
+      <View
+        style={[
+          styles.statusBadge,
+          isActive ? styles.statusBadgeActive : styles.statusBadgeInactive,
+        ]}
+      >
+        <TextAtom
+          style={[
+            styles.statusBadgeText,
+            isActive
+              ? styles.statusBadgeTextActive
+              : styles.statusBadgeTextInactive,
+          ]}
+        >
+          {value}
+        </TextAtom>
+      </View>
+    </View>
+  );
+};
+
+const DetailGridItem = ({ label, value, fullWidth = false }: any) => (
+  <View style={[styles.gridItem, fullWidth && { width: '100%' }]}>
+    <TextAtom style={styles.gridLabel}>{label}</TextAtom>
+    <TextAtom style={styles.gridValue}>{value ?? '-'}</TextAtom>
+  </View>
+);
+
 const HostelDetailsList = (props: Props) => {
   const { navigation } = props;
 
@@ -68,6 +106,8 @@ const HostelDetailsList = (props: Props) => {
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
+  const [activeTab, setActiveTab] = useState('hostel');
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
@@ -87,6 +127,18 @@ const HostelDetailsList = (props: Props) => {
     );
     navigation.BackButtonPress = () => navigation.goBack();
   });
+
+  const toggleAccordion = (id: string) => {
+    setExpandedItems(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -184,6 +236,7 @@ const HostelDetailsList = (props: Props) => {
   const HostelCard = ({ item, index, navigation }: any) => {
     const [statusValue] = useState(item.status ?? 'Active');
     const [showStatusMenu, setShowStatusMenu] = useState(false);
+    const isExpanded = expandedItems.has(item.id);
 
     const onSelectStatus = (newStatus: string) => {
       setShowStatusMenu(false);
@@ -266,156 +319,78 @@ const HostelDetailsList = (props: Props) => {
     };
 
     return (
-      <View style={styles.card}>
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, styles.flex1]}>
-            {strings.hostelManagement.srNo} {index + 1}
-          </TextAtom>
-
-          <View style={styles.actionRow}>
-            <TouchableAtom
-              style={styles.editButton}
-              onPress={() => {
-                navigation.navigate(screensName.AddHostelDetails, {
-                  item: item,
-                  onDone: () => hostelDetailsList(1, true, search),
-                });
-              }}
+      <View style={styles.accordionContainer}>
+        <TouchableOpacity
+          style={[
+            styles.accordionHeader,
+            isExpanded && styles.accordionHeaderActive,
+          ]}
+          onPress={() => toggleAccordion(item.id)}
+        >
+          <View style={styles.headerLeft}>
+            <TextAtom
+              style={[
+                styles.headerTitle,
+                isExpanded && styles.headerTitleActive,
+              ]}
             >
-              <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
-            </TouchableAtom>
-
-            <TouchableAtom
-              style={styles.deleteButton}
-              onPress={() => handleDelete()}
-            >
-              <ImageAtom source={images.delete} style={styles.iconSmall} />
-            </TouchableAtom>
-          </View>
-        </View>
-
-        <View style={styles.rowBetween}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.hostelManagement.hostelDetails.trainingCentre}
-            </TextAtom>
-            <TextAtom style={styles.value}>
-              {item.trainingCentre ?? '-'}
-            </TextAtom>
-          </View>
-          <View style={styles.flex1End}>
-            <TextAtom style={styles.labelRight}>
-              {strings.hostelManagement.hostelDetails.hostelName}
-            </TextAtom>
-            <TextAtom style={styles.valueRight}>
               {item.hostelName ?? '-'}
             </TextAtom>
           </View>
-        </View>
-
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.hostelDetails.noOfFloors}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.noOfFloors ?? '-'}</TextAtom>
-        </View>
-
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.hostelDetails.hostelAddress}
-          </TextAtom>
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.hostelAddress ?? '-'}
-          </TextAtom>
-        </View>
-        <View style={[styles.rowBetween, { marginTop: vh(10) }]}>
-          <View style={styles.flex1}>
-            <TextAtom style={styles.label}>
-              {strings.hostelManagement.hostelDetails.contactPerson}
-            </TextAtom>
-            <TextAtom style={styles.value}>
-              {item.contactPerson ?? '-'}
-            </TextAtom>
-          </View>
-          <View style={styles.flex1End}>
-            <TextAtom style={styles.labelRight}>
-              {strings.hostelManagement.hostelDetails.contactNo}
-            </TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {item.contactNo ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
-        {item?.alternateContactNo?.length > 0 && (
-          <View style={styles.flex1MarginTop}>
-            <TextAtom style={styles.label}>
-              {strings.hostelManagement.hostelDetails.alternateContactNo}
-            </TextAtom>
-            <TextAtom style={styles.value}>
-              {item?.alternateContactNo?.length > 0
-                ? item.alternateContactNo.join(',')
-                : '-'}
-            </TextAtom>
-          </View>
-        )}
-        {showStatusMenu && (
           <TouchableOpacity
-            onPress={() => setShowStatusMenu(false)}
-            style={styles.overlay}
-          />
-        )}
-
-        <View style={styles.statusContainer}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.status}
-          </TextAtom>
-
-          <TouchableAtom
-            onPress={() => setShowStatusMenu(!showStatusMenu)}
-            style={[
-              styles.statusBox,
-              statusValue === strings.hostelManagement.active
-                ? styles.activeBox
-                : styles.inActiveBox,
-            ]}
+            style={{ marginRight: vw(4) }}
+            onPress={() => handleDelete()}
           >
-            <TextAtom
-              style={[
-                styles.statusText,
-                statusValue === strings.hostelManagement.active
-                  ? styles.activeText
-                  : styles.inActiveText,
-              ]}
-            >
-              {statusValue}
-            </TextAtom>
-            <ImageAtom source={images.downArrow} />
-          </TouchableAtom>
+            <SvgDelete />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ marginLeft: vw(4) }}
+            onPress={() => {
+              navigation.navigate(screensName.AddHostelDetails, {
+                item: item,
+                onDone: () => hostelDetailsList(1, true, search),
+              });
+            }}
+          >
+            <SvgEditPencile />
+          </TouchableOpacity>
+        </TouchableOpacity>
 
-          {showStatusMenu && (
-            <View style={styles.dropMenu}>
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() => onSelectStatus('Active')}
-              >
-                <TextAtom style={styles.statusTextBlack}>
-                  {strings.hostelManagement.active}
-                </TextAtom>
-              </TouchableAtom>
-
-              <TouchableAtom
-                style={styles.dropItem}
-                onPress={() =>
-                  onSelectStatus(strings.hostelManagement.inActive)
-                }
-              >
-                <TextAtom style={styles.statusTextBlack}>
-                  {strings.hostelManagement.inActive}
-                </TextAtom>
-              </TouchableAtom>
+        {isExpanded && (
+          <View style={styles.accordionContent}>
+            <View style={styles.gridContainer}>
+              <DetailGridItem
+                label={strings.hostelManagement.hostelDetails.trainingCentre}
+                value={item.trainingCentre}
+              />
+              <DetailGridItem
+                label={strings.hostelManagement.hostelDetails.noOfFloors}
+                value={item.noOfFloors}
+              />
+              <DetailGridItem
+                label={strings.hostelManagement.hostelDetails.hostelAddress}
+                value={item.hostelAddress}
+                fullWidth
+              />
+              <DetailGridItem
+                label={strings.hostelManagement.hostelDetails.contactPerson}
+                value={item.contactPerson}
+              />
+              <DetailGridItem
+                label={strings.hostelManagement.hostelDetails.contactNo}
+                value={item.contactNo}
+              />
             </View>
-          )}
-        </View>
+
+            <View style={styles.statusWrapper}>
+              <StatusBadge
+                label={strings.hostelManagement.status}
+                value={statusValue}
+                activeValue={strings.hostelManagement.active}
+              />
+            </View>
+          </View>
+        )}
       </View>
     );
   };
@@ -427,6 +402,31 @@ const HostelDetailsList = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
+      <AdminPageHeader title="Hostel Management" navigation={navigation} />
+      <View style={{ paddingHorizontal: vw(16) }}>
+        <AdminListHeader
+          config={{
+            title: 'Hostel Details',
+            count: data.length,
+            showCount: true,
+            search: {
+              visible: true,
+              onPress: () => {
+                // Handle search focus or modal
+              },
+            },
+            create: {
+              visible: true,
+              label: 'Create',
+              onPress: () => {
+                navigation.navigate(screensName.AddHostelDetails, {
+                  onDone: () => hostelDetailsList(1, true, search),
+                });
+              },
+            },
+          }}
+        />
+      </View>
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -468,13 +468,6 @@ const HostelDetailsList = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={HostelItemSeparator}
       />
-      <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddHostelDetails, {
-            onDone: () => hostelDetailsList(1, true, search),
-          });
-        }}
-      />
     </SafeAreaView>
   );
 };
@@ -486,132 +479,53 @@ const styles = StyleSheet.create({
   flatListContainer: {
     paddingVertical: vh(10),
   },
-  card: {
+  accordionContainer: {
     backgroundColor: colors.white,
     marginHorizontal: vw(15),
+    marginBottom: vh(10),
     borderRadius: vw(8),
-    paddingHorizontal: vw(15),
-    paddingVertical: vh(8),
     elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
-  },
-  label: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-  },
-  labelRight: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    textAlign: 'right',
-  },
-  value: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
-  },
-  valueRight: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
-    textAlign: 'right',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.chinese_silver,
-    marginVertical: vh(5),
-  },
-  emptyText: {
-    textAlign: 'center',
-    marginTop: vh(50),
-    color: colors.grey,
-    fontFamily: fonts.Roboto_Medium,
-  },
-  rowBetween: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  thumbnail: {
-    width: 70,
-    height: 70,
-    backgroundColor: colors.lightGray2,
-    borderRadius: 8,
-    marginTop: 6,
-  },
-  statusBox: {
-    marginTop: vh(8),
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(12),
-    borderRadius: vw(6),
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  activeBox: {
-    backgroundColor: colors.lightGreenBg,
-    borderColor: colors.darkGreen,
-  },
-
-  inActiveBox: {
-    backgroundColor: colors.lightRedBg,
-    borderColor: colors.darkRed,
-  },
-
-  statusText: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-  },
-
-  activeText: { color: colors.greenText },
-  inActiveText: { color: colors.redText },
-
-  dropMenu: {
-    marginTop: vh(6),
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.grey,
-    borderRadius: vw(6),
     overflow: 'hidden',
   },
-
-  dropItem: {
-    paddingVertical: vh(10),
-    paddingHorizontal: vw(12),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.chinese_silver,
+  accordionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: vw(15),
   },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'transparent',
-    zIndex: 998,
-  },
-  flex1: {
+  accordionHeaderActive: {},
+  headerLeft: {
     flex: 1,
   },
-  flex1End: {
-    flex: 1,
-    alignItems: 'flex-end',
+  headerTitle: {
+    fontFamily: fonts.Roboto_Bold,
+    fontSize: vw(16),
+    color: colors.text_black,
   },
-  flex1MarginTop: {
-    flex: 1,
-    marginTop: vh(10),
+  headerTitleActive: {
+    color: colors.primary,
+  },
+  chevron: {
+    width: vw(16),
+    height: vw(16),
+    tintColor: colors.grey,
+  },
+  chevronActive: {
+    transform: [{ rotate: '180deg' }],
+    tintColor: colors.primary,
+  },
+  accordionContent: {
+    padding: vw(15),
   },
   actionRow: {
     flexDirection: 'row',
-    gap: vw(15),
+    justifyContent: 'flex-end',
+    gap: vw(10),
+    marginBottom: vh(15),
   },
   editButton: {
     borderWidth: vw(1),
@@ -638,17 +552,72 @@ const styles = StyleSheet.create({
     width: vw(15),
     height: vw(15),
   },
-  statusContainer: {
-    marginTop: vh(15),
-    zIndex: 999,
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: vh(15),
   },
-  statusTextBlack: {
-    color: colors.black,
+  gridItem: {
+    width: '48%',
+    marginBottom: vh(10),
+  },
+  gridLabel: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(13),
+    color: colors.grey,
+  },
+  gridValue: {
+    fontFamily: fonts.Roboto_Regular,
+    fontSize: vw(14),
+    color: colors.text_black,
+    marginTop: vw(2),
+  },
+  statusWrapper: {
+    marginTop: vh(10),
+    alignItems: 'flex-end',
+  },
+  statusBadgeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statusBadgeLabel: {
+    fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(13),
+    color: colors.grey,
+  },
+  statusBadge: {
+    paddingHorizontal: vw(8),
+    paddingVertical: vh(4),
+    borderRadius: vw(12),
+    marginLeft: vw(5),
+  },
+  statusBadgeActive: {
+    backgroundColor: colors.lightGreenBg,
+  },
+  statusBadgeInactive: {
+    backgroundColor: colors.lightRedBg,
+  },
+  statusBadgeText: {
+    fontSize: vw(12),
+    fontFamily: fonts.Roboto_Medium,
+  },
+  statusBadgeTextActive: {
+    color: colors.darkGreen,
+  },
+  statusBadgeTextInactive: {
+    color: colors.darkRed,
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: vh(50),
+    color: colors.grey,
+    fontFamily: fonts.Roboto_Medium,
   },
   loadingContainer: {
     marginTop: vh(15),
   },
   itemSeparator: {
-    height: vh(10),
+    height: 0,
   },
 });
