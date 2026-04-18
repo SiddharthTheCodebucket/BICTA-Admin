@@ -12,6 +12,8 @@ import {
   RefreshControl,
   LayoutAnimation,
   ScrollView,
+  Switch,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -24,11 +26,14 @@ import {
   vh,
   vw,
 } from '../../../../../../constants';
+import { SvgDownload, SvgEditPencile } from '../../../../../../constants/svgs';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
+import AdminListHeader from '../../../../../../components/organisms/AdminListHeader';
+import FormSwitchForCard from '../../../../../../components/templates/FormSwitchForCard';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
@@ -106,9 +111,7 @@ const TraineeDetails = (props: Props) => {
   const [search, setSearch] = React.useState('');
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
-  const [activeTab, setActiveTab] = useState<
-    'Current Course' | 'Complete Course'
-  >('Current Course');
+  const [activeTab, setActiveTab] = useState<'current' | 'complete'>('current');
 
   useLayoutEffect(() => {
     Header.setNavigation(navigation, 'Trainee Details');
@@ -173,7 +176,7 @@ const TraineeDetails = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    if (activeTab === 'Complete Course') {
+    if (activeTab === 'complete') {
       params.isCourseActive = false;
     } else {
       params.isCourseActive = true;
@@ -255,7 +258,7 @@ const TraineeDetails = (props: Props) => {
       bipardCentre: getCentreFilter() ?? [],
     };
 
-    if (activeTab === 'Complete Course') params.isCourseActive = false;
+    if (activeTab === 'complete') params.isCourseActive = false;
     else params.isCourseActive = true;
 
     listTraineeDetailsApi(params)
@@ -284,7 +287,7 @@ const TraineeDetails = (props: Props) => {
       bipardCentre: getCentreFilter() ?? [],
     };
 
-    if (activeTab === 'Complete Course') params.isCourseActive = false;
+    if (activeTab === 'complete') params.isCourseActive = false;
     else params.isCourseActive = true;
 
     listTraineeDetailsApi(params)
@@ -403,80 +406,111 @@ const TraineeDetails = (props: Props) => {
         delayLongPress={180}
         style={[styles.card, isSelected && styles.selectedCard]}
       >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            Sr. No: {index + 1}
-          </TextAtom>
-          <TextAtom style={[styles.label, { flex: 1, textAlign: 'right' }]}>
-            Training Id: {item.traineeId || '-'}
-          </TextAtom>
+        <View style={styles.cardHeader}>
+          <View style={styles.cardHeaderLeft}>
+            <View style={styles.initialCircle}>
+              <TextAtom style={styles.initialText}>
+                {item.name?.[0] || '?'}
+              </TextAtom>
+            </View>
+            <TextAtom style={styles.cardName}>{item.name}</TextAtom>
+          </View>
+          <View style={styles.cardHeaderActions}>
+            <TouchableOpacity onPress={() => {}}>
+              <SvgDownload />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {}}>
+              <SvgEditPencile />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Name Of Training Programme</TextAtom>
-          <TextAtom numberOfLines={0} style={styles.value}>
+        <View style={styles.cardStats}>
+          <View style={styles.statItem}>
+            <TextAtom style={styles.statLabel}>Attendance</TextAtom>
+            <TextAtom style={styles.statValue}>30%</TextAtom>
+          </View>
+          <View style={{}}>
+            <TextAtom style={styles.statLabel}>ID</TextAtom>
+            <View style={{ flexDirection: 'row' }}>
+              <View
+                style={{
+                  backgroundColor: colors.primary_sky_blue,
+                  paddingHorizontal: vw(4),
+                  marginRight: 2,
+
+                  paddingVertical: vh(2),
+                  borderRadius: 4,
+                }}
+              >
+                <TextAtom style={styles.statValue}>
+                  Training - {item.nameOfTrainingProgrammeId || '-'}
+                </TextAtom>
+              </View>
+              <View
+                style={{
+                  backgroundColor: colors.primary_sky_blue,
+                  paddingHorizontal: vw(6),
+                  marginLeft: 2,
+                  paddingVertical: vh(2),
+                  borderRadius: 4,
+                }}
+              >
+                <TextAtom style={styles.statValue}>
+                  Trainee - {item.traineeId || '-'}
+                </TextAtom>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.programContainer}>
+          <TextAtom numberOfLines={2} style={styles.programText}>
             {item.nameOfTrainingProgramme || '-'}
           </TextAtom>
         </View>
 
-        <View style={styles.rowBetween}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Name</TextAtom>
-            <TextAtom style={styles.value}>{item.name}</TextAtom>
+        <View style={styles.gridContainer}>
+          <View style={styles.gridRow}>
+            <View style={styles.gridItem}>
+              <TextAtom style={styles.gridLabel}>Father Name</TextAtom>
+              <TextAtom style={styles.gridValue}>
+                {item.fatherName || '-'}
+              </TextAtom>
+            </View>
+            <View style={styles.gridItem}>
+              <TextAtom style={styles.gridLabel}>Mother Name</TextAtom>
+              <TextAtom style={styles.gridValue}>
+                {item.motherName || '-'}
+              </TextAtom>
+            </View>
           </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Batch No</TextAtom>
-            <TextAtom style={styles.valueRight}>{item.batchName}</TextAtom>
+          <View style={styles.gridRow}>
+            <View style={styles.gridItem}>
+              <TextAtom style={styles.gridLabel}>Designation</TextAtom>
+              <TextAtom style={styles.gridValue}>
+                {item.designation || '-'}
+              </TextAtom>
+            </View>
+            <View style={styles.gridItem}>
+              <TextAtom style={styles.gridLabel}>Mobile No.</TextAtom>
+              <TextAtom style={styles.gridValue}>
+                {item.mobileNo || '-'}
+              </TextAtom>
+            </View>
           </View>
         </View>
-        <View style={[styles.rowBetween]}>
-          <TouchableAtom
-            style={[
-              styles.filterButton,
-              {
-                borderColor:
-                  item.isTraineeIndemnityBondSubmitted === 'No'
-                    ? colors.red
-                    : colors.green,
-              },
-            ]}
-            onPress={() => {
-              if (item.isTraineeIndemnityBondSubmitted === 'No') {
-                Toast.show({
-                  type: 'error',
-                  text2: 'Indemnity bond not filled',
-                });
-              } else {
-                navigation.navigate(screensName.IndemnityBond, { item: item });
-              }
-            }}
-          >
-            <TextAtom
-              style={{
-                color:
-                  item.isTraineeIndemnityBondSubmitted === 'No'
-                    ? colors.red
-                    : colors.green,
-                fontFamily: fonts.Roboto_Medium,
-                fontSize: vw(12),
-              }}
-            >
-              Indemnity Bond
-            </TextAtom>
-          </TouchableAtom>
 
-          <TouchableAtom
-            style={styles.filterButton}
-            onPress={() => {
-              downloadTraineeRegForm(item);
-            }}
-          >
-            <ImageAtom
-              source={images.download}
-              style={{ tintColor: colors.black, width: vw(14), height: vw(14) }}
-            />
-          </TouchableAtom>
-        </View>
+        <TouchableAtom
+          style={{}}
+          onPress={() => {
+            navigation.navigate(screensName.TraineeFullDetails, {
+              data: item,
+            });
+          }}
+        >
+          <TextAtom style={styles.footerText}>View More</TextAtom>
+        </TouchableAtom>
       </TouchableAtom>
     );
   };
@@ -730,15 +764,25 @@ const TraineeDetails = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
+      <View style={{ paddingHorizontal: vw(16) }}>
+        <AdminListHeader
+          config={{
+            title: 'Trainee Details',
+            count: totalCount,
+            showCount: true,
+            search: { visible: true, onPress: () => setShowFilter(true) },
+            filter: { visible: true, onPress: () => setShowFilter(true) },
+          }}
+        />
+      </View>
       <SubTab
         tabs={[
-          { label: 'Current Course', value: 'Current Course' },
-          { label: 'Complete Course', value: 'Complete Course' },
+          { label: 'Current Course', value: 'current' },
+          { label: 'Complete Course', value: 'complete' },
         ]}
         activeTab={activeTab}
-        onTabChange={value =>
-          setActiveTab(value as 'Current Course' | 'Complete Course')
-        }
+        onTabChange={value => setActiveTab(value as 'current' | 'complete')}
+        style={{ marginTop: 10 }}
       />
 
       <FlatList
@@ -791,20 +835,125 @@ const styles = StyleSheet.create({
   flatListContainer: {
     paddingVertical: vh(10),
   },
-
   card: {
     backgroundColor: colors.white,
     marginHorizontal: vw(15),
     borderRadius: vw(8),
     paddingHorizontal: vw(15),
-    paddingVertical: vh(8),
+    paddingVertical: vh(15),
     elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
   },
+  selectedCard: {
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: '#F3F8FF',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: vh(15),
+  },
+  cardHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: vw(10),
+  },
+  initialCircle: {
+    width: vw(32),
+    height: vw(32),
+    borderRadius: vw(16),
+    backgroundColor: colors.primary_sky_blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  initialText: {
+    color: colors.primary_dark_blue,
+    fontSize: vw(14),
+    fontFamily: fonts.Roboto_Medium,
+  },
+  cardName: {
+    fontSize: vw(16),
+    fontFamily: fonts.Roboto_Bold,
+    color: colors.black,
+  },
+  cardHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: vw(10),
+  },
+  cardSwitch: {
+    transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
+  },
+  cardStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
 
+    padding: vw(10),
+    borderRadius: vw(6),
+    marginBottom: vh(15),
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statLabel: {
+    fontSize: vw(10),
+    fontFamily: fonts.Roboto_Regular,
+    color: colors.grey,
+    marginBottom: vh(2),
+  },
+  statValue: {
+    fontSize: vw(12),
+    fontFamily: fonts.Roboto_Medium,
+    color: colors.black,
+  },
+  programContainer: {
+    marginBottom: vh(15),
+  },
+  programText: {
+    fontSize: vw(14),
+    fontFamily: fonts.Roboto_Medium,
+    color: colors.black,
+    lineHeight: vw(18),
+  },
+  gridContainer: {
+    marginBottom: vh(4),
+  },
+  gridRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: vh(10),
+  },
+  gridItem: {
+    flex: 1,
+  },
+  gridLabel: {
+    fontSize: vw(12),
+    fontFamily: fonts.Roboto_Regular,
+    color: colors.grey,
+    marginBottom: vh(2),
+  },
+  gridValue: {
+    fontSize: vw(13),
+    fontFamily: fonts.Roboto_Medium,
+    color: colors.black,
+  },
+  cardFooter: {
+    borderTopWidth: 1,
+    borderTopColor: colors.chinese_silver,
+    paddingTop: vh(10),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  footerText: {
+    fontSize: vw(14),
+    fontFamily: fonts.Roboto_Medium,
+    color: '#CD9F3E',
+  },
   label: {
     fontFamily: fonts.Roboto_Medium,
     fontSize: vw(14),
@@ -829,20 +978,17 @@ const styles = StyleSheet.create({
     marginBottom: vh(5),
     textAlign: 'right',
   },
-
   emptyText: {
     textAlign: 'center',
     marginTop: vh(50),
     color: colors.grey,
     fontFamily: fonts.Roboto_Medium,
   },
-
   rowBetween: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-
   filterButton: {
     borderWidth: vw(1),
     borderColor: colors.primary,
@@ -872,11 +1018,6 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: colors.white,
   },
-  selectedCard: {
-    borderWidth: 1,
-    borderColor: colors.primary,
-    backgroundColor: '#F3F8FF',
-  },
   statusBox: {
     marginTop: vh(8),
     paddingVertical: vh(8),
@@ -887,25 +1028,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-
   activeBox: {
     backgroundColor: '#ddffdd',
     borderColor: '#22aa22',
   },
-
   inActiveBox: {
     backgroundColor: '#ffdddd',
     borderColor: '#cc2222',
   },
-
   statusText: {
     fontFamily: fonts.Roboto_Medium,
     fontSize: vw(14),
   },
-
   activeText: { color: '#008800' },
   inActiveText: { color: '#bb0000' },
-
   dropMenu: {
     marginTop: vh(6),
     backgroundColor: colors.white,
@@ -914,7 +1050,6 @@ const styles = StyleSheet.create({
     borderRadius: vw(6),
     overflow: 'hidden',
   },
-
   dropItem: {
     paddingVertical: vh(10),
     paddingHorizontal: vw(12),
@@ -935,7 +1070,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: vh(6),
   },
-
   fileInput: {
     flex: 1,
     borderWidth: vw(1),
@@ -946,7 +1080,6 @@ const styles = StyleSheet.create({
     fontSize: vw(14),
     color: colors.black,
   },
-
   checkBtn: {
     marginLeft: vw(10),
     padding: vw(6),
@@ -956,7 +1089,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 2,
   },
-
   fileDisplayBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -969,7 +1101,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.lightGrey,
     marginTop: vh(6),
   },
-
   fileText: {
     fontSize: vw(14),
     color: colors.grey,
