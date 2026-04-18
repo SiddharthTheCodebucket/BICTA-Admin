@@ -1,94 +1,198 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useLayoutEffect } from 'react';
+import {
+  Dimensions,
+  LayoutChangeEvent,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, strings, vh, vw } from '../../../../../constants';
+import {
+  createMaterialTopTabNavigator,
+  MaterialTopTabBarProps,
+} from '@react-navigation/material-top-tabs';
+import { colors, fonts, strings, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../components/atoms/TextAtom';
+import HostelDetails from './HostelDetails';
+import FloorDetails from './FloorDetails';
+import RoomDetails from './RoomDetails';
+import BedDetails from './BedDetails';
+import HostelAllocation from './HostelAllocation';
+import HostelAllocationHistory from './HostelAllocationHistory';
+import BedAvailability from './BedAvailability';
 
 interface Props {
   navigation: NavigationType;
 }
 
+const TopTabs = createMaterialTopTabNavigator();
+
+const CustomHostelTabBar = ({
+  state,
+  descriptors,
+  navigation,
+}: MaterialTopTabBarProps) => {
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [tabLayouts, setTabLayouts] = useState<{
+    [key: string]: { x: number; width: number };
+  }>({});
+  const screenWidth = Dimensions.get('window').width;
+
+  useEffect(() => {
+    const activeRoute = state.routes[state.index];
+    const layout = tabLayouts[activeRoute.key];
+
+    if (layout && scrollViewRef.current) {
+      const offset = layout.x + layout.width / 2 - screenWidth / 2;
+      scrollViewRef.current.scrollTo({
+        x: offset > 0 ? offset : 0,
+        animated: true,
+      });
+    }
+  }, [screenWidth, state.index, state.routes, tabLayouts]);
+
+  const onTabLayout = (key: string) => (event: LayoutChangeEvent) => {
+    const { x, width } = event.nativeEvent.layout;
+    setTabLayouts(prev => ({ ...prev, [key]: { x, width } }));
+  };
+
+  return (
+    <View style={styles.customTabBarContainer}>
+      <ScrollView
+        horizontal
+        ref={scrollViewRef}
+        showsHorizontalScrollIndicator={false}
+        style={styles.customTabScroll}
+        contentContainerStyle={styles.customTabWrap}
+      >
+        {state.routes.map((route, index) => {
+          const isFocused = state.index === index;
+          const { options } = descriptors[route.key];
+
+          const label =
+            typeof options.tabBarLabel === 'string'
+              ? options.tabBarLabel
+              : typeof options.title === 'string'
+              ? options.title
+              : route.name;
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
+          return (
+            <TouchableOpacity
+              key={route.key}
+              accessibilityRole="button"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              onLayout={onTabLayout(route.key)}
+              onPress={onPress}
+              style={[
+                styles.customTabItem,
+                isFocused && styles.customTabItemActive,
+              ]}
+              activeOpacity={0.9}
+            >
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.customTabText,
+                  isFocused && styles.customTabTextActive,
+                ]}
+              >
+                {label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+};
+
 const Hostel = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, strings.hostelManagement.hostelMenu.title);
+    Header.setNavigation(
+      navigation,
+      strings.hostelManagement.hostelMenu.title,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true,
+    );
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
   }, []);
 
-  const DATA = [
-    {
-      id: 1,
-      name: strings.hostelManagement.hostelMenu.hostelDetails,
-      onPress: () => {
-        navigation.navigate(screensName.HostelDetails);
-      },
-    },
-    {
-      id: 2,
-      name: strings.hostelManagement.hostelMenu.floorDetails,
-      onPress: () => {
-        navigation.navigate(screensName.FloorDetails);
-      },
-    },
-    {
-      id: 3,
-      name: strings.hostelManagement.hostelMenu.roomDetails,
-      onPress: () => {
-        navigation.navigate(screensName.RoomDetails);
-      },
-    },
-    {
-      id: 4,
-      name: strings.hostelManagement.hostelMenu.bedDetails,
-      onPress: () => {
-        navigation.navigate(screensName.BedDetails);
-      },
-    },
-    {
-      id: 5,
-      name: strings.hostelManagement.hostelMenu.hostelAllocation,
-      onPress: () => {
-        navigation.navigate(screensName.HostelAllocation);
-      },
-    },
-    {
-      id: 6,
-      name: strings.hostelManagement.hostelMenu.hostelAllocationHistory,
-      onPress: () => {
-        navigation.navigate(screensName.HostelAllocationHistory);
-      },
-    },
-    {
-      id: 7,
-      name: strings.hostelManagement.hostelMenu.bedAvailability,
-      onPress: () => {
-        navigation.navigate(screensName.BedAvailability);
-      },
-    },
-  ];
-
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <View style={styles.flex1}>
-        {DATA.map(item => {
-          return (
-            <TouchableOpacity
-              key={item.id.toString()}
-              style={styles.touchable}
-              onPress={item.onPress}
-            >
-              <TextAtom>{item.name}</TextAtom>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+      <TopTabs.Navigator
+        tabBar={tabBarProps => <CustomHostelTabBar {...tabBarProps} />}
+        screenOptions={{
+          swipeEnabled: true,
+          sceneStyle: {
+            backgroundColor: colors.new_ui_screen_bg,
+          },
+        }}
+      >
+        <TopTabs.Screen
+          name="HostelDetails"
+          component={HostelDetails}
+          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.hostelDetails }}
+        />
+        <TopTabs.Screen
+          name="FloorDetails"
+          component={FloorDetails}
+          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.floorDetails }}
+        />
+        <TopTabs.Screen
+          name="RoomDetails"
+          component={RoomDetails}
+          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.roomDetails }}
+        />
+        <TopTabs.Screen
+          name="BedDetails"
+          component={BedDetails}
+          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.bedDetails }}
+        />
+        <TopTabs.Screen
+          name="HostelAllocation"
+          component={HostelAllocation}
+          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.hostelAllocation }}
+        />
+        <TopTabs.Screen
+          name="HostelAllocationHistory"
+          component={HostelAllocationHistory}
+          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.hostelAllocationHistory }}
+        />
+        <TopTabs.Screen
+          name="BedAvailability"
+          component={BedAvailability}
+          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.bedAvailability }}
+        />
+      </TopTabs.Navigator>
     </SafeAreaView>
   );
 };
@@ -98,23 +202,49 @@ export default Hostel;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
+    backgroundColor: colors.new_ui_screen_bg,
   },
-  logoutBtn: {
-    alignSelf: 'center',
-    width: '90%',
+  customTabBarContainer: {
+    marginHorizontal: vw(8),
+    marginTop: vh(8),
+    borderRadius: vw(8),
   },
-  touchable: {
-    width: vw(328),
-    height: vh(55),
-    borderRadius: vw(6),
-    backgroundColor: colors.primary,
-    alignSelf: 'center',
+  customTabScroll: {
+    maxHeight: vh(42),
+  },
+  customTabWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: vw(6),
+    paddingVertical: vh(2),
+  },
+  customTabItem: {
+    height: vh(34),
+    minWidth: vw(110),
+
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: vh(15),
+    backgroundColor: colors.white,
+    marginRight: vw(6),
+    paddingHorizontal: vw(8),
+    paddingVertical: vw(8),
+    borderRadius: vw(8),
   },
-  flex1: {
-    flex: 1,
+  customTabItemActive: {
+    backgroundColor: colors.primary_sky_blue,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.primary_dark_blue,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    elevation: 2,
+  },
+  customTabText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(14),
+    lineHeight: vw(17),
+    color: colors.text_black,
+  },
+  customTabTextActive: {
+    color: colors.text_black,
   },
 });

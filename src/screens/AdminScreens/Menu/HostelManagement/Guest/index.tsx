@@ -167,7 +167,15 @@ const Guest = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, strings.guest.guestList);
+    Header.setNavigation(
+      navigation,
+      strings.guest.guestList,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
   });
 

@@ -87,7 +87,10 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'hostel',
     name: 'Hostel Management',
     icon: 'bed',
-    screen: screensName.HostelManagement,
+    subItems: [
+      { name: 'Hostel', screen: screensName.Hostel },
+      { name: 'Guest', screen: screensName.Guest },
+    ],
   },
   {
     id: 'user',
