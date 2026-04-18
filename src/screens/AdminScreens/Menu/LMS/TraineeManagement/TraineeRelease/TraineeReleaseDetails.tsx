@@ -1,23 +1,43 @@
-import React, { useLayoutEffect } from 'react';
-import { StyleSheet, ScrollView, View } from 'react-native';
+import React, { useLayoutEffect, useState } from 'react';
+import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vh, vw } from '../../../../../../constants';
-import { Header } from '../../../../../../components/organisms/HeaderOrganism';
-import AdminPageHeader from '../../../../../../components/organisms/AdminPageHeader';
-import TextAtom from '../../../../../../components/atoms/TextAtom';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import moment from 'moment';
+import Toast from 'react-native-toast-message';
+import {
+  colors,
+  fonts,
+  screensName,
+  vh,
+  vw,
+} from '../../../../../../constants';
+import {
+  Header,
+  NavigationType,
+} from '../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../components/atoms/TextAtom';
+import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
+import {
+  downloadAndOpenFile,
+  isNullUndefined,
+} from '../../../../../../utils/CommonFunction';
+import { useDownloadTraineeDetailsMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import { FormFieldWrapper } from '../../../../../../components/templates';
 
+interface Props {
+  route: any;
+  navigation: NavigationType;
+}
+
 const DetailRow = ({ left, right }: any) => (
-  <View style={styles.row}>
-    <View style={styles.field}>
+  <View style={styles.detailRow}>
+    <View style={styles.detailCol}>
       <TextAtom style={styles.label}>{left?.label}</TextAtom>
       <TextAtom numberOfLines={0} style={styles.value}>
         {left?.value || '-'}
       </TextAtom>
     </View>
-    <View style={styles.field}>
+    <View style={styles.detailCol}>
       <TextAtom style={styles.label}>{right?.label}</TextAtom>
       <TextAtom numberOfLines={0} style={styles.value}>
         {right?.value || '-'}
@@ -26,64 +46,158 @@ const DetailRow = ({ left, right }: any) => (
   </View>
 );
 
-const FullWidthRow = ({ label, value }: any) => (
+const FullWidthField = ({ label, value }: any) => (
   <View style={styles.fullWidthField}>
     <TextAtom style={styles.label}>{label}</TextAtom>
     <TextAtom numberOfLines={0} style={styles.value}>
-      {value || '-'}
+      {value || 'N/A'}
     </TextAtom>
   </View>
 );
 
-const Section = ({ title, children }: any) => (
-  <View style={styles.section}>
-    <TextAtom style={styles.sectionTitle}>{title}</TextAtom>
-    {children}
-  </View>
+const SectionTitle = ({ title }: { title: string }) => (
+  <TextAtom style={styles.sectionTitle}>{title}</TextAtom>
 );
 
-const TraineeReleaseDetails = ({ route, navigation }: any) => {
+const TraineeReleaseDetails = ({ route, navigation }: Props) => {
   const { data } = route.params || {};
+  const [downloadTraineeDetailsApi] = useDownloadTraineeDetailsMutation();
+  const [loader, setLoader] = useState(false);
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Trainee Details');
+    Header.setNavigation(
+      navigation,
+      'Trainee Management',
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+      true,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
-  });
+  }, [navigation]);
+
+  const formatDate = (value: any) =>
+    value ? moment(value).format('DD/MM/YYYY') : 'N/A';
 
   const maskAadhaar = (aadhaar: string) => {
-    if (!aadhaar) return '-';
-    const last4 = aadhaar.slice(-4);
-    return `XXXX XXXX ${last4}`;
+    if (!aadhaar) return 'N/A';
+    return `XXXX XXXX ${aadhaar.slice(-4)}`;
   };
 
-  const formatDate = (d: any) => (d ? moment(d).format('DD-MM-YYYY') : '-');
+  const downloadDetails = () => {
+    setLoader(true);
+    downloadTraineeDetailsApi({
+      trainee: [data],
+    })
+      .unwrap()
+      .then((res: any) => {
+        setLoader(false);
+        const fileUrl = res?.data?.fileUrl;
+        if (fileUrl) {
+          downloadAndOpenFile(fileUrl);
+          return;
+        }
+
+        Toast.show({
+          type: 'error',
+          text2: 'No downloadable file found',
+        });
+      })
+      .catch((err: any) => {
+        setLoader(false);
+        Toast.show({
+          type: 'error',
+          text2: err?.data?.message || 'Something went wrong',
+        });
+      });
+  };
+
+  const openReleaseAttachment = async () => {
+    const fileUrl =
+      data?.releasedAttachment ||
+      data?.releaseAttachment ||
+      data?.attachment ||
+      data?.file ||
+      data?.fileUrl;
+
+    if (!fileUrl) {
+      Toast.show({
+        type: 'error',
+        text2: 'No file available',
+      });
+      return;
+    }
+
+    try {
+      await Linking.openURL(fileUrl);
+    } catch {
+      Toast.show({
+        type: 'error',
+        text2: 'Unable to open file',
+      });
+    }
+  };
+
+  const handleRelease = () => {
+    if (String(data?.isReleased).toLowerCase() === 'yes') {
+      Toast.show({
+        type: 'success',
+        text2: 'Trainee is already released',
+      });
+      return;
+    }
+
+    navigation.navigate(screensName.TraineeReleaseForm, {
+      item: data,
+      onDone: () => navigation.goBack(),
+    });
+  };
+
+  const createdByValue =
+    data?.updatedBy?.name || data?.createdBy?.name || data?.department || 'N/A';
+
+  const indemnityValue =
+    String(data?.isTraineeIndemnityBondSubmitted).toLowerCase() === 'yes'
+      ? 'Bond'
+      : 'N/A';
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      {/* <AdminPageHeader title="Trainee Release" navigation={navigation} /> */}
+      <FullscreenLoading isVisible={loader} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
       >
-        <FormFieldWrapper>
-          <View style={styles.mainCard}>
-            {/* Trainee Profile Header */}
-            <View style={styles.summaryContainer}>
-              <View style={styles.initialCircle}>
-                <TextAtom style={styles.initialText}>
-                  {data?.name?.[0] || '?'}
-                </TextAtom>
-              </View>
-              <View>
-                <TextAtom style={styles.summaryName}>{data?.name}</TextAtom>
-                <TextAtom style={styles.trainingIdText}>
-                  Training Id - {data?.traineeId || '-'}
-                </TextAtom>
-              </View>
-            </View>
+        <View style={{ marginTop: vh(16) }}>
+          <FormFieldWrapper>
+            <View style={styles.outerCard}>
+              {/* <View style={styles.innerCard}> */}
+              <View style={styles.profileHeader}>
+                <View style={styles.initialCircle}>
+                  <TextAtom style={styles.initialText}>
+                    {data?.name?.[0] || 'R'}
+                  </TextAtom>
+                </View>
 
-            <Section title="Personal Details">
+                <View style={styles.profileTextBlock}>
+                  <TextAtom style={styles.profileName}>
+                    {data?.name || 'N/A'}
+                  </TextAtom>
+                  <View style={styles.trainingBadge}>
+                    <TextAtom style={styles.trainingBadgeText}>
+                      {`Training Id - ${data?.traineeId || 'N/A'}`}
+                    </TextAtom>
+                  </View>
+                </View>
+              </View>
+
+              <SectionTitle title="Personal Details" />
               <DetailRow
                 left={{ label: 'Name', value: data?.name }}
                 right={{ label: 'Father Name', value: data?.fatherName }}
@@ -107,12 +221,14 @@ const TraineeReleaseDetails = ({ route, navigation }: any) => {
                   value: maskAadhaar(data?.aadhaarNo),
                 }}
               />
-              <FullWidthRow label="Personal Email" value={data?.otherEmail} />
-            </Section>
+              <FullWidthField label="Personal Email" value={data?.otherEmail} />
 
-            <Section title="Other Details">
-              <FullWidthRow label="Official Email" value={data?.officeEmail} />
-              <FullWidthRow
+              <SectionTitle title="Other Details" />
+              <FullWidthField
+                label="Official Email"
+                value={data?.officeEmail}
+              />
+              <FullWidthField
                 label="Name Of Training Programme"
                 value={data?.nameOfTrainingProgramme}
               />
@@ -120,21 +236,22 @@ const TraineeReleaseDetails = ({ route, navigation }: any) => {
                 left={{ label: 'Batch No', value: data?.batchName }}
                 right={{ label: 'Category', value: data?.category }}
               />
-              <FullWidthRow
+              <FullWidthField
                 label="Course Duration"
                 value={
-                  data?.courseStartDate && data?.courseEndDate
+                  !isNullUndefined(data?.courseStartDate) &&
+                  !isNullUndefined(data?.courseEndDate)
                     ? `${formatDate(data?.courseStartDate)} to ${formatDate(
                         data?.courseEndDate,
                       )}`
-                    : '-'
+                    : 'N/A'
                 }
               />
               <DetailRow
                 left={{ label: 'GPF / PRAN', value: data?.gpfOrPran }}
                 right={{ label: 'Pay Scale', value: data?.payScale }}
               />
-              <FullWidthRow
+              <FullWidthField
                 label="Highest Education Qualification"
                 value={data?.educationQualification}
               />
@@ -145,7 +262,7 @@ const TraineeReleaseDetails = ({ route, navigation }: any) => {
                 }}
                 right={{ label: 'Department', value: data?.department }}
               />
-              <FullWidthRow
+              <FullWidthField
                 label="Office Address"
                 value={data?.officeAddress}
               />
@@ -170,15 +287,66 @@ const TraineeReleaseDetails = ({ route, navigation }: any) => {
                 }}
               />
               <DetailRow
-                left={{
-                  label: 'Indemnity Bond',
-                  value: data?.isTraineeIndemnityBondSubmitted,
-                }}
-                right={{ label: 'Created By', value: data?.createdBy?.name }}
+                left={{ label: 'Indemnity Bond', value: indemnityValue }}
+                right={{ label: 'Created By', value: createdByValue }}
               />
-            </Section>
-          </View>
-        </FormFieldWrapper>
+              <DetailRow
+                left={{ label: 'Updated By', value: createdByValue }}
+                right={{
+                  label: 'File',
+                  value: data?.releasedAttachment
+                    ? ''
+                    : data?.releaseAttachment
+                    ? ''
+                    : data?.attachment
+                    ? ''
+                    : 'N/A',
+                }}
+              />
+
+              {(data?.releasedAttachment ||
+                data?.releaseAttachment ||
+                data?.attachment ||
+                data?.file ||
+                data?.fileUrl) && (
+                <View style={styles.fileButtonRow}>
+                  <TouchableAtom
+                    style={styles.viewFileBtn}
+                    onPress={openReleaseAttachment}
+                  >
+                    <TextAtom style={styles.viewFileText}>View</TextAtom>
+                  </TouchableAtom>
+                </View>
+              )}
+
+              <SectionTitle title="Release Details" />
+              <DetailRow
+                left={{
+                  label: 'Reason For Release',
+                  value: data?.releasedReason,
+                }}
+                right={{
+                  label: 'Remark For Release(If Any)',
+                  value: data?.releasedRemark,
+                }}
+              />
+              <FullWidthField
+                label="Date of Release"
+                value={formatDate(data?.releasedAt)}
+              />
+              {/* </View> */}
+            </View>
+          </FormFieldWrapper>
+        </View>
+
+        <View style={styles.footerButtons}>
+          <TouchableAtom style={styles.downloadBtn} onPress={downloadDetails}>
+            <TextAtom style={styles.downloadBtnText}>Download Details</TextAtom>
+          </TouchableAtom>
+          <TouchableAtom style={styles.releaseBtn} onPress={handleRelease}>
+            <TextAtom style={styles.releaseBtnText}>Release</TextAtom>
+          </TouchableAtom>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -191,73 +359,153 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.backgroundColor,
   },
-  scrollContainer: {
-    paddingBottom: vh(40),
-    paddingHorizontal: vw(15),
+  topBackRow: {
+    paddingHorizontal: vw(18),
+    paddingTop: vh(12),
+    paddingBottom: vh(4),
   },
-  mainCard: {
+  topBackText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(13.5),
+    color: '#202632',
+  },
+  scrollContent: {
+    paddingHorizontal: vw(10),
+    paddingBottom: vh(20),
+  },
+  outerCard: {
     backgroundColor: colors.backgroundColor,
-    borderRadius: vw(10),
+    borderRadius: vw(8),
     padding: vw(8),
   },
-  summaryContainer: {
+  innerCard: {
+    backgroundColor: colors.white,
+    borderRadius: vw(14),
+    paddingHorizontal: vw(14),
+    paddingVertical: vh(14),
+  },
+  profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: vw(12),
-    marginBottom: vh(25),
+    marginBottom: vh(16),
   },
   initialCircle: {
-    width: vw(40),
-    height: vw(40),
-    borderRadius: vw(20),
-    backgroundColor: '#E8EFF9',
+    width: vw(34),
+    height: vw(34),
+    borderRadius: vw(17),
+    backgroundColor: '#E4EFFB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: vw(10),
+  },
+  initialText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(16),
+    color: '#41658E',
+  },
+  profileTextBlock: {
+    flex: 1,
+  },
+  profileName: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(15.5),
+    color: '#232A34',
+  },
+  trainingBadge: {
+    alignSelf: 'flex-start',
+    marginTop: vh(5),
+    backgroundColor: '#EAF1F8',
+    borderRadius: vw(4),
+    paddingHorizontal: vw(7),
+    paddingVertical: vh(3),
+  },
+  trainingBadgeText: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(10),
+    color: '#5F7391',
+  },
+  sectionTitle: {
+    marginBottom: vh(10),
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(16),
+    color: '#244D7A',
+  },
+  detailRow: {
+    flexDirection: 'row',
+    marginBottom: vh(12),
+  },
+  detailCol: {
+    flex: 1,
+    paddingRight: vw(10),
+  },
+  fullWidthField: {
+    marginBottom: vh(12),
+  },
+  label: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(12.5),
+    color: '#7A7D82',
+    marginBottom: vh(4),
+  },
+  value: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(13.8),
+    color: '#2E3034',
+    lineHeight: vw(18),
+  },
+  fileButtonRow: {
+    alignItems: 'flex-end',
+    marginTop: vh(-8),
+    marginBottom: vh(12),
+  },
+  viewFileBtn: {
+    backgroundColor: colors.primary_dark_blue,
+    borderRadius: vw(4),
+    paddingHorizontal: vw(10),
+    paddingVertical: vh(4),
+  },
+  viewFileText: {
+    color: colors.white,
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(12),
+  },
+  footerButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: vw(10),
+    paddingHorizontal: vw(6),
+    paddingTop: vh(10),
+    paddingBottom: vh(12),
+    backgroundColor: colors.backgroundColor,
+  },
+  downloadBtn: {
+    flex: 1,
+    height: vh(46),
+    borderRadius: vw(10),
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: '#1E2330',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  initialText: {
-    color: colors.primary,
-    fontSize: vw(18),
-    fontFamily: fonts.Roboto_Bold,
-  },
-  summaryName: {
+  downloadBtnText: {
+    color: '#1E2330',
     fontSize: vw(16),
-    fontFamily: fonts.Roboto_Bold,
-    color: colors.black,
+    fontFamily: fonts.Inter_Medium,
   },
-  trainingIdText: {
-    fontSize: vw(14),
-    fontFamily: fonts.Roboto_Regular,
-    color: colors.grey,
-  },
-  section: {
-    marginBottom: vh(12),
-  },
-  sectionTitle: {
-    fontSize: vw(16),
-    fontFamily: fonts.Roboto_Bold,
-    color: colors.primary_dark_blue,
-    marginBottom: vh(8),
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: vh(15),
-  },
-  field: {
+  releaseBtn: {
     flex: 1,
+    height: vh(46),
+    borderRadius: vw(10),
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: '#FF5B52',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  label: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(13),
-    color: colors.grey,
-    marginBottom: vh(2),
-  },
-  value: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-  },
-  fullWidthField: {
-    marginBottom: vh(15),
+  releaseBtnText: {
+    color: '#FF4B43',
+    fontSize: vw(16),
+    fontFamily: fonts.Inter_Medium,
   },
 });
