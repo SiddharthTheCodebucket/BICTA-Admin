@@ -74,87 +74,87 @@ interface FloorCardProps {
   onRefresh: () => void;
 }
 
-const FloorCard = ({
-  item,
-  index,
-  navigation,
-  onDelete,
-  onRefresh,
-}: FloorCardProps) => {
-  const handleDelete = () => {
-    navigation.navigate(screensName.AlertOrganism, {
-      title: strings.hostelManagement.deleteConfirmation,
-      message: strings.hostelManagement.deleteItemConfirmation,
-      okText: strings.hostelManagement.confirm,
-      double: true,
-      cancelText: strings.cancel,
-      okFunction: () => onDelete(item.id),
-      cancelFunction: () => {},
-    });
-  };
+// const FloorCard = ({
+//   item,
+//   index,
+//   navigation,
+//   onDelete,
+//   onRefresh,
+// }: FloorCardProps) => {
+//   const handleDelete = () => {
+//     navigation.navigate(screensName.AlertOrganism, {
+//       title: strings.hostelManagement.deleteConfirmation,
+//       message: strings.hostelManagement.deleteItemConfirmation,
+//       okText: strings.hostelManagement.confirm,
+//       double: true,
+//       cancelText: strings.cancel,
+//       okFunction: () => onDelete(item.id),
+//       cancelFunction: () => {},
+//     });
+//   };
 
-  return (
-    <View style={styles.card}>
-      <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-        <TextAtom style={[styles.label, styles.flex1]}>
-          {strings.hostelManagement.srNo} {index + 1}
-        </TextAtom>
+//   return (
+//     <View style={styles.card}>
+//       <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+//         <TextAtom style={[styles.label, styles.flex1]}>
+//           {strings.hostelManagement.srNo} {index + 1}
+//         </TextAtom>
 
-        <View style={styles.actionRow}>
-          <TouchableAtom
-            style={styles.editButton}
-            onPress={() =>
-              navigation.navigate(screensName.AddFloorDetails, {
-                item,
-                onDone: onRefresh,
-              })
-            }
-          >
-            <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
-          </TouchableAtom>
+//         <View style={styles.actionRow}>
+//           <TouchableAtom
+//             style={styles.editButton}
+//             onPress={() =>
+//               navigation.navigate(screensName.AddFloorDetails, {
+//                 item,
+//                 onDone: onRefresh,
+//               })
+//             }
+//           >
+//             <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
+//           </TouchableAtom>
 
-          <TouchableAtom style={styles.deleteButton} onPress={handleDelete}>
-            <ImageAtom source={images.delete} style={styles.iconSmall} />
-          </TouchableAtom>
-        </View>
-      </View>
+//           <TouchableAtom style={styles.deleteButton} onPress={handleDelete}>
+//             <ImageAtom source={images.delete} style={styles.iconSmall} />
+//           </TouchableAtom>
+//         </View>
+//       </View>
 
-      <View style={styles.rowBetween}>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.floorDetails.hostelName}
-          </TextAtom>
-          <TextAtom style={styles.value}>
-            {item.selectHostelName ?? '-'}
-          </TextAtom>
-        </View>
+//       <View style={styles.rowBetween}>
+//         <View style={styles.flex1}>
+//           <TextAtom style={styles.label}>
+//             {strings.hostelManagement.floorDetails.hostelName}
+//           </TextAtom>
+//           <TextAtom style={styles.value}>
+//             {item.selectHostelName ?? '-'}
+//           </TextAtom>
+//         </View>
 
-        <View style={styles.flex1End}>
-          <TextAtom style={styles.labelRight}>
-            {strings.hostelManagement.floorDetails.floorType}
-          </TextAtom>
-          <TextAtom style={styles.valueRight}>{item.floorType ?? '-'}</TextAtom>
-        </View>
-      </View>
+//         <View style={styles.flex1End}>
+//           <TextAtom style={styles.labelRight}>
+//             {strings.hostelManagement.floorDetails.floorType}
+//           </TextAtom>
+//           <TextAtom style={styles.valueRight}>{item.floorType ?? '-'}</TextAtom>
+//         </View>
+//       </View>
 
-      <View style={styles.rowBetween}>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>
-            {strings.hostelManagement.floorDetails.floorName}
-          </TextAtom>
-          <TextAtom style={styles.value}>{item.nameOfFloors ?? '-'}</TextAtom>
-        </View>
+//       <View style={styles.rowBetween}>
+//         <View style={styles.flex1}>
+//           <TextAtom style={styles.label}>
+//             {strings.hostelManagement.floorDetails.floorName}
+//           </TextAtom>
+//           <TextAtom style={styles.value}>{item.nameOfFloors ?? '-'}</TextAtom>
+//         </View>
 
-        <View style={styles.flex1End}>
-          <TextAtom style={styles.labelRight}>
-            {strings.hostelManagement.floorDetails.noOfRooms}
-          </TextAtom>
-          <TextAtom style={styles.valueRight}>{item.noOfRooms ?? '-'}</TextAtom>
-        </View>
-      </View>
-    </View>
-  );
-};
+//         <View style={styles.flex1End}>
+//           <TextAtom style={styles.labelRight}>
+//             {strings.hostelManagement.floorDetails.noOfRooms}
+//           </TextAtom>
+//           <TextAtom style={styles.valueRight}>{item.noOfRooms ?? '-'}</TextAtom>
+//         </View>
+//       </View>
+//     </View>
+//   );
+// };
 
 interface FilterFormProps {
   navigation: NavigationType;
@@ -165,48 +165,48 @@ interface FilterFormProps {
   clearFilter: () => void;
 }
 
-const FilterForm = ({
-  navigation,
-  hostelData,
-  selectedHostelData,
-  setSelectedHostelData,
-  applyFilter,
-  clearFilter,
-}: FilterFormProps) => (
-  <View style={styles.filterContainer}>
-    <DropDownOrganism
-      label={strings.hostelManagement.floorDetails.filterOptions}
-      placeholder={strings.hostelManagement.floorDetails.filterOptions}
-      onPress={() =>
-        navigation.navigate('DropDownModal', {
-          name: strings.hostelManagement.floorDetails.filterOptions,
-          Data: hostelData,
-          selectedData: selectedHostelData,
-          setSelectedData: setSelectedHostelData,
-          typeName: 'name',
-          typeId: 'id',
-        })
-      }
-      inputText={selectedHostelData?.name}
-      isMandatory
-      errorMessage=""
-    />
+// const FilterForm = ({
+//   navigation,
+//   hostelData,
+//   selectedHostelData,
+//   setSelectedHostelData,
+//   applyFilter,
+//   clearFilter,
+// }: FilterFormProps) => (
+//   <View style={styles.filterContainer}>
+//     <DropDownOrganism
+//       label={strings.hostelManagement.floorDetails.filterOptions}
+//       placeholder={strings.hostelManagement.floorDetails.filterOptions}
+//       onPress={() =>
+//         navigation.navigate('DropDownModal', {
+//           name: strings.hostelManagement.floorDetails.filterOptions,
+//           Data: hostelData,
+//           selectedData: selectedHostelData,
+//           setSelectedData: setSelectedHostelData,
+//           typeName: 'name',
+//           typeId: 'id',
+//         })
+//       }
+//       inputText={selectedHostelData?.name}
+//       isMandatory
+//       errorMessage=""
+//     />
 
-    <ViewAtom style={styles.buttonRow}>
-      <ButtonOrganism
-        onPress={applyFilter}
-        bttnText={strings.hostelManagement.floorDetails.applyFilter}
-        containerStyle={styles.applyBtn}
-      />
-      <ButtonOrganism
-        onPress={clearFilter}
-        bttnText={strings.hostelManagement.floorDetails.clearFilter}
-        containerStyle={styles.clearBtn}
-        bttnTextStyle={{ color: colors.primary }}
-      />
-    </ViewAtom>
-  </View>
-);
+//     <ViewAtom style={styles.buttonRow}>
+//       <ButtonOrganism
+//         onPress={applyFilter}
+//         bttnText={strings.hostelManagement.floorDetails.applyFilter}
+//         containerStyle={styles.applyBtn}
+//       />
+//       <ButtonOrganism
+//         onPress={clearFilter}
+//         bttnText={strings.hostelManagement.floorDetails.clearFilter}
+//         containerStyle={styles.clearBtn}
+//         bttnTextStyle={{ color: colors.primary }}
+//       />
+//     </ViewAtom>
+//   </View>
+// );
 
 const FloorItemSeparator = () => <View style={styles.itemSeparator} />;
 
@@ -508,11 +508,7 @@ const FloorDetailsList = (props: Props) => {
   };
 
   const renderListFloorDetails = ({ item, index }: any) => (
-    <FloorCard
-      item={item}
-      index={index}
-      navigation={navigation}
-    />
+    <FloorCard item={item} index={index} navigation={navigation} />
   );
 
   return (
