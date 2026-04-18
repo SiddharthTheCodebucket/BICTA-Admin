@@ -41,6 +41,8 @@ import DropDownOrganism from '../../../../../../components/organisms/DropDownOrg
 import AdminPageHeader from '../../../../../../components/organisms/AdminPageHeader';
 import SubTab from '../../../../../../components/molecules/SubTab';
 import AdminListHeader from '../../../../../../components/organisms/AdminListHeader';
+import FormSwitchForCard from '../../../../../../components/templates/FormSwitchForCard';
+import { globalStyles } from '../../../../../../utils/globalStyles/GlobalStyles';
 import {
   useDeleteHostelDetailsMutation,
   useHostelDetailsMutation,
@@ -63,36 +65,10 @@ const debounce = (func: any, delay: number) => {
 
 const HostelItemSeparator = () => <View style={styles.itemSeparator} />;
 
-const StatusBadge = ({ label, value, activeValue }: any) => {
-  const isActive = value === activeValue;
-  return (
-    <View style={styles.statusBadgeContainer}>
-      <TextAtom style={styles.statusBadgeLabel}>{label}: </TextAtom>
-      <View
-        style={[
-          styles.statusBadge,
-          isActive ? styles.statusBadgeActive : styles.statusBadgeInactive,
-        ]}
-      >
-        <TextAtom
-          style={[
-            styles.statusBadgeText,
-            isActive
-              ? styles.statusBadgeTextActive
-              : styles.statusBadgeTextInactive,
-          ]}
-        >
-          {value}
-        </TextAtom>
-      </View>
-    </View>
-  );
-};
-
-const DetailGridItem = ({ label, value, fullWidth = false }: any) => (
-  <View style={[styles.gridItem, fullWidth && { width: '100%' }]}>
-    <TextAtom style={styles.gridLabel}>{label}</TextAtom>
-    <TextAtom style={styles.gridValue}>{value ?? '-'}</TextAtom>
+const InfoField = ({ label, value, fullWidth = false }: any) => (
+  <View style={[globalStyles.infoCol, !fullWidth && { flex: 1 }]}>
+    <TextAtom style={globalStyles.infoLabel}>{label}</TextAtom>
+    <TextAtom style={globalStyles.infoValue}>{value ?? '-'}</TextAtom>
   </View>
 );
 
@@ -235,11 +211,10 @@ const HostelDetailsList = (props: Props) => {
 
   const HostelCard = ({ item, index, navigation }: any) => {
     const [statusValue] = useState(item.status ?? 'Active');
-    const [showStatusMenu, setShowStatusMenu] = useState(false);
     const isExpanded = expandedItems.has(item.id);
 
-    const onSelectStatus = (newStatus: string) => {
-      setShowStatusMenu(false);
+    const onSelectStatus = (selectedItem: any) => {
+      const newStatus = selectedItem.label;
 
       if (newStatus === statusValue) return;
 
@@ -250,16 +225,17 @@ const HostelDetailsList = (props: Props) => {
         double: true,
         cancelText: strings.cancel,
         okFunction: () => {
-          updateHostelStatus(item.id);
+          updateHostelStatus(item.id, newStatus);
         },
         cancelFunction: () => {},
       });
     };
 
-    const updateHostelStatus = (id: any) => {
+    const updateHostelStatus = (id: any, newStatus: string) => {
       setInitialCall(true);
       const params = {
         idForChangeStatus: id,
+        status: newStatus,
       };
       updateHostelDetailsApi(params)
         .unwrap()
@@ -337,57 +313,87 @@ const HostelDetailsList = (props: Props) => {
               {item.hostelName ?? '-'}
             </TextAtom>
           </View>
-          <TouchableOpacity
-            style={{ marginRight: vw(4) }}
-            onPress={() => handleDelete()}
-          >
-            <SvgDelete />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ marginLeft: vw(4) }}
-            onPress={() => {
-              navigation.navigate(screensName.AddHostelDetails, {
-                item: item,
-                onDone: () => hostelDetailsList(1, true, search),
-              });
-            }}
-          >
-            <SvgEditPencile />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={() => handleDelete()}
+            >
+              <SvgDelete />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={() => {
+                navigation.navigate(screensName.AddHostelDetails, {
+                  item: item,
+                  onDone: () => hostelDetailsList(1, true, search),
+                });
+              }}
+            >
+              <SvgEditPencile />
+            </TouchableOpacity>
+          </View>
         </TouchableOpacity>
 
         {isExpanded && (
           <View style={styles.accordionContent}>
-            <View style={styles.gridContainer}>
-              <DetailGridItem
+            <View style={globalStyles.infoRow}>
+              <InfoField
                 label={strings.hostelManagement.hostelDetails.trainingCentre}
                 value={item.trainingCentre}
               />
-              <DetailGridItem
+              <InfoField
                 label={strings.hostelManagement.hostelDetails.noOfFloors}
                 value={item.noOfFloors}
               />
-              <DetailGridItem
+            </View>
+
+            <View style={globalStyles.infoRow}>
+              <InfoField
                 label={strings.hostelManagement.hostelDetails.hostelAddress}
                 value={item.hostelAddress}
                 fullWidth
               />
-              <DetailGridItem
+            </View>
+
+            <View style={globalStyles.infoRow}>
+              <InfoField
                 label={strings.hostelManagement.hostelDetails.contactPerson}
                 value={item.contactPerson}
               />
-              <DetailGridItem
+              <InfoField
                 label={strings.hostelManagement.hostelDetails.contactNo}
                 value={item.contactNo}
               />
             </View>
 
-            <View style={styles.statusWrapper}>
-              <StatusBadge
-                label={strings.hostelManagement.status}
-                value={statusValue}
-                activeValue={strings.hostelManagement.active}
+            <View style={globalStyles.infoRow}>
+              <InfoField
+                label={
+                  strings.hostelManagement.hostelDetails.alternateContactNo
+                }
+                value={
+                  item?.alternateContactNo?.length > 0
+                    ? item.alternateContactNo.join(',')
+                    : '-'
+                }
               />
+              <View style={styles.statusSwitchContainer}>
+                <FormSwitchForCard
+                  title={strings.hostelManagement.status}
+                  data={[
+                    { id: 'Active', label: 'Active' },
+                    { id: 'Inactive', label: 'Inactive' },
+                  ]}
+                  selectedValue={statusValue}
+                  onSelect={onSelectStatus}
+                  containerStyle={styles.statusSwitchContainer}
+                  titleStyle={globalStyles.infoLabel}
+                  activeOptionStyle={{ backgroundColor: '#1C4371' }}
+                  activeTextStyle={{ color: '#FFFFFF' }}
+                  inactiveOptionStyle={{ backgroundColor: '#E6F2FF' }}
+                  inactiveTextStyle={{ color: '#1C4371' }}
+                />
+              </View>
             </View>
           </View>
         )}
@@ -495,118 +501,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: vw(15),
+    paddingHorizontal: vw(15),
+    paddingVertical: vh(12),
   },
   accordionHeaderActive: {},
   headerLeft: {
     flex: 1,
   },
   headerTitle: {
-    fontFamily: fonts.Roboto_Bold,
+    fontFamily: fonts.Inter_Medium,
     fontSize: vw(16),
-    color: colors.text_black,
+    color: '#111827',
   },
   headerTitleActive: {
     color: colors.primary,
   },
-  chevron: {
-    width: vw(16),
-    height: vw(16),
-    tintColor: colors.grey,
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: vw(10),
   },
-  chevronActive: {
-    transform: [{ rotate: '180deg' }],
-    tintColor: colors.primary,
+  actionBtn: {
+    padding: vw(4),
   },
   accordionContent: {
-    padding: vw(15),
+    paddingHorizontal: vw(15),
+    paddingBottom: vh(15),
+    backgroundColor: '#FFFFFF',
   },
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: vw(10),
-    marginBottom: vh(15),
-  },
-  editButton: {
-    borderWidth: vw(1),
-    borderColor: colors.green,
-    borderRadius: vw(6),
-    padding: vw(3),
-    alignItems: 'center',
+  statusSwitchContainer: {
+    flex: 1,
     justifyContent: 'center',
-  },
-  editIcon: {
-    tintColor: colors.green,
-    width: vw(15),
-    height: vw(15),
-  },
-  deleteButton: {
-    borderWidth: vw(1),
-    borderColor: colors.red_2,
-    borderRadius: vw(6),
-    padding: vw(3),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconSmall: {
-    width: vw(15),
-    height: vw(15),
-  },
-  gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: vh(15),
-  },
-  gridItem: {
-    width: '48%',
-    marginBottom: vh(10),
-  },
-  gridLabel: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(13),
-    color: colors.grey,
-  },
-  gridValue: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.text_black,
-    marginTop: vw(2),
-  },
-  statusWrapper: {
-    marginTop: vh(10),
-    alignItems: 'flex-end',
-  },
-  statusBadgeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statusBadgeLabel: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(13),
-    color: colors.grey,
-  },
-  statusBadge: {
-    paddingHorizontal: vw(8),
-    paddingVertical: vh(4),
-    borderRadius: vw(12),
-    marginLeft: vw(5),
-  },
-  statusBadgeActive: {
-    backgroundColor: colors.lightGreenBg,
-  },
-  statusBadgeInactive: {
-    backgroundColor: colors.lightRedBg,
-  },
-  statusBadgeText: {
-    fontSize: vw(12),
-    fontFamily: fonts.Roboto_Medium,
-  },
-  statusBadgeTextActive: {
-    color: colors.darkGreen,
-  },
-  statusBadgeTextInactive: {
-    color: colors.darkRed,
   },
   emptyText: {
     textAlign: 'center',
