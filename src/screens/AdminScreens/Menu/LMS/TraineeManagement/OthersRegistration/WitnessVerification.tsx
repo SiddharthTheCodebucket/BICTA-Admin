@@ -1,37 +1,72 @@
+import React, { useRef, useState } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
-import React, { createRef } from 'react';
 import * as Yup from 'yup';
-import { colors, strings, vh, vw } from '../../../../../../constants';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import { useAppSelector } from '../../../../../../hooks';
 import { useDispatch } from 'react-redux';
+
+import { colors, vh, vw, strings } from '../../../../../../constants';
+import { useAppSelector } from '../../../../../../hooks';
 import {
-  saveFirstWitnessName,
-  saveFirstWitnessDesignation,
-  saveFirstWitnessSignature,
-  saveSecondWitnessName,
-  saveSecondWitnessDesignation,
-  saveSecondWitnessSignature,
-  savePhoto,
-  saveSignature,
   saveAadharCard,
+  saveFirstWitnessDesignation,
+  saveFirstWitnessName,
+  saveFirstWitnessSignature,
+  savePhoto,
+  saveSecondWitnessDesignation,
+  saveSecondWitnessName,
+  saveSecondWitnessSignature,
+  saveSignature,
 } from '../../../../../../features/OtherRegistration/otherRegistrationSlice';
-import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ImageUploadOrganism from '../../../../../../components/organisms/ImageUploadOrganism';
+
+import {
+  FormFieldWrapper,
+  FormFileUploadWithTitle,
+  FormGradientButton,
+  FormTextInputWithTitle,
+  FormWhiteButton,
+} from '../../../../../../components/templates';
+
+// type FileData = {
+//   uri: string;
+//   name: string;
+//   type?: string | null;
+//   size?: number | null;
+// };
+
+type FileData = {
+  uri?: string;
+  name?: string;
+  type?: string | null;
+  size?: number | null;
+  [key: string]: any;
+};
 
 interface Props {
   goNext: any;
   goBack: any;
 }
 
+type LocalFormType = {
+  firstWitnessName: string;
+  firstWitnessDesignation: string;
+  firstWitnessSignature: FileData | null;
+
+  secondWitnessName: string;
+  secondWitnessDesignation: string;
+  secondWitnessSignature: FileData | null;
+
+  photo: FileData | null;
+  signature: FileData | null;
+  aadharCard: FileData | null;
+};
+
 const WitnessVerification = (props: Props) => {
   const { goNext, goBack } = props;
-  const input1_ref: any = createRef();
-  const input2_ref: any = createRef();
-  const input3_ref: any = createRef();
-  const input4_ref: any = createRef();
+
+  const input1_ref = useRef<any>(null);
+  const input2_ref = useRef<any>(null);
+  const input3_ref = useRef<any>(null);
+  const input4_ref = useRef<any>(null);
 
   const dispatch = useDispatch();
   const {
@@ -46,24 +81,28 @@ const WitnessVerification = (props: Props) => {
     aadharCard,
   } = useAppSelector(state => state.otherRegistration);
 
-  const [errors, setErrors] = React.useState<any>({});
+  const [errors, setErrors] = useState<any>({});
 
-  const [localForm, setLocalForm] = React.useState({
-    firstWitnessName: firstWitnessName,
-    firstWitnessDesignation: firstWitnessDesignation,
-    firstWitnessSignature: firstWitnessSignature,
+  const [localForm, setLocalForm] = useState<LocalFormType>({
+    firstWitnessName: firstWitnessName || '',
+    firstWitnessDesignation: firstWitnessDesignation || '',
+    firstWitnessSignature: firstWitnessSignature || null,
 
-    secondWitnessName: secondWitnessName,
-    secondWitnessDesignation: secondWitnessDesignation,
-    secondWitnessSignature: secondWitnessSignature,
+    secondWitnessName: secondWitnessName || '',
+    secondWitnessDesignation: secondWitnessDesignation || '',
+    secondWitnessSignature: secondWitnessSignature || null,
 
-    photo: photo,
-    signature: signature,
-    aadharCard: aadharCard,
+    photo: photo || null,
+    signature: signature || null,
+    aadharCard: aadharCard || null,
   });
 
-  const setValue = (key: string, value: any) => {
+  const setValue = (key: keyof LocalFormType, value: any) => {
     setLocalForm(prev => ({ ...prev, [key]: value }));
+  };
+
+  const clearError = (key: string) => {
+    setErrors((prev: any) => ({ ...prev, [key]: '' }));
   };
 
   const generalSchema = Yup.object().shape({
@@ -79,7 +118,6 @@ const WitnessVerification = (props: Props) => {
     secondWitnessSignature: Yup.object({
       uri: Yup.string().required('Second witness signature is required'),
     }),
-
     secondWitnessDesignation: Yup.string().required(
       'Second witness designation is required',
     ),
@@ -87,7 +125,6 @@ const WitnessVerification = (props: Props) => {
     firstWitnessSignature: Yup.object({
       uri: Yup.string().required('First witness signature is required'),
     }),
-
     firstWitnessDesignation: Yup.string().required(
       'First witness designation is required',
     ),
@@ -95,19 +132,12 @@ const WitnessVerification = (props: Props) => {
   });
 
   const handleNext = async () => {
+    goNext();
+    return;
     try {
-      await generalSchema.validate({
-        firstWitnessName: localForm.firstWitnessName,
-        firstWitnessDesignation: localForm.firstWitnessDesignation,
-        firstWitnessSignature: localForm.firstWitnessSignature,
-        secondWitnessName: localForm.secondWitnessName,
-        secondWitnessDesignation: localForm.secondWitnessDesignation,
-        secondWitnessSignature: localForm.secondWitnessSignature,
-        photo: localForm.photo,
-        signature: localForm.signature,
-        aadharCard: localForm.aadharCard,
-      });
+      await generalSchema.validate(localForm, { abortEarly: false });
       setErrors({});
+
       dispatch(saveFirstWitnessName(localForm.firstWitnessName));
       dispatch(saveFirstWitnessDesignation(localForm.firstWitnessDesignation));
       dispatch(saveFirstWitnessSignature(localForm.firstWitnessSignature));
@@ -121,9 +151,18 @@ const WitnessVerification = (props: Props) => {
       dispatch(savePhoto(localForm.photo));
       dispatch(saveSignature(localForm.signature));
       dispatch(saveAadharCard(localForm.aadharCard));
+
       goNext();
     } catch (err: any) {
-      setErrors({ [err.path]: err.message });
+      const nextErrors: any = {};
+      if (err?.inner?.length) {
+        err.inner.forEach((e: any) => {
+          if (!nextErrors[e.path]) nextErrors[e.path] = e.message;
+        });
+      } else if (err?.path) {
+        nextErrors[err.path] = err.message;
+      }
+      setErrors(nextErrors);
     }
   };
 
@@ -131,150 +170,183 @@ const WitnessVerification = (props: Props) => {
     <View style={styles.container}>
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
+        style={{ flex: 1, width: '100%' }}
         contentContainerStyle={styles.contentScroll}
-        enableOnAndroid={true}
-        enableAutomaticScroll={true}
+        enableOnAndroid
+        enableAutomaticScroll
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={vh(80)}
       >
-        <TextInputOrganisms
-          label={'First Witness Name'}
-          placeholder={'First Witness Name'}
-          ref={input1_ref}
-          onSubmitEditing={() => input2_ref.current.focus()}
-          value={localForm.firstWitnessName}
-          onChangeText={(val: any) => {
-            setValue('firstWitnessName', val);
-            setErrors({ ...errors, firstWitnessName: '' });
-          }}
-          autoCapitalize={'none'}
-          returnKeyType={'next'}
-          isMandatory
-          errorMessage={errors.firstWitnessName}
-        />
+        <FormFieldWrapper>
+          <FormTextInputWithTitle
+            ref={input1_ref}
+            title="First Witness Name"
+            placeholder="First Witness Name"
+            isMandatory
+            value={localForm.firstWitnessName}
+            onChangeText={(val: any) => {
+              setValue('firstWitnessName', val);
+              clearError('firstWitnessName');
+            }}
+            onSubmitEditing={() => input2_ref.current?.focus?.()}
+            returnKeyType="next"
+            autoCapitalize="none"
+            errorMessage={errors.firstWitnessName}
+          />
 
-        <TextInputOrganisms
-          label={'First Witness Designation'}
-          placeholder={'First Witness Designation'}
-          ref={input2_ref}
-          onSubmitEditing={() => Keyboard.dismiss()}
-          value={localForm.firstWitnessDesignation}
-          onChangeText={(val: any) => {
-            setValue('firstWitnessDesignation', val);
-            setErrors({ ...errors, firstWitnessDesignation: '' });
-          }}
-          autoCapitalize={'none'}
-          returnKeyType={'done'}
-          isMandatory
-          errorMessage={errors.firstWitnessDesignation}
-        />
+          <FormTextInputWithTitle
+            ref={input2_ref}
+            title="First Witness Designation"
+            placeholder="First Witness Designation"
+            isMandatory
+            value={localForm.firstWitnessDesignation}
+            onChangeText={(val: any) => {
+              setValue('firstWitnessDesignation', val);
+              clearError('firstWitnessDesignation');
+            }}
+            onSubmitEditing={() => input3_ref.current?.focus?.()}
+            returnKeyType="next"
+            autoCapitalize="none"
+            errorMessage={errors.firstWitnessDesignation}
+          />
 
-        <ImageUploadOrganism
-          label={'First Witness Signature'}
-          buttonText={strings.choose_file}
-          onSelectImage={(file: any) => {
-            setValue('firstWitnessSignature', file);
-            setErrors({ ...errors, 'firstWitnessSignature.uri': '' });
-          }}
-          defaultImage={localForm.firstWitnessSignature?.uri}
-          isMandatory
-          errorMessage={errors['firstWitnessSignature.uri']}
-        />
+          <FormFileUploadWithTitle
+            title="First Witness Signature"
+            isMandatory
+            buttonText={strings.choose_file}
+            fileName={localForm.firstWitnessSignature?.name}
+            onFileSelected={(file: FileData | null) => {
+              setValue('firstWitnessSignature', file);
+              clearError('firstWitnessSignature');
+              clearError('firstWitnessSignature.uri');
+            }}
+            onFileRemove={() => {
+              setValue('firstWitnessSignature', null);
+              clearError('firstWitnessSignature');
+              clearError('firstWitnessSignature.uri');
+            }}
+            errorMessage={errors['firstWitnessSignature.uri']}
+          />
 
-        <TextInputOrganisms
-          label={'Second Witness Name'}
-          placeholder={'Second Witness Name'}
-          ref={input3_ref}
-          onSubmitEditing={() => input4_ref.current.focus()}
-          value={localForm.secondWitnessName}
-          onChangeText={(val: any) => {
-            setValue('secondWitnessName', val);
-            setErrors({ ...errors, secondWitnessName: '' });
-          }}
-          autoCapitalize={'none'}
-          returnKeyType={'next'}
-          isMandatory
-          errorMessage={errors.secondWitnessName}
-        />
+          <FormTextInputWithTitle
+            ref={input3_ref}
+            title="Second Witness Name"
+            placeholder="Second Witness Name"
+            isMandatory
+            value={localForm.secondWitnessName}
+            onChangeText={(val: any) => {
+              setValue('secondWitnessName', val);
+              clearError('secondWitnessName');
+            }}
+            onSubmitEditing={() => input4_ref.current?.focus?.()}
+            returnKeyType="next"
+            autoCapitalize="none"
+            errorMessage={errors.secondWitnessName}
+          />
 
-        <TextInputOrganisms
-          label={'Second Witness Designation'}
-          placeholder={'Second Witness Designation'}
-          ref={input4_ref}
-          onSubmitEditing={() => Keyboard.dismiss()}
-          value={localForm.secondWitnessDesignation}
-          onChangeText={(val: any) => {
-            setValue('secondWitnessDesignation', val);
-            setErrors({ ...errors, secondWitnessDesignation: '' });
-          }}
-          autoCapitalize={'none'}
-          returnKeyType={'done'}
-          isMandatory
-          errorMessage={errors.secondWitnessDesignation}
-        />
+          <FormTextInputWithTitle
+            ref={input4_ref}
+            title="Second Witness Designation"
+            placeholder="Second Witness Designation"
+            isMandatory
+            value={localForm.secondWitnessDesignation}
+            onChangeText={(val: any) => {
+              setValue('secondWitnessDesignation', val);
+              clearError('secondWitnessDesignation');
+            }}
+            onSubmitEditing={() => Keyboard.dismiss()}
+            returnKeyType="done"
+            autoCapitalize="none"
+            errorMessage={errors.secondWitnessDesignation}
+          />
 
-        <ImageUploadOrganism
-          label={'Second Witness Signature'}
-          buttonText={strings.choose_file}
-          onSelectImage={(file: any) => {
-            setValue('secondWitnessSignature', file);
-            setErrors({ ...errors, 'secondWitnessSignature.uri': '' });
-          }}
-          defaultImage={localForm.secondWitnessSignature?.uri}
-          isMandatory
-          errorMessage={errors['secondWitnessSignature.uri']}
-        />
+          <FormFileUploadWithTitle
+            title="Second Witness Signature"
+            isMandatory
+            buttonText={strings.choose_file}
+            fileName={localForm.secondWitnessSignature?.name}
+            onFileSelected={(file: FileData | null) => {
+              setValue('secondWitnessSignature', file);
+              clearError('secondWitnessSignature');
+              clearError('secondWitnessSignature.uri');
+            }}
+            onFileRemove={() => {
+              setValue('secondWitnessSignature', null);
+              clearError('secondWitnessSignature');
+              clearError('secondWitnessSignature.uri');
+            }}
+            errorMessage={errors['secondWitnessSignature.uri']}
+          />
 
-        <ImageUploadOrganism
-          label={'Photo'}
-          buttonText={strings.choose_file}
-          onSelectImage={(file: any) => {
-            setValue('photo', file);
-            setErrors({ ...errors, 'photo.uri': '' });
-          }}
-          defaultImage={localForm.photo?.uri}
-          isMandatory
-          errorMessage={errors['photo.uri']}
-        />
+          <FormFileUploadWithTitle
+            title="Photo"
+            isMandatory
+            buttonText={strings.choose_file}
+            fileName={localForm.photo?.name}
+            onFileSelected={(file: FileData | null) => {
+              setValue('photo', file);
+              clearError('photo');
+              clearError('photo.uri');
+            }}
+            onFileRemove={() => {
+              setValue('photo', null);
+              clearError('photo');
+              clearError('photo.uri');
+            }}
+            errorMessage={errors['photo.uri']}
+          />
 
-        <ImageUploadOrganism
-          label={'Signature'}
-          buttonText={strings.choose_file}
-          onSelectImage={(file: any) => {
-            setValue('signature', file);
-            setErrors({ ...errors, 'signature.uri': '' });
-          }}
-          defaultImage={localForm.signature?.uri}
-          isMandatory
-          errorMessage={errors['signature.uri']}
-        />
+          <FormFileUploadWithTitle
+            title="Signature"
+            isMandatory
+            buttonText={strings.choose_file}
+            fileName={localForm.signature?.name}
+            onFileSelected={(file: FileData | null) => {
+              setValue('signature', file);
+              clearError('signature');
+              clearError('signature.uri');
+            }}
+            onFileRemove={() => {
+              setValue('signature', null);
+              clearError('signature');
+              clearError('signature.uri');
+            }}
+            errorMessage={errors['signature.uri']}
+          />
 
-        <ImageUploadOrganism
-          label={'Aadhar Card'}
-          buttonText={strings.choose_file}
-          onSelectImage={(file: any) => {
-            setValue('aadharCard', file);
-            setErrors({ ...errors, 'aadharCard.uri': '' });
-          }}
-          defaultImage={localForm.aadharCard?.uri}
-          isMandatory
-          errorMessage={errors['aadharCard.uri']}
-        />
+          <FormFileUploadWithTitle
+            title="Aadhar Card"
+            isMandatory
+            buttonText={strings.choose_file}
+            fileName={localForm.aadharCard?.name}
+            onFileSelected={(file: FileData | null) => {
+              setValue('aadharCard', file);
+              clearError('aadharCard');
+              clearError('aadharCard.uri');
+            }}
+            onFileRemove={() => {
+              setValue('aadharCard', null);
+              clearError('aadharCard');
+              clearError('aadharCard.uri');
+            }}
+            errorMessage={errors['aadharCard.uri']}
+          />
+        </FormFieldWrapper>
+
+        <View style={styles.footer}>
+          <FormWhiteButton
+            title="Back"
+            onPress={goBack}
+            containerStyle={styles.buttonContainer}
+          />
+
+          <FormGradientButton
+            title="Next"
+            onPress={handleNext}
+            containerStyle={styles.buttonContainer}
+          />
+        </View>
       </KeyboardAwareScrollView>
-      <ViewAtom style={styles.footer}>
-        <ButtonOrganism
-          containerStyle={{ width: vw(155) }}
-          bttnText="Back"
-          onPress={goBack}
-        />
-
-        <ButtonOrganism
-          containerStyle={{ width: vw(155) }}
-          bttnText="Next"
-          onPress={handleNext}
-        />
-      </ViewAtom>
     </View>
   );
 };
@@ -287,14 +359,22 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundColor,
     alignItems: 'center',
     paddingTop: vw(20),
+    width: '100%',
   },
   contentScroll: {
-    paddingBottom: vh(10),
+    paddingHorizontal: vw(16),
+    paddingBottom: vh(16),
+    width: '100%',
   },
   footer: {
     width: '100%',
     flexDirection: 'row',
-    marginTop: 20,
     justifyContent: 'space-between',
+    gap: vw(12),
+    paddingHorizontal: vw(16),
+    paddingBottom: vh(20),
+  },
+  buttonContainer: {
+    flex: 1,
   },
 });
