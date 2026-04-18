@@ -297,10 +297,7 @@ const HostelDetailsList = (props: Props) => {
     return (
       <View style={styles.accordionContainer}>
         <TouchableOpacity
-          style={[
-            styles.accordionHeader,
-            isExpanded && styles.accordionHeaderActive,
-          ]}
+          style={[styles.accordionHeader]}
           onPress={() => toggleAccordion(item.id)}
         >
           <View style={styles.headerLeft}>
@@ -504,7 +501,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: vw(15),
     paddingVertical: vh(12),
   },
-  accordionHeaderActive: {},
+
   headerLeft: {
     flex: 1,
   },
