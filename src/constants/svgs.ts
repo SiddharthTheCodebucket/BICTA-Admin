@@ -7,6 +7,7 @@ export {default as SvgFilterLines} from '../assets/images/svgs/fiter_lines.svg';
 export {default as SvgMerge} from '../assets/images/svgs/merge.svg';
 export {default as SvgPerson} from '../assets/images/svgs/person.svg';
 export {default as SvgSearch} from '../assets/images/svgs/search.svg';
+export {default as SvgSignin} from '../assets/images/svgs/signin.svg';
 export {default as SvgStar} from '../assets/images/svgs/star.svg';
 export {default as SvgStepSuccess} from '../assets/images/svgs/step_success.svg';
 export {default as SvgUpload} from '../assets/images/svgs/upload.svg';
