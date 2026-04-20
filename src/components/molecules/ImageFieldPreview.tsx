@@ -6,6 +6,8 @@ import {
   View,
   Image,
   Pressable,
+  ImageStyle,
+  ViewStyle,
 } from 'react-native';
 import TextAtom from '../atoms/TextAtom';
 import TouchableAtom from '../atoms/TouchableAtom';
@@ -17,10 +19,10 @@ interface ImageFieldPreviewProps {
   placeholderImage?: any;
   isMandatory?: boolean;
   errorMessage?: string;
-  fileName?: string;
-  fileType?: string;
   actionLabel?: string;
   onPress?: () => void;
+  thumbnailStyle?: ImageStyle;
+  containerStyle?: ViewStyle;
 }
 
 const ImageFieldPreview: React.FC<ImageFieldPreviewProps> = ({
@@ -29,51 +31,54 @@ const ImageFieldPreview: React.FC<ImageFieldPreviewProps> = ({
   placeholderImage,
   isMandatory = false,
   errorMessage,
-  fileName,
-  fileType,
   actionLabel = 'View',
   onPress,
+  thumbnailStyle,
+  containerStyle,
 }) => {
   const [previewVisible, setPreviewVisible] = useState(false);
 
-  const hasImage = imageUri && imageUri.length > 0;
-  const displayUri = imageUri || fileName;
+  const hasImage = !!imageUri && imageUri.length > 0;
 
-  const handlePress = onPress || (hasImage ? () => setPreviewVisible(true) : undefined);
+  const handlePress =
+    onPress || (hasImage ? () => setPreviewVisible(true) : undefined);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       <View style={styles.labelRow}>
         <TextAtom style={styles.label}>{label}</TextAtom>
         {isMandatory && <TextAtom style={styles.mandatory}>*</TextAtom>}
       </View>
 
-      <View style={styles.thumbnailContainer}>
-        {hasImage ? (
-          <Image source={{ uri: displayUri }} style={styles.thumbnail} />
-        ) : placeholderImage ? (
-          <Image source={placeholderImage} style={styles.thumbnail} />
-        ) : (
-          <View style={styles.placeholder}>
-            <TextAtom style={styles.placeholderText}>No Image</TextAtom>
-          </View>
-        )}
+      <View style={styles.row}>
+        <View style={styles.thumbnailBox}>
+          {hasImage ? (
+            <Image
+              source={{ uri: imageUri }}
+              style={[styles.thumbnail, thumbnailStyle]}
+            />
+          ) : placeholderImage ? (
+            <Image
+              source={placeholderImage}
+              style={[styles.thumbnail, thumbnailStyle]}
+            />
+          ) : (
+            <View style={styles.placeholder}>
+              <TextAtom style={styles.placeholderText}>No Image</TextAtom>
+            </View>
+          )}
+        </View>
+
+        {handlePress ? (
+          <TouchableAtom style={styles.viewButton} onPress={handlePress}>
+            <TextAtom style={styles.viewButtonText}>{actionLabel}</TextAtom>
+          </TouchableAtom>
+        ) : null}
       </View>
 
-      {(hasImage || fileName) && handlePress && (
-        <TouchableAtom
-          style={styles.viewButton}
-          onPress={handlePress}
-        >
-          <TextAtom style={styles.viewButtonText}>
-            {actionLabel || 'View'}
-          </TextAtom>
-        </TouchableAtom>
-      )}
-
-      {errorMessage && (
+      {errorMessage ? (
         <TextAtom style={styles.errorText}>{errorMessage}</TextAtom>
-      )}
+      ) : null}
 
       <Modal
         visible={previewVisible}
@@ -92,13 +97,14 @@ const ImageFieldPreview: React.FC<ImageFieldPreviewProps> = ({
             >
               <TextAtom style={styles.closeButtonText}>X</TextAtom>
             </TouchableOpacity>
-            {hasImage && (
+
+            {hasImage ? (
               <Image
-                source={{ uri: displayUri }}
+                source={{ uri: imageUri }}
                 style={styles.previewImage}
                 resizeMode="contain"
               />
-            )}
+            ) : null}
           </View>
         </Pressable>
       </Modal>
@@ -110,7 +116,7 @@ export default ImageFieldPreview;
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: vh(15),
+    marginBottom: vh(14),
   },
   labelRow: {
     flexDirection: 'row',
@@ -126,45 +132,50 @@ const styles = StyleSheet.create({
     color: colors.red,
     fontSize: vw(14),
     marginLeft: vw(2),
+    fontFamily: fonts.Inter_Medium,
   },
-  thumbnailContainer: {
-    width: vw(120),
-    height: vw(100),
-    borderRadius: vw(8),
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  thumbnailBox: {
+    width: vw(32),
+    height: vw(48),
+    borderRadius: vw(4),
     overflow: 'hidden',
     backgroundColor: colors.lightGray2,
     borderWidth: 1,
-    borderColor: colors.grey,
+    borderColor: '#D7DCE3',
   },
   thumbnail: {
     width: '100%',
     height: '100%',
   },
   placeholder: {
-    width: '100%',
-    height: '100%',
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#F3F4F6',
   },
   placeholderText: {
     fontFamily: fonts.Inter_Regular,
-    fontSize: vw(12),
+    fontSize: vw(10),
     color: colors.grey,
   },
   viewButton: {
-    marginTop: vh(8),
-    alignSelf: 'flex-start',
-    paddingVertical: vh(4),
-    paddingHorizontal: vw(12),
+    marginLeft: vw(10),
+    height: vh(30),
+    minWidth: vw(60),
+    paddingHorizontal: vw(14),
     borderRadius: vw(4),
-    borderWidth: 1,
-    borderColor: colors.primary,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   viewButtonText: {
     fontFamily: fonts.Inter_Medium,
     fontSize: vw(12),
-    color: colors.primary,
+    color: colors.white,
   },
   errorText: {
     marginTop: vh(4),
@@ -174,7 +185,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: 'rgba(0,0,0,0.8)',
     justifyContent: 'center',
     alignItems: 'center',
   },
