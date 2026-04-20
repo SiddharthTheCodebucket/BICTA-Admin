@@ -17,6 +17,10 @@ interface ImageFieldPreviewProps {
   placeholderImage?: any;
   isMandatory?: boolean;
   errorMessage?: string;
+  fileName?: string;
+  fileType?: string;
+  actionLabel?: string;
+  onPress?: () => void;
 }
 
 const ImageFieldPreview: React.FC<ImageFieldPreviewProps> = ({
@@ -25,10 +29,17 @@ const ImageFieldPreview: React.FC<ImageFieldPreviewProps> = ({
   placeholderImage,
   isMandatory = false,
   errorMessage,
+  fileName,
+  fileType,
+  actionLabel = 'View',
+  onPress,
 }) => {
   const [previewVisible, setPreviewVisible] = useState(false);
 
   const hasImage = imageUri && imageUri.length > 0;
+  const displayUri = imageUri || fileName;
+
+  const handlePress = onPress || (hasImage ? () => setPreviewVisible(true) : undefined);
 
   return (
     <View style={styles.container}>
@@ -39,7 +50,7 @@ const ImageFieldPreview: React.FC<ImageFieldPreviewProps> = ({
 
       <View style={styles.thumbnailContainer}>
         {hasImage ? (
-          <Image source={{ uri: imageUri }} style={styles.thumbnail} />
+          <Image source={{ uri: displayUri }} style={styles.thumbnail} />
         ) : placeholderImage ? (
           <Image source={placeholderImage} style={styles.thumbnail} />
         ) : (
@@ -49,12 +60,14 @@ const ImageFieldPreview: React.FC<ImageFieldPreviewProps> = ({
         )}
       </View>
 
-      {hasImage && (
+      {(hasImage || fileName) && handlePress && (
         <TouchableAtom
           style={styles.viewButton}
-          onPress={() => setPreviewVisible(true)}
+          onPress={handlePress}
         >
-          <TextAtom style={styles.viewButtonText}>View</TextAtom>
+          <TextAtom style={styles.viewButtonText}>
+            {actionLabel || 'View'}
+          </TextAtom>
         </TouchableAtom>
       )}
 
@@ -81,7 +94,7 @@ const ImageFieldPreview: React.FC<ImageFieldPreviewProps> = ({
             </TouchableOpacity>
             {hasImage && (
               <Image
-                source={{ uri: imageUri }}
+                source={{ uri: displayUri }}
                 style={styles.previewImage}
                 resizeMode="contain"
               />

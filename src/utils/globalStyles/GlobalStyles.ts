@@ -173,6 +173,28 @@ backButtonText: {
     color: colors.new_ui_card_title,
     marginTop: vh(3),
   },
+  infoTitle: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: adminFontSizes.md,
+    color: colors.new_ui_card_title,
+  },
+  infoSubtitle: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: adminFontSizes.sm,
+    color: colors.new_ui_card_description,
+    marginTop: vh(2),
+  },
+  sectionSeparator: {
+    marginTop: vh(12),
+    paddingTop: vh(10),
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  sectionTitle: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: adminFontSizes.sm,
+    color: colors.primary,
+  },
 
 
 });
