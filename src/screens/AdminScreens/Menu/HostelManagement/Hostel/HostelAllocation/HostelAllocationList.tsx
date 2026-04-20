@@ -200,6 +200,9 @@ const HostelAllocationList = (props: Props) => {
   const [allocationId, setAllocationId] = useState<any>('');
   const [isComingFromDropdown, setIsComingFromDropdown] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [detailExpandedItems, setDetailExpandedItems] = useState<Set<string>>(
+    new Set(),
+  );
   const [activeMenuItem, setActiveMenuItem] = useState<any>(null);
 
   const [trainingDetailList, setTrainingDetailList] = useState<any[]>([]);
@@ -243,6 +246,24 @@ const HostelAllocationList = (props: Props) => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
+        setDetailExpandedItems(detailPrev => {
+          const detailNext = new Set(detailPrev);
+          detailNext.delete(id);
+          return detailNext;
+        });
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleDetailExpansion = (id: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setDetailExpandedItems(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
       } else {
         next.add(id);
       }
@@ -282,6 +303,7 @@ const HostelAllocationList = (props: Props) => {
 
   useEffect(() => {
     setExpandedItems(new Set());
+    setDetailExpandedItems(new Set());
     hostelAllocationDetails(1, true, search, appliedFilters);
   }, [activeTab]);
 
@@ -584,37 +606,34 @@ const HostelAllocationList = (props: Props) => {
 
     return (
       <View style={styles.documentSection}>
-        <TextAtom style={styles.documentTitle}>Documents</TextAtom>
         <View style={styles.documentGrid}>
-          <ImageFieldPreview
+          {/* <ImageFieldPreview
             label="Photo"
             imageUri={item?.photo}
             containerStyle={styles.previewItem}
-          />
+            actionLabel="View"
+          /> */}
           <ImageFieldPreview
             label="Signature"
             imageUri={item?.sign}
             containerStyle={styles.previewItem}
+            actionLabel="View"
           />
-          <ImageFieldPreview
+          {/* <ImageFieldPreview
             label="Aadhaar Card"
             imageUri={getAadhaarImage(item)}
             containerStyle={styles.previewItem}
-          />
+            actionLabel="View"
+          /> */}
         </View>
       </View>
     );
   };
 
-  const renderExpandedContent = (item: any) => {
+  const renderPrimaryContent = (item: any) => {
     if (activeTab === 'guest') {
       return (
         <View style={styles.accordionContent}>
-          <FullWidthField
-            label={strings.hostelManagement.hostelAllocation.name}
-            value={item?.name}
-          />
-
           <View style={globalStyles.infoRow}>
             <InfoField
               label={strings.hostelManagement.hostelAllocation.hostel}
@@ -623,7 +642,6 @@ const HostelAllocationList = (props: Props) => {
             <InfoField
               label={strings.hostelManagement.hostelAllocation.room}
               value={item?.roomNo}
-              align="right"
             />
           </View>
 
@@ -635,7 +653,6 @@ const HostelAllocationList = (props: Props) => {
             <InfoField
               label={strings.hostelManagement.hostelAllocation.gender}
               value={item?.guestGender || item?.gender}
-              align="right"
             />
           </View>
 
@@ -647,37 +664,12 @@ const HostelAllocationList = (props: Props) => {
             <InfoField
               label={strings.hostelManagement.hostelAllocation.noOfDays}
               value={getNoOfDays(item, activeTab)}
-              align="right"
-            />
-          </View>
-
-          <View style={globalStyles.infoRow}>
-            <InfoField
-              label={strings.hostelManagement.hostelAllocation.mobileNumber}
-              value={item?.mobileNo}
-            />
-            <InfoField
-              label={strings.hostelManagement.hostelAllocation.email}
-              value={item?.officeEmail}
-              align="right"
-            />
-          </View>
-
-          <View style={globalStyles.infoRow}>
-            <InfoField
-              label={strings.hostelManagement.hostelAllocation.key}
-              value={item?.keyProvided}
-            />
-            <InfoField
-              label={strings.hostelManagement.hostelAllocation.yogaMat}
-              value={item?.yogaMatProvided}
-              align="right"
             />
           </View>
 
           <FullWidthField
-            label={strings.hostelManagement.hostelAllocation.purpose}
-            value={item?.purpose}
+            label={strings.hostelManagement.hostelAllocation.mobileNumber}
+            value={item?.mobileNo}
           />
         </View>
       );
@@ -698,7 +690,6 @@ const HostelAllocationList = (props: Props) => {
           <InfoField
             label={strings.hostelManagement.hostelAllocation.room}
             value={item?.roomNo}
-            align="right"
           />
         </View>
 
@@ -710,7 +701,6 @@ const HostelAllocationList = (props: Props) => {
           <InfoField
             label={strings.hostelManagement.hostelAllocation.gender}
             value={item?.gender}
-            align="right"
           />
         </View>
 
@@ -722,7 +712,6 @@ const HostelAllocationList = (props: Props) => {
           <InfoField
             label={strings.hostelManagement.hostelAllocation.noOfDays}
             value={getNoOfDays(item, activeTab)}
-            align="right"
           />
         </View>
 
@@ -734,10 +723,37 @@ const HostelAllocationList = (props: Props) => {
           <InfoField
             label={strings.hostelManagement.hostelAllocation.email}
             value={item?.officeEmail}
-            align="right"
           />
         </View>
+      </View>
+    );
+  };
 
+  const renderSecondaryContent = (item: any) => {
+    if (activeTab === 'guest') {
+      return (
+        <View style={styles.secondaryContent}>
+          <View style={globalStyles.infoRow}>
+            <InfoField
+              label={strings.hostelManagement.hostelAllocation.key}
+              value={item?.keyProvided}
+            />
+            <InfoField
+              label={strings.hostelManagement.hostelAllocation.yogaMat}
+              value={item?.yogaMatProvided}
+            />
+          </View>
+
+          <FullWidthField
+            label={strings.hostelManagement.hostelAllocation.purpose}
+            value={item?.purpose}
+          />
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.secondaryContent}>
         <View style={globalStyles.infoRow}>
           <InfoField
             label={strings.hostelManagement.hostelAllocation.aadhaarNumber}
@@ -746,7 +762,6 @@ const HostelAllocationList = (props: Props) => {
           <InfoField
             label={strings.hostelManagement.hostelAllocation.panNumber}
             value={item?.panNo}
-            align="right"
           />
         </View>
 
@@ -758,14 +773,22 @@ const HostelAllocationList = (props: Props) => {
           <InfoField
             label={strings.hostelManagement.hostelAllocation.key}
             value={item?.keyProvided}
-            align="right"
           />
         </View>
 
-        <FullWidthField
-          label={strings.hostelManagement.hostelAllocation.yogaMat}
-          value={item?.yogaMatProvided}
-        />
+        <View style={globalStyles.infoRow}>
+          <InfoField
+            label={strings.hostelManagement.hostelAllocation.yogaMat}
+            value={item?.yogaMatProvided}
+          />
+
+          <ImageFieldPreview
+            label="Photo"
+            imageUri={item?.photo}
+            containerStyle={styles.previewItem}
+            actionLabel="View"
+          />
+        </View>
 
         {renderDocumentPreviews(item)}
       </View>
@@ -775,6 +798,7 @@ const HostelAllocationList = (props: Props) => {
   const AllocationCard = ({ item, index }: any) => {
     const itemId = String(item?.id ?? index);
     const isExpanded = expandedItems.has(itemId);
+    const isDetailExpanded = detailExpandedItems.has(itemId);
     const personName = getPersonName(item, activeTab, index);
 
     return (
@@ -794,30 +818,6 @@ const HostelAllocationList = (props: Props) => {
             >
               {personName}
             </TextAtom>
-            <View style={styles.headerMetaRow}>
-              <TextAtom style={styles.headerMetaText}>#{index + 1}</TextAtom>
-              {!!item?.status && (
-                <View
-                  style={[
-                    styles.statusChip,
-                    item?.status === 'Allocated'
-                      ? styles.statusChipAllocated
-                      : styles.statusChipPending,
-                  ]}
-                >
-                  <TextAtom
-                    style={[
-                      styles.statusChipText,
-                      item?.status === 'Allocated'
-                        ? styles.statusChipTextAllocated
-                        : styles.statusChipTextPending,
-                    ]}
-                  >
-                    {item.status}
-                  </TextAtom>
-                </View>
-              )}
-            </View>
           </View>
 
           <View style={styles.headerActions}>
@@ -837,19 +837,22 @@ const HostelAllocationList = (props: Props) => {
           </View>
         </TouchableOpacity>
 
-        {isExpanded && renderExpandedContent(item)}
+        {isExpanded && (
+          <View>
+            {renderPrimaryContent(item)}
 
-        <TouchableAtom
-          style={styles.footerToggle}
-          onPress={() => toggleAccordion(itemId)}
-        >
-          <TextAtom style={styles.footerToggleText}>
-            {isExpanded ? 'View Less' : 'View More'}
-          </TextAtom>
-          <TextAtom style={styles.footerToggleIcon}>
-            {isExpanded ? '^' : 'v'}
-          </TextAtom>
-        </TouchableAtom>
+            {isDetailExpanded && renderSecondaryContent(item)}
+
+            <TouchableAtom
+              style={styles.footerToggle}
+              onPress={() => toggleDetailExpansion(itemId)}
+            >
+              <TextAtom style={styles.footerToggleText}>
+                {isDetailExpanded ? 'View Less' : 'View More'}
+              </TextAtom>
+            </TouchableAtom>
+          </View>
+        )}
       </View>
     );
   };
@@ -1289,7 +1292,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: vw(14),
-    paddingTop: vh(14),
+    paddingTop: vh(12),
     paddingBottom: vh(12),
   },
   headerLeft: {
@@ -1304,42 +1307,9 @@ const styles = StyleSheet.create({
   headerTitleActive: {
     color: colors.primary_blue,
   },
-  headerMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: vh(6),
-    gap: vw(8),
-  },
-  headerMetaText: {
-    fontFamily: fonts.Inter_Regular,
-    fontSize: vw(12),
-    color: colors.new_ui_card_description,
-  },
-  statusChip: {
-    paddingHorizontal: vw(8),
-    paddingVertical: vh(2),
-    borderRadius: vw(20),
-  },
-  statusChipAllocated: {
-    backgroundColor: '#E7F8EE',
-  },
-  statusChipPending: {
-    backgroundColor: '#FFF3DB',
-  },
-  statusChipText: {
-    fontFamily: fonts.Inter_Medium,
-    fontSize: vw(11),
-  },
-  statusChipTextAllocated: {
-    color: '#14804A',
-  },
-  statusChipTextPending: {
-    color: '#B7791F',
-  },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: vw(6),
   },
   actionBtn: {
     width: vw(32),
@@ -1359,12 +1329,11 @@ const styles = StyleSheet.create({
   },
   accordionContent: {
     paddingHorizontal: vw(14),
-    paddingBottom: vh(8),
-    borderTopWidth: 1,
-    borderTopColor: '#EEF2F6',
+    paddingTop: vh(2),
+    paddingBottom: vh(4),
   },
   fullWidthField: {
-    marginTop: vh(14),
+    marginTop: vh(10),
   },
   infoCol: {
     flex: 1,
@@ -1372,17 +1341,12 @@ const styles = StyleSheet.create({
   infoValueRight: {
     textAlign: 'right',
   },
-  documentSection: {
-    marginTop: vh(8),
-    paddingTop: vh(12),
-    borderTopWidth: 1,
-    borderTopColor: '#EEF2F6',
+  secondaryContent: {
+    paddingHorizontal: vw(14),
+    paddingBottom: vh(8),
   },
-  documentTitle: {
-    fontFamily: fonts.Inter_SemiBold,
-    fontSize: vw(14),
-    color: colors.new_ui_card_title,
-    marginBottom: vh(10),
+  documentSection: {
+    marginTop: vh(2),
   },
   documentGrid: {
     flexDirection: 'row',
@@ -1390,26 +1354,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   previewItem: {
-    width: '48%',
+    // width: '31%',
+    flex: 1,
+    marginBottom: vh(6),
   },
   footerToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: vw(6),
-    paddingVertical: vh(12),
-    borderTopWidth: 1,
-    borderTopColor: '#F2F4F7',
+    paddingHorizontal: vw(14),
+    paddingTop: vh(2),
+    paddingBottom: vh(10),
   },
   footerToggleText: {
     fontFamily: fonts.Inter_Medium,
     fontSize: vw(13),
     color: '#CD9F3E',
-  },
-  footerToggleIcon: {
-    fontFamily: fonts.Inter_Bold,
-    fontSize: vw(13),
-    color: '#CD9F3E',
+    textDecorationLine: 'underline',
   },
   emptyText: {
     textAlign: 'center',
