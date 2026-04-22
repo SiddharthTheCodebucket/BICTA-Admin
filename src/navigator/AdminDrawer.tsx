@@ -46,7 +46,7 @@ const MASTER_CONFIGURATION_ITEMS: DrawerMenuItem[] = [
   {
     id: 'master-academics',
     name: 'Academics',
-    screen: screensName.TrainingCategoryMaster,
+    screen: screensName.Academics,
     matchRoutes: [screensName.AddTrainingCategory],
   },
   {

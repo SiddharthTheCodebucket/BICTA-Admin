@@ -5,6 +5,7 @@ export default {
   ForgotPassword: 'ForgotPassword',
   Dashboard: 'Dashboard',
   Profile: 'Profile',
+  Academics: 'Academics',
   Menu: 'Menu',
   VehicleManagement: 'VehicleManagement',
   VehicleRegistration: 'VehicleRegistration',

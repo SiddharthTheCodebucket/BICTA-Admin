@@ -28,6 +28,7 @@ import {
 import TrainingCategoryMaster from '../../../Menu/LMS/TrainingManagement/TrainingCategoryMaster';
 import TraineeDesignation from './TraineeDesignation';
 import FacultyDetailsList from '../../../Menu/LMS/FacultyManagement/FacultyDetails/FacultyDetailsList';
+import { FacultyCenterProvider } from '../../../Menu/LMS/FacultyManagement/context/FacultyCenterContext';
 import Subject from '../../../Menu/LMS/CurriculumManagemnet/Subject';
 import SubjectTopicList from '../../../Menu/LMS/CurriculumManagemnet/SubjectTopic/SubjectTopicList';
 import LocationDetailsList from '../../../Menu/LMS/ClassLocationManagement/LocationDetails/LocationDetailsList';
@@ -183,7 +184,11 @@ const Academics = (props: Props) => {
         />
         <TopTabs.Screen
           name="FacultyDetailsTab"
-          component={FacultyDetailsList}
+          component={(props: any) => (
+            <FacultyCenterProvider>
+              <FacultyDetailsList {...props} />
+            </FacultyCenterProvider>
+          )}
           options={{ tabBarLabel: 'Faculty Details' }}
         />
         <TopTabs.Screen
