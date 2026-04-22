@@ -40,6 +40,7 @@ import HostelDetailsDashbaord from '../screens/AdminScreens/Dashboard/Hostel/Hos
 import BlockDetails from '../screens/AdminScreens/Dashboard/Hostel/BlockDetails';
 import BlockedForm from '../screens/AdminScreens/Dashboard/Hostel/BlockedForm';
 import Academics from '../screens/AdminScreens/Dashboard/masterConfiguration/academics';
+import Facilities from '../screens/AdminScreens/Dashboard/facilities';
 import LMS from '../screens/AdminScreens/Menu/LMS';
 import TrainingManagement from '../screens/AdminScreens/Menu/LMS/TrainingManagement';
 import AddTrainingCategory from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingCategoryMaster/AddTrainingCategory';
@@ -448,6 +449,7 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen name="BlockDetails" component={BlockDetails} />
         <RootStackScreen.Screen name="BlockedForm" component={BlockedForm} />
         <RootStackScreen.Screen name="Academics" component={Academics} />
+        <RootStackScreen.Screen name="Facilities" component={Facilities} />
         <RootStackScreen.Screen name="LMS" component={LMS} />
         <RootStackScreen.Screen
           name="TrainingManagement"

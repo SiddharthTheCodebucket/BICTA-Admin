@@ -52,7 +52,7 @@ const MASTER_CONFIGURATION_ITEMS: DrawerMenuItem[] = [
   {
     id: 'master-facilities',
     name: 'Facilities',
-    screen: screensName.HostelDetails,
+    screen: screensName.Facilities,
     matchRoutes: [screensName.AddHostelDetails],
   },
   {

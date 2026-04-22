@@ -6,6 +6,7 @@ export default {
   Dashboard: 'Dashboard',
   Profile: 'Profile',
   Academics: 'Academics',
+  Facilities: 'Facilities',
   Menu: 'Menu',
   VehicleManagement: 'VehicleManagement',
   VehicleRegistration: 'VehicleRegistration',
