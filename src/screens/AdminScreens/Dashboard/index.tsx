@@ -28,6 +28,7 @@ const HOSTEL_INNER_TABS = [
   strings.dashboardIndex.hostelReport,
   strings.dashboardIndex.allHostel,
 ];
+const DASHBOARD_TABS = ['Hostel Dashboard', 'Vendor Dashboard'] as const;
 
 const Dashboard = (props: Props) => {
   const { navigation } = props;
@@ -91,6 +92,37 @@ const Dashboard = (props: Props) => {
       setInnerTab(strings.dashboardIndex.hostelPlanning);
     }
   }, [props.route?.params]);
+
+  useEffect(() => {
+    const requestedTab = props.route?.params?.initialDashboardTab;
+    const requestedInnerTab = props.route?.params?.initialHostelInnerTab;
+
+    if (
+      requestedTab &&
+      DASHBOARD_TABS.includes(requestedTab) &&
+      (requestedTab !== 'Vendor Dashboard' ||
+        crediantialData?.user?.[0]?.tenantId === 3)
+    ) {
+      setActiveTab(requestedTab);
+    }
+
+    if (
+      requestedInnerTab &&
+      HOSTEL_INNER_TABS.includes(requestedInnerTab) &&
+      requestedTab !== 'Vendor Dashboard'
+    ) {
+      setInnerTab(requestedInnerTab);
+      return;
+    }
+
+    if (requestedTab === 'Hostel Dashboard') {
+      setInnerTab(strings.dashboardIndex.hostelPlanning);
+    }
+  }, [
+    crediantialData?.user,
+    props.route?.params?.initialDashboardTab,
+    props.route?.params?.initialHostelInnerTab,
+  ]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

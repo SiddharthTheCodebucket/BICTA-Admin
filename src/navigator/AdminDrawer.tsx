@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { DrawerActions } from '@react-navigation/native';
 import {
   View,
@@ -7,25 +7,22 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  TextInput,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
-import { colors, fonts, vw, vh, images, screensName } from '../constants';
+import { colors, fonts, screensName, vh, vw } from '../constants';
 import { useAppSelector } from '../hooks';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-interface SubMenuItem {
-  name: string;
-  screen: string;
-}
-
-interface MenuItem {
+interface DrawerMenuItem {
   id: string;
   name: string;
-  icon: string;
+  icon?: string;
   screen?: string;
-  subItems?: SubMenuItem[];
+  params?: Record<string, unknown>;
+  disabled?: boolean;
+  matchRoutes?: string[];
+  children?: DrawerMenuItem[];
 }
 
 const ADMIN_DASHBOARD_TABS = 'DashboardTabs';
@@ -45,88 +42,140 @@ const PROFILE_STACK_ROUTES = new Set([
   screensName.DeviceList,
 ]);
 
-const TRAINEE_MANAGEMENT_ROUTE_GROUP = new Set([
-  screensName.TraineeManagement,
-  screensName.TraineeRegistration,
-  screensName.TraineeRegistrationDetails,
-  screensName.AddTraineeRegistration,
-  screensName.TraineeDetails,
-  screensName.TraineeFullDetails,
-  screensName.IndemnityBond,
-  screensName.TraineeRelease,
-  screensName.TraineeReleaseDetails,
-  screensName.TraineeReleaseForm,
-  screensName.OthersRegistration,
-  'TrainingCategoryTab',
-  'TrainingDetailsTab',
-  'BatchDetailsTab',
-]);
+const MASTER_CONFIGURATION_ITEMS: DrawerMenuItem[] = [
+  {
+    id: 'master-academics',
+    name: 'Academics',
+    screen: screensName.TrainingCategoryMaster,
+    matchRoutes: [screensName.AddTrainingCategory],
+  },
+  {
+    id: 'master-facilities',
+    name: 'Facilities',
+    screen: screensName.HostelDetails,
+    matchRoutes: [screensName.AddHostelDetails],
+  },
+  {
+    id: 'master-comms-support',
+    name: 'Comms & Support',
+    disabled: true,
+  },
+  {
+    id: 'master-feedback',
+    name: 'Feedback',
+    screen: screensName.FeedbackCategory,
+    matchRoutes: [screensName.AddFeedbackCategory],
+  },
+  {
+    id: 'master-conference',
+    name: 'Conference',
+    screen: screensName.ConferenceMasterDetails,
+    matchRoutes: [screensName.AddConferenceForm],
+  },
+  {
+    id: 'master-visitor',
+    name: 'Visitor',
+    screen: screensName.QRListDetails,
+  },
+];
 
-const MENU_ITEMS: MenuItem[] = [
+const MAIN_MENU_ITEMS: DrawerMenuItem[] = [
   {
-    id: 'lms',
-    name: 'Learning Management',
-    icon: 'book-open-variant',
-    subItems: [
-      { name: 'Training', screen: screensName.TrainingManagement },
-      { name: 'Trainee', screen: screensName.TraineeManagement },
-      { name: 'Faculty', screen: screensName.FacultyManagement },
-      {
-        name: 'Curriculum/Knowledge',
-        screen: screensName.CurriculumManagemnet,
-      },
-      { name: 'Class Location', screen: screensName.ClassLocationManagement },
-      { name: 'Class Room', screen: screensName.ClassRoomManagement },
-      { name: 'Assignment', screen: screensName.Assignment },
-      { name: 'Examination', screen: screensName.Examination },
-      { name: 'Trainee Attendance', screen: screensName.TraineeAttendance },
-      { name: 'Gate Access', screen: screensName.GateAccess },
+    id: 'master-config',
+    name: 'Master & Configuration',
+    icon: 'cog-outline',
+    children: MASTER_CONFIGURATION_ITEMS,
+  },
+  {
+    id: 'website-contents',
+    name: 'Website Contents',
+    icon: 'monitor-dashboard',
+    disabled: true,
+  },
+  {
+    id: 'academics',
+    name: 'Academics',
+    icon: 'book-open-page-variant-outline',
+    screen: screensName.LMS,
+    matchRoutes: [
+      screensName.TrainingManagement,
+      screensName.TraineeManagement,
+      screensName.FacultyManagement,
+      screensName.ClassRoomManagement,
+      screensName.Assignment,
+      screensName.Examination,
+      screensName.TimeTable,
+      screensName.FacultyClassApprove,
+      screensName.Question,
+      screensName.AssignQuestion,
+      screensName.AssignmentsDetails,
+      screensName.AssignmentResponse,
+      screensName.CreateTest,
+      screensName.AssignQuestionList,
+      screensName.ExamResponse,
     ],
   },
   {
-    id: 'hostel',
-    name: 'Hostel Management',
-    icon: 'bed',
-    subItems: [
-      { name: 'Hostel', screen: screensName.Hostel },
-      { name: 'Guest', screen: screensName.Guest },
+    id: 'facilities',
+    name: 'Facilities',
+    icon: 'bed-outline',
+    screen: screensName.HostelManagement,
+    matchRoutes: [
+      screensName.Hostel,
+      screensName.Guest,
+      screensName.PHCManagement,
+      screensName.MessManagement,
+      screensName.HouseKeepingManagement,
+      screensName.VehicleManagement,
     ],
   },
   {
-    id: 'user',
-    name: 'User Management',
-    icon: 'account-cog',
-    screen: screensName.UserManagement,
-  },
-  {
-    id: 'feedback',
-    name: 'Feedback Management',
-    icon: 'comment-text',
-    screen: screensName.FeedbackManagement,
-  },
-  {
-    id: 'comm',
-    name: 'Communication Management',
-    icon: 'chat-processing',
+    id: 'comms-support',
+    name: 'Comms & Support',
+    icon: 'help-circle-outline',
     screen: screensName.CommunicationManagementSystem,
+    matchRoutes: [screensName.SupportMain],
   },
   {
-    id: 'report',
-    name: 'Report',
-    icon: 'file-chart',
+    id: 'conference',
+    name: 'Conference',
+    icon: 'account-tie-outline',
+    screen: screensName.ConferenceManagementSystem,
+  },
+  {
+    id: 'finances',
+    name: 'Finances',
+    icon: 'safe-square-outline',
     screen: screensName.Report,
+    matchRoutes: [
+      screensName.InvoiceAndBillManagement,
+      screensName.BudgetManagement,
+      screensName.FacultyReport,
+    ],
   },
   {
     id: 'hrms',
     name: 'HRMS',
-    icon: 'account-group',
+    icon: 'account-group-outline',
     screen: screensName.HRMS,
   },
   {
-    id: 'visitor',
+    id: 'visitor-management',
     name: 'Visitor Management',
-    icon: 'account-search',
+    icon: 'account-arrow-right-outline',
     screen: screensName.VisitorManagementSystem,
+  },
+  {
+    id: 'user-roles',
+    name: 'User & Roles',
+    icon: 'account-cog-outline',
+    screen: screensName.UserManagement,
+  },
+  {
+    id: 'sia',
+    name: 'SIA',
+    icon: 'clipboard-text-outline',
+    disabled: true,
   },
 ];
 
@@ -147,63 +196,104 @@ const getActiveRouteNames = (state: any): string[] => {
   return routeName ? [routeName] : [screensName.Dashboard];
 };
 
+const itemMatchesActiveRoute = (
+  item: DrawerMenuItem,
+  activeRouteNames: string[],
+): boolean => {
+  const routesToMatch = [
+    ...(item.screen ? [item.screen] : []),
+    ...(item.matchRoutes ?? []),
+  ];
+
+  return routesToMatch.some(routeName => activeRouteNames.includes(routeName));
+};
+
+const hasActiveChild = (
+  item: DrawerMenuItem,
+  activeRouteNames: string[],
+): boolean => {
+  return (
+    item.children?.some(
+      child =>
+        itemMatchesActiveRoute(child, activeRouteNames) ||
+        hasActiveChild(child, activeRouteNames),
+    ) ?? false
+  );
+};
+
 const AdminDrawer = (props: DrawerContentComponentProps) => {
   const { navigation } = props;
   const insets = useSafeAreaInsets();
   const activeRouteNames = getActiveRouteNames(props.state);
-  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
 
-  const getActiveSubItemScreen = () => {
-    if (activeRouteNames.includes(screensName.TraineeAttendance)) {
-      return screensName.TraineeAttendance;
-    }
-
-    if (activeRouteNames.includes(screensName.GateAccess)) {
-      return screensName.GateAccess;
-    }
-
-    if (
-      activeRouteNames.some(routeName =>
-        TRAINEE_MANAGEMENT_ROUTE_GROUP.has(routeName),
-      )
-    ) {
-      return screensName.TraineeManagement;
-    }
-
-    return (
-      activeRouteNames.find(routeName =>
-        MENU_ITEMS.some(
-          item =>
-            item.screen === routeName ||
-            item.subItems?.some(sub => sub.screen === routeName),
-        ),
-      ) ?? screensName.Menu
+  const activeMainItemId = useMemo(() => {
+    const activeItem = MAIN_MENU_ITEMS.find(
+      item =>
+        itemMatchesActiveRoute(item, activeRouteNames) ||
+        hasActiveChild(item, activeRouteNames),
     );
-  };
 
-  const activeSubItemScreen = getActiveSubItemScreen();
+    return activeItem?.id ?? null;
+  }, [activeRouteNames]);
+
+  const isDashboardActive = activeRouteNames.some(routeName =>
+    DASHBOARD_STACK_ROUTES.has(routeName),
+  );
 
   useEffect(() => {
-    const activeMenuItem = MENU_ITEMS.find(
-      item =>
-        item.screen === activeSubItemScreen ||
-        item.subItems?.some(sub => sub.screen === activeSubItemScreen),
-    );
-    if (activeMenuItem && activeMenuItem.subItems) {
-      setOpenAccordion(activeMenuItem.id);
+    if (activeMainItemId === 'master-config') {
+      setExpandedItemId('master-config');
     }
-  }, [activeSubItemScreen]);
+  }, [activeMainItemId]);
 
   const { crediantialData } = useAppSelector(state => state.Auth);
   const user = crediantialData?.user?.[0];
 
-  const toggleAccordion = (id: string) => {
-    setOpenAccordion(openAccordion === id ? null : id);
-  };
-
   const closeDrawer = () => {
     navigation.dispatch(DrawerActions.closeDrawer());
+  };
+
+  const navigateToItem = (item: DrawerMenuItem) => {
+    if (item.disabled || !item.screen) {
+      return;
+    }
+
+    if (item.screen === screensName.Dashboard) {
+      (navigation as any).navigate(ADMIN_DASHBOARD_TABS, {
+        screen: screensName.Dashboard,
+        params: item.params,
+      });
+      closeDrawer();
+      return;
+    }
+
+    if (DASHBOARD_STACK_ROUTES.has(item.screen)) {
+      (navigation as any).navigate(ADMIN_DASHBOARD_TABS, {
+        screen: screensName.Dashboard,
+        params:
+          item.screen === screensName.Dashboard
+            ? item.params
+            : { screen: item.screen, ...(item.params ?? {}) },
+      });
+      closeDrawer();
+      return;
+    }
+
+    if (PROFILE_STACK_ROUTES.has(item.screen)) {
+      (navigation as any).navigate(ADMIN_DASHBOARD_TABS, {
+        screen: screensName.Profile,
+        params:
+          item.screen === screensName.Profile
+            ? item.params
+            : { screen: item.screen, ...(item.params ?? {}) },
+      });
+      closeDrawer();
+      return;
+    }
+
+    (navigation as any).navigate(item.screen, item.params);
+    closeDrawer();
   };
 
   const openDashboardHome = () => {
@@ -213,32 +303,42 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
     closeDrawer();
   };
 
-  const navigateToScreen = (screen: string) => {
-    if (DASHBOARD_STACK_ROUTES.has(screen)) {
-      (navigation as any).navigate(ADMIN_DASHBOARD_TABS, {
-        screen: screensName.Dashboard,
-        params: screen === screensName.Dashboard ? undefined : { screen },
-      });
-      closeDrawer();
-      return;
-    }
-
-    if (PROFILE_STACK_ROUTES.has(screen)) {
-      (navigation as any).navigate(ADMIN_DASHBOARD_TABS, {
-        screen: screensName.Profile,
-        params: screen === screensName.Profile ? undefined : { screen },
-      });
-      closeDrawer();
-      return;
-    }
-
-    (navigation as any).navigate(screen);
-    closeDrawer();
+  const renderMasterChildren = (items: DrawerMenuItem[]) => {
+    return (
+      <View style={styles.subMenuContainer}>
+        {items.map((item, index) => {
+          const isActive = itemMatchesActiveRoute(item, activeRouteNames);
+          return (
+            <TouchableOpacity
+              key={item.id}
+              style={[
+                styles.subMenuItem,
+                index === items.length - 1 && styles.subMenuItemLast,
+              ]}
+              onPress={() => navigateToItem(item)}
+              activeOpacity={item.disabled ? 1 : 0.8}
+            >
+              <View style={styles.subMenuLeft}>
+                {isActive ? <View style={styles.subMenuBullet} /> : null}
+                <Text
+                  style={[
+                    styles.subMenuText,
+                    isActive && styles.subMenuTextActive,
+                    item.disabled && styles.disabledText,
+                  ]}
+                >
+                  {item.name}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
   };
 
   return (
     <View style={styles.container}>
-      {/* User Profile Header */}
       <View
         style={[
           styles.profileHeader,
@@ -250,9 +350,9 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
           style={styles.avatar}
         />
         <View style={styles.profileInfo}>
-          <Text style={styles.userName}>{user?.userName || 'User Name'}</Text>
+          <Text style={styles.userName}>{user?.userName || 'Jenny Diana'}</Text>
           <Text style={styles.trainingId}>
-            Training ID: {user?.trainingId || 'BIP/GAYA/2026/001'}
+            {user?.designation || 'Sr. Assistant Director'}
           </Text>
         </View>
         <TouchableOpacity
@@ -263,119 +363,98 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
         </TouchableOpacity>
       </View>
 
-      {/* Dashboard Header */}
       <View style={styles.dashboardHeader}>
         <TouchableOpacity
-          style={styles.dashboardTitleRow}
+          style={styles.dashboardRow}
           onPress={openDashboardHome}
           activeOpacity={0.8}
         >
           <Icon
-            name="view-grid"
+            name="view-dashboard-outline"
             size={24}
-            color={colors.primary}
-            style={styles.dashboardIcon}
+            color={colors.primary_dark_blue}
           />
-          <Text style={styles.dashboardTitle}>Dashboard</Text>
+          <Text
+            style={[
+              styles.dashboardText,
+              isDashboardActive && styles.dashboardTextActive,
+            ]}
+          >
+            Dashboard
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.searchIconContainer}>
-          <Icon name="magnify" size={24} color={colors.primary} />
+        <TouchableOpacity style={styles.searchButton} activeOpacity={0.8}>
+          <Icon name="magnify" size={22} color={colors.primary_dark_blue} />
         </TouchableOpacity>
       </View>
 
       <ScrollView
         style={styles.menuScrollView}
+        contentContainerStyle={styles.menuScrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {MENU_ITEMS.map(item => {
-          const isOpen = openAccordion === item.id;
-          const hasSubItems = item.subItems && item.subItems.length > 0;
+        {MAIN_MENU_ITEMS.map(item => {
+          const isExpanded = expandedItemId === item.id;
+          const isActive =
+            itemMatchesActiveRoute(item, activeRouteNames) ||
+            hasActiveChild(item, activeRouteNames);
+          const hasChildren = Boolean(item.children?.length);
 
           return (
-            <View key={item.id} style={styles.menuItemContainer}>
-              {hasSubItems ? (
-                <View style={styles.accordionContainer}>
-                  <TouchableOpacity
+            <View key={item.id} style={styles.menuBlock}>
+              <TouchableOpacity
+                style={[
+                  styles.menuRow,
+                  hasChildren && isExpanded && styles.menuRowExpanded,
+                ]}
+                onPress={() => {
+                  if (hasChildren) {
+                    setExpandedItemId(isExpanded ? null : item.id);
+                    return;
+                  }
+                  navigateToItem(item);
+                }}
+                activeOpacity={0.8}
+              >
+                <View style={styles.menuRowLeft}>
+                  <Icon
+                    name={item.icon || 'circle-outline'}
+                    size={20}
+                    color={
+                      hasChildren && isExpanded
+                        ? colors.primary_dark_blue
+                        : colors.primary_dark_blue
+                    }
+                  />
+                  <Text
                     style={[
-                      styles.accordionHeader,
-                      isOpen && styles.accordionHeaderActive,
+                      styles.menuRowText,
+                      isActive && !hasChildren && styles.menuRowTextActive,
+                      item.disabled && styles.disabledText,
                     ]}
-                    onPress={() => toggleAccordion(item.id)}
                   >
-                    <View style={styles.headerLeft}>
-                      <Icon
-                        name={item.icon}
-                        size={20}
-                        color={isOpen ? colors.white : colors.primary}
-                      />
-                      <Text
-                        style={[
-                          styles.menuText,
-                          isOpen && styles.menuTextActive,
-                        ]}
-                      >
-                        {item.name}
-                      </Text>
-                    </View>
-                    <Icon
-                      name={isOpen ? 'chevron-up' : 'chevron-down'}
-                      size={20}
-                      color={isOpen ? colors.white : colors.primary}
-                    />
-                  </TouchableOpacity>
-                  {isOpen && (
-                    <View style={styles.subMenuItemContainer}>
-                      {item.subItems?.map((sub, index) => {
-                        const isSubActive = activeSubItemScreen === sub.screen;
-                        return (
-                          <TouchableOpacity
-                            key={index}
-                            style={[
-                              styles.subMenuItem,
-                              isSubActive && styles.subMenuItemActive,
-                            ]}
-                            onPress={() => navigateToScreen(sub.screen)}
-                          >
-                            <View style={styles.subMenuItemLeft}>
-                              <View
-                                style={[
-                                  styles.bullet,
-                                  isSubActive && styles.bulletActive,
-                                ]}
-                              />
-                              <Text
-                                style={[
-                                  styles.subMenuItemText,
-                                  isSubActive && styles.subMenuItemTextActive,
-                                ]}
-                              >
-                                {sub.name}
-                              </Text>
-                            </View>
-                          </TouchableOpacity>
-                        );
-                      })}
-                    </View>
-                  )}
+                    {item.name}
+                  </Text>
                 </View>
-              ) : (
-                <TouchableOpacity
-                  style={styles.singleMenuItem}
-                  onPress={() => item.screen && navigateToScreen(item.screen)}
-                >
-                  <View style={styles.menuItemLeft}>
-                    <Icon name={item.icon} size={20} color={colors.primary} />
-                    <Text style={styles.menuText}>{item.name}</Text>
-                  </View>
-                  <Icon name="chevron-right" size={20} color={colors.primary} />
-                </TouchableOpacity>
-              )}
+                <Icon
+                  name={
+                    hasChildren
+                      ? isExpanded
+                        ? 'chevron-up'
+                        : 'chevron-right'
+                      : 'chevron-right'
+                  }
+                  size={20}
+                  color={colors.primary_dark_blue}
+                />
+              </TouchableOpacity>
+
+              {hasChildren && isExpanded ? renderMasterChildren(item.children ?? []) : null}
             </View>
           );
         })}
       </ScrollView>
 
-      {/* Footer */}
       <View style={styles.footer}>
         <Text style={styles.footerVersion}>Version 2.0.0.1</Text>
         <Text style={styles.footerDeveloped}>
@@ -394,16 +473,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   profileHeader: {
-    backgroundColor: colors.primary,
-    padding: vw(16),
+    backgroundColor: '#10233E',
+    paddingHorizontal: vw(14),
+    paddingBottom: vh(14),
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
   },
   avatar: {
-    width: vw(48),
-    height: vw(48),
-    borderRadius: vw(24),
+    width: vw(50),
+    height: vw(50),
+    borderRadius: vw(25),
     borderWidth: 2,
     borderColor: colors.white,
   },
@@ -413,14 +493,14 @@ const styles = StyleSheet.create({
   },
   userName: {
     color: colors.white,
-    fontSize: vw(16),
+    fontSize: vw(17),
     fontFamily: fonts.Roboto_Bold,
   },
   trainingId: {
-    color: colors.white,
-    fontSize: vw(12),
+    color: '#D8DFE8',
+    fontSize: vw(13),
     fontFamily: fonts.Roboto_Regular,
-    opacity: 0.8,
+    marginTop: vh(2),
   },
   closeButton: {
     position: 'absolute',
@@ -428,130 +508,122 @@ const styles = StyleSheet.create({
   },
   dashboardHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: vw(16),
-    marginTop: vh(20),
+    justifyContent: 'space-between',
+    paddingHorizontal: vw(18),
+    paddingVertical: vh(16),
   },
-  dashboardTitleRow: {
+  dashboardRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
-  dashboardIcon: {
-    marginRight: vw(8),
-  },
-  dashboardTitle: {
-    fontSize: vw(18),
+  dashboardText: {
+    marginLeft: vw(10),
+    color: colors.primary_dark_blue,
+    fontSize: vw(16),
     fontFamily: fonts.Roboto_Bold,
-    color: colors.primary,
   },
-  searchIconContainer: {
+  dashboardTextActive: {
+    color: colors.primary_dark_blue,
+  },
+  searchButton: {
     padding: vw(4),
   },
   menuScrollView: {
     flex: 1,
-    paddingHorizontal: vw(16),
   },
-  menuItemContainer: {
-    marginBottom: vh(10),
+  menuScrollContent: {
+    paddingHorizontal: vw(12),
+    paddingBottom: vh(24),
   },
-  accordionContainer: {
-    borderRadius: vw(8),
-    overflow: 'hidden',
-    backgroundColor: '#FFFBEB', // Very light yellow bg for sub-menu area
-    borderWidth: 1,
-    borderColor: '#F3E5AB',
+  menuBlock: {
+    marginBottom: vh(8),
   },
-  accordionHeader: {
+  menuRow: {
+    minHeight: vh(46),
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: vw(12),
-    backgroundColor: colors.white,
+    paddingHorizontal: vw(12),
     borderRadius: vw(8),
+    backgroundColor: colors.white,
   },
-  accordionHeaderActive: {
-    backgroundColor: '#B8860B', // Golden color from image
+  menuRowExpanded: {
+    backgroundColor: '#D6A62A',
   },
-  headerLeft: {
+  menuRowLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    paddingRight: vw(8),
   },
-  menuText: {
+  menuRowText: {
+    marginLeft: vw(10),
+    color: colors.primary_dark_blue,
     fontSize: vw(15),
     fontFamily: fonts.Roboto_Regular,
-    color: colors.primary,
-    marginLeft: vw(8),
+    flexShrink: 1,
   },
-  menuTextActive: {
-    color: colors.white,
+  menuRowTextActive: {
     fontFamily: fonts.Roboto_Bold,
   },
-  subMenuItemContainer: {
-    paddingBottom: vh(10),
-    paddingTop: vh(5),
+  subMenuContainer: {
+    backgroundColor: '#FBF1D5',
+    borderBottomLeftRadius: vw(12),
+    borderBottomRightRadius: vw(12),
+    overflow: 'hidden',
   },
   subMenuItem: {
-    paddingVertical: vh(12),
-    paddingHorizontal: vw(24),
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3E5AB',
+    minHeight: vh(42),
+    justifyContent: 'center',
+    paddingHorizontal: vw(16),
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E3C780',
   },
-  subMenuItemActive: {
-    backgroundColor: colors.primary_sky_blue,
+  subMenuItemLast: {
+    borderBottomWidth: 0,
   },
-  subMenuItemLeft: {
+  subMenuLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  bullet: {
-    width: vw(4),
-    height: vw(4),
-    borderRadius: vw(2),
-    backgroundColor: colors.primary,
-    marginRight: vw(8),
-  },
-  bulletActive: {
+  subMenuBullet: {
+    width: vw(6),
+    height: vw(6),
+    borderRadius: vw(3),
     backgroundColor: colors.primary_dark_blue,
+    marginRight: vw(10),
   },
-  subMenuItemText: {
-    fontSize: vw(14),
+  subMenuText: {
+    color: '#253247',
+    fontSize: vw(15),
     fontFamily: fonts.Roboto_Regular,
-    color: colors.text_grey || '#4B5563',
   },
-  subMenuItemTextActive: {
-    color: colors.primary_dark_blue,
+  subMenuTextActive: {
     fontFamily: fonts.Roboto_Bold,
   },
-  singleMenuItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: vw(12),
-    backgroundColor: colors.white,
-    borderRadius: vw(8),
-  },
-  menuItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  disabledText: {
+    opacity: 0.65,
   },
   footer: {
-    padding: vw(16),
+    paddingHorizontal: vw(16),
+    paddingTop: vh(14),
+    paddingBottom: vh(24),
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: colors.lightGrey,
-    backgroundColor: colors.white,
-    paddingBottom: vh(30),
+    borderTopColor: '#D2D6DC',
+    marginHorizontal: vw(14),
   },
   footerVersion: {
     fontSize: vw(12),
     fontFamily: fonts.Roboto_Regular,
-    color: colors.text_light_grey || '#666666',
-    marginBottom: vh(5),
+    color: '#9CA3AF',
+    marginBottom: vh(4),
   },
   footerDeveloped: {
     fontSize: vw(12),
     fontFamily: fonts.Roboto_Regular,
-    color: colors.text_light_grey || '#666666',
+    color: '#9CA3AF',
   },
 });
