@@ -93,3 +93,9 @@ ios/BIPARDADMIN/Images.xcassets/SplashIcon.launchimage/*.png
 ios/BIPARDADMIN/Images.xcassets/SplashIcon.imageset/*.png
 
 figmaDesign
+
+graphify-out
+
+opencode.json
+graphify.js
+.graphifyignore
