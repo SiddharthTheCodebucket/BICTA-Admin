@@ -205,7 +205,7 @@ const TrainingCategoryMaster = (props: Props) => {
           <TouchableAtom
             style={{}}
             onPress={() =>
-              navigation.navigate(screensName.AddTrainingCategory, {
+              navigation.navigate(screensName.AddTrainingCategoryMaster, {
                 item,
                 onDone: () => listTrainingCategoryDetails(1, true, search),
               })
@@ -235,14 +235,15 @@ const TrainingCategoryMaster = (props: Props) => {
         visible: true,
         onPress: openCenterFilter,
       },
-      create: {
-        visible: true,
-        onPress: () => {
-          navigation.navigate(screensName.AddTrainingCategory, {
-            onDone: () => listTrainingCategoryDetails(1, true, search),
-          });
-        },
-      },
+       create: {
+         visible: true,
+         onPress: () => {
+           navigation.navigate(screensName.AddTrainingCategoryMaster, {
+             onDone: () => listTrainingCategoryDetails(1, true, search),
+           });
+         },
+       },
+
     }),
     [navigation, openCenterFilter, search, totalCount, listTrainingCategoryDetails],
   );

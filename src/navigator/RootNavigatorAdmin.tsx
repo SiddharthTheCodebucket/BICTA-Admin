@@ -41,13 +41,12 @@ import BlockDetails from '../screens/AdminScreens/Dashboard/Hostel/BlockDetails'
 import BlockedForm from '../screens/AdminScreens/Dashboard/Hostel/BlockedForm';
 import Academics from '../screens/AdminScreens/Dashboard/masterConfiguration/academics';
 import Facilities from '../screens/AdminScreens/Dashboard/facilities';
-import CommsAndSupport from '../screens/AdminScreens/Dashboard/masterConfiguration/commsAndSupport';
 
 import FacultyReportMaster from '../screens/AdminScreens/Dashboard/finances/FacultyReportMaster';
 import LMS from '../screens/AdminScreens/Menu/LMS';
 
 import TrainingManagement from '../screens/AdminScreens/Menu/LMS/TrainingManagement';
-import TrainingCategoryForm from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TrainingCategoryMaster/TrainingCategoryForm';
+
 import TrainingDetailsScreen from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingDetails/TrainingDetailsScreen';
 import AddTrainingDetails from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingDetails/AddTrainingDetails';
 import BatchDetailsList from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails/BatchDetailsList';
@@ -266,8 +265,9 @@ import AddConferenceForm from '../screens/AdminScreens/Menu/ConferenceManagement
 import ScanQRAndFace from '../screens/AdminScreens/Profile/ScanQRAndFace';
 import DeviceRegistration from '../screens/AdminScreens/Profile/FaceScan/DeviceRegistration';
 import DeviceList from '../screens/AdminScreens/Profile/FaceScan/DeviceList';
-import FeedbackMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/feedback';
 import Feedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback';
+import AddTrainingCategoryMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TrainingCategoryMaster/AddTrainingCategoryMaster';
+import { CommsAndSupport } from '../screens/AdminScreens/Dashboard/masterConfiguration/commsAndSupport';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -477,8 +477,8 @@ const RootNavigatorAdmin = () => {
           initialParams={{ initialTab: 'TrainingCategoryMaster' }}
         />
         <RootStackScreen.Screen
-          name="AddTrainingCategory"
-          component={TrainingCategoryForm}
+          name={screensName.AddTrainingCategoryMaster}
+          component={AddTrainingCategoryMaster}
         />
         <RootStackScreen.Screen
           name="TrainingDetails"

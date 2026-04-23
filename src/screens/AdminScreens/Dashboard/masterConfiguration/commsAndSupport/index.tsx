@@ -1,1 +1,1 @@
-export { default } from './CommsAndSupport';
+export { default as CommsAndSupport } from './CommsAndSupport';

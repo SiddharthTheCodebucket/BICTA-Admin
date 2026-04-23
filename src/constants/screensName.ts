@@ -47,7 +47,7 @@ export default {
   LMS: 'LMS',
   TrainingManagement: 'TrainingManagement',
   TrainingCategoryMaster: 'TrainingCategoryMaster',
-  AddTrainingCategory: 'AddTrainingCategory',
+  AddTrainingCategoryMaster: 'AddTrainingCategoryMaster',
   TrainingDetails: 'TrainingDetails',
   TrainingDetailsScreen: 'TrainingDetailsScreen',
   AddTrainingDetails: 'AddTrainingDetails',

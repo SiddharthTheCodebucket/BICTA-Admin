@@ -60,7 +60,7 @@ interface FormState {
   desc: string;
 }
 
-const TrainingCategoryForm = (props: Props) => {
+const AddTrainingCategoryMaster = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
   const isEdit = !!item;
@@ -363,7 +363,7 @@ const TrainingCategoryForm = (props: Props) => {
   );
 };
 
-export default TrainingCategoryForm;
+export default AddTrainingCategoryMaster;
 
 const styles = StyleSheet.create({
   container: {

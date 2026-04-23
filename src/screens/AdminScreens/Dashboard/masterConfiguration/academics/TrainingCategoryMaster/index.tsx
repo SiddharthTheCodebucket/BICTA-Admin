@@ -1,2 +1,1 @@
-import TrainingCategoryMaster from './TrainingCategoryMaster';
-export default TrainingCategoryMaster;
+export { default as TrainingCategoryMaster } from './TrainingCategoryMaster';
