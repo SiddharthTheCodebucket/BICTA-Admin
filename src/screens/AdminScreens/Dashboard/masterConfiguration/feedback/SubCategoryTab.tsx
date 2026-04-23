@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, fonts, vw } from '../../../../../../constants';
+import { colors, fonts, vw } from '../../../../../constants';
 
 const SubCategoryTab = () => {
   return (

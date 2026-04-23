@@ -63,7 +63,7 @@ const MASTER_CONFIGURATION_ITEMS: DrawerMenuItem[] = [
   {
     id: 'master-feedback',
     name: 'Feedback',
-    screen: screensName.FeedbackCategory,
+    screen: screensName.FeedbackMaster,
     matchRoutes: [screensName.AddFeedbackCategory],
   },
   {
