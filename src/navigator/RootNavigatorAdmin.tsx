@@ -282,6 +282,8 @@ const AppDrawer = () => (
       name={ADMIN_DASHBOARD_TABS}
       component={BottomTabNavigatorAdmin}
     />
+    <Drawer.Screen name={screensName.Academics} component={Academics} />
+    <Drawer.Screen name={screensName.Facilities} component={Facilities} />
     <Drawer.Screen name={screensName.LMS} component={LMS} />
     <Drawer.Screen
       name={screensName.TrainingManagement}
@@ -448,8 +450,6 @@ const RootNavigatorAdmin = () => {
         />
         <RootStackScreen.Screen name="BlockDetails" component={BlockDetails} />
         <RootStackScreen.Screen name="BlockedForm" component={BlockedForm} />
-        <RootStackScreen.Screen name="Academics" component={Academics} />
-        <RootStackScreen.Screen name="Facilities" component={Facilities} />
         <RootStackScreen.Screen name="LMS" component={LMS} />
         <RootStackScreen.Screen
           name="TrainingManagement"

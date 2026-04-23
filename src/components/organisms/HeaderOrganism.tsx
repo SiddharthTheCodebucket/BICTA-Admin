@@ -8,7 +8,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ParamListBase } from '@react-navigation/native';
+import { ParamListBase, DrawerActions } from '@react-navigation/native';
 import { colors, fonts, images, vh, vw } from '../../constants';
 import ImageAtom from '../atoms/ImageAtom';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -68,13 +68,7 @@ export const Header = {
           <TouchableOpacity
             hitSlop={styles.backBttnHitSlop}
             onPress={() => {
-              if ((navigation as any).openDrawer) {
-                (navigation as any).openDrawer();
-              } else if ((navigation as any).getParent()?.openDrawer) {
-                (navigation as any).getParent().openDrawer();
-              } else {
-                console.warn('Drawer navigator not found in hierarchy');
-              }
+              navigation.dispatch(DrawerActions.openDrawer());
             }}
           >
             <Icon name="menu" size={24} color={backIconColor} />
@@ -185,7 +179,7 @@ export const Header = {
       headerLeft: () => (
         <View style={styles.leftContainer}>
           <TouchableOpacity
-            onPress={() => (navigation as any).openDrawer()}
+            onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
             style={styles.drawerToggle}
           >
             <Icon name="menu" size={24} color={colors.primary} />
