@@ -7,6 +7,7 @@ export default {
   Profile: 'Profile',
   Academics: 'Academics',
   Facilities: 'Facilities',
+  CommsAndSupport: 'CommsAndSupport',
   Menu: 'Menu',
   VehicleManagement: 'VehicleManagement',
   VehicleRegistration: 'VehicleRegistration',

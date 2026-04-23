@@ -58,7 +58,7 @@ const MASTER_CONFIGURATION_ITEMS: DrawerMenuItem[] = [
   {
     id: 'master-comms-support',
     name: 'Comms & Support',
-    disabled: true,
+    screen: screensName.CommsAndSupport,
   },
   {
     id: 'master-feedback',

@@ -41,6 +41,7 @@ import BlockDetails from '../screens/AdminScreens/Dashboard/Hostel/BlockDetails'
 import BlockedForm from '../screens/AdminScreens/Dashboard/Hostel/BlockedForm';
 import Academics from '../screens/AdminScreens/Dashboard/masterConfiguration/academics';
 import Facilities from '../screens/AdminScreens/Dashboard/facilities';
+import CommsAndSupport from '../screens/AdminScreens/Dashboard/masterConfiguration/commsAndSupport';
 import LMS from '../screens/AdminScreens/Menu/LMS';
 import TrainingManagement from '../screens/AdminScreens/Menu/LMS/TrainingManagement';
 import AddTrainingCategory from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingCategoryMaster/AddTrainingCategory';
@@ -284,6 +285,7 @@ const AppDrawer = () => (
     />
     <Drawer.Screen name={screensName.Academics} component={Academics} />
     <Drawer.Screen name={screensName.Facilities} component={Facilities} />
+    <Drawer.Screen name={screensName.CommsAndSupport} component={CommsAndSupport} />
     <Drawer.Screen name={screensName.LMS} component={LMS} />
     <Drawer.Screen
       name={screensName.TrainingManagement}
