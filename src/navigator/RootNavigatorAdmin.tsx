@@ -47,7 +47,7 @@ import FacultyReportMaster from '../screens/AdminScreens/Dashboard/finances/Facu
 import LMS from '../screens/AdminScreens/Menu/LMS';
 
 import TrainingManagement from '../screens/AdminScreens/Menu/LMS/TrainingManagement';
-import AddTrainingCategory from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingCategoryMaster/AddTrainingCategory';
+import TrainingCategoryForm from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TrainingCategoryMaster/TrainingCategoryForm';
 import TrainingDetailsScreen from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingDetails/TrainingDetailsScreen';
 import AddTrainingDetails from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingDetails/AddTrainingDetails';
 import BatchDetailsList from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails/BatchDetailsList';
@@ -478,7 +478,7 @@ const RootNavigatorAdmin = () => {
         />
         <RootStackScreen.Screen
           name="AddTrainingCategory"
-          component={AddTrainingCategory}
+          component={TrainingCategoryForm}
         />
         <RootStackScreen.Screen
           name="TrainingDetails"

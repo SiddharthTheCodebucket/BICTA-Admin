@@ -37,13 +37,13 @@ interface TrainingCategoryItem {
   tenantId: number;
 }
 
-interface AddTrainingCategoryRouteParams {
+interface TrainingCategoryFormRouteParams {
   item?: TrainingCategoryItem;
   onDone?: () => void;
 }
 
 interface Props {
-  route: { params?: AddTrainingCategoryRouteParams };
+  route: { params?: TrainingCategoryFormRouteParams };
   navigation: NavigationType;
 }
 
@@ -60,7 +60,7 @@ interface FormState {
   desc: string;
 }
 
-const AddTrainingCategory = (props: Props) => {
+const TrainingCategoryForm = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
   const isEdit = !!item;
@@ -363,7 +363,7 @@ const AddTrainingCategory = (props: Props) => {
   );
 };
 
-export default AddTrainingCategory;
+export default TrainingCategoryForm;
 
 const styles = StyleSheet.create({
   container: {
