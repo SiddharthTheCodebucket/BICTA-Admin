@@ -153,7 +153,7 @@ import SupportTicketMovementDetails from '../screens/AdminScreens/Menu/SupportMa
 import SupportTicketHistoryReply from '../screens/AdminScreens/Menu/SupportMain/SupportAdmin/SupportTicketHistory/SupportTicketHistoryReply';
 import AddUserRegistration from '../screens/AdminScreens/Menu/UserManagement/User/UserRegistration/AddUserRegistration';
 import FeedbackManagement from '../screens/AdminScreens/Menu/FeedbackManagement';
-import Feedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback';
+// import Feedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback';
 import FeedbackCategory from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackCategory';
 import AddFeedbackCategory from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackCategory/AddFeedbackCategory';
 import FeedbackTopic from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackTopic';
@@ -264,6 +264,8 @@ import AddConferenceForm from '../screens/AdminScreens/Menu/ConferenceManagement
 import ScanQRAndFace from '../screens/AdminScreens/Profile/ScanQRAndFace';
 import DeviceRegistration from '../screens/AdminScreens/Profile/FaceScan/DeviceRegistration';
 import DeviceList from '../screens/AdminScreens/Profile/FaceScan/DeviceList';
+import FeedbackMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/feedback';
+import Feedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -290,7 +292,10 @@ const AppDrawer = () => (
       name={screensName.CommsAndSupport}
       component={CommsAndSupport}
     />
-    <Drawer.Screen name={screensName.FeedbackMaster} component={Feedback} />
+    <Drawer.Screen
+      name={screensName.FeedbackMaster}
+      component={FeedbackMaster}
+    />
     <Drawer.Screen name={screensName.LMS} component={LMS} />
     <Drawer.Screen
       name={screensName.TrainingManagement}
