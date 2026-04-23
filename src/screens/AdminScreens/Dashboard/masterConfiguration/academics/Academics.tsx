@@ -25,7 +25,7 @@ import {
   NavigationType,
 } from '../../../../../components/organisms/HeaderOrganism';
 
-import TrainingCategoryMaster from '../../../Menu/LMS/TrainingManagement/TrainingCategoryMaster';
+import TrainingCategoryMaster from './TrainingCategoryMaster';
 import TraineeDesignation from './TraineeDesignation';
 import FacultyDetailsList from '../../../Menu/LMS/FacultyManagement/FacultyDetails/FacultyDetailsList';
 import { FacultyCenterProvider } from '../../../Menu/LMS/FacultyManagement/context/FacultyCenterContext';

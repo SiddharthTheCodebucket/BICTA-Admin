@@ -22,21 +22,21 @@ import {
   SvgEditPencile,
   vh,
   vw,
-} from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
+} from '../../../../../constants';
+import { useAppSelector } from '../../../../../hooks';
 import {
   Header,
   NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
+} from '../../../../../components/organisms/HeaderOrganism';
 import AdminListHeader, {
   AdminListHeaderConfig,
-} from '../../../../../../components/organisms/AdminListHeader';
-import TextAtom from '../../../../../../components/atoms/TextAtom';
-import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import { useListTrainingCategoryMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
-import DropDownModal from '../../../../../../modal/DropDownModal';
+} from '../../../../../components/organisms/AdminListHeader';
+import TextAtom from '../../../../../components/atoms/TextAtom';
+import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
+import SearchBoxOrganism from '../../../../../components/organisms/SearchBoxOrganism';
+import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
+import { useListTrainingCategoryMutation } from '../../../../../injectEndpoints/lmsEndpoints';
+import DropDownModal from '../../../../../modal/DropDownModal';
 
 interface Props {
   navigation: NavigationType;

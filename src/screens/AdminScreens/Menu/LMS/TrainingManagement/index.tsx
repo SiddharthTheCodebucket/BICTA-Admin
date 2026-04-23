@@ -24,7 +24,7 @@ import {
   Header,
   NavigationType,
 } from '../../../../../components/organisms/HeaderOrganism';
-import TrainingCategoryMaster from './TrainingCategoryMaster';
+// import TrainingCategoryMaster from './TrainingCategoryMaster';
 import TrainingDetails from './TrainingDetails';
 import BatchDetails from './BatchDetails';
 
@@ -81,8 +81,8 @@ const CustomTrainingTabBar = ({
             typeof options.tabBarLabel === 'string'
               ? options.tabBarLabel
               : typeof options.title === 'string'
-                ? options.title
-                : route.name;
+              ? options.title
+              : route.name;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -168,11 +168,11 @@ const TrainingManagement = (props: Props) => {
           },
         }}
       >
-        <TopTabs.Screen
+        {/* <TopTabs.Screen
           name="TrainingCategoryTab"
           component={TrainingCategoryMaster}
           options={{ tabBarLabel: 'Training Category' }}
-        />
+        /> */}
         <TopTabs.Screen
           name="TrainingDetailsTab"
           component={TrainingDetails}
