@@ -43,7 +43,9 @@ import Academics from '../screens/AdminScreens/Dashboard/masterConfiguration/aca
 import Facilities from '../screens/AdminScreens/Dashboard/facilities';
 import CommsAndSupport from '../screens/AdminScreens/Dashboard/masterConfiguration/commsAndSupport';
 
+import FacultyReportMaster from '../screens/AdminScreens/Dashboard/finances/FacultyReportMaster';
 import LMS from '../screens/AdminScreens/Menu/LMS';
+
 import TrainingManagement from '../screens/AdminScreens/Menu/LMS/TrainingManagement';
 import AddTrainingCategory from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingCategoryMaster/AddTrainingCategory';
 import TrainingDetailsScreen from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingDetails/TrainingDetailsScreen';
@@ -292,11 +294,13 @@ const AppDrawer = () => (
       name={screensName.CommsAndSupport}
       component={CommsAndSupport}
     />
+    <Drawer.Screen name={screensName.FeedbackMaster} component={Feedback} />
     <Drawer.Screen
-      name={screensName.FeedbackMaster}
-      component={FeedbackMaster}
+      name={screensName.FacultyReportMaster}
+      component={FacultyReportMaster}
     />
     <Drawer.Screen name={screensName.LMS} component={LMS} />
+
     <Drawer.Screen
       name={screensName.TrainingManagement}
       component={TrainingManagement}

@@ -79,6 +79,24 @@ const MASTER_CONFIGURATION_ITEMS: DrawerMenuItem[] = [
   },
 ];
 
+const FINANCES_ITEMS: DrawerMenuItem[] = [
+  {
+    id: 'fin-faculty-report',
+    name: 'Faculty Report',
+    screen: screensName.FacultyReportMaster,
+  },
+  {
+    id: 'fin-invoice-billing',
+    name: 'Invoice & Billing',
+    screen: screensName.InvoiceAndBillManagement,
+  },
+  {
+    id: 'fin-budget',
+    name: 'Budget',
+    screen: screensName.BudgetManagement,
+  },
+];
+
 const MAIN_MENU_ITEMS: DrawerMenuItem[] = [
   {
     id: 'master-config',
@@ -146,12 +164,7 @@ const MAIN_MENU_ITEMS: DrawerMenuItem[] = [
     id: 'finances',
     name: 'Finances',
     icon: 'safe-square-outline',
-    screen: screensName.Report,
-    matchRoutes: [
-      screensName.InvoiceAndBillManagement,
-      screensName.BudgetManagement,
-      screensName.FacultyReport,
-    ],
+    children: FINANCES_ITEMS,
   },
   {
     id: 'hrms',
@@ -449,7 +462,9 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
                 />
               </TouchableOpacity>
 
-              {hasChildren && isExpanded ? renderMasterChildren(item.children ?? []) : null}
+              {hasChildren && isExpanded
+                ? renderMasterChildren(item.children ?? [])
+                : null}
             </View>
           );
         })}

@@ -9,6 +9,8 @@ export default {
   Facilities: 'Facilities',
   CommsAndSupport: 'CommsAndSupport',
   FeedbackMaster: 'FeedbackMaster',
+  Finances: 'Finances',
+  FacultyReportMaster: 'FacultyReportMaster',
   Menu: 'Menu',
   VehicleManagement: 'VehicleManagement',
   VehicleRegistration: 'VehicleRegistration',
