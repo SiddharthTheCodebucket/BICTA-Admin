@@ -84,7 +84,7 @@ const AddTrainingCategoryMaster = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      'Training Management',
+      isEdit ? 'Edit Training Category' : 'Create Training Category',
       undefined,
       undefined,
       undefined,
@@ -250,7 +250,7 @@ const AddTrainingCategoryMaster = (props: Props) => {
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={vh(80)}
       >
-        <TouchableAtom
+        {/* <TouchableAtom
           style={styles.titleRow}
           onPress={() => navigation.goBack()}
           activeOpacity={0.8}
@@ -259,7 +259,7 @@ const AddTrainingCategoryMaster = (props: Props) => {
           <TextAtom style={styles.pageTitle}>
             {isEdit ? 'Edit Category' : 'Create Category'}
           </TextAtom>
-        </TouchableAtom>
+        </TouchableAtom> */}
 
         <View style={globalStyles.adminFormCard}>
           <FormDropdownFieldWithTitle
