@@ -57,6 +57,7 @@ export default {
   MergedBatchForm: 'MergedBatchForm',
   TraineeManagement: 'TraineeManagement',
   TraineeDesignationMaster: 'TraineeDesignationMaster',
+  AddTraineeDesignation: 'AddTraineeDesignation',
   TraineeAttendance: 'TraineeAttendance',
   GateAccess: 'GateAccess',
   TraineeRegistration: 'TraineeRegistration',

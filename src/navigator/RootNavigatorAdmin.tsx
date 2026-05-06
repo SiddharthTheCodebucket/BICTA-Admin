@@ -266,6 +266,7 @@ import DeviceRegistration from '../screens/AdminScreens/Profile/FaceScan/DeviceR
 import DeviceList from '../screens/AdminScreens/Profile/FaceScan/DeviceList';
 import Feedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback';
 import AddTrainingCategoryMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TrainingCategoryMaster/AddTrainingCategoryMaster';
+import AddTraineeDesignation from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TraineeDesignation/AddTraineeDesignation';
 import { CommsAndSupport } from '../screens/AdminScreens/Dashboard/masterConfiguration/commsAndSupport';
 import MedicineType from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/pharmacy/MedicineType';
 import PharmacyMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/pharmacy/PharmacyMaster';
@@ -477,13 +478,17 @@ const RootNavigatorAdmin = () => {
           component={TrainingManagement}
           initialParams={{ initialTab: 'TrainingCategoryMaster' }}
         />
-        <RootStackScreen.Screen
-          name={screensName.AddTrainingCategoryMaster}
-          component={AddTrainingCategoryMaster}
-        />
-        <RootStackScreen.Screen
-          name="TrainingDetails"
-          component={TrainingManagement}
+         <RootStackScreen.Screen
+           name={screensName.AddTrainingCategoryMaster}
+           component={AddTrainingCategoryMaster}
+         />
+         <RootStackScreen.Screen
+           name={screensName.AddTraineeDesignation}
+           component={AddTraineeDesignation}
+         />
+         <RootStackScreen.Screen
+           name="TrainingDetails"
+           component={TrainingManagement}
           initialParams={{ initialTab: 'TrainingDetails' }}
         />
         <RootStackScreen.Screen
