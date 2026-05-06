@@ -27,6 +27,7 @@ import {
   useAddTrainingCategoryMutation,
   useUpdateTrainingCategoryMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
+import { FormDropdownFieldWithTitle } from '../../../../../../components/templates';
 
 type BipardLocation = { id: string; name: string } | null;
 
@@ -59,6 +60,13 @@ interface FormState {
   categoryName: string;
   desc: string;
 }
+
+type LocationItem = { id: string; name: string };
+
+const locationOptions: LocationItem[] = [
+  { id: 'Gaya', name: 'Gaya' },
+  { id: 'Patna', name: 'Patna' },
+];
 
 const AddTrainingCategoryMaster = (props: Props) => {
   const { navigation } = props;
@@ -151,7 +159,8 @@ const AddTrainingCategoryMaster = (props: Props) => {
       if (err.inner?.length) {
         err.inner.forEach(validationErr => {
           const path = validationErr.path as keyof FormErrors | undefined;
-          if (path && !nextErrors[path]) nextErrors[path] = validationErr.message;
+          if (path && !nextErrors[path])
+            nextErrors[path] = validationErr.message;
         });
       } else if (err.path) {
         const path = err.path as keyof FormErrors;
@@ -253,58 +262,33 @@ const AddTrainingCategoryMaster = (props: Props) => {
         </TouchableAtom>
 
         <View style={globalStyles.adminFormCard}>
-          <View style={[globalStyles.adminFieldCard, { marginTop: 0 }]}>
-            <View style={globalStyles.adminFieldBlock}>
-              <TextAtom style={globalStyles.adminLabelText}>
-                Select Bipard Location
-                <TextAtom style={globalStyles.adminRequiredMark}>*</TextAtom>
-              </TextAtom>
-              <TouchableAtom
-                style={globalStyles.adminInputContainer}
-                onPress={() => {
-                  if (tenantId !== 3) return;
+          <FormDropdownFieldWithTitle
+            title="Select Bipard Location"
+            isMandatory
+            data={locationOptions}
+            value={form.bipardLocation?.id}
+            placeholder="Select"
+            labelField="name"
+            valueField="id"
+            disabled={tenantId !== 3}
+            onChange={item => {
+              const selectedItem = item as LocationItem;
 
-                  navigation.navigate('DropDownModal', {
-                    name: 'Bipard Location',
-                    Data: [
-                      { id: 'Gaya', name: 'Gaya' },
-                      { id: 'Patna', name: 'Patna' },
-                    ],
-                    selectedData: form.bipardLocation,
-                    setSelectedData: (data: BipardLocation) => {
-                      setForm(prev => ({
-                        ...prev,
-                        bipardLocation: data,
-                      }));
-                      setErrors(prev => ({
-                        ...prev,
-                        bipardLocation: '',
-                        'bipardLocation.name': '',
-                      }));
-                    },
-                    typeName: 'name',
-                    typeId: 'id',
-                  });
-                }}
-                activeOpacity={tenantId === 3 ? 0.8 : 1}
-              >
-                <TextAtom
-                  style={[
-                    globalStyles.adminInputText,
-                    !form.bipardLocation?.name && { color: colors.new_ui_count },
-                  ]}
-                >
-                  {form.bipardLocation?.name ?? 'Select'}
-                </TextAtom>
-                <ImageAtom source={images.downArrow} style={styles.dropIcon} />
-              </TouchableAtom>
-              {!!(errors['bipardLocation.name'] || errors.bipardLocation) && (
-                <TextAtom style={globalStyles.adminErrorText}>
-                  {errors['bipardLocation.name'] || errors.bipardLocation}
-                </TextAtom>
-              )}
-            </View>
-          </View>
+              setForm(prev => ({
+                ...prev,
+                bipardLocation: selectedItem,
+              }));
+
+              setErrors(prev => ({
+                ...prev,
+                bipardLocation: '',
+                'bipardLocation.name': '',
+              }));
+            }}
+            errorMessage={
+              errors['bipardLocation.name'] || errors.bipardLocation
+            }
+          />
 
           <AdminTextInputField
             ref={input1_ref}
