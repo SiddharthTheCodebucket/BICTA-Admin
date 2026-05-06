@@ -1,11 +1,25 @@
-import { Keyboard, Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  Image,
+  Keyboard,
+  Linking,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { pick, types } from '@react-native-documents/picker';
-import { colors, fonts, strings, vh, vw } from '../../../../../constants';
+import {
+  colors,
+  fonts,
+  images,
+  strings,
+  vh,
+  vw,
+} from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -16,6 +30,16 @@ import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
 import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
 import TextAtom from '../../../../../components/atoms/TextAtom';
 import RadioSelectableOrganism from '../../../../../components/organisms/RadioSelectableOrganism';
+import {
+  FormDropdownFieldWithTitle,
+  FormFileUploadWithTitle,
+  FormGradientButton,
+  FormSwitchForCard,
+  FormTextInputWithTitle,
+  FormWhiteButton,
+} from '../../../../../components/templates';
+import { globalStyles } from '../../../../../utils/globalStyles';
+import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
 import {
   isNullUndefined,
   mobileRegex,
@@ -38,6 +62,7 @@ interface Props {
 const AddVehicle = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
+  const fromFacilities = props.route.params?.fromFacilities;
   const input1_ref: any = createRef();
   const input2_ref: any = createRef();
   const input3_ref: any = createRef();
@@ -54,23 +79,43 @@ const AddVehicle = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      isNullUndefined(item)
+      fromFacilities
+        ? 'Facilities'
+        : isNullUndefined(item)
         ? 'Add Vehicle Management'
         : 'Edit Vehicle Management',
+      undefined,
+      undefined,
+      undefined,
+      fromFacilities
+        ? {
+            backgroundColor: colors.primary_dark_blue,
+            titleColor: colors.white,
+            backIconColor: colors.white,
+          }
+        : undefined,
+      fromFacilities,
     );
     navigation.BackButtonPress = () => navigation.goBack();
-  }, []);
+  }, [fromFacilities, item, navigation]);
 
   const [loader, setLoader] = useState(false);
   const [form, setForm] = useState<any>({
-    bipardLocation: {},
+    bipardLocation:
+      tenantId === 1
+        ? { id: 'Gaya', name: 'Gaya' }
+        : tenantId === 2
+        ? { id: 'Patna', name: 'Patna' }
+        : fromFacilities
+        ? { id: 'Gaya', name: 'Gaya' }
+        : {},
     vehicleName: '',
     vehicleRegistrationNumber: '',
     vehicleColorList: [],
     vehicleColor: {},
     vehicleOwnerName: '',
     vehicleOwnerContactNumber: '',
-    status: {},
+    status: { id: 'Active', value: 'Active' },
     rcFile: {},
   });
   const [errors, setErrors] = useState<any>({});
@@ -87,6 +132,9 @@ const AddVehicle = (props: Props) => {
       } else if (tenantId === 2) {
         setValue('bipardLocation', { id: 'Patna', name: 'Patna' });
         getColor('Patna');
+      } else if (fromFacilities) {
+        setValue('bipardLocation', { id: 'Gaya', name: 'Gaya' });
+        getColor('Gaya');
       }
       return;
     }
@@ -122,7 +170,8 @@ const AddVehicle = (props: Props) => {
         getColor(item.bipardCentre?.[0]);
       }
     }
-  }, [item]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fromFacilities, item, tenantId]);
 
   const schema = Yup.object().shape({
     status: Yup.object({
@@ -318,6 +367,188 @@ const AddVehicle = (props: Props) => {
         });
       });
   };
+
+  if (fromFacilities) {
+    return (
+      <SafeAreaView edges={['bottom']} style={styles.facilitiesContainer}>
+        <FullscreenLoading isVisible={loader} />
+        <TouchableAtom
+          style={styles.localHeader}
+          onPress={() => navigation.goBack()}
+        >
+          <Image source={images.arrow_back} style={styles.localBackIcon} />
+          <TextAtom style={styles.localTitle}>
+            {item ? 'Update Vehicle Registration' : 'Add Vehicle Registration'}
+          </TextAtom>
+        </TouchableAtom>
+
+        <KeyboardAwareScrollView
+          showsVerticalScrollIndicator={false}
+          style={styles.scroll}
+          contentContainerStyle={styles.facilitiesContentScroll}
+          enableOnAndroid={true}
+          enableAutomaticScroll={true}
+          keyboardShouldPersistTaps="handled"
+          extraScrollHeight={vh(80)}
+        >
+          <View style={globalStyles.adminFormCard}>
+            <FormDropdownFieldWithTitle
+              title="BIPARD Location"
+              placeholder="Select"
+              data={[
+                { id: 'Gaya', name: 'Gaya' },
+                { id: 'Patna', name: 'Patna' },
+              ]}
+              value={form.bipardLocation?.id}
+              onChange={(data: any) => {
+                setForm((prev: any) => ({
+                  ...prev,
+                  bipardLocation: data,
+                  vehicleColor: {},
+                }));
+                getColor(data.name);
+                setErrors({ ...errors, 'bipardLocation.name': '' });
+              }}
+              isMandatory
+              errorMessage={errors['bipardLocation.name']}
+              disabled={tenantId !== 3}
+            />
+            <FormTextInputWithTitle
+              title="Vehicle Name"
+              placeholder="Enter"
+              value={form.vehicleName}
+              onSubmitEditing={() => input2_ref.current?.focus()}
+              returnKeyType="next"
+              onChangeText={(val: string) => {
+                setValue('vehicleName', val);
+                setErrors({ ...errors, vehicleName: '' });
+              }}
+              isMandatory
+              errorMessage={errors.vehicleName}
+            />
+            <FormTextInputWithTitle
+              title="Vehicle Registration Number"
+              placeholder="Enter"
+              value={form.vehicleRegistrationNumber}
+              onSubmitEditing={() => input3_ref.current?.focus()}
+              returnKeyType="next"
+              autoCapitalize="characters"
+              onChangeText={(val: string) => {
+                const formattedInput = normalizeLettersAndNumbers(
+                  val?.toUpperCase(),
+                );
+                setValue('vehicleRegistrationNumber', formattedInput);
+                setErrors({ ...errors, vehicleRegistrationNumber: '' });
+              }}
+              isMandatory
+              errorMessage={errors.vehicleRegistrationNumber}
+            />
+            <FormDropdownFieldWithTitle
+              title="Vehicle Color"
+              placeholder="Select"
+              data={form.vehicleColorList}
+              value={form.vehicleColor?.id}
+              onChange={(data: any) => {
+                setForm((prev: any) => ({
+                  ...prev,
+                  vehicleColor: data,
+                }));
+                setErrors({ ...errors, 'vehicleColor.name': '' });
+              }}
+              isMandatory
+              errorMessage={errors['vehicleColor.name']}
+            />
+            <FormTextInputWithTitle
+              title="Vehicle Owner Name"
+              placeholder="Enter"
+              value={form.vehicleOwnerName}
+              onSubmitEditing={() => input4_ref.current?.focus()}
+              returnKeyType="next"
+              onChangeText={(val: string) => {
+                setValue('vehicleOwnerName', val);
+                setErrors({ ...errors, vehicleOwnerName: '' });
+              }}
+              isMandatory
+              errorMessage={errors.vehicleOwnerName}
+            />
+            <FormTextInputWithTitle
+              title="Vehicle Owner Mobile No."
+              placeholder="Enter"
+              value={form.vehicleOwnerContactNumber}
+              onSubmitEditing={() => Keyboard.dismiss()}
+              returnKeyType="done"
+              keyboardType="numeric"
+              maxLength={10}
+              onChangeText={(val: string) => {
+                const formatted = normalizeNumber(val);
+                setValue('vehicleOwnerContactNumber', formatted);
+                setErrors({ ...errors, vehicleOwnerContactNumber: '' });
+              }}
+              isMandatory
+              errorMessage={errors.vehicleOwnerContactNumber}
+            />
+            <View style={styles.facilitiesFieldCard}>
+              <FormSwitchForCard
+                title="Status"
+                data={[
+                  { id: 'Active', label: 'Active' },
+                  { id: 'Inactive', label: 'Inactive' },
+                ]}
+                selectedValue={form.status?.id}
+                onSelect={(data: any) => {
+                  setValue('status', {
+                    id: data.id,
+                    value: data.label,
+                  });
+                  setErrors({ ...errors, 'status.id': '' });
+                }}
+                errorMessage={errors['status.id']}
+              />
+            </View>
+            <FormFileUploadWithTitle
+              title="Upload RC"
+              isMandatory
+              fileName={
+                form.rcFile?.originalFilename ||
+                form.rcFile?.name ||
+                form.rcFile?.fileName
+              }
+              onFileSelected={(file: any) => {
+                if (!file) {
+                  setValue('rcFile', {});
+                  return;
+                }
+                fileUpload({
+                  uri: file.uri,
+                  fileName: file.name,
+                  type: file.type || 'application/pdf',
+                  size: file.size || 0,
+                });
+              }}
+              onFileRemove={() => setValue('rcFile', {})}
+              errorMessage={errors['rcFile.originalFilename']}
+            />
+          </View>
+        </KeyboardAwareScrollView>
+
+        <View style={styles.footerRow}>
+          <FormWhiteButton
+            title="Cancel"
+            onPress={() => navigation.goBack()}
+            containerStyle={styles.footerButton}
+            buttonStyle={styles.whiteButton}
+          />
+          <FormGradientButton
+            title={item ? 'Update' : 'Add'}
+            onPress={onSubmit}
+            loading={loader}
+            containerStyle={styles.footerButton}
+            buttonStyle={styles.gradientButton}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
@@ -556,5 +787,61 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     color: colors.black,
     marginBottom: vh(8),
+  },
+  facilitiesContainer: {
+    flex: 1,
+    backgroundColor: colors.new_ui_screen_bg,
+  },
+  localHeader: {
+    minHeight: vh(44),
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: vw(16),
+    gap: vw(8),
+  },
+  localBackIcon: {
+    width: vw(18),
+    height: vw(18),
+    tintColor: colors.text_black,
+    resizeMode: 'contain',
+  },
+  localTitle: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(16),
+    color: colors.text_black,
+  },
+  scroll: {
+    flex: 1,
+  },
+  facilitiesContentScroll: {
+    paddingHorizontal: vw(12),
+    paddingBottom: vh(24),
+  },
+  facilitiesFieldCard: {
+    backgroundColor: '#F9FAFB',
+    padding: vw(8),
+    marginBottom: vh(10),
+    borderRadius: vw(8),
+  },
+  footerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: vw(10),
+    paddingHorizontal: vw(12),
+    paddingTop: vh(10),
+    paddingBottom: vh(15),
+    backgroundColor: colors.white,
+  },
+  footerButton: {
+    flex: 1,
+  },
+  whiteButton: {
+    height: vh(40),
+    borderRadius: vw(7),
+    borderColor: colors.primary_dark_blue,
+  },
+  gradientButton: {
+    height: vh(40),
+    borderRadius: vw(7),
   },
 });

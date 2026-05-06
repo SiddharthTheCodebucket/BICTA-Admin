@@ -10,7 +10,7 @@ import {
 
 import HostelDetailsList from '../../../Menu/HostelManagement/Hostel/HostelDetails/HostelDetailsList';
 import LibraryMaster from './/LibraryMaster';
-import VehicleManagement from '../../../Menu/VehicleManagement';
+import VehicleMaster from './VehicleMaster';
 import TopTabBar from '../../../../../components/templates/TopTabBar';
 import Pharmacy from './Pharmacy';
 import HouseKeepingMasterList from './HouseKeeping/HouseKeepingMasterList';
@@ -97,7 +97,7 @@ const Facilities = (props: Props) => {
         />
         <TopTabs.Screen
           name="VehicleTab"
-          component={VehicleManagement}
+          component={VehicleMaster}
           options={{ tabBarLabel: 'Vehicle Master' }}
         />
       </TopTabs.Navigator>

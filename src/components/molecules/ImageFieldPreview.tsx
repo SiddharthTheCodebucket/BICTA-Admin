@@ -22,6 +22,8 @@ interface ImageFieldPreviewProps {
   actionLabel?: string;
   onPress?: () => void;
   thumbnailStyle?: ImageStyle;
+  thumbnailBoxStyle?: ViewStyle;
+  actionButtonStyle?: ViewStyle;
   containerStyle?: ViewStyle;
 }
 
@@ -34,6 +36,8 @@ const ImageFieldPreview: React.FC<ImageFieldPreviewProps> = ({
   actionLabel = 'View',
   onPress,
   thumbnailStyle,
+  thumbnailBoxStyle,
+  actionButtonStyle,
   containerStyle,
 }) => {
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -51,7 +55,7 @@ const ImageFieldPreview: React.FC<ImageFieldPreviewProps> = ({
       </View>
 
       <View style={styles.row}>
-        <View style={styles.thumbnailBox}>
+        <View style={[styles.thumbnailBox, thumbnailBoxStyle]}>
           {hasImage ? (
             <Image
               source={{ uri: imageUri }}
@@ -70,7 +74,10 @@ const ImageFieldPreview: React.FC<ImageFieldPreviewProps> = ({
         </View>
 
         {handlePress ? (
-          <TouchableAtom style={styles.viewButton} onPress={handlePress}>
+          <TouchableAtom
+            style={[styles.viewButton, actionButtonStyle]}
+            onPress={handlePress}
+          >
             <TextAtom style={styles.viewButtonText}>{actionLabel}</TextAtom>
           </TouchableAtom>
         ) : null}
