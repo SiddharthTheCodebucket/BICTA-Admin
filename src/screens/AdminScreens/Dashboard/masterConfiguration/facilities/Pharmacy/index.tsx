@@ -1,85 +1,66 @@
+import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  colors,
-  screensName,
-  strings,
-  vh,
-  vw,
-} from '../../../../../../constants';
-import {
-  Header,
-  NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
+import { colors, fonts, vh, vw } from '../../../../../../constants';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
+import MedicineTypeList from './MedicineTypeList';
+import PharmacyMasterList from './PharmacyMasterList';
 
 interface Props {
-  navigation: NavigationType;
+  navigation: any;
 }
 
+type PharmacySubTab = 'medicineType' | 'pharmacyMaster';
+
 const Pharmacy = (props: Props) => {
-  const { navigation } = props;
-
-  useLayoutEffect(() => {
-    Header.setNavigation(navigation, strings.pharmacy);
-    navigation.BackButtonPress = () => {
-      navigation.goBack();
-    };
-  }, []);
-
-  const DATA = [
-    {
-      id: 1,
-      name: 'Priscribed Medicine to Patinets',
-      onPress: () => {
-        navigation.navigate(screensName.Patients);
-      },
-    },
-    {
-      id: 3,
-      name: strings.medicine_type,
-      onPress: () => {
-        navigation.navigate(screensName.MedicineType);
-      },
-    },
-    {
-      id: 2,
-      name: strings.pharmacy_master,
-      onPress: () => {
-        navigation.navigate(screensName.PharmacyMaster);
-      },
-    },
-    {
-      id: 4,
-      name: strings.update_stock,
-      onPress: () => {
-        navigation.navigate(screensName.UpdateStock);
-      },
-    },
-    {
-      id: 5,
-      name: strings.stock_report,
-      onPress: () => {
-        navigation.navigate(screensName.StockReport);
-      },
-    },
-  ];
+  const [activeTab, setActiveTab] = useState<PharmacySubTab>('medicineType');
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <View style={{ flex: 1 }}>
-        {DATA.map(item => {
-          return (
-            <TouchableOpacity
-              key={item.id.toString()}
-              style={styles.touchable}
-              onPress={item.onPress}
-            >
-              <TextAtom>{item.name}</TextAtom>
-            </TouchableOpacity>
-          );
-        })}
+      <View style={styles.segmentWrap}>
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={[
+            styles.segmentButton,
+            activeTab === 'medicineType' && styles.segmentButtonActive,
+          ]}
+          onPress={() => setActiveTab('medicineType')}
+        >
+          <TextAtom
+            style={[
+              styles.segmentText,
+              activeTab === 'medicineType' && styles.segmentTextActive,
+            ]}
+          >
+            Medicine Type
+          </TextAtom>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={[
+            styles.segmentButton,
+            activeTab === 'pharmacyMaster' && styles.segmentButtonActive,
+          ]}
+          onPress={() => setActiveTab('pharmacyMaster')}
+        >
+          <TextAtom
+            style={[
+              styles.segmentText,
+              activeTab === 'pharmacyMaster' && styles.segmentTextActive,
+            ]}
+          >
+            Pharmacy Master
+          </TextAtom>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.content}>
+        {activeTab === 'medicineType' ? (
+          <MedicineTypeList navigation={props.navigation} />
+        ) : (
+          <PharmacyMasterList navigation={props.navigation} />
+        )}
       </View>
     </SafeAreaView>
   );
@@ -90,24 +71,35 @@ export default Pharmacy;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
+    backgroundColor: colors.new_ui_screen_bg,
   },
-  logoutBtn: {
-    alignSelf: 'center',
-    width: '90%',
+  segmentWrap: {
+    height: vh(32),
+    marginHorizontal: vw(16),
+    marginTop: vh(8),
+    borderRadius: vw(8),
+    backgroundColor: '#E3F2FF',
+    flexDirection: 'row',
+    overflow: 'hidden',
   },
-  touchable: {
-    width: vw(328),
-    height: vh(55),
-    borderRadius: vw(6),
-    backgroundColor: colors.primary,
-    alignSelf: 'center',
+  segmentButton: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: vh(15),
   },
-  hardcodedStyle: {
-    opacity: 0.8,
-    transform: [{ scale: 1.1 }],
+  segmentButtonActive: {
+    backgroundColor: colors.primary_dark_blue,
+    borderRadius: vw(7),
+  },
+  segmentText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(14),
+    color: colors.new_ui_heading,
+  },
+  segmentTextActive: {
+    color: colors.white,
+  },
+  content: {
+    flex: 1,
   },
 });

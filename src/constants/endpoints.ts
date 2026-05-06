@@ -140,7 +140,13 @@ export default {
   //PHC
   list_patient_prescriptions: 'phc/list-patient-prescriptions',
   list_medicine: 'phc/list-medicine',
+  add_medicine: 'phc/add-medicine',
+  update_medicine: 'phc/update-medicine',
+  delete_medicine: 'phc/delete-medicine',
   list_medicine_type: 'phc/list-medicine-type',
+  add_medicine_type: 'phc/add-medicine-type',
+  update_medicine_type: 'phc/update-medicine-type',
+  delete_medicine_type: 'phc/delete-medicine-type',
   list_medicine_batch: 'phc/list-medicine-batch',
   list_pharmacy_report: 'phc/pharmacy-report',
   list_trainee_bmi: 'phc/list-trainee-bmi',

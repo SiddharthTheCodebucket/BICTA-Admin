@@ -41,6 +41,8 @@ import BlockDetails from '../screens/AdminScreens/Dashboard/Hostel/BlockDetails'
 import BlockedForm from '../screens/AdminScreens/Dashboard/Hostel/BlockedForm';
 import Academics from '../screens/AdminScreens/Dashboard/masterConfiguration/academics';
 import Facilities from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities';
+import AddMedicineType from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/Pharmacy/AddMedicineType';
+import AddPharmacyMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/Pharmacy/AddPharmacyMaster';
 
 import FacultyReportMaster from '../screens/AdminScreens/Dashboard/finances/FacultyReportMaster';
 import LMS from '../screens/AdminScreens/Menu/LMS';
@@ -367,6 +369,14 @@ const RootNavigatorAdmin = () => {
         }}
       >
         <RootStackScreen.Screen name={ADMIN_APP_DRAWER} component={AppDrawer} />
+        <RootStackScreen.Screen
+          name={screensName.AddMedicineType}
+          component={AddMedicineType}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AddPharmacyMaster}
+          component={AddPharmacyMaster}
+        />
         <RootStackScreen.Screen
           name="VehicleManagement"
           component={VehicleManagement}

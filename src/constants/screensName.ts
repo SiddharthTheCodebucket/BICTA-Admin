@@ -126,6 +126,8 @@ export default {
   PatientDetails: 'PatientDetails',
   PharmacyMaster: 'PharmacyMaster',
   MedicineType: 'MedicineType',
+  AddMedicineType: 'AddMedicineType',
+  AddPharmacyMaster: 'AddPharmacyMaster',
   UpdateStock: 'UpdateStock',
   StockReport: 'StockReport',
   BMI: 'BMI',
