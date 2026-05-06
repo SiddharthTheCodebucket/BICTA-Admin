@@ -406,7 +406,7 @@ const HostelDetailsList = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
       <View style={{ paddingHorizontal: vw(16) }}>
-        <AdminPageHeader title="Hostel Management" navigation={navigation} />
+        {/* <AdminPageHeader title="Hostel Management" navigation={navigation} /> */}
         <AdminListHeader
           config={{
             title: 'Hostel Details',
