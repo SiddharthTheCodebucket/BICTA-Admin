@@ -1,10 +1,10 @@
-import { Keyboard, StyleSheet } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, vh, vw } from '../../../../../../constants';
+import { colors, images, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -14,6 +14,16 @@ import TextInputOrganisms from '../../../../../../components/organisms/TextInput
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
+import TextAtom from '../../../../../../components/atoms/TextAtom';
+import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import {
+  FormDropdownFieldWithTitle,
+  FormGradientButton,
+  FormTextInputWithTitle,
+  FormWhiteButton,
+} from '../../../../../../components/templates';
+import { globalStyles } from '../../../../../../utils/globalStyles';
 import { isNullUndefined } from '../../../../../../utils/CommonFunction';
 import {
   useMessManagementAddItemTypeMutation,
@@ -28,6 +38,7 @@ interface Props {
 const AddItemType = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
+  const fromFacilities = props.route.params?.fromFacilities;
   const input1_ref: any = createRef();
 
   const { crediantialData } = useAppSelector(state => state.Auth);
@@ -40,9 +51,19 @@ const AddItemType = (props: Props) => {
     Header.setNavigation(
       navigation,
       isNullUndefined(item) ? 'Add Item Type' : 'Update Item Type',
+      undefined,
+      undefined,
+      undefined,
+      fromFacilities
+        ? {
+            backgroundColor: colors.primary_dark_blue,
+            titleColor: colors.white,
+            backIconColor: colors.white,
+          }
+        : undefined,
     );
     navigation.BackButtonPress = () => navigation.goBack();
-  }, []);
+  }, [fromFacilities, item, navigation]);
 
   const [loader, setLoader] = useState(false);
 
@@ -155,12 +176,78 @@ const AddItemType = (props: Props) => {
       });
   };
 
+  if (fromFacilities) {
+    return (
+      <SafeAreaView edges={['bottom']} style={styles.facilitiesContainer}>
+        <FullscreenLoading isVisible={loader} />
+
+        <KeyboardAwareScrollView
+          showsVerticalScrollIndicator={false}
+          style={styles.scroll}
+          contentContainerStyle={styles.facilitiesContentScroll}
+          enableOnAndroid={true}
+          enableAutomaticScroll={true}
+          keyboardShouldPersistTaps="handled"
+          extraScrollHeight={vh(80)}
+        >
+          <View style={globalStyles.adminFormCard}>
+            <FormDropdownFieldWithTitle
+              title="BIPARD Location"
+              placeholder="Select"
+              data={[
+                { id: 'Gaya', name: 'Gaya' },
+                { id: 'Patna', name: 'Patna' },
+              ]}
+              value={form.bipardLocation?.id}
+              onChange={(data: any) => {
+                setForm((prev: any) => ({ ...prev, bipardLocation: data }));
+                setErrors({ ...errors, 'bipardLocation.name': '' });
+              }}
+              isMandatory
+              errorMessage={errors['bipardLocation.name']}
+              disabled={tenantId !== 3}
+            />
+            <FormTextInputWithTitle
+              title="Type Name"
+              placeholder="Enter"
+              onSubmitEditing={() => Keyboard.dismiss()}
+              value={form.typeName}
+              autoCapitalize="none"
+              returnKeyType="done"
+              onChangeText={(val: string) => {
+                setValue('typeName', val);
+                setErrors({ ...errors, typeName: '' });
+              }}
+              isMandatory
+              errorMessage={errors.typeName}
+            />
+          </View>
+        </KeyboardAwareScrollView>
+        <View style={styles.footerRow}>
+          <FormWhiteButton
+            title="Cancel"
+            onPress={() => navigation.goBack()}
+            containerStyle={styles.footerButton}
+            buttonStyle={styles.whiteButton}
+          />
+          <FormGradientButton
+            title={item ? 'Update' : 'Add'}
+            onPress={onSubmit}
+            loading={loader}
+            containerStyle={styles.footerButton}
+            buttonStyle={styles.gradientButton}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
+        style={styles.scroll}
         contentContainerStyle={styles.contentScroll}
         enableOnAndroid={true}
         enableAutomaticScroll={true}
@@ -230,5 +317,53 @@ const styles = StyleSheet.create({
   },
   contentScroll: {
     paddingBottom: vh(10),
+  },
+  facilitiesContainer: {
+    flex: 1,
+    backgroundColor: colors.new_ui_screen_bg,
+  },
+  scroll: {
+    flex: 1,
+  },
+  facilitiesContentScroll: {
+    paddingHorizontal: vw(12),
+    paddingBottom: vh(24),
+  },
+  localHeader: {
+    height: vh(44),
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: vw(16),
+    gap: vw(8),
+  },
+  localBackIcon: {
+    width: vw(18),
+    height: vw(18),
+    tintColor: colors.text_black,
+  },
+  localHeaderTitle: {
+    color: colors.text_black,
+    fontSize: vw(16),
+  },
+  footerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: vw(10),
+    paddingHorizontal: vw(12),
+    paddingTop: vh(10),
+    paddingBottom: vh(15),
+    backgroundColor: colors.white,
+  },
+  footerButton: {
+    flex: 1,
+  },
+  whiteButton: {
+    height: vh(40),
+    borderRadius: vw(7),
+    borderColor: colors.primary_dark_blue,
+  },
+  gradientButton: {
+    height: vh(40),
+    borderRadius: vw(7),
   },
 });

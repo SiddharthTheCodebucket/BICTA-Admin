@@ -9,13 +9,13 @@ import {
 } from '../../../../../components/organisms/HeaderOrganism';
 
 import HostelDetailsList from '../../../Menu/HostelManagement/Hostel/HostelDetails/HostelDetailsList';
-import StockDetails from '../../../Menu/MessManagement/StockDetails';
 import LibraryMaster from './/LibraryMaster';
 import VehicleManagement from '../../../Menu/VehicleManagement';
 import TopTabBar from '../../../../../components/templates/TopTabBar';
 import Pharmacy from './Pharmacy';
 import HouseKeepingMasterList from './HouseKeeping/HouseKeepingMasterList';
 import MessMaster from './Mess';
+import MessInventoryMaster from './MessInventory';
 
 interface Props {
   route: any;
@@ -87,7 +87,7 @@ const Facilities = (props: Props) => {
         />
         <TopTabs.Screen
           name="MessInventoryTab"
-          component={StockDetails}
+          component={MessInventoryMaster}
           options={{ tabBarLabel: 'Mess Inventory Master' }}
         />
         <TopTabs.Screen
