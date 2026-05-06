@@ -2,20 +2,20 @@ import { StyleSheet } from 'react-native';
 import React, { useLayoutEffect, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { colors, fonts, vh, vw } from '../../../../../constants';
+import { colors } from '../../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../../components/organisms/HeaderOrganism';
 
 import HostelDetailsList from '../../../Menu/HostelManagement/Hostel/HostelDetails/HostelDetailsList';
-import HouseKeepingManagement from '../../../Menu/HouseKeepingManagement';
 import MessMaster from '../../../Menu/MessManagement/MessMaster';
 import StockDetails from '../../../Menu/MessManagement/StockDetails';
 import LibraryMaster from './/LibraryMaster';
 import VehicleManagement from '../../../Menu/VehicleManagement';
 import TopTabBar from '../../../../../components/templates/TopTabBar';
 import Pharmacy from './Pharmacy';
+import HouseKeepingMasterList from './HouseKeeping/HouseKeepingMasterList';
 
 interface Props {
   route: any;
@@ -50,7 +50,7 @@ const Facilities = (props: Props) => {
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
-  }, []);
+  }, [navigation]);
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
@@ -77,7 +77,7 @@ const Facilities = (props: Props) => {
         />
         <TopTabs.Screen
           name="HouseKeepingTab"
-          component={HouseKeepingManagement}
+          component={HouseKeepingMasterList}
           options={{ tabBarLabel: 'Housekeeping Master' }}
         />
         <TopTabs.Screen

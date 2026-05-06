@@ -43,6 +43,7 @@ import Academics from '../screens/AdminScreens/Dashboard/masterConfiguration/aca
 import Facilities from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities';
 import AddMedicineType from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/Pharmacy/AddMedicineType';
 import AddPharmacyMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/Pharmacy/AddPharmacyMaster';
+import AddHouseKeepingTask from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/HouseKeeping/AddHouseKeepingTask';
 
 import FacultyReportMaster from '../screens/AdminScreens/Dashboard/finances/FacultyReportMaster';
 import LMS from '../screens/AdminScreens/Menu/LMS';
@@ -376,6 +377,10 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name={screensName.AddPharmacyMaster}
           component={AddPharmacyMaster}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AddHouseKeepingTask}
+          component={AddHouseKeepingTask}
         />
         <RootStackScreen.Screen
           name="VehicleManagement"
