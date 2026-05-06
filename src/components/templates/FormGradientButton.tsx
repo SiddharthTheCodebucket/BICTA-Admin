@@ -16,7 +16,7 @@ type Props = {
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
-  containerStyle?: ViewStyle[];
+  containerStyle?: ViewStyle | ViewStyle[];
   buttonStyle?: ViewStyle;
   textStyle?: TextStyle;
   imageSource?: any;
