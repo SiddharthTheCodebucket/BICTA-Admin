@@ -4,13 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import {
-  colors,
-  fonts,
-  images,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, images, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -85,7 +79,7 @@ const AddPharmacyMaster = ({ navigation, route }: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      'Facilities',
+      isEdit ? 'Edit Pharmacy' : 'Add Pharmacy',
       undefined,
       undefined,
       undefined,
@@ -94,7 +88,6 @@ const AddPharmacyMaster = ({ navigation, route }: Props) => {
         titleColor: colors.white,
         backIconColor: colors.white,
       },
-      true,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
@@ -134,7 +127,8 @@ const AddPharmacyMaster = ({ navigation, route }: Props) => {
     navigation.goBack();
     Toast.show({
       type: 'success',
-      text2: res?.data?.message || (isEdit ? 'Pharmacy updated' : 'Pharmacy added'),
+      text2:
+        res?.data?.message || (isEdit ? 'Pharmacy updated' : 'Pharmacy added'),
     });
     setLoader(false);
   };
@@ -215,17 +209,6 @@ const AddPharmacyMaster = ({ navigation, route }: Props) => {
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={vh(80)}
       >
-        <TouchableAtom
-          style={styles.titleRow}
-          activeOpacity={0.85}
-          onPress={() => navigation.goBack()}
-        >
-          <ImageAtom source={images.arrow_back} style={styles.backIcon} />
-          <TextAtom style={styles.pageTitle}>
-            {isEdit ? 'Edit Pharmacy' : 'Add Pharmacy'}
-          </TextAtom>
-        </TouchableAtom>
-
         <View style={globalStyles.adminFormCard}>
           <FormDropdownFieldWithTitle
             title="BIPARD Location"
@@ -247,7 +230,9 @@ const AddPharmacyMaster = ({ navigation, route }: Props) => {
                 'bipardLocation.name': '',
               }));
             }}
-            errorMessage={errors['bipardLocation.name'] || errors.bipardLocation}
+            errorMessage={
+              errors['bipardLocation.name'] || errors.bipardLocation
+            }
           />
           <FormDropdownFieldWithTitle
             title="Medicine Entry Type"
@@ -268,7 +253,9 @@ const AddPharmacyMaster = ({ navigation, route }: Props) => {
                 'medicineEntryType.id': '',
               }));
             }}
-            errorMessage={errors['medicineEntryType.id'] || errors.medicineEntryType}
+            errorMessage={
+              errors['medicineEntryType.id'] || errors.medicineEntryType
+            }
           />
           <FormFileUploadWithTitle
             title="Upload Sample"

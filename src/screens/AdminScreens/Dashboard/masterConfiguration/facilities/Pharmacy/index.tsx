@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, vh, vw } from '../../../../../../constants';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import MedicineTypeList from './MedicineTypeList';
 import PharmacyMasterList from './PharmacyMasterList';
+import SubTab from '../../../../../../components/molecules/SubTab';
 
 interface Props {
   navigation: any;
@@ -15,9 +16,17 @@ type PharmacySubTab = 'medicineType' | 'pharmacyMaster';
 const Pharmacy = (props: Props) => {
   const [activeTab, setActiveTab] = useState<PharmacySubTab>('medicineType');
 
+  const subTabs = useMemo(
+    () => [
+      { label: 'Medicine Type', value: 'medicineType' },
+      { label: 'Pharmacy Master', value: 'pharmacyMaster' },
+    ],
+    [],
+  );
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
-      <View style={styles.segmentWrap}>
+      {/* <View style={styles.segmentWrap}>
         <TouchableOpacity
           activeOpacity={0.85}
           style={[
@@ -53,7 +62,14 @@ const Pharmacy = (props: Props) => {
             Pharmacy Master
           </TextAtom>
         </TouchableOpacity>
-      </View>
+      </View> */}
+
+      <SubTab
+        tabs={subTabs}
+        activeTab={activeTab}
+        onTabChange={value => setActiveTab(value as PharmacySubTab)}
+        // style={styles.allocationTabs}
+      />
 
       <View style={styles.content}>
         {activeTab === 'medicineType' ? (

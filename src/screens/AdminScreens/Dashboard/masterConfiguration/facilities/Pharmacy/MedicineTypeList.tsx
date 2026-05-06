@@ -40,7 +40,11 @@ const ITEMS_PER_PAGE = 10;
 const ListItemSeparator = () => <View style={styles.separator} />;
 
 const getMedicineTypeName = (item: any) =>
-  item?.medicineTypeName ?? item?.name ?? item?.typeName ?? item?.medicineType ?? '-';
+  item?.medicineTypeName ??
+  item?.name ??
+  item?.typeName ??
+  item?.medicineType ??
+  '-';
 
 const MedicineTypeList = ({ navigation }: Props) => {
   const [listApi] = useListMedicineTypeMutation();
@@ -81,7 +85,9 @@ const MedicineTypeList = ({ navigation }: Props) => {
           setPagination(false);
           setRefreshing(false);
           setData(prev =>
-            pageNumber !== 1 && prev.length > 0 ? [...prev, ...newData] : newData,
+            pageNumber !== 1 && prev.length > 0
+              ? [...prev, ...newData]
+              : newData,
           );
           setPage(pageNumber);
           setTotalCount(nextTotalCount);
@@ -168,8 +174,11 @@ const MedicineTypeList = ({ navigation }: Props) => {
         {getMedicineTypeName(item)}
       </TextAtom>
       <View style={styles.actionRow}>
-        <TouchableAtom style={styles.actionButton} onPress={() => deleteData(item)}>
-          <SvgDelete width={vw(16)} height={vw(16)} />
+        <TouchableAtom
+          style={styles.actionButton}
+          onPress={() => deleteData(item)}
+        >
+          <SvgDelete />
         </TouchableAtom>
         <TouchableAtom
           style={styles.actionButton}
@@ -180,7 +189,7 @@ const MedicineTypeList = ({ navigation }: Props) => {
             })
           }
         >
-          <SvgEditPencile width={vw(16)} height={vw(16)} />
+          <SvgEditPencile />
         </TouchableAtom>
       </View>
     </View>
@@ -284,14 +293,8 @@ const styles = StyleSheet.create({
     gap: vw(10),
   },
   actionButton: {
-    width: vw(30),
-    height: vw(30),
-    borderRadius: vw(8),
-    borderWidth: 1,
-    borderColor: colors.new_ui_card_border,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.white,
   },
   separator: {
     height: vh(10),

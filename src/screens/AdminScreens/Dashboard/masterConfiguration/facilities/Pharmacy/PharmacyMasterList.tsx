@@ -41,7 +41,11 @@ const ListItemSeparator = () => <View style={styles.separator} />;
 
 const field = (item: any, keys: string[], fallback = '-') => {
   for (const key of keys) {
-    if (item?.[key] !== undefined && item?.[key] !== null && item?.[key] !== '') {
+    if (
+      item?.[key] !== undefined &&
+      item?.[key] !== null &&
+      item?.[key] !== ''
+    ) {
       return item[key];
     }
   }
@@ -87,7 +91,9 @@ const PharmacyMasterList = ({ navigation }: Props) => {
           setPagination(false);
           setRefreshing(false);
           setData(prev =>
-            pageNumber !== 1 && prev.length > 0 ? [...prev, ...newData] : newData,
+            pageNumber !== 1 && prev.length > 0
+              ? [...prev, ...newData]
+              : newData,
           );
           setPage(pageNumber);
           setTotalCount(nextTotalCount);
@@ -184,8 +190,11 @@ const PharmacyMasterList = ({ navigation }: Props) => {
         <TextAtom numberOfLines={1} style={styles.cardTitle}>
           {field(item, ['medicineName', 'name'], 'Medicine Name')}
         </TextAtom>
-        <TouchableAtom style={styles.actionButton} onPress={() => deleteData(item)}>
-          <SvgDelete width={vw(16)} height={vw(16)} />
+        <TouchableAtom
+          style={styles.actionButton}
+          onPress={() => deleteData(item)}
+        >
+          <SvgDelete />
         </TouchableAtom>
         <TouchableAtom
           style={styles.actionButton}
@@ -196,15 +205,22 @@ const PharmacyMasterList = ({ navigation }: Props) => {
             })
           }
         >
-          <SvgEditPencile width={vw(16)} height={vw(16)} />
+          <SvgEditPencile />
         </TouchableAtom>
       </View>
 
       <View style={styles.infoGrid}>
-        {renderInfo('Medicine Name', field(item, ['medicineName', 'name'], 'Balm'))}
+        {renderInfo(
+          'Medicine Name',
+          field(item, ['medicineName', 'name'], 'Balm'),
+        )}
         {renderInfo(
           'Medicine Type',
-          field(item, ['medicineTypeName', 'medicineType', 'typeName'], 'Capsule'),
+          field(
+            item,
+            ['medicineTypeName', 'medicineType', 'typeName'],
+            'Capsule',
+          ),
         )}
         {renderInfo('Composition', field(item, ['composition'], 'PCM'))}
         {renderInfo(
@@ -215,7 +231,10 @@ const PharmacyMasterList = ({ navigation }: Props) => {
           'Distributed Medicine',
           field(item, ['distributedMedicine', 'distributedStock'], '256'),
         )}
-        {renderInfo('Total Medicine', field(item, ['totalMedicine', 'totalStock'], '854'))}
+        {renderInfo(
+          'Total Medicine',
+          field(item, ['totalMedicine', 'totalStock'], '854'),
+        )}
       </View>
     </View>
   );
@@ -322,15 +341,8 @@ const styles = StyleSheet.create({
     color: colors.new_ui_heading,
   },
   actionButton: {
-    width: vw(30),
-    height: vw(30),
-    borderRadius: vw(8),
-    borderWidth: 1,
-    borderColor: colors.new_ui_card_border,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.white,
-    marginLeft: vw(10),
   },
   infoGrid: {
     flexDirection: 'row',

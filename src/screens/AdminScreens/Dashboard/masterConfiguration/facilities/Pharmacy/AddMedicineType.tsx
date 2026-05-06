@@ -4,13 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import {
-  colors,
-  fonts,
-  images,
-  vh,
-  vw,
-} from '../../../../../../constants';
+import { colors, fonts, images, vh, vw } from '../../../../../../constants';
 import { useAppSelector } from '../../../../../../hooks';
 import {
   Header,
@@ -43,7 +37,11 @@ const locationOptions = [
 ];
 
 const getMedicineTypeName = (item: any) =>
-  item?.medicineTypeName ?? item?.name ?? item?.typeName ?? item?.medicineType ?? '';
+  item?.medicineTypeName ??
+  item?.name ??
+  item?.typeName ??
+  item?.medicineType ??
+  '';
 
 const AddMedicineType = ({ navigation, route }: Props) => {
   const item = route.params?.item;
@@ -70,7 +68,7 @@ const AddMedicineType = ({ navigation, route }: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      'Facilities',
+      isEdit ? 'Edit Medicine' : 'Add Medicine',
       undefined,
       undefined,
       undefined,
@@ -79,7 +77,6 @@ const AddMedicineType = ({ navigation, route }: Props) => {
         titleColor: colors.white,
         backIconColor: colors.white,
       },
-      true,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
@@ -104,7 +101,9 @@ const AddMedicineType = ({ navigation, route }: Props) => {
     })
       .nullable()
       .required('BIPARD location is required'),
-    medicineTypeName: Yup.string().trim().required('Medicine type name is required'),
+    medicineTypeName: Yup.string()
+      .trim()
+      .required('Medicine type name is required'),
   });
 
   const onSubmit = () => {
@@ -132,7 +131,9 @@ const AddMedicineType = ({ navigation, route }: Props) => {
     navigation.goBack();
     Toast.show({
       type: 'success',
-      text2: res?.data?.message || (isEdit ? 'Medicine type updated' : 'Medicine type added'),
+      text2:
+        res?.data?.message ||
+        (isEdit ? 'Medicine type updated' : 'Medicine type added'),
     });
     setLoader(false);
   };
@@ -181,17 +182,6 @@ const AddMedicineType = ({ navigation, route }: Props) => {
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={vh(80)}
       >
-        <TouchableAtom
-          style={styles.titleRow}
-          activeOpacity={0.85}
-          onPress={() => navigation.goBack()}
-        >
-          <ImageAtom source={images.arrow_back} style={styles.backIcon} />
-          <TextAtom style={styles.pageTitle}>
-            {isEdit ? 'Edit Medicine' : 'Add Medicine'}
-          </TextAtom>
-        </TouchableAtom>
-
         <View style={globalStyles.adminFormCard}>
           <FormDropdownFieldWithTitle
             title="BIPARD Location"
@@ -213,7 +203,9 @@ const AddMedicineType = ({ navigation, route }: Props) => {
                 'bipardLocation.name': '',
               }));
             }}
-            errorMessage={errors['bipardLocation.name'] || errors.bipardLocation}
+            errorMessage={
+              errors['bipardLocation.name'] || errors.bipardLocation
+            }
           />
           <FormTextInputWithTitle
             ref={inputRef}
