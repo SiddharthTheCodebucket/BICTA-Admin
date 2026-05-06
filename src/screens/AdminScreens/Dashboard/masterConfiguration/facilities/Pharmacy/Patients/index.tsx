@@ -10,22 +10,35 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
+import {
+  colors,
+  fonts,
+  images,
+  screensName,
+  strings,
+  vh,
+  vw,
+} from '../../../../../../../constants';
+import { useAppSelector } from '../../../../../../../hooks';
 import {
   Header,
   NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../../components/atoms/TextAtom';
-import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import { useListMedicineTypeMutation } from '../../../../../../injectEndpoints/phcEndpoints';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
+} from '../../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../../components/atoms/TextAtom';
+import FullscreenLoading from '../../../../../../../components/organisms/FullscreenLoading';
+import SearchBoxOrganism from '../../../../../../../components/organisms/SearchBoxOrganism';
+import TouchableAtom from '../../../../../../../components/atoms/TouchableAtom';
+import ImageAtom from '../../../../../../../components/atoms/ImageAtom';
+import DropDownOrganism from '../../../../../../../components/organisms/DropDownOrganism';
+import ViewAtom from '../../../../../../../components/atoms/ViewAtom';
+import ButtonOrganism from '../../../../../../../components/organisms/ButtonOrganism';
+import { useListPatientPrescriptionsMutation } from '../../../../../../../injectEndpoints/phcEndpoints';
+import { downloadAndOpenFile } from '../../../../../../../utils/CommonFunction';
 
 interface Props {
   navigation: NavigationType;
@@ -41,12 +54,12 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const MedicineType = (props: Props) => {
+const Patients = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
-  const [listMedicineTypeApi] = useListMedicineTypeMutation();
+  const [listPatientPrescriptionsApi] = useListPatientPrescriptionsMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -56,6 +69,12 @@ const MedicineType = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
+
+  const [dateTimeList, setDateTimeList] = useState<any>([]);
+  const [selectedDateTime, setSelectedDateTime] = useState<any>({});
+
+  const [exportUrl, setExportUrl] = useState(null);
 
   const ITEMS_PER_PAGE = 10;
 
@@ -63,7 +82,7 @@ const MedicineType = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, strings.medicine_type);
+    Header.setNavigation(navigation, strings.patients_details);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -71,15 +90,53 @@ const MedicineType = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listMedicineTypes(1, true, '');
+        listPatients(1, true, '');
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listMedicineTypes(1, true, '');
+    listPatients(1, true, '');
   }, [centerSerach]);
+
+  useEffect(() => {
+    generateMonthYearList();
+  }, []);
+
+  const generateMonthYearList = () => {
+    let list: any = [];
+    const currentYear = new Date().getFullYear(); // 2025
+    const nextYear = currentYear + 1; // 2026
+
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+
+    [currentYear, nextYear].forEach(year => {
+      months.forEach((month, index) => {
+        const id = `${year}-${String(index + 1).padStart(2, '0')}`;
+
+        list.push({
+          id: id, // "2025-01"
+          name: `${month} ${year}`, // "January 2025"
+        });
+      });
+    });
+
+    setDateTimeList(list);
+  };
 
   const getCentreFilter = () => {
     if (!centerSerach?.name) return null;
@@ -91,11 +148,17 @@ const MedicineType = (props: Props) => {
     return [centerSerach.name];
   };
 
-  const listMedicineTypes = (
+  const toggleFilter = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShowFilter(!showFilter);
+  };
+
+  const listPatients = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
     filtersArray: any[] = [],
+    extraParams: any = {},
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
 
@@ -109,14 +172,14 @@ const MedicineType = (props: Props) => {
       filters: filtersArray,
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
-      bipardCentre: [],
+      ...extraParams,
     };
 
     if (centreFilter) {
       params.bipardCentre = centreFilter;
     }
 
-    listMedicineTypeApi(params)
+    listPatientPrescriptionsApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -133,6 +196,10 @@ const MedicineType = (props: Props) => {
 
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
+
+        if (res?.data?.exportUrl) {
+          setExportUrl(res.data.exportUrl);
+        }
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -147,7 +214,7 @@ const MedicineType = (props: Props) => {
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listMedicineTypes(1, true, text);
+      listPatients(1, true, text);
     }, 500),
     [],
   );
@@ -159,25 +226,46 @@ const MedicineType = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listMedicineTypes(1, true, '');
+    listPatients(1, true, '');
   };
-
   const BedCard = ({ item, index, navigation }: any) => {
     return (
-      <ViewAtom style={styles.card}>
+      <TouchableAtom
+        style={styles.card}
+        onPress={() => {
+          navigation.navigate(screensName.PatientDetails, {
+            data: item,
+          });
+        }}
+      >
         <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
           <TextAtom style={[styles.label, { flex: 1 }]}>
             {strings.sr_no} {index + 1}
           </TextAtom>
-
-          <View style={{ flexDirection: 'row', gap: vw(15) }}></View>
         </View>
 
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>{strings.medicine_type}</TextAtom>
-          <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
+        <View style={[styles.rowBetween]}>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>{strings.symptom_id}</TextAtom>
+            <TextAtom style={styles.value}>{item.symptomId ?? '-'}</TextAtom>
+          </View>
+
+          <View style={{ flex: 1, alignSelf: 'flex-end' }}>
+            <TextAtom style={styles.labelRight}>
+              {strings.patient_type}
+            </TextAtom>
+            <TextAtom style={styles.valueRight}>
+              {item.patientType ?? '-'}
+            </TextAtom>
+          </View>
         </View>
-      </ViewAtom>
+        <View style={[styles.rowBetween]}>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>{strings.unique_id}</TextAtom>
+            <TextAtom style={styles.value}>{item.uniqueId ?? '-'}</TextAtom>
+          </View>
+        </View>
+      </TouchableAtom>
     );
   };
 
@@ -185,18 +273,104 @@ const MedicineType = (props: Props) => {
     return <BedCard item={item} index={index} navigation={navigation} />;
   };
 
+  const FilterForm = () => (
+    <View style={styles.filterContainer}>
+      <DropDownOrganism
+        label={strings.month_year}
+        placeholder={strings.month_year}
+        onPress={() => {
+          navigation.navigate('DropDownModal', {
+            name: strings.month_year,
+            Data: dateTimeList,
+            selectedData: selectedDateTime,
+            setSelectedData: (data: any) => {
+              setSelectedDateTime(data);
+            },
+            typeName: 'name',
+            typeId: 'id',
+          });
+        }}
+        inputText={selectedDateTime?.name}
+      />
+
+      <ViewAtom style={styles.buttonRow}>
+        <ButtonOrganism
+          onPress={applyFilter}
+          bttnText={strings.apply_filter}
+          containerStyle={styles.applyBtn}
+        />
+        <ButtonOrganism
+          onPress={clearFilter}
+          bttnText={strings.clear_filter}
+          containerStyle={styles.clearBtn}
+          bttnTextStyle={{ color: colors.primary }}
+        />
+      </ViewAtom>
+    </View>
+  );
+
+  const clearFilter = () => {
+    setSelectedDateTime({});
+    listPatients(1, true, search, []);
+  };
+
+  const applyFilter = () => {
+    const filters: any = [];
+
+    const paramsFilter = {
+      yearMonth: selectedDateTime?.id || null,
+      exportFlag: true,
+      exportFlagExcel: true,
+    };
+
+    listPatients(1, true, search, filters, paramsFilter);
+  };
+
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
+      <View
+        style={{
+          flexDirection: 'row',
+          alignSelf: 'flex-end',
+        }}
+      >
+        <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
+          <TextAtom style={styles.filterText}>
+            {showFilter ? strings.hide_filter : strings.show_filter}
+          </TextAtom>
+        </TouchableAtom>
+        <TouchableAtom
+          style={styles.filterButton}
+          onPress={() => {
+            if (selectedDateTime?.id) {
+              if (exportUrl) {
+                downloadAndOpenFile(exportUrl);
+              }
+            } else {
+              Toast.show({
+                type: 'error',
+                text2: strings.apply_month_year_filter_before_downloading,
+              });
+            }
+          }}
+        >
+          <ImageAtom
+            source={images.download}
+            style={{ tintColor: colors.black }}
+          />
+        </TouchableAtom>
+      </View>
+      {showFilter && <FilterForm />}
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
-          placeholder={strings.centers}
+          placeholder={strings.center}
           onPress={() => {
             navigation.navigate('DropDownModal', {
               name: 'Center',
               Data: [
-                { id: 'All Centers', name: strings.all_centers },
+                { id: strings.all_centers, name: strings.all_centers },
                 { id: 'Gaya', name: 'Gaya' },
                 { id: 'Patna', name: 'Patna' },
               ],
@@ -246,14 +420,14 @@ const MedicineType = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listMedicineTypes(1, false, '');
+              listPatients(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listMedicineTypes(page + 1, false, search)
+            ? listPatients(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
@@ -263,7 +437,7 @@ const MedicineType = (props: Props) => {
   );
 };
 
-export default MedicineType;
+export default Patients;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -411,8 +585,9 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: colors.white,
   },
-  pharmacyStyle: {
-    backgroundColor: colors.pharmacy_red,
+  hardcodedStyle: {
+    backgroundColor: colors.pharmacy_green,
+    borderRadius: 5,
     padding: 10,
   },
 });

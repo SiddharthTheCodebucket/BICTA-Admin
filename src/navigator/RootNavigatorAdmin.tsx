@@ -114,7 +114,6 @@ import ExamResponseDetailsListTrainee from '../screens/AdminScreens/Menu/LMS/Exa
 import ExamResponseSheet from '../screens/AdminScreens/Menu/LMS/Examination/ExamResponse/ExamResponseSheet';
 import PHCManagement from '../screens/AdminScreens/Menu/PHCManagement';
 import PHCManagemnetMain from '../screens/AdminScreens/Menu/PHCManagement/PHCManagemnetMain';
-import Pharmacy from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy';
 import TraineeBMI from '../screens/AdminScreens/Menu/PHCManagement/TraineeBMI';
 import Patients from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy/Patients';
 import PatientDetails from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy/Patients/PatientDetails';
@@ -268,8 +267,6 @@ import Feedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback';
 import AddTrainingCategoryMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TrainingCategoryMaster/AddTrainingCategoryMaster';
 import AddTraineeDesignation from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TraineeDesignation/AddTraineeDesignation';
 import { CommsAndSupport } from '../screens/AdminScreens/Dashboard/masterConfiguration/commsAndSupport';
-import MedicineType from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/pharmacy/MedicineType';
-import PharmacyMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/pharmacy/PharmacyMaster';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -478,17 +475,17 @@ const RootNavigatorAdmin = () => {
           component={TrainingManagement}
           initialParams={{ initialTab: 'TrainingCategoryMaster' }}
         />
-         <RootStackScreen.Screen
-           name={screensName.AddTrainingCategoryMaster}
-           component={AddTrainingCategoryMaster}
-         />
-         <RootStackScreen.Screen
-           name={screensName.AddTraineeDesignation}
-           component={AddTraineeDesignation}
-         />
-         <RootStackScreen.Screen
-           name="TrainingDetails"
-           component={TrainingManagement}
+        <RootStackScreen.Screen
+          name={screensName.AddTrainingCategoryMaster}
+          component={AddTrainingCategoryMaster}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AddTraineeDesignation}
+          component={AddTraineeDesignation}
+        />
+        <RootStackScreen.Screen
+          name="TrainingDetails"
+          component={TrainingManagement}
           initialParams={{ initialTab: 'TrainingDetails' }}
         />
         <RootStackScreen.Screen
@@ -735,18 +732,14 @@ const RootNavigatorAdmin = () => {
           name="PHCManagemnetMain"
           component={PHCManagemnetMain}
         />
-        <RootStackScreen.Screen name="Pharmacy" component={Pharmacy} />
+
         <RootStackScreen.Screen name="TraineeBMI" component={TraineeBMI} />
         <RootStackScreen.Screen name="Patients" component={Patients} />
         <RootStackScreen.Screen
           name="PatientDetails"
           component={PatientDetails}
         />
-        <RootStackScreen.Screen
-          name="PharmacyMaster"
-          component={PharmacyMaster}
-        />
-        <RootStackScreen.Screen name="MedicineType" component={MedicineType} />
+
         <RootStackScreen.Screen name="UpdateStock" component={UpdateStock} />
         <RootStackScreen.Screen name="StockReport" component={StockReport} />
         <RootStackScreen.Screen name="BMI" component={BMI} />

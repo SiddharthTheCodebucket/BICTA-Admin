@@ -14,20 +14,19 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
-import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
+import { colors, fonts, strings, vh, vw } from '../../../../../../../constants';
+import { useAppSelector } from '../../../../../../../hooks';
 import {
   Header,
   NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../../components/atoms/TextAtom';
-import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import { useListMedicineMutation } from '../../../../../../injectEndpoints/phcEndpoints';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import { isNullUndefined } from '../../../../../../utils/CommonFunction';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
+} from '../../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../../components/atoms/TextAtom';
+import FullscreenLoading from '../../../../../../../components/organisms/FullscreenLoading';
+import SearchBoxOrganism from '../../../../../../../components/organisms/SearchBoxOrganism';
+import DropDownOrganism from '../../../../../../../components/organisms/DropDownOrganism';
+import { useListMedicineBatchMutation } from '../../../../../../../injectEndpoints/phcEndpoints';
+import moment from 'moment';
+import ViewAtom from '../../../../../../../components/atoms/ViewAtom';
 
 interface Props {
   navigation: NavigationType;
@@ -43,12 +42,12 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const PharmacyMaster = (props: Props) => {
+const UpdateStock = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
-  const [listMedicineApi] = useListMedicineMutation();
+  const [listMedicineBatchApi] = useListMedicineBatchMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -65,7 +64,7 @@ const PharmacyMaster = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, strings.pharmacy_master);
+    Header.setNavigation(navigation, strings.update_stock);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -73,14 +72,14 @@ const PharmacyMaster = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         setFirstTimeLoad(false);
-        listMedicines(1, true, '');
+        listMedicineBatches(1, true, '');
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
-    listMedicines(1, true, '');
+    listMedicineBatches(1, true, '');
   }, [centerSerach]);
 
   const getCentreFilter = () => {
@@ -93,7 +92,7 @@ const PharmacyMaster = (props: Props) => {
     return [centerSerach.name];
   };
 
-  const listMedicines = (
+  const listMedicineBatches = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
@@ -118,7 +117,7 @@ const PharmacyMaster = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    listMedicineApi(params)
+    listMedicineBatchApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -149,7 +148,7 @@ const PharmacyMaster = (props: Props) => {
 
   const handleSearch = useCallback(
     debounce((text: string) => {
-      listMedicines(1, true, text);
+      listMedicineBatches(1, true, text);
     }, 500),
     [],
   );
@@ -161,7 +160,7 @@ const PharmacyMaster = (props: Props) => {
 
   const onClearSearch = () => {
     setSearch('');
-    listMedicines(1, true, '');
+    listMedicineBatches(1, true, '');
   };
 
   const BedCard = ({ item, index, navigation }: any) => {
@@ -171,8 +170,6 @@ const PharmacyMaster = (props: Props) => {
           <TextAtom style={[styles.label, { flex: 1 }]}>
             {strings.sr_no} {index + 1}
           </TextAtom>
-
-          <View style={{ flexDirection: 'row', gap: vw(15) }}></View>
         </View>
 
         <View style={{ flex: 1 }}>
@@ -183,52 +180,40 @@ const PharmacyMaster = (props: Props) => {
         </View>
         <View style={{ flex: 1 }}>
           <TextAtom style={styles.label}>{strings.medicine_name}</TextAtom>
-          <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
-        </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>{strings.composition}</TextAtom>
-          <TextAtom style={styles.value}>{item.composition ?? '-'}</TextAtom>
+          <TextAtom style={styles.value}>
+            {item.medicineStockName ?? '-'}
+          </TextAtom>
         </View>
         <View style={[styles.rowBetween]}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>{strings.mrp}</TextAtom>
-            <TextAtom style={styles.value}>{item.mrp ?? '-'}</TextAtom>
+            <TextAtom style={styles.label}>{strings.batch}</TextAtom>
+            <TextAtom style={styles.value}>{item.batch ?? '-'}</TextAtom>
           </View>
-
-          <View style={{ flex: 1, alignSelf: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>{strings.unit}</TextAtom>
-            <TextAtom style={styles.valueRight}>{item.unit ?? '-'}</TextAtom>
-          </View>
-        </View>
-        <View style={[styles.rowBetween]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>
-              {strings.manufacturing_date}
-            </TextAtom>
-            <TextAtom style={styles.value}>
-              {item.manufacturingDate ?? '-'}
-            </TextAtom>
-          </View>
-
           <View style={{ flex: 1, alignSelf: 'flex-end' }}>
             <TextAtom style={styles.labelRight}>{strings.expiry_date}</TextAtom>
             <TextAtom style={styles.valueRight}>
-              {item.expiryDate ?? '-'}
+              {moment(item.expiryDate, 'YYYY-MM-DD').format('DD-MM-YYYY') ??
+                '-'}
             </TextAtom>
           </View>
         </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>{strings.photo}</TextAtom>
-          {isNullUndefined(item.photo) ? (
-            <TextAtom style={styles.label}>-</TextAtom>
-          ) : (
-            <ImageAtom
-              source={{
-                uri: item.photo,
-              }}
-              style={[styles.thumbnail]}
-            />
-          )}
+        <View style={[styles.rowBetween, { width: '100%' }]}>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>{strings.medicine_unit}</TextAtom>
+            <TextAtom style={styles.value}>{item.medicineUnit ?? '-'}</TextAtom>
+          </View>
+
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <TextAtom style={styles.label}>{strings.stock}</TextAtom>
+            <TextAtom style={styles.value}>{item.stock ?? '-'}</TextAtom>
+          </View>
+
+          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+            <TextAtom style={styles.labelRight}>{strings.total_unit}</TextAtom>
+            <TextAtom style={styles.valueRight}>
+              {item.totalUnits ?? '-'}
+            </TextAtom>
+          </View>
         </View>
       </ViewAtom>
     );
@@ -299,14 +284,14 @@ const PharmacyMaster = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listMedicines(1, false, '');
+              listMedicineBatches(1, false, '');
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listMedicines(page + 1, false, search)
+            ? listMedicineBatches(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
@@ -321,7 +306,7 @@ const PharmacyMaster = (props: Props) => {
   );
 };
 
-export default PharmacyMaster;
+export default UpdateStock;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },
@@ -470,7 +455,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   hardcodedStyle: {
-    backgroundColor: colors.pharmacy_red,
-    margin: 5,
+    borderWidth: 2,
+    borderColor: colors.pharmacy_green,
   },
 });
