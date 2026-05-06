@@ -79,9 +79,7 @@ const AddVehicle = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      fromFacilities
-        ? 'Facilities'
-        : isNullUndefined(item)
+      isNullUndefined(item)
         ? 'Add Vehicle Management'
         : 'Edit Vehicle Management',
       undefined,
@@ -94,7 +92,6 @@ const AddVehicle = (props: Props) => {
             backIconColor: colors.white,
           }
         : undefined,
-      fromFacilities,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [fromFacilities, item, navigation]);
@@ -368,379 +365,174 @@ const AddVehicle = (props: Props) => {
       });
   };
 
-  if (fromFacilities) {
-    return (
-      <SafeAreaView edges={['bottom']} style={styles.facilitiesContainer}>
-        <FullscreenLoading isVisible={loader} />
-        <TouchableAtom
-          style={styles.localHeader}
-          onPress={() => navigation.goBack()}
-        >
-          <Image source={images.arrow_back} style={styles.localBackIcon} />
-          <TextAtom style={styles.localTitle}>
-            {item ? 'Update Vehicle Registration' : 'Add Vehicle Registration'}
-          </TextAtom>
-        </TouchableAtom>
-
-        <KeyboardAwareScrollView
-          showsVerticalScrollIndicator={false}
-          style={styles.scroll}
-          contentContainerStyle={styles.facilitiesContentScroll}
-          enableOnAndroid={true}
-          enableAutomaticScroll={true}
-          keyboardShouldPersistTaps="handled"
-          extraScrollHeight={vh(80)}
-        >
-          <View style={globalStyles.adminFormCard}>
-            <FormDropdownFieldWithTitle
-              title="BIPARD Location"
-              placeholder="Select"
-              data={[
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
-              ]}
-              value={form.bipardLocation?.id}
-              onChange={(data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  bipardLocation: data,
-                  vehicleColor: {},
-                }));
-                getColor(data.name);
-                setErrors({ ...errors, 'bipardLocation.name': '' });
-              }}
-              isMandatory
-              errorMessage={errors['bipardLocation.name']}
-              disabled={tenantId !== 3}
-            />
-            <FormTextInputWithTitle
-              title="Vehicle Name"
-              placeholder="Enter"
-              value={form.vehicleName}
-              onSubmitEditing={() => input2_ref.current?.focus()}
-              returnKeyType="next"
-              onChangeText={(val: string) => {
-                setValue('vehicleName', val);
-                setErrors({ ...errors, vehicleName: '' });
-              }}
-              isMandatory
-              errorMessage={errors.vehicleName}
-            />
-            <FormTextInputWithTitle
-              title="Vehicle Registration Number"
-              placeholder="Enter"
-              value={form.vehicleRegistrationNumber}
-              onSubmitEditing={() => input3_ref.current?.focus()}
-              returnKeyType="next"
-              autoCapitalize="characters"
-              onChangeText={(val: string) => {
-                const formattedInput = normalizeLettersAndNumbers(
-                  val?.toUpperCase(),
-                );
-                setValue('vehicleRegistrationNumber', formattedInput);
-                setErrors({ ...errors, vehicleRegistrationNumber: '' });
-              }}
-              isMandatory
-              errorMessage={errors.vehicleRegistrationNumber}
-            />
-            <FormDropdownFieldWithTitle
-              title="Vehicle Color"
-              placeholder="Select"
-              data={form.vehicleColorList}
-              value={form.vehicleColor?.id}
-              onChange={(data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  vehicleColor: data,
-                }));
-                setErrors({ ...errors, 'vehicleColor.name': '' });
-              }}
-              isMandatory
-              errorMessage={errors['vehicleColor.name']}
-            />
-            <FormTextInputWithTitle
-              title="Vehicle Owner Name"
-              placeholder="Enter"
-              value={form.vehicleOwnerName}
-              onSubmitEditing={() => input4_ref.current?.focus()}
-              returnKeyType="next"
-              onChangeText={(val: string) => {
-                setValue('vehicleOwnerName', val);
-                setErrors({ ...errors, vehicleOwnerName: '' });
-              }}
-              isMandatory
-              errorMessage={errors.vehicleOwnerName}
-            />
-            <FormTextInputWithTitle
-              title="Vehicle Owner Mobile No."
-              placeholder="Enter"
-              value={form.vehicleOwnerContactNumber}
-              onSubmitEditing={() => Keyboard.dismiss()}
-              returnKeyType="done"
-              keyboardType="numeric"
-              maxLength={10}
-              onChangeText={(val: string) => {
-                const formatted = normalizeNumber(val);
-                setValue('vehicleOwnerContactNumber', formatted);
-                setErrors({ ...errors, vehicleOwnerContactNumber: '' });
-              }}
-              isMandatory
-              errorMessage={errors.vehicleOwnerContactNumber}
-            />
-            <View style={styles.facilitiesFieldCard}>
-              <FormSwitchForCard
-                title="Status"
-                data={[
-                  { id: 'Active', label: 'Active' },
-                  { id: 'Inactive', label: 'Inactive' },
-                ]}
-                selectedValue={form.status?.id}
-                onSelect={(data: any) => {
-                  setValue('status', {
-                    id: data.id,
-                    value: data.label,
-                  });
-                  setErrors({ ...errors, 'status.id': '' });
-                }}
-                errorMessage={errors['status.id']}
-              />
-            </View>
-            <FormFileUploadWithTitle
-              title="Upload RC"
-              isMandatory
-              fileName={
-                form.rcFile?.originalFilename ||
-                form.rcFile?.name ||
-                form.rcFile?.fileName
-              }
-              onFileSelected={(file: any) => {
-                if (!file) {
-                  setValue('rcFile', {});
-                  return;
-                }
-                fileUpload({
-                  uri: file.uri,
-                  fileName: file.name,
-                  type: file.type || 'application/pdf',
-                  size: file.size || 0,
-                });
-              }}
-              onFileRemove={() => setValue('rcFile', {})}
-              errorMessage={errors['rcFile.originalFilename']}
-            />
-          </View>
-        </KeyboardAwareScrollView>
-
-        <View style={styles.footerRow}>
-          <FormWhiteButton
-            title="Cancel"
-            onPress={() => navigation.goBack()}
-            containerStyle={styles.footerButton}
-            buttonStyle={styles.whiteButton}
-          />
-          <FormGradientButton
-            title={item ? 'Update' : 'Add'}
-            onPress={onSubmit}
-            loading={loader}
-            containerStyle={styles.footerButton}
-            buttonStyle={styles.gradientButton}
-          />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView edges={['bottom']} style={styles.container}>
+    <SafeAreaView edges={['bottom']} style={styles.facilitiesContainer}>
       <FullscreenLoading isVisible={loader} />
+
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
-        contentContainerStyle={styles.contentScroll}
+        style={styles.scroll}
+        contentContainerStyle={styles.facilitiesContentScroll}
         enableOnAndroid={true}
         enableAutomaticScroll={true}
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={vh(80)}
       >
-        <DropDownOrganism
-          label={'Bipard Location'}
-          placeholder={'Bipard Location'}
-          onPress={() => {
-            if (tenantId !== 3) return;
-            navigation.navigate('DropDownModal', {
-              name: 'Bipard Location',
-              Data: [
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
-              ],
-              selectedData: form.bipardLocation,
-              setSelectedData: (data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  bipardLocation: data,
-                  vehicleColor: {},
-                }));
-                getColor(data.name);
-
-                setErrors({ ...errors, 'bipardLocation.name': '' });
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={form.bipardLocation?.name}
-          isMandatory
-          errorMessage={errors['bipardLocation.name']}
-          isDisabled={tenantId !== 3}
-        />
-        <TextInputOrganisms
-          label={'Vehicle Name'}
-          placeholder={'Vehicle Name'}
-          ref={input1_ref}
-          onSubmitEditing={() => input2_ref.current.focus()}
-          value={form.vehicleName}
-          autoCapitalize={'none'}
-          returnKeyType={'next'}
-          onChangeText={(val: string) => {
-            setValue('vehicleName', val);
-            setErrors({ ...errors, vehicleName: '' });
-          }}
-          isMandatory
-          errorMessage={errors.vehicleName}
-        />
-        <TextInputOrganisms
-          label={'Vehicle Registration Number'}
-          placeholder={'Vehicle Registration Number'}
-          ref={input2_ref}
-          onSubmitEditing={() => input3_ref.current.focus()}
-          value={form.vehicleRegistrationNumber}
-          autoCapitalize={'none'}
-          returnKeyType={'next'}
-          onChangeText={(val: string) => {
-            let formattedInput = normalizeLettersAndNumbers(val?.toUpperCase());
-            setValue('vehicleRegistrationNumber', formattedInput);
-            setErrors({ ...errors, vehicleRegistrationNumber: '' });
-          }}
-          isMandatory
-          errorMessage={errors.vehicleRegistrationNumber}
-        />
-        <DropDownOrganism
-          label={'Vehicle Color'}
-          placeholder={'Vehicle Color'}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: 'Vehicle Color',
-              Data: form.vehicleColorList,
-              selectedData: form.vehicleColor,
-              setSelectedData: (data: any) => {
-                setForm((prev: any) => ({
-                  ...prev,
-                  vehicleColor: data,
-                }));
-
-                setErrors({ ...errors, 'vehicleColor.name': '' });
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={form.vehicleColor?.name}
-          isMandatory
-          errorMessage={errors['vehicleColor.name']}
-        />
-
-        <TextAtom style={styles.labelStyle} numberOfLines={2}>
-          RC File
-        </TextAtom>
-        <TouchableOpacity
-          style={[
-            styles.uploadBtn,
-            {
-              borderColor: errors['uploadFile.uri']
-                ? colors.red
-                : colors.grey_1,
-            },
-          ]}
-          activeOpacity={0.8}
-          onPress={handleFileUpload}
-        >
-          <TextAtom style={styles.uploadText}>{strings.choose_file}</TextAtom>
-          <TextAtom style={styles.instructionText}>{strings.add_pdf}</TextAtom>
-        </TouchableOpacity>
-
-        {form.rcFile?.url && (
-          <TouchableOpacity
-            style={[
-              styles.uploadBtn,
-              { borderColor: colors.primary, marginTop: -vh(5) },
+        <View style={globalStyles.adminFormCard}>
+          <FormDropdownFieldWithTitle
+            title="BIPARD Location"
+            placeholder="Select"
+            data={[
+              { id: 'Gaya', name: 'Gaya' },
+              { id: 'Patna', name: 'Patna' },
             ]}
-            activeOpacity={0.8}
-            onPress={() => {
-              Linking.openURL(form.rcFile.url);
+            value={form.bipardLocation?.id}
+            onChange={(data: any) => {
+              setForm((prev: any) => ({
+                ...prev,
+                bipardLocation: data,
+                vehicleColor: {},
+              }));
+              getColor(data.name);
+              setErrors({ ...errors, 'bipardLocation.name': '' });
             }}
-          >
-            <TextAtom
-              style={[
-                styles.uploadText,
-                { color: colors.primary, fontSize: vw(15) },
+            isMandatory
+            errorMessage={errors['bipardLocation.name']}
+            disabled={tenantId !== 3}
+          />
+          <FormTextInputWithTitle
+            title="Vehicle Name"
+            placeholder="Enter"
+            value={form.vehicleName}
+            onSubmitEditing={() => input2_ref.current?.focus()}
+            returnKeyType="next"
+            onChangeText={(val: string) => {
+              setValue('vehicleName', val);
+              setErrors({ ...errors, vehicleName: '' });
+            }}
+            isMandatory
+            errorMessage={errors.vehicleName}
+          />
+          <FormTextInputWithTitle
+            title="Vehicle Registration Number"
+            placeholder="Enter"
+            value={form.vehicleRegistrationNumber}
+            onSubmitEditing={() => input3_ref.current?.focus()}
+            returnKeyType="next"
+            autoCapitalize="characters"
+            onChangeText={(val: string) => {
+              const formattedInput = normalizeLettersAndNumbers(
+                val?.toUpperCase(),
+              );
+              setValue('vehicleRegistrationNumber', formattedInput);
+              setErrors({ ...errors, vehicleRegistrationNumber: '' });
+            }}
+            isMandatory
+            errorMessage={errors.vehicleRegistrationNumber}
+          />
+          <FormDropdownFieldWithTitle
+            title="Vehicle Color"
+            placeholder="Select"
+            data={form.vehicleColorList}
+            value={form.vehicleColor?.id}
+            onChange={(data: any) => {
+              setForm((prev: any) => ({
+                ...prev,
+                vehicleColor: data,
+              }));
+              setErrors({ ...errors, 'vehicleColor.name': '' });
+            }}
+            isMandatory
+            errorMessage={errors['vehicleColor.name']}
+          />
+          <FormTextInputWithTitle
+            title="Vehicle Owner Name"
+            placeholder="Enter"
+            value={form.vehicleOwnerName}
+            onSubmitEditing={() => input4_ref.current?.focus()}
+            returnKeyType="next"
+            onChangeText={(val: string) => {
+              setValue('vehicleOwnerName', val);
+              setErrors({ ...errors, vehicleOwnerName: '' });
+            }}
+            isMandatory
+            errorMessage={errors.vehicleOwnerName}
+          />
+          <FormTextInputWithTitle
+            title="Vehicle Owner Mobile No."
+            placeholder="Enter"
+            value={form.vehicleOwnerContactNumber}
+            onSubmitEditing={() => Keyboard.dismiss()}
+            returnKeyType="done"
+            keyboardType="numeric"
+            maxLength={10}
+            onChangeText={(val: string) => {
+              const formatted = normalizeNumber(val);
+              setValue('vehicleOwnerContactNumber', formatted);
+              setErrors({ ...errors, vehicleOwnerContactNumber: '' });
+            }}
+            isMandatory
+            errorMessage={errors.vehicleOwnerContactNumber}
+          />
+          <View style={styles.facilitiesFieldCard}>
+            <FormSwitchForCard
+              title="Status"
+              data={[
+                { id: 'Active', label: 'Active' },
+                { id: 'Inactive', label: 'Inactive' },
               ]}
-            >
-              View Uploaded File
-            </TextAtom>
-          </TouchableOpacity>
-        )}
+              selectedValue={form.status?.id}
+              onSelect={(data: any) => {
+                setValue('status', {
+                  id: data.id,
+                  value: data.label,
+                });
+                setErrors({ ...errors, 'status.id': '' });
+              }}
+              errorMessage={errors['status.id']}
+            />
+          </View>
+          <FormFileUploadWithTitle
+            title="Upload RC"
+            isMandatory
+            fileName={
+              form.rcFile?.originalFilename ||
+              form.rcFile?.name ||
+              form.rcFile?.fileName
+            }
+            onFileSelected={(file: any) => {
+              if (!file) {
+                setValue('rcFile', {});
+                return;
+              }
+              fileUpload({
+                uri: file.uri,
+                fileName: file.name,
+                type: file.type || 'application/pdf',
+                size: file.size || 0,
+              });
+            }}
+            onFileRemove={() => setValue('rcFile', {})}
+            errorMessage={errors['rcFile.originalFilename']}
+          />
+        </View>
 
-        <TextInputOrganisms
-          label={'Vehicle Owner Name'}
-          placeholder={'Vehicle Owner Name'}
-          ref={input3_ref}
-          onSubmitEditing={() => input4_ref.current.focus()}
-          value={form.vehicleOwnerName}
-          autoCapitalize={'none'}
-          returnKeyType={'next'}
-          onChangeText={(val: string) => {
-            setValue('vehicleOwnerName', val);
-            setErrors({ ...errors, vehicleOwnerName: '' });
-          }}
-          isMandatory
-          errorMessage={errors.vehicleOwnerName}
-        />
-        <TextInputOrganisms
-          label={'Vehicle Owner Contact Number'}
-          placeholder={'Vehicle Owner Contact Number'}
-          ref={input4_ref}
-          onSubmitEditing={() => Keyboard.dismiss()}
-          value={form.vehicleOwnerContactNumber}
-          autoCapitalize={'none'}
-          returnKeyType={'done'}
-          onChangeText={(val: string) => {
-            let formatted = normalizeNumber(val);
-            setValue('vehicleOwnerContactNumber', formatted);
-            setErrors({ ...errors, vehicleOwnerContactNumber: '' });
-          }}
-          isMandatory
-          errorMessage={errors.vehicleOwnerContactNumber}
-          maxLength={10}
-          keyboardType="numeric"
-        />
-        <RadioSelectableOrganism
-          data={[
-            { id: 'Active', value: 'Active' },
-            { id: 'Inactive', value: 'Inactive' },
-          ]}
-          onSelect={(item: any) => {
-            setValue('status', item);
-            setErrors({ ...errors, 'status.id': '' });
-          }}
-          label={'Status'}
-          selectedType={form.status}
-          typeName={'value'}
-          typeId={'id'}
-          isMandatory
-          errorMessage={errors['status.id']}
-        />
+        <View style={styles.footerRow}>
+          {item ? (
+            <FormWhiteButton
+              title="Cancel"
+              onPress={() => navigation.goBack()}
+              containerStyle={[styles.footerButton, { marginRight: 4 }]}
+            />
+          ) : null}
+          <FormGradientButton
+            title={item ? 'Update' : 'Add'}
+            onPress={onSubmit}
+            loading={loader}
+            containerStyle={[styles.footerButton, { marginLeft: 4 }]}
+          />
+        </View>
       </KeyboardAwareScrollView>
-      <ButtonOrganism onPress={onSubmit} bttnText={item ? 'Update' : 'Add'} />
     </SafeAreaView>
   );
 };
@@ -826,22 +618,12 @@ const styles = StyleSheet.create({
   footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: vw(10),
-    paddingHorizontal: vw(12),
-    paddingTop: vh(10),
-    paddingBottom: vh(15),
+
+    paddingTop: vh(16),
+    paddingBottom: vh(16),
     backgroundColor: colors.white,
   },
   footerButton: {
     flex: 1,
-  },
-  whiteButton: {
-    height: vh(40),
-    borderRadius: vw(7),
-    borderColor: colors.primary_dark_blue,
-  },
-  gradientButton: {
-    height: vh(40),
-    borderRadius: vw(7),
   },
 });
