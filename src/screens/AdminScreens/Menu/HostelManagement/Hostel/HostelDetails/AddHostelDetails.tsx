@@ -1,4 +1,10 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  ImageBackground,
+  Keyboard,
+  TextInput,
+} from 'react-native';
 import React, { createRef, useEffect, useLayoutEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -10,12 +16,9 @@ import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
-import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
-import RadioSelectableOrganism from '../../../../../../components/organisms/RadioSelectableOrganism';
+import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import {
   isNullUndefined,
   mobileRegex,
@@ -26,7 +29,16 @@ import {
   useAddHostelDetailsMutation,
   useUpdateHostelDetailsMutation,
 } from '../../../../../../injectEndpoints/hostelEndpoints';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
+import AdminTextInputField from '../../../../../../components/molecules/AdminTextInputField';
+import {
+  FormDropdownFieldWithTitle,
+  FormSwitchWithTitle,
+  FormTextInputWithTitle,
+  FormGradientButton,
+  FormWhiteButton,
+} from '../../../../../../components/templates';
+import { globalStyles } from '../../../../../../utils/globalStyles';
+import { images } from '../../../../../../constants';
 
 interface Props {
   route: any;
@@ -42,8 +54,8 @@ const initialForm = {
   totalCapicty: '',
   trainingCenterList: [],
   trainingCenter: {},
-  status: {},
-  alternateContactNo: [''],
+  status: { id: 'Inactive', value: 'Inactive' },
+  alternateContactNo: '',
 };
 
 const AddHostelDetails = (props: Props) => {
@@ -67,9 +79,15 @@ const AddHostelDetails = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      isNullUndefined(item)
-        ? strings.hostelManagement.addHostelDetails.addTitle
-        : strings.hostelManagement.addHostelDetails.editTitle,
+      isNullUndefined(item) ? 'Create Hostel' : 'Edit Hostel',
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: '#002147',
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, []);
@@ -94,65 +112,36 @@ const AddHostelDetails = (props: Props) => {
 
     setForm((prev: any) => ({
       ...prev,
-
-      // FORM FIELDS PREFILL
       hostelName: item.hostelName || '',
       hostelAddress: item.hostelAddress || '',
       noOfFloor: item.noOfFloors?.toString() || '',
       contactPerson: item.contactPerson || '',
       contactNumber: item.contactNo || '',
       totalCapicty: item.totalCapacity?.toString() || '',
-
       trainingCenter: selectedTrainingCenter,
-
       status: {
         id: item.status,
         value: item.status,
       },
-
-      alternateContactNo:
-        item.alternateContactNo?.length > 0
-          ? [...item.alternateContactNo]
-          : [''],
+      alternateContactNo: item.alternateContactNo?.[0] || '',
     }));
   }, [item]);
 
   const schema = Yup.object().shape({
-    status: isNullUndefined(item)
-      ? Yup.object({
-          id: Yup.string().required('Status is required'),
-        })
-      : Yup.mixed().notRequired(),
+    status: Yup.object().nullable().required('Status is required'),
     trainingCenter: Yup.object({
-      name: Yup.string().required(
-        strings.hostelManagement.addHostelDetails.required.totalCapacity,
-      ),
+      name: Yup.string().required('Training Centre is required'),
     }),
-    totalCapicty: Yup.string().required(
-      strings.hostelManagement.addHostelDetails.required.totalCapacity,
-    ),
+    totalCapicty: Yup.string().required('Total Capacity is required'),
     contactNumber: Yup.string()
-      .required(
-        strings.hostelManagement.addHostelDetails.required.contactNumber,
-      )
-      .max(10, strings.hostelManagement.addHostelDetails.errors.validContact)
-      .min(10, strings.hostelManagement.addHostelDetails.errors.validContact)
-      .matches(
-        mobileRegex,
-        strings.hostelManagement.addHostelDetails.errors.validContact,
-      ),
-    contactPerson: Yup.string().required(
-      strings.hostelManagement.addHostelDetails.required.contactPerson,
-    ),
-    noOfFloor: Yup.string().required(
-      strings.hostelManagement.addFloorDetails.required.noOfRooms,
-    ),
-    hostelAddress: Yup.string().required(
-      strings.hostelManagement.addHostelDetails.required.hostelAddress,
-    ),
-    hostelName: Yup.string().required(
-      strings.hostelManagement.addBedDetails.required.hostel,
-    ),
+      .required('Contact Number is required')
+      .max(10, 'Invalid Contact Number')
+      .min(10, 'Invalid Contact Number')
+      .matches(mobileRegex, 'Invalid Contact Number'),
+    contactPerson: Yup.string().required('Contact Person is required'),
+    noOfFloor: Yup.string().required('No. of Floors is required'),
+    hostelAddress: Yup.string().required('Hostel Address is required'),
+    hostelName: Yup.string().required('Hostel Name is required'),
   });
 
   const onSubmit = () => {
@@ -177,9 +166,9 @@ const AddHostelDetails = (props: Props) => {
       noOfFloors: form.noOfFloor,
       hostelAddress: form.hostelAddress,
       contactPerson: form.contactPerson,
-      alternateContactNo: form.alternateContactNo.filter(
-        (num: any) => num && num.trim() !== '',
-      ),
+      alternateContactNo: form.alternateContactNo
+        ? [form.alternateContactNo]
+        : [],
       contactNo: form.contactNumber,
       totalCapacity: form.totalCapicty,
       status: form.status.id,
@@ -203,6 +192,7 @@ const AddHostelDetails = (props: Props) => {
         setLoader(false);
       });
   };
+
   const updateHostelDetails = () => {
     setLoader(true);
     let params = {
@@ -212,9 +202,9 @@ const AddHostelDetails = (props: Props) => {
       noOfFloors: form.noOfFloor,
       hostelAddress: form.hostelAddress,
       contactPerson: form.contactPerson,
-      alternateContactNo: form.alternateContactNo.filter(
-        (num: any) => num && num.trim() !== '',
-      ),
+      alternateContactNo: form.alternateContactNo
+        ? [form.alternateContactNo]
+        : [],
       contactNo: form.contactNumber,
       totalCapacity: form.totalCapicty,
       status: form.status.id,
@@ -269,62 +259,6 @@ const AddHostelDetails = (props: Props) => {
       });
   };
 
-  const handleAlternateChange = (text: any, index: any) => {
-    const numeric = text.replace(/\D/g, '').slice(0, 10);
-
-    const updated = [...form.alternateContactNo];
-    updated[index] = numeric;
-
-    // 1) Check duplicate inside alternate numbers
-    const duplicates = updated.filter((n, i) => n && updated.indexOf(n) !== i);
-    if (duplicates.length > 0) {
-      Toast.show({
-        type: 'error',
-        text2:
-          strings.hostelManagement.addHostelDetails.errors.duplicateAlternate,
-      });
-      return;
-    }
-
-    // 2) Check same as main contact number
-    if (numeric && numeric === form.contactNumber) {
-      Toast.show({
-        type: 'error',
-        text2: strings.hostelManagement.addHostelDetails.errors.sameAsMain,
-      });
-      return;
-    }
-
-    setValue('alternateContactNo', updated);
-  };
-
-  const handleAddAlternate = () => {
-    if (form.alternateContactNo.length >= 2) {
-      Toast.show({
-        type: 'error',
-        text2: strings.hostelManagement.addHostelDetails.errors.maxAlternate,
-      });
-      return;
-    }
-
-    if (form.alternateContactNo.includes('')) {
-      Toast.show({
-        type: 'error',
-        text2: strings.hostelManagement.addHostelDetails.errors.fillFirst,
-      });
-      return;
-    }
-
-    setValue('alternateContactNo', [...form.alternateContactNo, '']);
-  };
-
-  const handleRemoveAlternate = (index: any) => {
-    const updated = form.alternateContactNo.filter(
-      (_: any, i: any) => i !== index,
-    );
-    setValue('alternateContactNo', updated);
-  };
-
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={loader} />
@@ -337,203 +271,169 @@ const AddHostelDetails = (props: Props) => {
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={vh(120)}
       >
-        <TextInputOrganisms
-          label={strings.hostelManagement.addBedDetails.hostelName}
-          placeholder={strings.hostelManagement.addBedDetails.hostelName}
-          ref={input1_ref}
-          onSubmitEditing={() => input2_ref.current.focus()}
-          value={form.hostelName}
-          autoCapitalize={'none'}
-          returnKeyType={'next'}
-          onChangeText={(val: string) => {
-            setValue('hostelName', val);
-            setErrors({ ...errors, hostelName: '' });
-          }}
-          isMandatory
-          errorMessage={errors.hostelName}
-        />
-
-        <TextInputOrganisms
-          label={strings.hostelManagement.addHostelDetails.hostelAddress}
-          placeholder={strings.hostelManagement.addHostelDetails.hostelAddress}
-          ref={input2_ref}
-          onSubmitEditing={() => input3_ref.current.focus()}
-          value={form.hostelAddress}
-          autoCapitalize={'none'}
-          returnKeyType={'next'}
-          onChangeText={(val: string) => {
-            setValue('hostelAddress', val);
-            setErrors({ ...errors, hostelAddress: '' });
-          }}
-          isMandatory
-          errorMessage={errors.hostelAddress}
-        />
-
-        <TextInputOrganisms
-          label={strings.hostelManagement.addHostelDetails.noOfFloor}
-          placeholder={strings.hostelManagement.addHostelDetails.noOfFloor}
-          ref={input3_ref}
-          onSubmitEditing={() => input4_ref.current.focus()}
-          value={form.noOfFloor}
-          returnKeyType={'next'}
-          onChangeText={(val: string) => {
-            setValue('noOfFloor', normalizeNumber(val));
-            setErrors({ ...errors, noOfFloor: '' });
-          }}
-          isMandatory
-          errorMessage={errors.noOfFloor}
-          maxLength={2}
-          keyboardType="numeric"
-        />
-
-        <TextInputOrganisms
-          label={strings.hostelManagement.addHostelDetails.contactPerson}
-          placeholder={strings.hostelManagement.addHostelDetails.contactPerson}
-          ref={input4_ref}
-          onSubmitEditing={() => input5_ref.current.focus()}
-          value={form.contactPerson}
-          autoCapitalize={'none'}
-          returnKeyType={'next'}
-          onChangeText={(val: string) => {
-            setValue('contactPerson', val);
-            setErrors({ ...errors, contactPerson: '' });
-          }}
-          isMandatory
-          errorMessage={errors.contactPerson}
-        />
-
-        <TextInputOrganisms
-          label={strings.hostelManagement.addHostelDetails.contactNumber}
-          placeholder={strings.hostelManagement.addHostelDetails.contactNumber}
-          ref={input5_ref}
-          onSubmitEditing={() => input6_ref.current.focus()}
-          value={form.contactNumber}
-          returnKeyType={'next'}
-          onChangeText={(val: string) => {
-            setValue('contactNumber', normalizeNumber(val));
-            setErrors({ ...errors, contactNumber: '' });
-          }}
-          isMandatory
-          errorMessage={errors.contactNumber}
-          maxLength={10}
-          keyboardType="numeric"
-        />
-
-        <TextInputOrganisms
-          label={strings.hostelManagement.addHostelDetails.totalCapacity}
-          placeholder={strings.hostelManagement.addHostelDetails.totalCapacity}
-          ref={input6_ref}
-          onSubmitEditing={() => input7_ref.current.focus()}
-          returnKeyType={'done'}
-          value={form.totalCapicty}
-          onChangeText={(val: string) => {
-            setValue('totalCapicty', normalizeNumber(val));
-            setErrors({ ...errors, totalCapicty: '' });
-          }}
-          isMandatory
-          errorMessage={errors.totalCapicty}
-          maxLength={3}
-          keyboardType="numeric"
-        />
-        <DropDownOrganism
-          label={strings.hostelManagement.addHostelDetails.trainingCenter}
-          placeholder={strings.hostelManagement.addHostelDetails.trainingCenter}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.hostelManagement.addHostelDetails.trainingCenter,
-              Data: form.trainingCenterList,
-              selectedData: form.trainingCenter,
-              setSelectedData: (data: any) => {
-                setValue('trainingCenter', data);
-                setErrors({ ...errors, 'trainingCenter.name': '' });
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={form.trainingCenter?.name}
-          isMandatory
-          errorMessage={errors['trainingCenter.name']}
-          isDisabled={tenantId !== 3}
-        />
-        {isNullUndefined(item) && (
-          <RadioSelectableOrganism
-            data={[
-              {
-                id: strings.hostelManagement.addBedDetails.active,
-                value: strings.hostelManagement.addBedDetails.active,
-              },
-              {
-                id: strings.hostelManagement.addBedDetails.inactive,
-                value: strings.hostelManagement.addBedDetails.inactive,
-              },
-            ]}
-            onSelect={(item: any) => {
-              setValue('status', item);
-              setErrors({ ...errors, 'status.id': '' });
+        <View style={globalStyles.adminFormCard}>
+          <FormTextInputWithTitle
+            title="Hostel Name"
+            placeholder="Enter Name"
+            ref={input1_ref}
+            onSubmitEditing={() => input2_ref.current.focus()}
+            value={form.hostelName}
+            autoCapitalize={'none'}
+            returnKeyType={'next'}
+            onChangeText={(val: string) => {
+              setValue('hostelName', val);
+              setErrors({ ...errors, hostelName: '' });
             }}
-            label={strings.hostelManagement.addBedDetails.status}
-            selectedType={form.status}
-            typeName={'value'}
-            typeId={'id'}
+            isMandatory
+            errorMessage={errors.hostelName}
+          />
+
+          <FormTextInputWithTitle
+            title="Hostel Address"
+            placeholder="Enter Address"
+            ref={input2_ref}
+            onSubmitEditing={() => input3_ref.current.focus()}
+            value={form.hostelAddress}
+            autoCapitalize={'none'}
+            returnKeyType={'next'}
+            onChangeText={(val: string) => {
+              setValue('hostelAddress', val);
+              setErrors({ ...errors, hostelAddress: '' });
+            }}
+            isMandatory
+            errorMessage={errors.hostelAddress}
+          />
+
+          <FormTextInputWithTitle
+            title="No. of Floors"
+            placeholder="Enter"
+            ref={input3_ref}
+            onSubmitEditing={() => input4_ref.current.focus()}
+            value={form.noOfFloor}
+            returnKeyType={'next'}
+            onChangeText={(val: string) => {
+              setValue('noOfFloor', normalizeNumber(val));
+              setErrors({ ...errors, noOfFloor: '' });
+            }}
+            isMandatory
+            errorMessage={errors.noOfFloor}
+            maxLength={2}
+            keyboardType="numeric"
+          />
+
+          <FormTextInputWithTitle
+            title="Total Capacity"
+            placeholder="Enter"
+            ref={input4_ref}
+            onSubmitEditing={() => input5_ref.current.focus()}
+            returnKeyType={'next'}
+            value={form.totalCapicty}
+            onChangeText={(val: string) => {
+              setValue('totalCapicty', normalizeNumber(val));
+              setErrors({ ...errors, totalCapicty: '' });
+            }}
+            isMandatory
+            errorMessage={errors.totalCapicty}
+            maxLength={3}
+            keyboardType="numeric"
+          />
+
+          <FormDropdownFieldWithTitle
+            title="Select Training Centre"
+            isMandatory
+            data={form.trainingCenterList}
+            value={form.trainingCenter?.id}
+            placeholder="Select"
+            labelField="name"
+            valueField="id"
+            disabled={tenantId !== 3}
+            onChange={item => {
+              const selectedItem = item as any;
+              setValue('trainingCenter', selectedItem);
+              setErrors({ ...errors, 'trainingCenter.name': '' });
+            }}
+            errorMessage={errors['trainingCenter.name']}
+          />
+
+          <FormTextInputWithTitle
+            title="Contact Person"
+            placeholder="Enter"
+            ref={input5_ref}
+            onSubmitEditing={() => input6_ref.current.focus()}
+            value={form.contactPerson}
+            autoCapitalize={'none'}
+            returnKeyType={'next'}
+            onChangeText={(val: string) => {
+              setValue('contactPerson', val);
+              setErrors({ ...errors, contactPerson: '' });
+            }}
+            isMandatory
+            errorMessage={errors.contactPerson}
+          />
+
+          <FormTextInputWithTitle
+            title="Contact No."
+            placeholder="912345 00001"
+            ref={input6_ref}
+            onSubmitEditing={() => input7_ref.current.focus()}
+            value={form.contactNumber}
+            returnKeyType={'next'}
+            onChangeText={(val: string) => {
+              setValue('contactNumber', normalizeNumber(val));
+              setErrors({ ...errors, contactNumber: '' });
+            }}
+            isMandatory
+            errorMessage={errors.contactNumber}
+            maxLength={10}
+            keyboardType="numeric"
+          />
+
+          <FormTextInputWithTitle
+            title="Alternate Contact No."
+            placeholder="912345 00001"
+            ref={input7_ref}
+            onSubmitEditing={() => Keyboard.dismiss()}
+            value={form.alternateContactNo}
+            returnKeyType={'done'}
+            onChangeText={(val: string) => {
+              setValue('alternateContactNo', normalizeNumber(val));
+              setErrors({ ...errors, alternateContactNo: '' });
+            }}
+            maxLength={10}
+            keyboardType="numeric"
+          />
+
+          <FormSwitchWithTitle
+            title="Status"
+            data={[
+              { id: 'Active', label: 'Active' },
+              { id: 'Inactive', label: 'Inactive' },
+            ]}
+            selectedValue={form.status.id}
+            onSelect={(item: any) => {
+              setValue('status', { id: item.id, value: item.label });
+            }}
             isMandatory
             errorMessage={errors['status.id']}
           />
-        )}
+        </View>
 
-        {form?.alternateContactNo?.map((num: any, index: any) => (
-          <ViewAtom
-            key={index.toString() + num?.toString()}
-            style={styles.alternateRow}
-          >
-            <TextInputOrganisms
-              label={
-                index === 0
-                  ? strings.hostelManagement.addHostelDetails.alternateContactNo
-                  : `${
-                      strings.hostelManagement.addHostelDetails
-                        .alternateContactNo
-                    } ${index + 1}`
-              }
-              placeholder={
-                strings.hostelManagement.addHostelDetails.enterTenDigit
-              }
-              value={num}
-              keyboardType="numeric"
-              maxLength={10}
-              onChangeText={(txt: any) => handleAlternateChange(txt, index)}
-              style={{ width: vw(280) }}
-              labelStyle={{ width: vw(280) }}
-            />
+        <View style={styles.footerRow}>
+          <FormWhiteButton
+            title="Cancel"
+            onPress={() => navigation.goBack()}
+            containerStyle={styles.footerButtonContainer}
+          />
 
-            {index === 0 && form?.alternateContactNo?.length < 2 && (
-              <TouchableOpacity
-                onPress={handleAddAlternate}
-                style={styles.addBtn}
-              >
-                <TextAtom style={styles.btnText}>+</TextAtom>
-              </TouchableOpacity>
-            )}
-            {index === 1 && (
-              <TouchableOpacity
-                onPress={() => handleRemoveAlternate(index)}
-                style={styles.removeBtn}
-              >
-                <TextAtom style={styles.btnText}>–</TextAtom>
-              </TouchableOpacity>
-            )}
-          </ViewAtom>
-        ))}
+          <FormGradientButton
+            title={item ? 'Update' : 'Add'}
+            onPress={onSubmit}
+            loading={loader}
+            containerStyle={styles.footerButtonContainer}
+            imageSource={images.buttonGrad_50}
+          />
+        </View>
       </KeyboardAwareScrollView>
-
-      <ButtonOrganism
-        onPress={onSubmit}
-        bttnText={
-          item
-            ? strings.hostelManagement.addBedDetails.update
-            : strings.hostelManagement.addBedDetails.add
-        }
-      />
     </SafeAreaView>
   );
 };
@@ -543,69 +443,23 @@ export default AddHostelDetails;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
-    alignItems: 'center',
-    paddingTop: vw(20),
+    backgroundColor: '#F8F8F8',
   },
   contentScroll: {
-    paddingBottom: vh(10),
+    paddingHorizontal: vw(12),
+    paddingTop: vh(10),
+    paddingBottom: vh(40),
+    backgroundColor: '#F8F8F8',
   },
-  uploadBtn: {
-    borderWidth: 1,
-    paddingVertical: vh(10),
-    paddingHorizontal: vw(15),
-    borderRadius: vw(8),
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: vw(320),
-    alignSelf: 'center',
-    backgroundColor: colors.backgroundColor,
-    marginBottom: vh(10),
-  },
-  uploadText: {
-    fontFamily: fonts.Roboto_Medium,
-    color: colors.grey_1,
-    fontSize: vw(14),
-  },
-  instructionText: {
-    fontFamily: fonts.Roboto_Regular,
-    color: colors.grey,
-    fontSize: vw(12),
-    marginTop: vh(4),
-  },
-  labelStyle: {
-    width: vw(328),
-    fontSize: vw(14),
-    fontFamily: fonts.Roboto_Medium,
-    alignSelf: 'center',
-    color: colors.black,
-    marginBottom: vh(8),
-  },
-  alternateRow: {
+  footerRow: {
+    // position: 'absolute',
+    marginTop: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: vw(328),
-    marginBottom: vh(10),
-    marginLeft: vh(10),
   },
-  addBtn: {
-    width: vw(30),
-    backgroundColor: colors.primary,
-    height: vh(48),
-    borderRadius: vw(6),
-    marginTop: vh(15),
-    alignItems: 'center',
-    justifyContent: 'center',
+  footerButtonContainer: {
+    flex: 1,
+    paddingHorizontal: 4,
   },
-  removeBtn: {
-    width: vw(30),
-    backgroundColor: colors.primary,
-    height: vh(48),
-    borderRadius: vw(6),
-    marginTop: vh(15),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  btnText: { color: colors.white, fontSize: vw(16) },
 });
