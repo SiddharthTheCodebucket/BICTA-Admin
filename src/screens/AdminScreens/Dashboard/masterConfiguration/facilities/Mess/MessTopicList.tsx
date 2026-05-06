@@ -1,5 +1,12 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Linking, RefreshControl, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Linking,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
@@ -88,7 +95,9 @@ const MessTopicList = ({ navigation }: Props) => {
           setPagination(false);
           setRefreshing(false);
           setData(prev =>
-            pageNumber !== 1 && prev.length > 0 ? [...prev, ...newData] : newData,
+            pageNumber !== 1 && prev.length > 0
+              ? [...prev, ...newData]
+              : newData,
           );
           setPage(pageNumber);
           setTotalCount(nextTotalCount);
@@ -186,8 +195,11 @@ const MessTopicList = ({ navigation }: Props) => {
           <TextAtom numberOfLines={1} style={styles.cardTitle}>
             {field(item, ['messName', 'name'], 'Mess Name')}
           </TextAtom>
-          <TouchableAtom style={styles.actionButton} onPress={() => deleteData(item)}>
-            <SvgDelete width={vw(16)} height={vw(16)} />
+          <TouchableAtom
+            style={styles.actionButton}
+            onPress={() => deleteData(item)}
+          >
+            <SvgDelete />
           </TouchableAtom>
           <TouchableAtom
             style={styles.actionButton}
@@ -198,12 +210,15 @@ const MessTopicList = ({ navigation }: Props) => {
               })
             }
           >
-            <SvgEditPencile width={vw(16)} height={vw(16)} />
+            <SvgEditPencile />
           </TouchableAtom>
         </View>
 
         <View style={styles.infoGrid}>
-          {renderInfo('Topic', field(item, ['topic', 'topicName'], 'Breakfast'))}
+          {renderInfo(
+            'Topic',
+            field(item, ['topic', 'topicName'], 'Breakfast'),
+          )}
           {renderInfo('Description', field(item, ['description'], 'N/A'))}
           {renderInfo('Updated By', field(item, ['updatedBy'], 'Bipard Gaya'))}
           {renderInfo('Created By', field(item, ['createdBy'], 'Bipard Gaya'))}

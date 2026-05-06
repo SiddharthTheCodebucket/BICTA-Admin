@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -101,7 +106,7 @@ const AddMessTopic = ({ navigation, route }: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      'Facilities',
+      isEdit ? 'Edit Mess Topic' : 'Add Mess Topic',
       undefined,
       undefined,
       undefined,
@@ -110,7 +115,6 @@ const AddMessTopic = ({ navigation, route }: Props) => {
         titleColor: colors.white,
         backIconColor: colors.white,
       },
-      true,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
@@ -228,7 +232,9 @@ const AddMessTopic = ({ navigation, route }: Props) => {
     navigation.goBack();
     Toast.show({
       type: 'success',
-      text2: res?.data?.message || (isEdit ? 'Mess topic updated' : 'Mess topic added'),
+      text2:
+        res?.data?.message ||
+        (isEdit ? 'Mess topic updated' : 'Mess topic added'),
     });
     setLoader(false);
   };
@@ -275,17 +281,6 @@ const AddMessTopic = ({ navigation, route }: Props) => {
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={vh(80)}
       >
-        <TouchableAtom
-          style={styles.titleRow}
-          activeOpacity={0.85}
-          onPress={() => navigation.goBack()}
-        >
-          <ImageAtom source={images.arrow_back} style={styles.backIcon} />
-          <TextAtom style={styles.pageTitle}>
-            {isEdit ? 'Edit Mess Topic' : 'Add Mess Topic'}
-          </TextAtom>
-        </TouchableAtom>
-
         <View style={globalStyles.adminFormCard}>
           <FormDropdownFieldWithTitle
             title="BIPARD Location"
@@ -306,7 +301,9 @@ const AddMessTopic = ({ navigation, route }: Props) => {
                 'bipardLocation.name': '',
               }));
             }}
-            errorMessage={errors['bipardLocation.name'] || errors.bipardLocation}
+            errorMessage={
+              errors['bipardLocation.name'] || errors.bipardLocation
+            }
           />
           <FormDropdownFieldWithTitle
             title="Select Mess"

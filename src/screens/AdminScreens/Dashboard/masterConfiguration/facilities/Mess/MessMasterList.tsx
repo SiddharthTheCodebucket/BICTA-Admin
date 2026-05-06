@@ -87,7 +87,9 @@ const MessMasterList = ({ navigation }: Props) => {
           setPagination(false);
           setRefreshing(false);
           setData(prev =>
-            pageNumber !== 1 && prev.length > 0 ? [...prev, ...newData] : newData,
+            pageNumber !== 1 && prev.length > 0
+              ? [...prev, ...newData]
+              : newData,
           );
           setPage(pageNumber);
           setTotalCount(nextTotalCount);
@@ -183,8 +185,11 @@ const MessMasterList = ({ navigation }: Props) => {
         <TextAtom numberOfLines={1} style={styles.cardTitle}>
           {field(item, ['messName', 'name'], 'Mess Name')}
         </TextAtom>
-        <TouchableAtom style={styles.actionButton} onPress={() => deleteData(item)}>
-          <SvgDelete width={vw(16)} height={vw(16)} />
+        <TouchableAtom
+          style={styles.actionButton}
+          onPress={() => deleteData(item)}
+        >
+          <SvgDelete />
         </TouchableAtom>
         <TouchableAtom
           style={styles.actionButton}
@@ -195,14 +200,20 @@ const MessMasterList = ({ navigation }: Props) => {
             })
           }
         >
-          <SvgEditPencile width={vw(16)} height={vw(16)} />
+          <SvgEditPencile />
         </TouchableAtom>
       </View>
 
       <View style={styles.infoGrid}>
         {renderInfo('Capacity', field(item, ['capacity'], '524'))}
-        {renderInfo('Incharge Name', field(item, ['inchargeName', 'inChargeName'], 'Ramesh Kumar'))}
-        {renderInfo('Incharge Mobile No.', field(item, ['inchargeMobileNo', 'inchargeContactNo'], '9876543210'))}
+        {renderInfo(
+          'Incharge Name',
+          field(item, ['inchargeName', 'inChargeName'], 'Ramesh Kumar'),
+        )}
+        {renderInfo(
+          'Incharge Mobile No.',
+          field(item, ['inchargeMobileNo', 'inchargeContactNo'], '9876543210'),
+        )}
         {renderInfo('Updated By', field(item, ['updatedBy'], 'Bipard Gaya'))}
         {renderInfo('Created By', field(item, ['createdBy'], 'Bipard Gaya'))}
         <View style={styles.infoItem}>
@@ -308,15 +319,9 @@ export const messListStyles = StyleSheet.create({
     color: colors.new_ui_heading,
   },
   actionButton: {
-    width: vw(30),
-    height: vw(30),
-    borderRadius: vw(8),
-    borderWidth: 1,
-    borderColor: colors.new_ui_card_border,
+    marginHorizontal: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.white,
-    marginLeft: vw(10),
   },
   infoGrid: {
     flexDirection: 'row',

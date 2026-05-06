@@ -15,7 +15,7 @@ import VehicleManagement from '../../../Menu/VehicleManagement';
 import TopTabBar from '../../../../../components/templates/TopTabBar';
 import Pharmacy from './Pharmacy';
 import HouseKeepingMasterList from './HouseKeeping/HouseKeepingMasterList';
-import MessMaster from './Mess/MessMaster';
+import MessMaster from './Mess';
 
 interface Props {
   route: any;

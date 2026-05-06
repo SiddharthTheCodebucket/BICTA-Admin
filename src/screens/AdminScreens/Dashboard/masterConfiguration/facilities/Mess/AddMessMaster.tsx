@@ -82,7 +82,7 @@ const AddMessMaster = ({ navigation, route }: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      'Facilities',
+      isEdit ? 'Edit Mess' : 'Add Mess',
       undefined,
       undefined,
       undefined,
@@ -91,7 +91,6 @@ const AddMessMaster = ({ navigation, route }: Props) => {
         titleColor: colors.white,
         backIconColor: colors.white,
       },
-      true,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
@@ -99,7 +98,8 @@ const AddMessMaster = ({ navigation, route }: Props) => {
   useEffect(() => {
     if (!item) return;
     setForm({
-      bipardLocation: initialLocation(item?.tenantId) ?? initialLocation(tenantId),
+      bipardLocation:
+        initialLocation(item?.tenantId) ?? initialLocation(tenantId),
       messName: item?.messName ?? item?.name ?? '',
       capacity: item?.capacity ? String(item.capacity) : '',
       inchargeName: item?.inchargeName ?? item?.inChargeName ?? '',
@@ -197,17 +197,6 @@ const AddMessMaster = ({ navigation, route }: Props) => {
         keyboardShouldPersistTaps="handled"
         extraScrollHeight={vh(80)}
       >
-        <TouchableAtom
-          style={styles.titleRow}
-          activeOpacity={0.85}
-          onPress={() => navigation.goBack()}
-        >
-          <ImageAtom source={images.arrow_back} style={styles.backIcon} />
-          <TextAtom style={styles.pageTitle}>
-            {isEdit ? 'Edit Mess' : 'Add Mess'}
-          </TextAtom>
-        </TouchableAtom>
-
         <View style={globalStyles.adminFormCard}>
           <FormDropdownFieldWithTitle
             title="BIPARD Location"
@@ -224,7 +213,9 @@ const AddMessMaster = ({ navigation, route }: Props) => {
                 'bipardLocation.name': '',
               }));
             }}
-            errorMessage={errors['bipardLocation.name'] || errors.bipardLocation}
+            errorMessage={
+              errors['bipardLocation.name'] || errors.bipardLocation
+            }
           />
           <FormTextInputWithTitle
             title="Mess Name"
@@ -244,7 +235,10 @@ const AddMessMaster = ({ navigation, route }: Props) => {
             keyboardType="numeric"
             value={form.capacity}
             onChangeText={capacity => {
-              setForm(prev => ({ ...prev, capacity: normalizeNumber(capacity) }));
+              setForm(prev => ({
+                ...prev,
+                capacity: normalizeNumber(capacity),
+              }));
               setErrors((prev: any) => ({ ...prev, capacity: '' }));
             }}
             errorMessage={errors.capacity}
