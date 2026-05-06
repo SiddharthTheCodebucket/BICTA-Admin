@@ -94,6 +94,55 @@ const apiEndpoints = apiSlice.injectEndpoints({
         body: requestParams,
       }),
     }),
+    messManagementAddMess: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_add_mess,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementUpdateMess: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_update_mess,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementDeleteMess: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_delete_mess,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementListMessTopic: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_list_mess_topic,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementAddMessTopic: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_add_mess_topic,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementUpdateMessTopic: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_update_mess_topic,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
+    messManagementDeleteMessTopic: builder.mutation<any, any>({
+      query: requestParams => ({
+        url: endpoints.mess_management_delete_mess_topic,
+        method: 'POST',
+        body: requestParams,
+      }),
+    }),
     messManagementMessStockReport: builder.mutation<any, any>({
       query: requestParams => ({
         url: endpoints.mess_management_mess_stock_report,
@@ -174,6 +223,13 @@ export const {
   useMessManagementUpdateItemMutation,
   useMessManagementDeleteItemMutation,
   useMessManagementListMessMutation,
+  useMessManagementAddMessMutation,
+  useMessManagementUpdateMessMutation,
+  useMessManagementDeleteMessMutation,
+  useMessManagementListMessTopicMutation,
+  useMessManagementAddMessTopicMutation,
+  useMessManagementUpdateMessTopicMutation,
+  useMessManagementDeleteMessTopicMutation,
   useMessManagementMessStockReportMutation,
   useMessManagementListStockDetailsMutation,
   useMessManagementAddStockDetailsMutation,

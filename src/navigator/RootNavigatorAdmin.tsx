@@ -44,6 +44,8 @@ import Facilities from '../screens/AdminScreens/Dashboard/masterConfiguration/fa
 import AddMedicineType from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/Pharmacy/AddMedicineType';
 import AddPharmacyMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/Pharmacy/AddPharmacyMaster';
 import AddHouseKeepingTask from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/HouseKeeping/AddHouseKeepingTask';
+import AddMessMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/Mess/AddMessMaster';
+import AddMessTopic from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/Mess/AddMessTopic';
 
 import FacultyReportMaster from '../screens/AdminScreens/Dashboard/finances/FacultyReportMaster';
 import LMS from '../screens/AdminScreens/Menu/LMS';
@@ -381,6 +383,14 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name={screensName.AddHouseKeepingTask}
           component={AddHouseKeepingTask}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AddMessMaster}
+          component={AddMessMaster}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AddMessTopic}
+          component={AddMessTopic}
         />
         <RootStackScreen.Screen
           name="VehicleManagement"

@@ -9,13 +9,13 @@ import {
 } from '../../../../../components/organisms/HeaderOrganism';
 
 import HostelDetailsList from '../../../Menu/HostelManagement/Hostel/HostelDetails/HostelDetailsList';
-import MessMaster from '../../../Menu/MessManagement/MessMaster';
 import StockDetails from '../../../Menu/MessManagement/StockDetails';
 import LibraryMaster from './/LibraryMaster';
 import VehicleManagement from '../../../Menu/VehicleManagement';
 import TopTabBar from '../../../../../components/templates/TopTabBar';
 import Pharmacy from './Pharmacy';
 import HouseKeepingMasterList from './HouseKeeping/HouseKeepingMasterList';
+import MessMaster from './Mess/MessMaster';
 
 interface Props {
   route: any;

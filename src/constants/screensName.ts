@@ -213,6 +213,8 @@ export default {
   TransferTask: 'TransferTask',
   MessManagement: 'MessManagement',
   MessMaster: 'MessMaster',
+  AddMessMaster: 'AddMessMaster',
+  AddMessTopic: 'AddMessTopic',
   StockDetails: 'StockDetails',
   MessReport: 'MessReport',
   ItemBrand: 'ItemBrand',
