@@ -1,28 +1,21 @@
-import {
-  StyleSheet,
-} from 'react-native';
-import React, {
-  useLayoutEffect,
-  useMemo,
-} from 'react';
+import { StyleSheet } from 'react-native';
+import React, { useLayoutEffect, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  createMaterialTopTabNavigator,
-} from '@react-navigation/material-top-tabs';
-import { colors, fonts, vh, vw } from '../../../../constants';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { colors, fonts, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../components/organisms/HeaderOrganism';
+} from '../../../../../components/organisms/HeaderOrganism';
 
-import HostelDetailsList from '../../Menu/HostelManagement/Hostel/HostelDetails/HostelDetailsList';
-import Pharmacy from '../../Menu/PHCManagement/Pharmacy';
-import HouseKeepingManagement from '../../Menu/HouseKeepingManagement';
-import MessMaster from '../../Menu/MessManagement/MessMaster';
-import StockDetails from '../../Menu/MessManagement/StockDetails';
-import LibraryMaster from './LibraryMaster';
-import VehicleManagement from '../../Menu/VehicleManagement';
-import TopTabBar from '../../../../components/templates/TopTabBar';
+import HostelDetailsList from '../../../Menu/HostelManagement/Hostel/HostelDetails/HostelDetailsList';
+import Pharmacy from './pharmacy/Pharmacy';
+import HouseKeepingManagement from '../../../Menu/HouseKeepingManagement';
+import MessMaster from '../../../Menu/MessManagement/MessMaster';
+import StockDetails from '../../../Menu/MessManagement/StockDetails';
+import LibraryMaster from './/LibraryMaster';
+import VehicleManagement from '../../../Menu/VehicleManagement';
+import TopTabBar from '../../../../../components/templates/TopTabBar';
 
 interface Props {
   route: any;

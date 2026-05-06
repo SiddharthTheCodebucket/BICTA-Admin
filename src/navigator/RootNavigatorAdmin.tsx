@@ -40,7 +40,7 @@ import HostelDetailsDashbaord from '../screens/AdminScreens/Dashboard/Hostel/Hos
 import BlockDetails from '../screens/AdminScreens/Dashboard/Hostel/BlockDetails';
 import BlockedForm from '../screens/AdminScreens/Dashboard/Hostel/BlockedForm';
 import Academics from '../screens/AdminScreens/Dashboard/masterConfiguration/academics';
-import Facilities from '../screens/AdminScreens/Dashboard/facilities';
+import Facilities from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities';
 
 import FacultyReportMaster from '../screens/AdminScreens/Dashboard/finances/FacultyReportMaster';
 import LMS from '../screens/AdminScreens/Menu/LMS';
@@ -118,8 +118,7 @@ import Pharmacy from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy';
 import TraineeBMI from '../screens/AdminScreens/Menu/PHCManagement/TraineeBMI';
 import Patients from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy/Patients';
 import PatientDetails from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy/Patients/PatientDetails';
-import PharmacyMaster from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy/PharmacyMaster';
-import MedicineType from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy/MedicineType';
+
 import UpdateStock from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy/UpdateStock';
 import StockReport from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy/StockReport';
 import BMI from '../screens/AdminScreens/Menu/PHCManagement/TraineeBMI/BMI';
@@ -268,6 +267,8 @@ import DeviceList from '../screens/AdminScreens/Profile/FaceScan/DeviceList';
 import Feedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback';
 import AddTrainingCategoryMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TrainingCategoryMaster/AddTrainingCategoryMaster';
 import { CommsAndSupport } from '../screens/AdminScreens/Dashboard/masterConfiguration/commsAndSupport';
+import MedicineType from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/pharmacy/MedicineType';
+import PharmacyMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/pharmacy/PharmacyMaster';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;

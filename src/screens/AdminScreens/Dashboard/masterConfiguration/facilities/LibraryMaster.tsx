@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../../../../constants';
+import { colors } from '../../../../../constants';
 
 const LibraryMaster = () => (
   <View style={styles.container}>

@@ -532,7 +532,9 @@ const AddFacultyDetails = (props: Props) => {
         extraScrollHeight={vh(120)}
       >
         <View style={{ padding: vh(12) }}>
-          <FormStepper steps={steps} currentStep={currentStep} />
+          <View style={{ paddingBottom: 16 }}>
+            <FormStepper steps={steps} currentStep={currentStep} />
+          </View>
 
           <FormFieldWrapper>
             {currentStep === 1 && (
