@@ -7,19 +7,26 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   createMaterialTopTabNavigator,
   MaterialTopTabBarProps,
 } from '@react-navigation/material-top-tabs';
-import { colors, fonts, strings, vh, vw } from '../../../../../constants';
+import { colors, fonts, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../../components/organisms/HeaderOrganism';
-import TimeTable from '../../../Dashboard/academics/TimeTable/Timetable';
-import FacultyClassApprove from '../../../Dashboard/academics/TimeTable/ClassApproval';
+import Timetable from './Timetable';
+import ClassApproval from './ClassApproval';
+import ClassSubLocation from './ClassSubLocation';
 
 interface Props {
   route: any;
@@ -28,7 +35,7 @@ interface Props {
 
 const TopTabs = createMaterialTopTabNavigator();
 
-const CustomClassRoomTabBar = ({
+const CustomTimeTableTabBar = ({
   state,
   descriptors,
   navigation,
@@ -74,8 +81,8 @@ const CustomClassRoomTabBar = ({
             typeof options.tabBarLabel === 'string'
               ? options.tabBarLabel
               : typeof options.title === 'string'
-                ? options.title
-                : route.name;
+              ? options.title
+              : route.name;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -119,13 +126,20 @@ const CustomClassRoomTabBar = ({
   );
 };
 
-const ClassRoomManagement = (props: Props) => {
-  const { navigation } = props;
+const TimeTableManagement = (props: Props) => {
+  const { navigation, route } = props;
+
+  const initialRouteName = useMemo(() => {
+    const initialTab = route?.params?.initialTab;
+    if (initialTab === 'ClassApproval') return 'ClassApprovalTab';
+    if (initialTab === 'ClassSubLocation') return 'ClassSubLocationTab';
+    return 'TimetableTab';
+  }, [route?.params?.initialTab]);
 
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      strings.lms.classRoomManagement.title,
+      'Time Table',
       undefined,
       undefined,
       undefined,
@@ -144,7 +158,9 @@ const ClassRoomManagement = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <TopTabs.Navigator
-        tabBar={tabBarProps => <CustomClassRoomTabBar {...tabBarProps} />}
+        key={initialRouteName}
+        initialRouteName={initialRouteName}
+        tabBar={tabBarProps => <CustomTimeTableTabBar {...tabBarProps} />}
         screenOptions={{
           swipeEnabled: true,
           sceneStyle: {
@@ -153,25 +169,29 @@ const ClassRoomManagement = (props: Props) => {
         }}
       >
         <TopTabs.Screen
-          name="TimeTable"
-          component={TimeTable}
+          name="TimetableTab"
+          component={Timetable}
           initialParams={{ suppressHeader: true }}
-          options={{ tabBarLabel: strings.lms.classRoomManagement.timeTable }}
+          options={{ tabBarLabel: 'Timetable' }}
         />
         <TopTabs.Screen
-          name="FacultyClassApprove"
-          component={FacultyClassApprove}
+          name="ClassApprovalTab"
+          component={ClassApproval}
           initialParams={{ suppressHeader: true }}
-          options={{
-            tabBarLabel: strings.lms.classRoomManagement.facultyClassApprove,
-          }}
+          options={{ tabBarLabel: 'Class Approval' }}
+        />
+        <TopTabs.Screen
+          name="ClassSubLocationTab"
+          component={ClassSubLocation}
+          initialParams={{ suppressHeader: true }}
+          options={{ tabBarLabel: 'Class Sub-Location' }}
         />
       </TopTabs.Navigator>
     </SafeAreaView>
   );
 };
 
-export default ClassRoomManagement;
+export default TimeTableManagement;
 
 const styles = StyleSheet.create({
   container: {
@@ -195,7 +215,6 @@ const styles = StyleSheet.create({
   customTabItem: {
     height: vh(34),
     minWidth: vw(140),
-
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.white,

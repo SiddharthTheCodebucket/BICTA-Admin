@@ -19,7 +19,7 @@ import {
   NavigationType,
 } from '../../../../../components/organisms/HeaderOrganism';
 import LocationDetails from './LocationDetails';
-import SubLocationDetails from './SubLocationDetails';
+import SubLocationDetails from '../../../Dashboard/academics/TimeTable/ClassSubLocation';
 
 interface Props {
   route: any;

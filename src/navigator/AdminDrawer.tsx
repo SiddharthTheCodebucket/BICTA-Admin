@@ -181,7 +181,15 @@ const MAIN_MENU_ITEMS: DrawerMenuItem[] = [
       {
         id: 'academics-time-table',
         name: 'Time Table',
-        disabled: true,
+        screen: screensName.TimeTableManagement,
+        matchRoutes: [
+          screensName.TimeTable,
+          screensName.FacultyClassApprove,
+          screensName.FacultyClassApproveDetails,
+          screensName.SubLocationDetails,
+          screensName.LocationSubDetailDetails,
+          screensName.AddSubLocation,
+        ],
       },
       {
         id: 'academics-assignments',

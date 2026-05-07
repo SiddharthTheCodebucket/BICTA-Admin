@@ -98,6 +98,7 @@ export default {
   AddLocation: 'AddLocation',
   AddSubLocation: 'AddSubLocation',
   ClassRoomManagement: 'ClassRoomManagement',
+  TimeTableManagement: 'TimeTableManagement',
   TimeTable: 'TimeTable',
   FacultyClassApprove: 'FacultyClassApprove',
   FacultyClassApproveDetails: 'FacultyClassApproveDetails',

@@ -94,14 +94,15 @@ import AddSubjectTopic from '../screens/AdminScreens/Menu/LMS/CurriculumManagemn
 import ClassLocationManagement from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement';
 import LocationDetails from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement/LocationDetails';
 import LocationDetailDetails from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement/LocationDetails/LocationDetailDetails';
-import SubLocationDetails from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement/SubLocationDetails';
-import LocationSubDetailDetails from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement/SubLocationDetails/LocationSubDetailDetails';
+import SubLocationDetails from '../screens/AdminScreens/Dashboard/academics/TimeTable/ClassSubLocation';
+import LocationSubDetailDetails from '../screens/AdminScreens/Dashboard/academics/TimeTable/ClassSubLocation/LocationSubDetailDetails';
 import AddLocation from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement/LocationDetails/AddLocation';
-import AddSubLocation from '../screens/AdminScreens/Menu/LMS/ClassLocationManagement/SubLocationDetails/AddSubLocation';
+import AddSubLocation from '../screens/AdminScreens/Dashboard/academics/TimeTable/ClassSubLocation/AddSubLocation';
 import ClassRoomManagement from '../screens/AdminScreens/Menu/LMS/ClassRoomManagement';
-import TimeTable from '../screens/AdminScreens/Menu/LMS/ClassRoomManagement/TimeTable';
-import FacultyClassApprove from '../screens/AdminScreens/Menu/LMS/ClassRoomManagement/FacultyClassApprove';
-import FacultyClassApproveDetails from '../screens/AdminScreens/Menu/LMS/ClassRoomManagement/FacultyClassApprove/FacultyClassApproveDetails';
+import TimeTableManagement from '../screens/AdminScreens/Dashboard/academics/TimeTable';
+import TimeTable from '../screens/AdminScreens/Dashboard/academics/TimeTable/Timetable';
+import FacultyClassApprove from '../screens/AdminScreens/Dashboard/academics/TimeTable/ClassApproval';
+import FacultyClassApproveDetails from '../screens/AdminScreens/Dashboard/academics/TimeTable/ClassApproval/FacultyClassApproveDetails';
 import Assignment from '../screens/AdminScreens/Menu/LMS/Assignment';
 import Question from '../screens/AdminScreens/Menu/LMS/Assignment/Question';
 import QuestionBankDetails from '../screens/AdminScreens/Menu/LMS/Assignment/Question/QuestionBankDetails';
@@ -325,6 +326,10 @@ const AppDrawer = () => (
     <Drawer.Screen
       name={screensName.FacultyManagement}
       component={FacultyManagement}
+    />
+    <Drawer.Screen
+      name={screensName.TimeTableManagement}
+      component={TimeTableManagement}
     />
     <Drawer.Screen
       name={screensName.CurriculumManagemnet}
@@ -679,11 +684,11 @@ const RootNavigatorAdmin = () => {
           component={LocationDetailDetails}
         />
         <RootStackScreen.Screen
-          name="SubLocationDetails"
+          name={screensName.SubLocationDetails}
           component={SubLocationDetails}
         />
         <RootStackScreen.Screen
-          name="LocationSubDetailDetails"
+          name={screensName.LocationSubDetailDetails}
           component={LocationSubDetailDetails}
         />
         <RootStackScreen.Screen
@@ -698,14 +703,21 @@ const RootNavigatorAdmin = () => {
           name="ClassRoomManagement"
           component={ClassRoomManagement}
         />
-
-        <RootStackScreen.Screen name="TimeTable" component={TimeTable} />
         <RootStackScreen.Screen
-          name="FacultyClassApprove"
+          name={screensName.TimeTableManagement}
+          component={TimeTableManagement}
+        />
+
+        <RootStackScreen.Screen
+          name={screensName.TimeTable}
+          component={TimeTable}
+        />
+        <RootStackScreen.Screen
+          name={screensName.FacultyClassApprove}
           component={FacultyClassApprove}
         />
         <RootStackScreen.Screen
-          name="FacultyClassApproveDetails"
+          name={screensName.FacultyClassApproveDetails}
           component={FacultyClassApproveDetails}
         />
         <RootStackScreen.Screen name="Assignment" component={Assignment} />

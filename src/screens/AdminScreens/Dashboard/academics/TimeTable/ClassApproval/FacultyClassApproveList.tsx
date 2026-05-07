@@ -266,7 +266,7 @@ const FacultyClassApproveList = (props: Props) => {
           </View>
           <View style={globalStyles.infoCol}>
             <TextAtom style={globalStyles.infoLabel}>
-              {strings.lms.classRoomManagement.facultyId || 'Faculty ID'}
+              Faculty ID
             </TextAtom>
             <TextAtom style={globalStyles.infoValue}>
               {item.facultyId || '-'}
@@ -287,7 +287,7 @@ const FacultyClassApproveList = (props: Props) => {
           </View>
           <View style={globalStyles.infoCol}>
             <TextAtom style={globalStyles.infoLabel}>
-              {strings.lms.classRoomManagement.status || 'Status'}
+              Status
             </TextAtom>
             <FormSwitchForCard
               title=""
@@ -311,7 +311,7 @@ const FacultyClassApproveList = (props: Props) => {
           style={styles.viewMoreContainer}
         >
           <TextAtom style={styles.viewMoreText}>
-            {strings.lms.locationDetails.viewMore || 'View More'}
+            View More
           </TextAtom>
         </TouchableAtom>
       </TouchableAtom>
