@@ -261,8 +261,21 @@ const MAIN_MENU_ITEMS: DrawerMenuItem[] = [
       },
       {
         id: 'facility-health-centre',
-        name: 'Health Centre',
+        name: 'Health Care',
         screen: screensName.PHCManagement,
+        matchRoutes: [
+          screensName.PHCManagemnetMain,
+          screensName.BasicPatientDetails,
+          screensName.PatientDetailDetails,
+          screensName.Pharmacy,
+          screensName.Patients,
+          screensName.PatientDetails,
+          screensName.UpdateStock,
+          screensName.StockReport,
+          screensName.TraineeBMI,
+          screensName.BMI,
+          screensName.BMIDetails,
+        ],
       },
       {
         id: 'facility-mess',

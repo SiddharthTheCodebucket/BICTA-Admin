@@ -16,7 +16,7 @@ import ClassLocationManagement from '../../screens/AdminScreens/Menu/LMS/ClassLo
 import ClassRoomManagement from '../../screens/AdminScreens/Menu/LMS/ClassRoomManagement';
 import Assignment from '../../screens/AdminScreens/Dashboard/academics/Assignments';
 import Examination from '../../screens/AdminScreens/Dashboard/academics/Examination';
-import PHCManagement from '../../screens/AdminScreens/Menu/PHCManagement';
+import HealthCare from '../../screens/AdminScreens/Dashboard/facilities/HealthCare';
 import InvoiceAndBillManagement from '../../screens/AdminScreens/Menu/InvoiceAndBillManagement';
 import UserManagement from '../../screens/AdminScreens/Menu/UserManagement';
 import SupportMain from '../../screens/AdminScreens/Menu/SupportMain';
@@ -92,7 +92,7 @@ const AdminMenuStack = () => {
       <Stack.Screen name={screensName.Examination} component={Examination} />
       <Stack.Screen
         name={screensName.PHCManagement}
-        component={PHCManagement}
+        component={HealthCare}
       />
       <Stack.Screen
         name={screensName.InvoiceAndBillManagement}

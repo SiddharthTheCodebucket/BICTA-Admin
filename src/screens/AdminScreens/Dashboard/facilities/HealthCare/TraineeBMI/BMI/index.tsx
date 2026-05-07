@@ -18,26 +18,27 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
+  images,
   screensName,
   vh,
   vw,
-} from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
+} from '../../../../../../../constants';
+import { useAppSelector } from '../../../../../../../hooks';
 import {
   Header,
   NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../../components/atoms/TextAtom';
-import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import { useListPatientSymptomsDetailsMutation } from '../../../../../../injectEndpoints/phcEndpoints';
-import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
-import moment from 'moment';
+} from '../../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../../components/atoms/TextAtom';
+import FullscreenLoading from '../../../../../../../components/organisms/FullscreenLoading';
+import SearchBoxOrganism from '../../../../../../../components/organisms/SearchBoxOrganism';
+import TouchableAtom from '../../../../../../../components/atoms/TouchableAtom';
+import ImageAtom from '../../../../../../../components/atoms/ImageAtom';
+import DropDownOrganism from '../../../../../../../components/organisms/DropDownOrganism';
+import { useCommonDropdownListMutation } from '../../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import ViewAtom from '../../../../../../../components/atoms/ViewAtom';
+import ButtonOrganism from '../../../../../../../components/organisms/ButtonOrganism';
+import { useListTraineeBmiMutation } from '../../../../../../../injectEndpoints/phcEndpoints';
+import { downloadAndOpenFile } from '../../../../../../../utils/CommonFunction';
 
 interface Props {
   navigation: NavigationType;
@@ -53,14 +54,13 @@ const debounce = (func: any, delay: number) => {
   };
 };
 
-const BasicPatientDetails = (props: Props) => {
+const BMI = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [listPatientSymptomsDetailsApi] =
-    useListPatientSymptomsDetailsMutation();
+  const [listTraineeBmiApi] = useListTraineeBmiMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -76,14 +76,6 @@ const BasicPatientDetails = (props: Props) => {
   const [selectedTraining, setSelectedTraining] = useState<any>({});
   const [batchList, setBatchList] = useState<any>([]);
   const [selectedBatch, setSelectedBatch] = useState<any>({});
-  const [selectedPatientType, setSelectedPatientType] = useState<any>({});
-  const [bloodGroupList, setBloodGroupList] = useState<any>([]);
-  const [selectedBloodGroup, setSelectedBloodGroup] = useState<any>({});
-  const [doctorList, setDoctorList] = useState<any>([]);
-  const [selectedDoctor, setSelectedDoctor] = useState<any>({});
-  const [selectedTreatmentType, setSelectedTreatmentType] = useState<any>({});
-  const [toDate, setToDate] = useState('');
-  const [fromDate, setFromDate] = useState('');
 
   const ITEMS_PER_PAGE = 10;
 
@@ -91,7 +83,7 @@ const BasicPatientDetails = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Patient Details');
+    Header.setNavigation(navigation, 'BMI Details');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -99,8 +91,6 @@ const BasicPatientDetails = (props: Props) => {
     useCallback(() => {
       if (firstTimeLoad && !centerSerach?.name && search === '') {
         getTrainingList();
-        getBloodGroup();
-        getDoctorList();
         setFirstTimeLoad(false);
         listFacultyDetails(1, true, '');
       }
@@ -153,7 +143,7 @@ const BasicPatientDetails = (props: Props) => {
       params.bipardCentre = centreFilter;
     }
 
-    listPatientSymptomsDetailsApi(params)
+    listTraineeBmiApi(params)
       .unwrap()
       .then((res: any) => {
         const newData = res.data?.data ?? [];
@@ -170,6 +160,10 @@ const BasicPatientDetails = (props: Props) => {
 
         const totalCount = res?.data?.totalCount ?? 0;
         setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
+
+        if (res?.data?.exportUrlExcel) {
+          downloadAndOpenFile(res.data.exportUrlExcel);
+        }
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -199,48 +193,41 @@ const BasicPatientDetails = (props: Props) => {
     listFacultyDetails(1, true, '');
   };
   const BedCard = ({ item, index, navigation }: any) => {
+    const thumbnail =
+      item?.thumbnail && item.thumbnail !== null && item.thumbnail !== ''
+        ? { uri: item.thumbnail }
+        : null;
+
     return (
       <TouchableAtom
         style={styles.card}
         onPress={() => {
-          navigation.navigate(screensName.PatientDetailDetails, {
+          navigation.navigate(screensName.BMIDetails, {
             data: item,
           });
         }}
       >
-        <View style={[styles.rowBetween]}>
-          <View style={[styles.rowBetween]}>
-            <View style={{ flex: 1 }}>
-              <TextAtom style={styles.label}> Sr. No</TextAtom>
-              <TextAtom style={styles.value}>{index + 1}</TextAtom>
-            </View>
-            <View style={{ flex: 1, alignSelf: 'flex-end' }}>
-              <TextAtom style={styles.labelRight}>ID</TextAtom>
-              <TextAtom style={styles.valueRight}>
-                {item.uniqueId ?? '-'}
-              </TextAtom>
-            </View>
-          </View>
-        </View>
-        <View style={[styles.rowBetween]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Patient Type</TextAtom>
-            <TextAtom style={styles.value}>{item.patientType ?? '-'}</TextAtom>
-          </View>
-          <View style={{ flex: 1, alignSelf: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Visit Count</TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {item.visitCount ?? '-'}
-            </TextAtom>
-          </View>
+        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
+          <TextAtom style={[styles.label, { flex: 1 }]}>
+            Sr. No: {index + 1}
+          </TextAtom>
         </View>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Name</TextAtom>
-          <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
+          <TextAtom style={styles.label}>Trainee ID</TextAtom>
+          <TextAtom style={styles.value}>{item.traineeId ?? '-'}</TextAtom>
+        </View>
+
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Trainee Name</TextAtom>
+          <TextAtom style={styles.value}>{item.traineeName ?? '-'}</TextAtom>
         </View>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Training Name</TextAtom>
-          <TextAtom style={styles.value}>{item.trainingName ?? '-'}</TextAtom>
+          <TextAtom style={styles.label}>Office Email</TextAtom>
+          <TextAtom style={styles.value}>{item.officeEmail ?? '-'}</TextAtom>
+        </View>
+        <View style={{ flex: 1 }}>
+          <TextAtom style={styles.label}>Mobile No</TextAtom>
+          <TextAtom style={styles.value}>{item.mobileNo ?? '-'}</TextAtom>
         </View>
       </TouchableAtom>
     );
@@ -263,7 +250,6 @@ const BasicPatientDetails = (props: Props) => {
             setSelectedData: (data: any) => {
               setSelectedTraining(data);
               getBacth(data.id);
-              setSelectedBatch({});
             },
             typeName: 'name',
             typeId: 'id',
@@ -288,100 +274,6 @@ const BasicPatientDetails = (props: Props) => {
         }}
         inputText={selectedBatch?.name}
       />
-      <DropDownOrganism
-        label={'Patient Type'}
-        placeholder={'Patient Type'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Patient Type',
-            Data: [
-              { id: 'trainee', name: 'OT' },
-              { id: 'Other', name: 'Other' },
-            ],
-            selectedData: selectedPatientType,
-            setSelectedData: (data: any) => {
-              setSelectedPatientType(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedPatientType?.name}
-      />
-      <DropDownOrganism
-        label={'Blood Group'}
-        placeholder={'Blood Group'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Blood Group',
-            Data: bloodGroupList,
-            selectedData: selectedBloodGroup,
-            setSelectedData: (data: any) => {
-              setSelectedBloodGroup(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedBloodGroup?.name}
-      />
-      <DropDownOrganism
-        label={'Doctor'}
-        placeholder={'Doctor'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Doctor',
-            Data: doctorList,
-            selectedData: selectedDoctor,
-            setSelectedData: (data: any) => {
-              setSelectedDoctor(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedDoctor?.name}
-      />
-      <DropDownOrganism
-        label={'Treatment Type'}
-        placeholder={'Treatment Type'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Treatment Type',
-            Data: [
-              { id: 'OPD', name: 'OPD' },
-              { id: 'IPD', name: 'IPD' },
-            ],
-            selectedData: selectedTreatmentType,
-            setSelectedData: (data: any) => {
-              setSelectedTreatmentType(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedTreatmentType?.name}
-      />
-      <DateInputOrganism
-        label={'To Date'}
-        placeholder={'To Date'}
-        value={toDate}
-        onChangeText={(val: any) => {
-          setToDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <DateInputOrganism
-        label={'From Date'}
-        placeholder={'From Date'}
-        value={fromDate}
-        onChangeText={(val: any) => {
-          setFromDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
       <ViewAtom style={styles.buttonRow}>
         <ButtonOrganism
           onPress={applyFilter}
@@ -401,12 +293,6 @@ const BasicPatientDetails = (props: Props) => {
   const clearFilter = () => {
     setSelectedTraining({});
     setSelectedBatch({});
-    setSelectedPatientType({});
-    setSelectedBloodGroup({});
-    setSelectedDoctor({});
-    setSelectedTreatmentType({});
-    setToDate('');
-    setFromDate('');
     listFacultyDetails(1, true, search, []);
   };
 
@@ -421,38 +307,31 @@ const BasicPatientDetails = (props: Props) => {
       filters.push(['batchId', '=', selectedBatch.id]);
     }
 
-    if (selectedPatientType?.id) {
-      filters.push(['patientType', '=', selectedPatientType.id]);
-    }
-
-    if (selectedBloodGroup?.id) {
-      filters.push(['bloodGroup', '=', selectedBloodGroup.id]);
-    }
-
-    if (selectedDoctor?.id) {
-      filters.push(['assignDoctorId', '=', selectedDoctor.id]);
-    }
-
-    if (selectedTreatmentType?.id) {
-      filters.push(['treatmentTypes', '=', selectedTreatmentType.id]);
-    }
-
-    if (toDate) {
-      const formatted = moment(toDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
-      filters.push(['currentDatetime', '>=', formatted]);
-    }
-
-    if (fromDate) {
-      const formatted = moment(fromDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
-      filters.push(['currentDatetime', '<=', formatted]);
-    }
-
     return filters;
   };
 
   const applyFilter = () => {
     const filters = buildFilters();
-    listFacultyDetails(1, true, search, filters);
+
+    listFacultyDetails(1, true, search, filters, {
+      exportFlagExcel: false,
+    });
+  };
+
+  const downloadExcel = () => {
+    const filters = buildFilters();
+
+    if (filters.length === 0) {
+      Toast.show({
+        type: 'error',
+        text2: 'Apply at least one filter before downloading.',
+      });
+      return;
+    }
+
+    listFacultyDetails(1, true, search, filters, {
+      exportFlagExcel: true,
+    });
   };
 
   const getTrainingList = () => {
@@ -500,50 +379,6 @@ const BasicPatientDetails = (props: Props) => {
         });
       });
   };
-  const getBloodGroup = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'select_blood_group',
-      bipardCentre: [],
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setBloodGroupList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
-  const getDoctorList = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'select_phc_doctors',
-      bipardCentre: getCentreFilter(),
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setDoctorList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
@@ -559,8 +394,20 @@ const BasicPatientDetails = (props: Props) => {
             {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
           </TextAtom>
         </TouchableAtom>
+        <TouchableAtom
+          style={styles.filterButton}
+          onPress={() => {
+            downloadExcel();
+          }}
+        >
+          <ImageAtom
+            source={images.download}
+            style={{
+              tintColor: colors.black,
+            }}
+          />
+        </TouchableAtom>
       </View>
-
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
@@ -631,16 +478,11 @@ const BasicPatientDetails = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };
 
-export default BasicPatientDetails;
+export default BMI;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },

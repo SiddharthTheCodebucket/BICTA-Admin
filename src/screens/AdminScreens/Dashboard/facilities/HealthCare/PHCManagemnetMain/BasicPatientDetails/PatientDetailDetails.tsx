@@ -1,10 +1,10 @@
 import React, { useLayoutEffect } from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, fonts, vh, vw } from '../../../../../../constants';
-import { Header } from '../../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../../components/atoms/TextAtom';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
+import { colors, fonts, vh, vw } from '../../../../../../../constants';
+import { Header } from '../../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../../components/atoms/TextAtom';
+import ViewAtom from '../../../../../../../components/atoms/ViewAtom';
 import moment from 'moment';
 
 // Row Component

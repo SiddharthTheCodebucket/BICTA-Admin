@@ -124,18 +124,19 @@ import ExamResponse from '../screens/AdminScreens/Dashboard/academics/Examinatio
 import TraineeResponseList from '../screens/AdminScreens/Dashboard/academics/Examination/ExamResponse/TraineeResponseList';
 import ExamResponseDetailsListTrainee from '../screens/AdminScreens/Dashboard/academics/Examination/ExamResponse/ExamResponseDetailsListTrainee';
 import ExamResponseSheet from '../screens/AdminScreens/Dashboard/academics/Examination/ExamResponse/ExamResponseSheet';
-import PHCManagement from '../screens/AdminScreens/Menu/PHCManagement';
-import PHCManagemnetMain from '../screens/AdminScreens/Menu/PHCManagement/PHCManagemnetMain';
-import TraineeBMI from '../screens/AdminScreens/Menu/PHCManagement/TraineeBMI';
-import Patients from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy/Patients';
-import PatientDetails from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy/Patients/PatientDetails';
+import HealthCare from '../screens/AdminScreens/Dashboard/facilities/HealthCare';
+import PHCManagemnetMain from '../screens/AdminScreens/Dashboard/facilities/HealthCare/PHCManagemnetMain';
+import TraineeBMI from '../screens/AdminScreens/Dashboard/facilities/HealthCare/TraineeBMI';
+import Pharmacy from '../screens/AdminScreens/Dashboard/facilities/HealthCare/Pharmacy';
+import Patients from '../screens/AdminScreens/Dashboard/facilities/HealthCare/Pharmacy/Patients';
+import PatientDetails from '../screens/AdminScreens/Dashboard/facilities/HealthCare/Pharmacy/Patients/PatientDetails';
 
-import UpdateStock from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy/UpdateStock';
-import StockReport from '../screens/AdminScreens/Menu/PHCManagement/Pharmacy/StockReport';
-import BMI from '../screens/AdminScreens/Menu/PHCManagement/TraineeBMI/BMI';
-import BMIDetails from '../screens/AdminScreens/Menu/PHCManagement/TraineeBMI/BMI/BMIDetails';
-import BasicPatientDetails from '../screens/AdminScreens/Menu/PHCManagement/PHCManagemnetMain/BasicPatientDetails';
-import PatientDetailDetails from '../screens/AdminScreens/Menu/PHCManagement/PHCManagemnetMain/BasicPatientDetails/PatientDetailDetails';
+import UpdateStock from '../screens/AdminScreens/Dashboard/facilities/HealthCare/Pharmacy/UpdateStock';
+import StockReport from '../screens/AdminScreens/Dashboard/facilities/HealthCare/Pharmacy/StockReport';
+import BMI from '../screens/AdminScreens/Dashboard/facilities/HealthCare/TraineeBMI/BMI';
+import BMIDetails from '../screens/AdminScreens/Dashboard/facilities/HealthCare/TraineeBMI/BMI/BMIDetails';
+import BasicPatientDetails from '../screens/AdminScreens/Dashboard/facilities/HealthCare/PHCManagemnetMain/BasicPatientDetails';
+import PatientDetailDetails from '../screens/AdminScreens/Dashboard/facilities/HealthCare/PHCManagemnetMain/BasicPatientDetails/PatientDetailDetails';
 import InvoiceAndBillManagement from '../screens/AdminScreens/Menu/InvoiceAndBillManagement';
 import InvoiceDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails';
 import InvoiceAndBillingWorkflow from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails/InvoiceAndBillingWorkflow';
@@ -364,6 +365,7 @@ const AppDrawer = () => (
       component={Hostel}
     />
     <Drawer.Screen name={screensName.Hostel} component={Hostel} />
+    <Drawer.Screen name={screensName.PHCManagement} component={HealthCare} />
     <Drawer.Screen
       name={screensName.UserManagement}
       component={UserManagement}
@@ -828,12 +830,13 @@ const RootNavigatorAdmin = () => {
         />
         <RootStackScreen.Screen
           name="PHCManagement"
-          component={PHCManagement}
+          component={HealthCare}
         />
         <RootStackScreen.Screen
           name="PHCManagemnetMain"
           component={PHCManagemnetMain}
         />
+        <RootStackScreen.Screen name="Pharmacy" component={Pharmacy} />
 
         <RootStackScreen.Screen name="TraineeBMI" component={TraineeBMI} />
         <RootStackScreen.Screen name="Patients" component={Patients} />

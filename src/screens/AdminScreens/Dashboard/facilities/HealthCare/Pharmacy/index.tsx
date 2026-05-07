@@ -1,22 +1,22 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../constants';
+import { colors, screensName, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../components/atoms/TextAtom';
+} from '../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../components/atoms/TextAtom';
 
 interface Props {
   navigation: NavigationType;
 }
 
-const PHCManagement = (props: Props) => {
+const Pharmacy = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Health Centre Management');
+    Header.setNavigation(navigation, strings.pharmacy);
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
@@ -25,23 +25,37 @@ const PHCManagement = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'PHC Management',
+      name: 'Priscribed Medicine to Patinets',
       onPress: () => {
-        navigation.navigate(screensName.PHCManagemnetMain);
-      },
-    },
-    {
-      id: 2,
-      name: 'Pharmacy',
-      onPress: () => {
-        navigation.navigate(screensName.Pharmacy);
+        navigation.navigate(screensName.Patients);
       },
     },
     {
       id: 3,
-      name: 'Trainee BMI',
+      name: strings.medicine_type,
       onPress: () => {
-        navigation.navigate(screensName.TraineeBMI);
+        navigation.navigate(screensName.MedicineType);
+      },
+    },
+    {
+      id: 2,
+      name: strings.pharmacy_master,
+      onPress: () => {
+        navigation.navigate(screensName.PharmacyMaster);
+      },
+    },
+    {
+      id: 4,
+      name: strings.update_stock,
+      onPress: () => {
+        navigation.navigate(screensName.UpdateStock);
+      },
+    },
+    {
+      id: 5,
+      name: strings.stock_report,
+      onPress: () => {
+        navigation.navigate(screensName.StockReport);
       },
     },
   ];
@@ -65,7 +79,7 @@ const PHCManagement = (props: Props) => {
   );
 };
 
-export default PHCManagement;
+export default Pharmacy;
 
 const styles = StyleSheet.create({
   container: {
@@ -85,5 +99,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: vh(15),
+  },
+  hardcodedStyle: {
+    opacity: 0.8,
+    transform: [{ scale: 1.1 }],
   },
 });
