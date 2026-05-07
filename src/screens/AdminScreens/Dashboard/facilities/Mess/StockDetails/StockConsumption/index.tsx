@@ -10,7 +10,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  LayoutAnimation,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -23,28 +22,26 @@ import {
   strings,
   vh,
   vw,
-} from '../../../../../../constants';
+} from '../../../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../../components/atoms/TextAtom';
-import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
-import { useAppSelector } from '../../../../../../hooks';
+} from '../../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../../components/atoms/TextAtom';
+import FullscreenLoading from '../../../../../../../components/organisms/FullscreenLoading';
+import SearchBoxOrganism from '../../../../../../../components/organisms/SearchBoxOrganism';
+import TouchableAtom from '../../../../../../../components/atoms/TouchableAtom';
+import DropDownOrganism from '../../../../../../../components/organisms/DropDownOrganism';
+import ViewAtom from '../../../../../../../components/atoms/ViewAtom';
+import ImageAtom from '../../../../../../../components/atoms/ImageAtom';
+import { downloadAndOpenFile } from '../../../../../../../utils/CommonFunction';
+import { useAppSelector } from '../../../../../../../hooks';
 import moment from 'moment';
 import {
-  useMessManagementDeleteStockDetailsMutation,
-  useMessManagementListStockDetailsMutation,
-} from '../../../../../../injectEndpoints/messManagementEndpoints';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
+  useMessManagementDeleteStockConsumptionMutation,
+  useMessManagementListStockConsumptionMutation,
+} from '../../../../../../../injectEndpoints/messManagementEndpoints';
+import FloatingButton from '../../../../../../../components/organisms/FloatingButton';
 
 interface Props {
   navigation: NavigationType;
@@ -97,7 +94,7 @@ const ListPermissionCard = ({
           <TouchableAtom
             style={styles.editButton}
             onPress={() =>
-              navigation.navigate(screensName.AddStock, {
+              navigation.navigate(screensName.AddStockConsumption, {
                 item,
                 onDone: onRefresh,
               })
@@ -148,7 +145,7 @@ const ListPermissionCard = ({
           </TextAtom>
         </View>
         <View style={{ flex: 1, alignSelf: 'flex-end' }}>
-          <TextAtom style={styles.labelRight}>{'Quantity'}</TextAtom>
+          <TextAtom style={styles.labelRight}>{'Consumed Quantity'}</TextAtom>
           <TextAtom numberOfLines={0} style={styles.valueRight}>
             {item.quantity ?? '-'}
           </TextAtom>
@@ -171,26 +168,18 @@ const ListPermissionCard = ({
       <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
           <TextAtom style={[styles.label, { fontSize: vw(12) }]}>
-            {'Mfg Date'}
+            {'Persons'}
           </TextAtom>
           <TextAtom numberOfLines={0} style={styles.value}>
-            {moment(item.manufacturingDate).format('DD-MM-YYYY') ?? '-'}
-          </TextAtom>
-        </View>
-        <View style={{ flex: 1, alignSelf: 'center' }}>
-          <TextAtom style={[styles.label, { fontSize: vw(12) }]}>
-            {'Expiry Date'}
-          </TextAtom>
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {moment(item.expiryDate).format('DD-MM-YYYY') ?? '-'}
+            {item.personCount ?? '-'}
           </TextAtom>
         </View>
         <View style={{ flex: 1, alignSelf: 'flex-end' }}>
           <TextAtom style={[styles.labelRight, { fontSize: vw(12) }]}>
-            {'Stock Create Date'}
+            {'Consumption Date'}
           </TextAtom>
           <TextAtom numberOfLines={0} style={styles.valueRight}>
-            {moment(item.stockCreatedDateTime).format('DD-MM-YYYY') ?? '-'}
+            {moment(item.stockConsumptionDateTime).format('DD-MM-YYYY') ?? '-'}
           </TextAtom>
         </View>
       </View>
@@ -198,70 +187,14 @@ const ListPermissionCard = ({
   );
 };
 
-interface FilterFormProps {
-  navigation: NavigationType;
-  messList: any[];
-  selectedMess: any;
-  setSelectedMess: (d: any) => void;
-  applyFilter: () => void;
-  clearFilter: () => void;
-  hitFilterApi: (parent?: any, module?: any, status?: any) => void;
-}
-
-const FilterForm = ({
-  navigation,
-  messList,
-  selectedMess,
-  setSelectedMess,
-  applyFilter,
-  clearFilter,
-  hitFilterApi,
-}: FilterFormProps) => (
-  <View style={styles.filterContainer}>
-    <DropDownOrganism
-      label={'Mess'}
-      placeholder={'Mess'}
-      onPress={() => {
-        navigation.navigate('DropDownModal', {
-          name: 'Mess',
-          Data: messList,
-          selectedData: selectedMess,
-          setSelectedData: (data: any) => {
-            setSelectedMess(data);
-            hitFilterApi({ mess: data });
-          },
-          typeName: 'name',
-          typeId: 'id',
-        });
-      }}
-      inputText={selectedMess?.name}
-    />
-
-    <ViewAtom style={styles.buttonRow}>
-      <ButtonOrganism
-        onPress={applyFilter}
-        bttnText={strings.hostelManagement.bedAvailability.applyFilter}
-        containerStyle={styles.applyBtn}
-      />
-      <ButtonOrganism
-        onPress={clearFilter}
-        bttnText={strings.hostelManagement.bedAvailability.clearFilter}
-        containerStyle={styles.clearBtn}
-        bttnTextStyle={{ color: colors.primary }}
-      />
-    </ViewAtom>
-  </View>
-);
-
 const BedItemSeparator = () => <View style={styles.itemSeparator} />;
 
-const Stock = (props: Props) => {
+const StockConsumption = (props: Props) => {
   const { navigation } = props;
   const { crediantialData } = useAppSelector(state => state.Auth);
 
-  const [commonDropdownApi] = useCommonDropdownListMutation();
-  const [listApi] = useMessManagementListStockDetailsMutation();
-  const [deleteApi] = useMessManagementDeleteStockDetailsMutation();
+  const [listApi] = useMessManagementListStockConsumptionMutation();
+  const [deleteApi] = useMessManagementDeleteStockConsumptionMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -272,24 +205,17 @@ const Stock = (props: Props) => {
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
+
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
-  const [messList, setMessList] = useState<any>([]);
-  const [selectedMess, setSelectedMess] = useState<any>({});
 
   const ITEMS_PER_PAGE = 10;
 
   const [search, setSearch] = React.useState('');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Stock Details');
+    Header.setNavigation(navigation, 'Stock Consumption Details');
     navigation.BackButtonPress = () => navigation.goBack();
   });
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
-  };
 
   useFocusEffect(
     useCallback(() => {
@@ -297,7 +223,6 @@ const Stock = (props: Props) => {
         setFirstTimeLoad(false);
 
         list(1, true, search, []);
-        getMessList();
       }
     }, [firstTimeLoad, centerSerach, search]),
   );
@@ -338,7 +263,6 @@ const Stock = (props: Props) => {
       bipardCentre: [],
       ...extraParams,
     };
-
     if (centreFilter) {
       params.bipardCentre = centreFilter;
     }
@@ -417,66 +341,8 @@ const Stock = (props: Props) => {
     />
   );
 
-  const clearFilter = () => {
-    setSelectedMess({});
-    list(1, true, search, []);
-  };
-
-  const buildFilters = () => {
-    const filters: any[] = [];
-
-    if (selectedMess?.id) {
-      filters.push(['messId', '=', selectedMess.id]);
-    }
-
-    return filters;
-  };
-
-  const applyFilter = () => {
-    const filters = buildFilters();
-    list(1, true, search, filters);
-    setShowFilter(false);
-  };
-
-  const getMessList = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'select_mess_for_mess_stock_consumption',
-      bipardCentre: getCentreFilter(),
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        let resData = res.data || [];
-
-        setMessList(resData);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
-
-  const hitFilterApi = ({ mess = selectedMess }: any = {}) => {
-    const filters: any[] = [];
-
-    if (mess?.id) {
-      filters.push(['messId', '=', [mess.id]]);
-    }
-
-    list(1, true, search, filters);
-  };
-
   const downloadPdf = () => {
-    const filters = buildFilters();
-
-    list(1, true, search, filters, {
+    list(1, true, search, [], {
       exportFlagExcel: true,
     });
   };
@@ -491,13 +357,6 @@ const Stock = (props: Props) => {
           alignSelf: 'flex-end',
         }}
       >
-        <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-          <TextAtom style={styles.filterText}>
-            {showFilter
-              ? strings.hostelManagement.bedAvailability.hideFilter
-              : strings.hostelManagement.bedAvailability.showFilter}
-          </TextAtom>
-        </TouchableAtom>
         <TouchableAtom style={styles.filterButton} onPress={downloadPdf}>
           <ImageAtom
             source={images.download}
@@ -566,19 +425,6 @@ const Stock = (props: Props) => {
             style={styles.loadingContainer}
           />
         }
-        ListHeaderComponent={
-          showFilter ? (
-            <FilterForm
-              navigation={navigation}
-              applyFilter={applyFilter}
-              clearFilter={clearFilter}
-              messList={messList}
-              selectedMess={selectedMess}
-              setSelectedMess={setSelectedMess}
-              hitFilterApi={hitFilterApi}
-            />
-          ) : null
-        }
         refreshControl={
           <RefreshControl
             tintColor={colors.primary}
@@ -601,7 +447,7 @@ const Stock = (props: Props) => {
       />
       <FloatingButton
         onButtonPress={() => {
-          navigation.navigate(screensName.AddStock, {
+          navigation.navigate(screensName.AddStockConsumption, {
             onDone: () => list(1, true, search),
           });
         }}
@@ -610,7 +456,7 @@ const Stock = (props: Props) => {
   );
 };
 
-export default Stock;
+export default StockConsumption;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },

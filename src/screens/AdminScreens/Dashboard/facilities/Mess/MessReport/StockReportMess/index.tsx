@@ -17,28 +17,22 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   colors,
   fonts,
-  images,
   screensName,
   strings,
   vh,
   vw,
-} from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
+} from '../../../../../../../constants';
+import { useAppSelector } from '../../../../../../../hooks';
 import {
   Header,
   NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../../components/atoms/TextAtom';
-import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../../components/organisms/FloatingButton';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import {
-  useMessManagementDeleteItemMutation,
-  useMessManagementListItemMutation,
-} from '../../../../../../injectEndpoints/messManagementEndpoints';
+} from '../../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../../components/atoms/TextAtom';
+import FullscreenLoading from '../../../../../../../components/organisms/FullscreenLoading';
+import SearchBoxOrganism from '../../../../../../../components/organisms/SearchBoxOrganism';
+import TouchableAtom from '../../../../../../../components/atoms/TouchableAtom';
+import DropDownOrganism from '../../../../../../../components/organisms/DropDownOrganism';
+import { useMessManagementListMessMutation } from '../../../../../../../injectEndpoints/messManagementEndpoints';
 
 interface Props {
   navigation: NavigationType;
@@ -58,96 +52,51 @@ interface FloorCardProps {
   item: any;
   index: number;
   navigation: NavigationType;
-  onDelete: (id: any) => void;
   onRefresh: () => void;
 }
 
-const FloorCard = ({
-  item,
-  index,
-  navigation,
-  onDelete,
-  onRefresh,
-}: FloorCardProps) => {
-  const handleDelete = () => {
-    navigation.navigate(screensName.AlertOrganism, {
-      title: strings.hostelManagement.deleteConfirmation,
-      message: strings.hostelManagement.deleteItemConfirmation,
-      okText: strings.hostelManagement.confirm,
-      double: true,
-      cancelText: strings.cancel,
-      okFunction: () => onDelete(item.id),
-      cancelFunction: () => {},
-    });
-  };
-
+const FloorCard = ({ item, index, navigation, onRefresh }: FloorCardProps) => {
   return (
-    <View style={styles.card}>
+    <TouchableAtom
+      style={styles.card}
+      onPress={() => {
+        navigation.navigate(screensName.StockReportDetails, {
+          item: item,
+          onDone: onRefresh,
+        });
+      }}
+    >
       <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
         <TextAtom style={[styles.label, styles.flex1]}>
           {strings.hostelManagement.srNo} {index + 1}
         </TextAtom>
-
-        <View style={styles.actionRow}>
-          <TouchableAtom
-            style={styles.editButton}
-            onPress={() =>
-              navigation.navigate(screensName.AddItem, {
-                item,
-                onDone: onRefresh,
-              })
-            }
-          >
-            <ImageAtom source={images.edit_pencil} style={styles.editIcon} />
-          </TouchableAtom>
-
-          <TouchableAtom style={styles.deleteButton} onPress={handleDelete}>
-            <ImageAtom source={images.delete} style={styles.iconSmall} />
-          </TouchableAtom>
-        </View>
       </View>
 
-      <View style={styles.rowBetween}>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>{'Item Name'}</TextAtom>
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.itemName ?? '-'}
-          </TextAtom>
-        </View>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.labelRight}>{'Brand Name'}</TextAtom>
-          <TextAtom numberOfLines={0} style={styles.valueRight}>
-            {item.itemBrandName ?? '-'}
-          </TextAtom>
-        </View>
+      <View style={styles.flex1}>
+        <TextAtom style={styles.label}>{'Mess Name'}</TextAtom>
+        <TextAtom numberOfLines={0} style={styles.value}>
+          {item.name ?? '-'}
+        </TextAtom>
       </View>
-      <View style={styles.rowBetween}>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.label}>{'Type Name'}</TextAtom>
-          <TextAtom numberOfLines={0} style={styles.value}>
-            {item.itemTypeName ?? '-'}
-          </TextAtom>
-        </View>
-        <View style={styles.flex1}>
-          <TextAtom style={styles.labelRight}>{'Unit'}</TextAtom>
-          <TextAtom numberOfLines={0} style={styles.valueRight}>
-            {item.measurementUnitName ?? '-'}
-          </TextAtom>
-        </View>
+
+      <View style={styles.flex1}>
+        <TextAtom style={styles.label}>{'Status'}</TextAtom>
+        <TextAtom numberOfLines={0} style={styles.value}>
+          {item.status ?? '-'}
+        </TextAtom>
       </View>
-    </View>
+    </TouchableAtom>
   );
 };
 
 const FloorItemSeparator = () => <View style={styles.itemSeparator} />;
 
-const Item = (props: Props) => {
+const StockReportMess = (props: Props) => {
   const { navigation } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
-  const [listApi] = useMessManagementListItemMutation();
-  const [deleteApi] = useMessManagementDeleteItemMutation();
+  const [listApi] = useMessManagementListMessMutation();
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
@@ -164,7 +113,7 @@ const Item = (props: Props) => {
   const [centerSerach, setCenterSerach] = React.useState<any>({});
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Item');
+    Header.setNavigation(navigation, 'Stock Report');
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -262,35 +211,12 @@ const Item = (props: Props) => {
     setSearch('');
     list(1, true, '');
   };
-  const deleteData = (id: any) => {
-    setInitialCall(true);
-    const params = {
-      id: id,
-    };
-    deleteApi(params)
-      .unwrap()
-      .then((res: any) => {
-        Toast.show({
-          type: 'success',
-          text2: res.data.message,
-        });
-        setFirstTimeLoad(true);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data?.message || strings.something_went_wrong,
-        });
-      });
-  };
+
   const renderListFloorDetails = ({ item, index }: any) => (
     <FloorCard
       item={item}
       index={index}
       navigation={navigation}
-      onDelete={deleteData}
       onRefresh={() => list(1, true, search)}
     />
   );
@@ -380,18 +306,11 @@ const Item = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={FloorItemSeparator}
       />
-      <FloatingButton
-        onButtonPress={() => {
-          navigation.navigate(screensName.AddItem, {
-            onDone: () => list(1, true, search),
-          });
-        }}
-      />
     </SafeAreaView>
   );
 };
 
-export default Item;
+export default StockReportMess;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundColor },

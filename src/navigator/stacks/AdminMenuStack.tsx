@@ -26,7 +26,7 @@ import Report from '../../screens/AdminScreens/Menu/Report';
 import CourseReportManagement from '../../screens/AdminScreens/Menu/CourseReportManagement';
 import BudgetManagement from '../../screens/AdminScreens/Menu/BudgetManagement';
 import HouseKeepingManagement from '../../screens/AdminScreens/Menu/HouseKeepingManagement';
-import MessManagement from '../../screens/AdminScreens/Menu/MessManagement';
+import Mess from '../../screens/AdminScreens/Dashboard/facilities/Mess';
 import HRMS from '../../screens/AdminScreens/Menu/HRMS';
 import VisitorManagementSystem from '../../screens/AdminScreens/Menu/VisitorManagementSystem';
 import ConferenceManagementSystem from '../../screens/AdminScreens/Menu/ConferenceManagementSystem';
@@ -126,7 +126,7 @@ const AdminMenuStack = () => {
       />
       <Stack.Screen
         name={screensName.MessManagement}
-        component={MessManagement}
+        component={Mess}
       />
       <Stack.Screen name={screensName.HRMS} component={HRMS} />
       <Stack.Screen

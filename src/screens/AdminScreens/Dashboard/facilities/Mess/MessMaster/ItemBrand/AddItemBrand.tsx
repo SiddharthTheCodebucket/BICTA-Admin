@@ -4,38 +4,38 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, images, vh, vw } from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
+import { colors, images, vh, vw } from '../../../../../../../constants';
+import { useAppSelector } from '../../../../../../../hooks';
 import {
   Header,
   NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
-import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import TextAtom from '../../../../../../components/atoms/TextAtom';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+} from '../../../../../../../components/organisms/HeaderOrganism';
+import TextInputOrganisms from '../../../../../../../components/organisms/TextInputOrganisms';
+import DropDownOrganism from '../../../../../../../components/organisms/DropDownOrganism';
+import ButtonOrganism from '../../../../../../../components/organisms/ButtonOrganism';
+import FullscreenLoading from '../../../../../../../components/organisms/FullscreenLoading';
+import TextAtom from '../../../../../../../components/atoms/TextAtom';
+import TouchableAtom from '../../../../../../../components/atoms/TouchableAtom';
+import ImageAtom from '../../../../../../../components/atoms/ImageAtom';
 import {
-  FormDropdownFieldWithTitle,
   FormGradientButton,
   FormTextInputWithTitle,
   FormWhiteButton,
-} from '../../../../../../components/templates';
-import { globalStyles } from '../../../../../../utils/globalStyles';
-import { isNullUndefined } from '../../../../../../utils/CommonFunction';
+  FormDropdownFieldWithTitle,
+} from '../../../../../../../components/templates';
+import { globalStyles } from '../../../../../../../utils/globalStyles';
+import { isNullUndefined } from '../../../../../../../utils/CommonFunction';
 import {
-  useMessManagementAddItemTypeMutation,
-  useMessManagementUpdateItemTypeMutation,
-} from '../../../../../../injectEndpoints/messManagementEndpoints';
+  useMessManagementAddItemBrandMutation,
+  useMessManagementUpdateItemBrandMutation,
+} from '../../../../../../../injectEndpoints/messManagementEndpoints';
 
 interface Props {
   route: any;
   navigation: NavigationType;
 }
 
-const AddItemType = (props: Props) => {
+const AddItemBrand = (props: Props) => {
   const { navigation } = props;
   const item = props.route.params?.item;
   const fromFacilities = props.route.params?.fromFacilities;
@@ -44,13 +44,13 @@ const AddItemType = (props: Props) => {
   const { crediantialData } = useAppSelector(state => state.Auth);
   const tenantId = crediantialData.user[0].tenantId;
 
-  const [addApi] = useMessManagementAddItemTypeMutation();
-  const [updateApi] = useMessManagementUpdateItemTypeMutation();
+  const [addApi] = useMessManagementAddItemBrandMutation();
+  const [updateApi] = useMessManagementUpdateItemBrandMutation();
 
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      isNullUndefined(item) ? 'Add Item Type' : 'Update Item Type',
+      isNullUndefined(item) ? 'Add Item Brand' : 'Update Item Brand',
       undefined,
       undefined,
       undefined,
@@ -76,7 +76,7 @@ const AddItemType = (props: Props) => {
 
   const [form, setForm] = useState<any>({
     bipardLocation: getInitialLocation(),
-    typeName: '',
+    brandName: '',
   });
   const [errors, setErrors] = useState<any>({});
 
@@ -95,12 +95,12 @@ const AddItemType = (props: Props) => {
 
     setForm({
       bipardLocation: selectedLocation,
-      typeName: item.itemTypeName || '',
+      brandName: item.name || '',
     });
   }, [item]);
 
   const schema = Yup.object().shape({
-    typeName: Yup.string().required('Type name is required'),
+    brandName: Yup.string().required('Brand name is required'),
     bipardLocation: Yup.object({
       name: Yup.string().required('Bipard location is required'),
     }),
@@ -124,7 +124,7 @@ const AddItemType = (props: Props) => {
     let params = {
       bipardCentre: [form.bipardLocation?.name],
       id: null,
-      itemTypeName: form.typeName,
+      name: form.brandName,
       status: 'Active',
     };
     addApi(params)
@@ -153,7 +153,7 @@ const AddItemType = (props: Props) => {
     let params: any = {
       bipardCentre: [form.bipardLocation?.name],
       id: item.id,
-      itemTypeName: form.typeName,
+      name: form.brandName,
     };
 
     updateApi(params)
@@ -208,18 +208,18 @@ const AddItemType = (props: Props) => {
               disabled={tenantId !== 3}
             />
             <FormTextInputWithTitle
-              title="Type Name"
+              title="Brand Name"
               placeholder="Enter"
               onSubmitEditing={() => Keyboard.dismiss()}
-              value={form.typeName}
+              value={form.brandName}
               autoCapitalize="none"
               returnKeyType="done"
               onChangeText={(val: string) => {
-                setValue('typeName', val);
-                setErrors({ ...errors, typeName: '' });
+                setValue('brandName', val);
+                setErrors({ ...errors, brandName: '' });
               }}
               isMandatory
-              errorMessage={errors.typeName}
+              errorMessage={errors.brandName}
             />
           </View>
         </KeyboardAwareScrollView>
@@ -286,19 +286,19 @@ const AddItemType = (props: Props) => {
           isDisabled={tenantId !== 3}
         />
         <TextInputOrganisms
-          label={'Type Name'}
-          placeholder={'Type Name'}
+          label={'Brand Name'}
+          placeholder={'Brand Name'}
           ref={input1_ref}
           onSubmitEditing={() => Keyboard.dismiss()}
-          value={form.typeName}
+          value={form.brandName}
           autoCapitalize={'none'}
           returnKeyType={'done'}
           onChangeText={(val: string) => {
-            setValue('typeName', val);
-            setErrors({ ...errors, typeName: '' });
+            setValue('brandName', val);
+            setErrors({ ...errors, brandName: '' });
           }}
           isMandatory
-          errorMessage={errors.typeName}
+          errorMessage={errors.brandName}
         />
       </KeyboardAwareScrollView>
       <ButtonOrganism onPress={onSubmit} bttnText={item ? 'Update' : 'Add'} />
@@ -306,7 +306,7 @@ const AddItemType = (props: Props) => {
   );
 };
 
-export default AddItemType;
+export default AddItemBrand;
 
 const styles = StyleSheet.create({
   container: {
