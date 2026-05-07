@@ -28,8 +28,8 @@ import {
 import TrainingDetails from './TrainingDetails';
 import BatchDetails from './BatchDetails';
 
-import FacultyFeedbackTrainingWise from '../FacultyFeedbackTrainingWise';
 import { CourseReport } from '../CourseReport';
+import { OverallFeedback } from '../OverallFeedback';
 
 interface Props {
   route: any;
@@ -192,7 +192,7 @@ const TrainingManagement = (props: Props) => {
         />
         <TopTabs.Screen
           name="TrainingWiseOverallFeedbackTab"
-          component={FacultyFeedbackTrainingWise}
+          component={OverallFeedback}
           options={{ tabBarLabel: 'Training Wise Overall Feedback' }}
         />
       </TopTabs.Navigator>
