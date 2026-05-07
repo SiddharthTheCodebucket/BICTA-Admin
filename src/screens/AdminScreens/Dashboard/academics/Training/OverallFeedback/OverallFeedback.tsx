@@ -10,7 +10,11 @@ import SubTab from '../../../../../../components/molecules/SubTab';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import AdminBottomModal from '../../../../../../components/organisms/AdminBottomModal';
-import FormDropdownFieldWithTitle from '../../../../../../components/templates/FormDropdownFieldWithTitle';
+import {
+  FormDropdownFieldWithTitle,
+  FormWhiteButton,
+  FormGradientButton,
+} from '../../../../../../components/templates';
 
 interface Props {
   navigation: any;
@@ -137,18 +141,16 @@ const OverallFeedback = ({ navigation }: Props) => {
             onChange={() => {}}
           />
           <View style={styles.footerButtons}>
-            <TouchableAtom
-              style={[styles.footerButton, styles.secondaryButton]}
+            <FormWhiteButton
+              title="Clear"
               onPress={() => setIsFilterOpen(false)}
-            >
-              <TextAtom style={styles.secondaryButtonText}>Clear</TextAtom>
-            </TouchableAtom>
-            <TouchableAtom
-              style={[styles.footerButton, styles.primaryButton]}
+              buttonStyle={{ flex: 1, marginRight: 10 }}
+            />
+            <FormGradientButton
+              title="Apply"
               onPress={() => setIsFilterOpen(false)}
-            >
-              <TextAtom style={styles.primaryButtonText}>Apply</TextAtom>
-            </TouchableAtom>
+              buttonStyle={{ flex: 1, marginLeft: 10 }}
+            />
           </View>
         </View>
       </AdminBottomModal>
@@ -232,31 +234,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: vh(20),
-  },
-  footerButton: {
-    flex: 1,
-    height: vh(50),
-    borderRadius: vw(8),
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: vw(5),
-  },
-  secondaryButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: colors.primary_blue,
-  },
-  primaryButton: {
-    backgroundColor: colors.primary_blue,
-  },
-  secondaryButtonText: {
-    fontFamily: fonts.Inter_Medium,
-    fontSize: vw(14),
-    color: colors.primary_blue,
-  },
-  primaryButtonText: {
-    fontFamily: fonts.Inter_Medium,
-    fontSize: vw(14),
-    color: colors.white,
   },
 });
