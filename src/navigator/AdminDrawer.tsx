@@ -320,8 +320,8 @@ const MAIN_MENU_ITEMS: DrawerMenuItem[] = [
       {
         id: 'facility-library',
         name: 'Library',
-        screen: screensName.Facilities,
-        params: { initialTab: 'Library' },
+        screen: screensName.Library,
+        matchRoutes: [screensName.AddLibraryMaster],
       },
       {
         id: 'facility-vehicle',

@@ -2,20 +2,20 @@ import React, { useLayoutEffect, useState } from 'react';
 import { Image, Keyboard, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, fonts, images, vh, vw } from '../../../../../constants';
+import { colors, fonts, images, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../components/atoms/TextAtom';
-import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
+} from '../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../components/atoms/TextAtom';
+import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import {
   FormDropdownFieldWithTitle,
   FormGradientButton,
   FormTextInputWithTitle,
   FormWhiteButton,
-} from '../../../../../components/templates';
-import { globalStyles } from '../../../../../utils/globalStyles';
+} from '../../../../../../components/templates';
+import { globalStyles } from '../../../../../../utils/globalStyles';
 
 interface Props {
   route: any;

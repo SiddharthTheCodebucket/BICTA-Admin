@@ -9,7 +9,7 @@ import {
 } from '../../../../../components/organisms/HeaderOrganism';
 
 import HostelDetailsList from '../../facilities/Hostel/HostelDetails/HostelDetailsList';
-import LibraryMaster from './/LibraryMaster';
+import LibraryMaster from '../../facilities/Library/BookStock';
 import VehicleMaster from './VehicleMaster';
 import TopTabBar from '../../../../../components/templates/TopTabBar';
 import Pharmacy from './Pharmacy';

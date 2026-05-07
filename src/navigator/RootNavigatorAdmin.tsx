@@ -45,7 +45,7 @@ import AddPharmacyMaster from '../screens/AdminScreens/Dashboard/masterConfigura
 import AddHouseKeepingTask from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/HouseKeeping/AddHouseKeepingTask';
 import AddMessMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/Mess/AddMessMaster';
 import AddMessTopic from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/Mess/AddMessTopic';
-import AddLibraryMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/AddLibraryMaster';
+import AddLibraryMaster from '../screens/AdminScreens/Dashboard/facilities/Library/BookStock/AddLibraryMaster';
 import AddCategory from '../screens/AdminScreens/Dashboard/masterConfiguration/commsSupport/AddCategory';
 import AddSubCategory from '../screens/AdminScreens/Dashboard/masterConfiguration/commsSupport/AddSubCategory';
 import AddIssueType from '../screens/AdminScreens/Dashboard/masterConfiguration/commsSupport/AddIssueType';
@@ -226,6 +226,7 @@ import AddTaskMaster from '../screens/AdminScreens/Dashboard/facilities/HouseKee
 import TaskDetails from '../screens/AdminScreens/Dashboard/facilities/HouseKeeping/HouseKeepingManagementMain/TaskDetails';
 import TaskDetailDetails from '../screens/AdminScreens/Dashboard/facilities/HouseKeeping/HouseKeepingManagementMain/TaskDetails/TaskDetailDetails';
 import TransferTask from '../screens/AdminScreens/Dashboard/facilities/HouseKeeping/HouseKeepingManagementMain/TaskDetails/TransferTask';
+import Library from '../screens/AdminScreens/Dashboard/facilities/Library';
 import Mess from '../screens/AdminScreens/Dashboard/facilities/Mess';
 import MessMaster from '../screens/AdminScreens/Dashboard/facilities/Mess/MessMaster';
 import StockDetails from '../screens/AdminScreens/Dashboard/facilities/Mess/StockDetails';
@@ -371,6 +372,7 @@ const AppDrawer = () => (
       name={screensName.HouseKeepingManagement}
       component={HouseKeeping}
     />
+    <Drawer.Screen name={screensName.Library} component={Library} />
     <Drawer.Screen
       name={screensName.UserManagement}
       component={UserManagement}
@@ -427,6 +429,7 @@ const RootNavigatorAdmin = () => {
           name={screensName.AddLibraryMaster}
           component={AddLibraryMaster}
         />
+        <RootStackScreen.Screen name={screensName.Library} component={Library} />
         <RootStackScreen.Screen
           name={screensName.AddCommsCategory}
           component={AddCategory}

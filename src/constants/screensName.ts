@@ -217,6 +217,7 @@ export default {
   AddTaskMaster: 'AddTaskMaster',
   AddHouseKeepingTask: 'AddHouseKeepingTask',
   AddLibraryMaster: 'AddLibraryMaster',
+  Library: 'Library',
   TaskDetails: 'TaskDetails',
   TaskDetailDetails: 'TaskDetailDetails',
   TransferTask: 'TransferTask',

@@ -9,14 +9,14 @@ import {
   SvgEditPencile,
   vh,
   vw,
-} from '../../../../../constants';
+} from '../../../../../../constants';
 import AdminListHeader, {
   AdminListHeaderConfig,
-} from '../../../../../components/organisms/AdminListHeader';
-import SearchBoxOrganism from '../../../../../components/organisms/SearchBoxOrganism';
-import SubTab from '../../../../../components/molecules/SubTab';
-import TextAtom from '../../../../../components/atoms/TextAtom';
-import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
+} from '../../../../../../components/organisms/AdminListHeader';
+import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
+import SubTab from '../../../../../../components/molecules/SubTab';
+import TextAtom from '../../../../../../components/atoms/TextAtom';
+import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 
 interface Props {
   navigation: any;
