@@ -12,10 +12,13 @@ import {
   ActivityIndicator,
   RefreshControl,
   LayoutAnimation,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
+import Modal from 'react-native-modal';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   colors,
   fonts,
@@ -84,6 +87,7 @@ const TraineeRegistrationList = (props: Props) => {
   const [page, setPage] = useState(1);
 
   const [showIdModal, setShowIdModal] = useState(false);
+  const [showHeaderMenu, setShowHeaderMenu] = useState(false);
   const [ccSignature, setCcSignature] = useState<any>({});
 
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
@@ -114,8 +118,18 @@ const TraineeRegistrationList = (props: Props) => {
     'Current Course' | 'Complete Course'
   >('Current Course');
 
+  const renderHeaderMenu = () => (
+    <TouchableOpacity
+      hitSlop={styles.headerMenuHitSlop}
+      onPress={() => setShowHeaderMenu(true)}
+      style={styles.headerMenuButton}
+    >
+      <Icon name="dots-vertical" size={24} color={colors.white} />
+    </TouchableOpacity>
+  );
+
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Trainee Registration');
+    Header.setNavigation(navigation, 'Trainee Registration', renderHeaderMenu);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -450,6 +464,24 @@ const TraineeRegistrationList = (props: Props) => {
     listTraineeDetais(1, true, search, []);
   };
 
+  const openIdCardDownload = () => {
+    setShowHeaderMenu(false);
+    setShowIdModal(true);
+    if (trainingList.length === 0) {
+      getTrainingList();
+    }
+  };
+
+  const openOtherRegistration = () => {
+    setShowHeaderMenu(false);
+    navigation.navigate(screensName.OthersRegistration, {
+      onDone: () => {
+        setFirstTimeLoad(true);
+        listTraineeDetais(1, true, search);
+      },
+    });
+  };
+
   const applyFilter = (isExport = false) => {
     const filters = [];
 
@@ -548,6 +580,14 @@ const TraineeRegistrationList = (props: Props) => {
   };
 
   const handleDownloadId = () => {
+    if (!selectedTraining.id || !selectedBatch.id) {
+      Toast.show({
+        type: 'error',
+        text2: 'Please select training and batch',
+      });
+      return;
+    }
+
     setInitialCall(true);
 
     let params = {
@@ -569,6 +609,7 @@ const TraineeRegistrationList = (props: Props) => {
       .unwrap()
       .then(res => {
         setInitialCall(false);
+        setShowIdModal(false);
 
         if (Array.isArray(res.data) && res.data.length > 0) {
           res.data.forEach((item: any) => {
@@ -597,6 +638,91 @@ const TraineeRegistrationList = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
+      <Modal
+        isVisible={showHeaderMenu}
+        onBackdropPress={() => setShowHeaderMenu(false)}
+        onBackButtonPress={() => setShowHeaderMenu(false)}
+        backdropOpacity={0.15}
+        style={styles.headerOptionsModal}
+      >
+        <View style={styles.headerOptionsCard}>
+          <TouchableAtom
+            style={styles.headerOptionItem}
+            onPress={openIdCardDownload}
+          >
+            <TextAtom style={styles.headerOptionText}>
+              Download Id Card
+            </TextAtom>
+          </TouchableAtom>
+          <TouchableAtom
+            style={[styles.headerOptionItem, styles.headerOptionLastItem]}
+            onPress={openOtherRegistration}
+          >
+            <TextAtom style={styles.headerOptionText}>
+              Other Registration
+            </TextAtom>
+          </TouchableAtom>
+        </View>
+      </Modal>
+      <Modal
+        isVisible={showIdModal}
+        onBackdropPress={() => setShowIdModal(false)}
+        onBackButtonPress={() => setShowIdModal(false)}
+        style={styles.idCardModal}
+      >
+        <View style={styles.idCardCard}>
+          <TextAtom style={styles.idCardTitle}>Download Id Card</TextAtom>
+          <DropDownOrganism
+            label={'Training'}
+            placeholder={'Training'}
+            onPress={() => {
+              navigation.navigate('DropDownModal', {
+                name: 'Training',
+                Data: trainingList,
+                selectedData: selectedTraining,
+                setSelectedData: (item: any) => {
+                  setSelectedTraining(item);
+                  setSelectedBatch({});
+                  listTrainingBatchDetails(item.id);
+                },
+                typeName: 'name',
+                typeId: 'id',
+              });
+            }}
+            inputText={selectedTraining?.name}
+          />
+          <DropDownOrganism
+            label={'Batch'}
+            placeholder={'Batch'}
+            onPress={() => {
+              navigation.navigate('DropDownModal', {
+                name: 'Batch',
+                Data: batchList,
+                selectedData: selectedBatch,
+                setSelectedData: (item: any) => {
+                  setSelectedBatch(item);
+                },
+                typeName: 'batchName',
+                typeId: 'id',
+              });
+            }}
+            inputText={selectedBatch?.batchName}
+          />
+          <ViewAtom style={styles.idCardActions}>
+            <ButtonOrganism
+              onPress={() => setShowIdModal(false)}
+              bttnText="Cancel"
+              containerStyle={styles.idCardCancelBtn}
+              bttnTextStyle={{ color: colors.primary }}
+            />
+            <ButtonOrganism
+              onPress={handleDownloadId}
+              bttnText="Download"
+              containerStyle={styles.idCardDownloadBtn}
+            />
+          </ViewAtom>
+        </View>
+      </Modal>
 
       <View style={{ paddingHorizontal: vw(16) }}>
         <AdminListHeader
@@ -888,5 +1014,78 @@ const styles = StyleSheet.create({
     color: '#CD9F3E',
     fontFamily: fonts.Inter_Medium,
     fontSize: vw(14),
+  },
+  headerMenuButton: {
+    paddingHorizontal: vw(10),
+    paddingVertical: vh(4),
+  },
+  headerMenuHitSlop: {
+    left: vw(20),
+    right: vw(20),
+    bottom: vh(20),
+    top: vh(20),
+  },
+  headerOptionsModal: {
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+    marginTop: vh(48),
+    marginRight: vw(12),
+  },
+  headerOptionsCard: {
+    minWidth: vw(190),
+    backgroundColor: colors.white,
+    borderRadius: vw(8),
+    overflow: 'hidden',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  headerOptionItem: {
+    paddingVertical: vh(13),
+    paddingHorizontal: vw(14),
+    borderBottomWidth: 1,
+    borderBottomColor: colors.chinese_silver,
+  },
+  headerOptionLastItem: {
+    borderBottomWidth: 0,
+  },
+  headerOptionText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(14),
+    color: colors.text_black,
+  },
+  idCardModal: {
+    justifyContent: 'center',
+    marginHorizontal: vw(18),
+  },
+  idCardCard: {
+    backgroundColor: colors.white,
+    borderRadius: vw(10),
+    paddingHorizontal: vw(16),
+    paddingVertical: vh(16),
+  },
+  idCardTitle: {
+    fontFamily: fonts.Inter_Bold,
+    fontSize: vw(16),
+    color: colors.text_black,
+    marginBottom: vh(8),
+  },
+  idCardActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: vh(12),
+  },
+  idCardCancelBtn: {
+    width: vw(140),
+    height: vh(38),
+    borderWidth: vw(1),
+    borderColor: colors.primary,
+    backgroundColor: colors.white,
+  },
+  idCardDownloadBtn: {
+    width: vw(140),
+    height: vh(38),
   },
 });

@@ -57,6 +57,8 @@ import { useGetCentre } from '../../../../../../hooks/useGetCentre';
 
 interface Props {
   navigation: NavigationType;
+  headerTitle?: string;
+  listTitle?: string;
 }
 
 const debounce = (func: any, delay: number) => {
@@ -70,7 +72,7 @@ const debounce = (func: any, delay: number) => {
 };
 
 const TraineeDetails = (props: Props) => {
-  const { navigation } = props;
+  const { navigation, headerTitle = 'Trainee Details', listTitle } = props;
 
   const { crediantialData } = useAppSelector(state => state.Auth);
   const center = useGetCentre();
@@ -115,7 +117,7 @@ const TraineeDetails = (props: Props) => {
   const [activeTab, setActiveTab] = useState<'current' | 'complete'>('current');
 
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Trainee Details');
+    Header.setNavigation(navigation, headerTitle);
     navigation.BackButtonPress = () => navigation.goBack();
   });
 
@@ -768,7 +770,7 @@ const TraineeDetails = (props: Props) => {
       <View style={{ paddingHorizontal: vw(16) }}>
         <AdminListHeader
           config={{
-            title: 'Trainee Details',
+            title: listTitle ?? 'Trainee Details',
             count: totalCount,
             showCount: true,
             search: { visible: true, onPress: () => setShowFilter(true) },

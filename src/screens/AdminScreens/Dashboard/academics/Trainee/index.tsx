@@ -27,7 +27,6 @@ import {
 import TraineeRegistration from './TraineeRegistration';
 import TraineeDetails from './TraineeDetails';
 import TraineeRelease from './TraineeRelease';
-import OthersRegistration from './OthersRegistration';
 
 interface Props {
   route: any;
@@ -35,6 +34,14 @@ interface Props {
 }
 
 const TopTabs = createMaterialTopTabNavigator();
+
+const CertificateRegenerationTab = (tabProps: any) => (
+  <TraineeDetails
+    {...tabProps}
+    headerTitle="Certificate Re-generation"
+    listTitle="Certificate Re-generation"
+  />
+);
 
 const CustomTraineeTabBar = ({
   state,
@@ -134,7 +141,8 @@ const TraineeManagement = (props: Props) => {
     const initialTab = route?.params?.initialTab;
     if (initialTab === 'TraineeDetails') return 'TraineeDetailsTab';
     if (initialTab === 'TraineeRelease') return 'TraineeReleaseTab';
-    if (initialTab === 'OthersRegistration') return 'CertificateRegenerateTab';
+    if (initialTab === 'CertificateRegenerate')
+      return 'CertificateRegenerateTab';
     return 'RegistrationTab';
   }, [route?.params?.initialTab]);
 
@@ -187,7 +195,7 @@ const TraineeManagement = (props: Props) => {
         />
         <TopTabs.Screen
           name="CertificateRegenerateTab"
-          component={OthersRegistration}
+          component={CertificateRegenerationTab}
           options={{ tabBarLabel: 'Certificate Re-generate' }}
         />
       </TopTabs.Navigator>
