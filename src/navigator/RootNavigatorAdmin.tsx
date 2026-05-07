@@ -54,8 +54,6 @@ import AddQuestionField from '../screens/AdminScreens/Dashboard/masterConfigurat
 import FacultyReportMaster from '../screens/AdminScreens/Dashboard/finances/FacultyReportMaster';
 import LMS from '../screens/AdminScreens/Menu/LMS';
 
-import TrainingManagement from '../screens/AdminScreens/Dashboard/academics/Training';
-
 import TrainingDetailsScreen from '../screens/AdminScreens/Dashboard/academics/Training/TrainingManagement/TrainingDetails/TrainingDetailsScreen';
 import AddTrainingDetails from '../screens/AdminScreens/Dashboard/academics/Training/TrainingManagement/TrainingDetails/AddTrainingDetails';
 import BatchDetailsList from '../screens/AdminScreens/Dashboard/academics/Training/TrainingManagement/BatchDetails/BatchDetailsList';
@@ -282,6 +280,7 @@ import { FeedbackMaster } from '../screens/AdminScreens/Dashboard/masterConfigur
 import AddTrainingCategoryMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TrainingCategoryMaster/AddTrainingCategoryMaster';
 import AddTraineeDesignation from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TraineeDesignation/AddTraineeDesignation';
 import { CommsAndSupport } from '../screens/AdminScreens/Dashboard/masterConfiguration/commsSupport';
+import { TrainingManagement } from '../screens/AdminScreens/Dashboard/academics/Training/TrainingManagement';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
@@ -361,10 +360,7 @@ const AppDrawer = () => (
       component={TraineeAttendance}
     />
     <Drawer.Screen name={screensName.GateAccess} component={GateAccess} />
-    <Drawer.Screen
-      name={screensName.HostelManagement}
-      component={Hostel}
-    />
+    <Drawer.Screen name={screensName.HostelManagement} component={Hostel} />
     <Drawer.Screen name={screensName.Hostel} component={Hostel} />
     <Drawer.Screen name={screensName.PHCManagement} component={HealthCare} />
     <Drawer.Screen name={screensName.MessManagement} component={Mess} />
@@ -429,7 +425,10 @@ const RootNavigatorAdmin = () => {
           name={screensName.AddLibraryMaster}
           component={AddLibraryMaster}
         />
-        <RootStackScreen.Screen name={screensName.Library} component={Library} />
+        <RootStackScreen.Screen
+          name={screensName.Library}
+          component={Library}
+        />
         <RootStackScreen.Screen
           name={screensName.AddCommsCategory}
           component={AddCategory}
@@ -482,10 +481,7 @@ const RootNavigatorAdmin = () => {
           name={screensName.AddCreateTour}
           component={AddCreateTour}
         />
-        <RootStackScreen.Screen
-          name="HostelManagement"
-          component={Hostel}
-        />
+        <RootStackScreen.Screen name="HostelManagement" component={Hostel} />
         <RootStackScreen.Screen name="Guest" component={Guest} />
         <RootStackScreen.Screen name="AddGuest" component={AddGuest} />
         <RootStackScreen.Screen name="Hostel" component={Hostel} />
@@ -842,10 +838,7 @@ const RootNavigatorAdmin = () => {
           name={screensName.ExamResponseSheet}
           component={ExamResponseSheet}
         />
-        <RootStackScreen.Screen
-          name="PHCManagement"
-          component={HealthCare}
-        />
+        <RootStackScreen.Screen name="PHCManagement" component={HealthCare} />
         <RootStackScreen.Screen
           name="PHCManagemnetMain"
           component={PHCManagemnetMain}
@@ -1179,10 +1172,7 @@ const RootNavigatorAdmin = () => {
           component={TaskDetailDetails}
         />
         <RootStackScreen.Screen name="TransferTask" component={TransferTask} />
-        <RootStackScreen.Screen
-          name="MessManagement"
-          component={Mess}
-        />
+        <RootStackScreen.Screen name="MessManagement" component={Mess} />
         <RootStackScreen.Screen name="MessMaster" component={MessMaster} />
         <RootStackScreen.Screen name="StockDetails" component={StockDetails} />
         <RootStackScreen.Screen name="MessReport" component={MessReport} />
