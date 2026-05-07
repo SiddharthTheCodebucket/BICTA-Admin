@@ -98,6 +98,7 @@ const TraineeDetails = (props: Props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [showSearch, setShowSearch] = useState(true);
   const [isForExcel, setIsForExcel] = useState(false);
 
   const [selectedItems, setSelectedItems] = useState<any>([]);
@@ -153,6 +154,11 @@ const TraineeDetails = (props: Props) => {
   const toggleFilter = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setShowFilter(!showFilter);
+  };
+
+  const toggleSearchShow = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShowSearch(!showSearch);
   };
 
   const listTrainingDetais = (
@@ -754,15 +760,17 @@ const TraineeDetails = (props: Props) => {
             title: listTitle ?? 'Trainee Details',
             count: totalCount,
             showCount: true,
-            search: { visible: false },
+            search: { visible: true, onPress: toggleSearchShow },
             filter: { visible: true, onPress: () => setShowFilter(true) },
           }}
         />
-        <FormSearch
-          value={search}
-          onChangeText={onChangeSearch}
-          onClear={onClearSearch}
-        />
+        {showSearch && (
+          <FormSearch
+            value={search}
+            onChangeText={onChangeSearch}
+            onClear={onClearSearch}
+          />
+        )}
       </View>
       <SubTab
         tabs={[
