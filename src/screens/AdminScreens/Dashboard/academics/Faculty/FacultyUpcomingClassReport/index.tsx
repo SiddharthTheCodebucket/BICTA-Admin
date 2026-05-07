@@ -44,6 +44,7 @@ import moment from 'moment';
 
 interface Props {
   navigation: NavigationType;
+  embeddedInFacultyTabs?: boolean;
 }
 
 const debounce = (func: any, delay: number) => {
@@ -218,7 +219,7 @@ let facultyTypeList = [
 ];
 
 const FacultyUpcomingClassReport = (props: Props) => {
-  const { navigation } = props;
+  const { navigation, embeddedInFacultyTabs } = props;
   const { crediantialData } = useAppSelector(state => state.Auth);
 
   const [listReportFacultyApi] = useReportListFacultyFutureClassCountMutation();
@@ -244,6 +245,9 @@ const FacultyUpcomingClassReport = (props: Props) => {
   const [search, setSearch] = React.useState('');
 
   useLayoutEffect(() => {
+    if (embeddedInFacultyTabs) {
+      return;
+    }
     Header.setNavigation(navigation, 'Faculty Upcoming Class List');
     navigation.BackButtonPress = () => navigation.goBack();
   });

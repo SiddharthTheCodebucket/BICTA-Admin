@@ -1,15 +1,8 @@
-import {
-  StyleSheet,
-} from 'react-native';
-import React, {
-  useLayoutEffect,
-  useMemo,
-} from 'react';
+import { StyleSheet } from 'react-native';
+import React, { useLayoutEffect, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  createMaterialTopTabNavigator,
-} from '@react-navigation/material-top-tabs';
-import { colors, fonts, vh, vw } from '../../../../../constants';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { colors } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -17,7 +10,7 @@ import {
 
 import TraineeDesignationMaster from './TraineeDesignation/TraineeDesignationMaster';
 import FacultyDetailsList from '../../../Menu/LMS/FacultyManagement/FacultyDetails/FacultyDetailsList';
-import { FacultyCenterProvider } from '../../../Menu/LMS/FacultyManagement/context/FacultyCenterContext';
+import { FacultyCenterProvider } from '../../academics/Faculty/context/FacultyCenterContext';
 import Subject from '../../../Menu/LMS/CurriculumManagemnet/Subject';
 import SubjectTopicList from '../../../Menu/LMS/CurriculumManagemnet/SubjectTopic/SubjectTopicList';
 import LocationDetailsList from '../../../Menu/LMS/ClassLocationManagement/LocationDetails/LocationDetailsList';
@@ -57,7 +50,7 @@ const Academics = (props: Props) => {
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
-  }, []);
+  }, [navigation]);
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>

@@ -9,7 +9,7 @@ import TrainingManagement from '../../screens/AdminScreens/Dashboard/academics/T
 import TraineeManagement from '../../screens/AdminScreens/Dashboard/academics/Trainee';
 import TraineeAttendance from '../../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeAttendance';
 import GateAccess from '../../screens/AdminScreens/Menu/LMS/TraineeManagement/GateAccess';
-import FacultyManagement from '../../screens/AdminScreens/Menu/LMS/FacultyManagement';
+import FacultyManagement from '../../screens/AdminScreens/Dashboard/academics/Faculty';
 import CurriculumManagemnet from '../../screens/AdminScreens/Menu/LMS/CurriculumManagemnet';
 import ClassLocationManagement from '../../screens/AdminScreens/Menu/LMS/ClassLocationManagement';
 import ClassRoomManagement from '../../screens/AdminScreens/Menu/LMS/ClassRoomManagement';
@@ -57,10 +57,7 @@ const AdminMenuStack = () => {
         name={screensName.TraineeAttendance}
         component={TraineeAttendance}
       />
-      <Stack.Screen
-        name={screensName.GateAccess}
-        component={GateAccess}
-      />
+      <Stack.Screen name={screensName.GateAccess} component={GateAccess} />
       <Stack.Screen
         name={screensName.FacultyManagement}
         component={FacultyManagement}

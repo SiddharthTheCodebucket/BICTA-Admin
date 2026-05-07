@@ -75,15 +75,15 @@ import TraineeRelease from '../screens/AdminScreens/Dashboard/academics/Trainee/
 import TraineeReleaseDetails from '../screens/AdminScreens/Dashboard/academics/Trainee/TraineeRelease/TraineeReleaseDetails';
 import TraineeReleaseForm from '../screens/AdminScreens/Dashboard/academics/Trainee/TraineeRelease/TraineeReleaseForm';
 import OthersRegistration from '../screens/AdminScreens/Dashboard/academics/Trainee/OthersRegistration';
-import FacultyManagement from '../screens/AdminScreens/Menu/LMS/FacultyManagement';
+import FacultyManagement from '../screens/AdminScreens/Dashboard/academics/Faculty';
 import FacultyDetails from '../screens/AdminScreens/Menu/LMS/FacultyManagement/FacultyDetails';
 import FacultyDetailDetails from '../screens/AdminScreens/Menu/LMS/FacultyManagement/FacultyDetails/FacultyDetailDetails';
-import FacultyConfirmation from '../screens/AdminScreens/Menu/LMS/FacultyManagement/FacultyConfirmation';
-import FacultyConfirmationDetails from '../screens/AdminScreens/Menu/LMS/FacultyManagement/FacultyConfirmation/FacultyConfirmationDetails';
-import FacultyClassReportFeedback from '../screens/AdminScreens/Menu/LMS/FacultyManagement/FacultyClassReportFeedback';
-import FacultySubjectFeedbackDetails from '../screens/AdminScreens/Menu/LMS/FacultyManagement/FacultyClassReportFeedback/FacultySubjectFeedbackDetails';
-import FacultyTopicFeedbackDetails from '../screens/AdminScreens/Menu/LMS/FacultyManagement/FacultyClassReportFeedback/FacultyTopicFeedbackDetails';
-import TopicFeedbackCountDetails from '../screens/AdminScreens/Menu/LMS/FacultyManagement/FacultyClassReportFeedback/TopicFeedbackCountDetails';
+import FacultyConfirmation from '../screens/AdminScreens/Dashboard/academics/Faculty/FacultyConfirmation';
+import FacultyConfirmationDetails from '../screens/AdminScreens/Dashboard/academics/Faculty/FacultyConfirmation/FacultyConfirmationDetails';
+import FacultyClassReportFeedback from '../screens/AdminScreens/Dashboard/academics/Faculty/FacultyClassReportFeedback';
+import FacultySubjectFeedbackDetails from '../screens/AdminScreens/Dashboard/academics/Faculty/FacultyClassReportFeedback/FacultySubjectFeedbackDetails';
+import FacultyTopicFeedbackDetails from '../screens/AdminScreens/Dashboard/academics/Faculty/FacultyClassReportFeedback/FacultyTopicFeedbackDetails';
+import TopicFeedbackCountDetails from '../screens/AdminScreens/Dashboard/academics/Faculty/FacultyClassReportFeedback/TopicFeedbackCountDetails';
 import AddFacultyDetails from '../screens/AdminScreens/Menu/LMS/FacultyManagement/FacultyDetails/AddFacultyDetails';
 import CurriculumManagemnet from '../screens/AdminScreens/Menu/LMS/CurriculumManagemnet';
 import Subject from '../screens/AdminScreens/Menu/LMS/CurriculumManagemnet/Subject';
@@ -202,8 +202,8 @@ import FacultyWiseClassReportDetails from '../screens/AdminScreens/Menu/Report/F
 import FacultyCalculationSheet from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyCalculationSheet';
 import FacultyClassReportTrainingWise from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyClassReportTrainingWise';
 import CourseWiseApprovalStatus from '../screens/AdminScreens/Menu/Report/FacultyReport/CourseWiseApprovalStatus';
-import FacultyUpcomingClassReport from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyUpcomingClassReport';
-import FacultyUpcomingClassTimeTable from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyUpcomingClassReport/FacultyUpcomingClassTimeTable';
+import FacultyUpcomingClassReport from '../screens/AdminScreens/Dashboard/academics/Faculty/FacultyUpcomingClassReport';
+import FacultyUpcomingClassTimeTable from '../screens/AdminScreens/Dashboard/academics/Faculty/FacultyUpcomingClassReport/FacultyUpcomingClassTimeTable';
 import CourseReportManagement from '../screens/AdminScreens/Menu/CourseReportManagement';
 import CourseReportManagementMain from '../screens/AdminScreens/Menu/CourseReportManagement/CourseReportManagementMain';
 import CourseReport from '../screens/AdminScreens/Dashboard/academics/Training/CourseReport';
@@ -898,7 +898,10 @@ const RootNavigatorAdmin = () => {
           name="FeedbackManagement"
           component={FeedbackManagement}
         />
-        <RootStackScreen.Screen name={screensName.Feedback} component={Feedback} />
+        <RootStackScreen.Screen
+          name={screensName.Feedback}
+          component={Feedback}
+        />
         <RootStackScreen.Screen
           name={screensName.FeedbackCategory}
           component={FeedbackCategory}

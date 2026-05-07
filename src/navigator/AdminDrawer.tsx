@@ -166,7 +166,17 @@ const MAIN_MENU_ITEMS: DrawerMenuItem[] = [
       {
         id: 'academics-faculty',
         name: 'Faculty',
-        disabled: true,
+        screen: screensName.FacultyManagement,
+        matchRoutes: [
+          screensName.FacultyConfirmation,
+          screensName.FacultyConfirmationDetails,
+          screensName.FacultyUpcomingClassReport,
+          screensName.FacultyUpcomingClassTimeTable,
+          screensName.FacultyClassReportFeedback,
+          screensName.FacultySubjectFeedbackDetails,
+          screensName.FacultyTopicFeedbackDetails,
+          screensName.TopicFeedbackCountDetails,
+        ],
       },
       {
         id: 'academics-time-table',
@@ -307,7 +317,9 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
   );
 
   useEffect(() => {
-    const activeItem = MAIN_MENU_ITEMS.find(item => item.id === activeMainItemId);
+    const activeItem = MAIN_MENU_ITEMS.find(
+      item => item.id === activeMainItemId,
+    );
     if (activeItem?.children?.length) {
       setExpandedItemId(activeItem.id);
     }

@@ -47,7 +47,7 @@ import {
   useDeleteFacultyDetailsMutation,
   useListFacultyDetailsMutation,
 } from '../../../../../../injectEndpoints/lmsEndpoints';
-import { useFacultyCenter } from '../context/FacultyCenterContext';
+import { useFacultyCenter } from '../../../../Dashboard/academics/Faculty/context/FacultyCenterContext';
 import AdminBottomModal from '../../../../../../components/organisms/AdminBottomModal';
 import {
   FormGradientButton,

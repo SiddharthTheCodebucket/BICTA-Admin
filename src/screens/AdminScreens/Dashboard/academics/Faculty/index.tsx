@@ -1,3 +1,10 @@
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Dimensions,
   LayoutChangeEvent,
@@ -7,27 +14,20 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   createMaterialTopTabNavigator,
   MaterialTopTabBarProps,
 } from '@react-navigation/material-top-tabs';
-import { colors, fonts, strings, vh, vw } from '../../../../../constants';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors, fonts, vh, vw } from '../../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../../components/organisms/HeaderOrganism';
-import FacultyDetails from './FacultyDetails';
-import FacultyConfirmation from '../../../Dashboard/academics/Faculty/FacultyConfirmation';
-import FacultyClassReportFeedback from '../../../Dashboard/academics/Faculty/FacultyClassReportFeedback';
-import { FacultyCenterProvider } from '../../../Dashboard/academics/Faculty/context/FacultyCenterContext';
+import FacultyConfirmation from './FacultyConfirmation';
+import FacultyUpcomingClassReport from './FacultyUpcomingClassReport';
+import FacultyClassReportFeedback from './FacultyClassReportFeedback';
+import { FacultyCenterProvider } from './context/FacultyCenterContext';
 
 interface Props {
   route: any;
@@ -35,6 +35,10 @@ interface Props {
 }
 
 const TopTabs = createMaterialTopTabNavigator();
+
+const UpcomingClassScheduleTab = (tabProps: any) => (
+  <FacultyUpcomingClassReport {...tabProps} embeddedInFacultyTabs />
+);
 
 const CustomFacultyTabBar = ({
   state,
@@ -132,15 +136,19 @@ const FacultyManagement = (props: Props) => {
 
   const initialRouteName = useMemo(() => {
     const initialTab = route?.params?.initialTab;
-    if (initialTab === 'FacultyConfirmation') return 'FacultyConfirmationTab';
-    if (initialTab === 'FacultyClassReport') return 'FacultyClassReportTab';
-    return 'FacultyDetailsTab';
+    if (initialTab === 'UpcomingClassSchedule') {
+      return 'UpcomingClassScheduleTab';
+    }
+    if (initialTab === 'FacultyClassReportFeedback') {
+      return 'FacultyClassReportFeedbackTab';
+    }
+    return 'FacultyConfirmationTab';
   }, [route?.params?.initialTab]);
 
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      strings.lms.facultyManagement.main.title,
+      'Faculty',
       undefined,
       undefined,
       undefined,
@@ -169,24 +177,19 @@ const FacultyManagement = (props: Props) => {
           }}
         >
           <TopTabs.Screen
-            name="FacultyDetailsTab"
-            component={FacultyDetails}
-            options={{
-              tabBarLabel: strings.lms.facultyManagement.main.facultyDetails,
-            }}
-          />
-          <TopTabs.Screen
             name="FacultyConfirmationTab"
             component={FacultyConfirmation}
-            options={{
-              tabBarLabel:
-                strings.lms.facultyManagement.main.facultyConfirmation,
-            }}
+            options={{ tabBarLabel: 'Faculty Confirmation' }}
           />
           <TopTabs.Screen
-            name="FacultyClassReportTab"
+            name="UpcomingClassScheduleTab"
+            component={UpcomingClassScheduleTab}
+            options={{ tabBarLabel: 'Upcoming Class Schedule' }}
+          />
+          <TopTabs.Screen
+            name="FacultyClassReportFeedbackTab"
             component={FacultyClassReportFeedback}
-            options={{ tabBarLabel: 'Faculty Class Report' }}
+            options={{ tabBarLabel: 'Class Report Feedback' }}
           />
         </TopTabs.Navigator>
       </SafeAreaView>
@@ -218,7 +221,6 @@ const styles = StyleSheet.create({
   customTabItem: {
     height: vh(34),
     minWidth: vw(110),
-
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.white,
