@@ -30,17 +30,20 @@ import {
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import AdminBottomModal from '../../../../../../components/organisms/AdminBottomModal';
+import FormSearch from '../../../../../../components/templates/FormSearch';
+import FormDropdownFieldWithTitle from '../../../../../../components/templates/FormDropdownFieldWithTitle';
+import FormDatePickerWithTitle from '../../../../../../components/templates/FormDatePickerWithTitle';
+import FormWhiteButton from '../../../../../../components/templates/FormWhiteButton';
+import FormGradientButton from '../../../../../../components/templates/FormGradientButton';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 import { useAppSelector } from '../../../../../../hooks';
 import { useReportListFacultyFutureClassCountMutation } from '../../../../../../injectEndpoints/reportEndpoints';
 import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
+import AdminListHeader from '../../../../../../components/organisms/AdminListHeader';
 
 interface Props {
   navigation: NavigationType;
@@ -83,11 +86,10 @@ const ListPermissionCard = ({
         });
       }}
     >
-      <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-        <TextAtom style={[styles.label, styles.flex1]}>
-          {strings.hostelManagement.hostelAllocationHistory.srNo} {index + 1}
-        </TextAtom>
-      </View>
+      <TextAtom style={styles.cardTitle}>
+        {item.facultyName ?? 'Faculty Name'}
+      </TextAtom>
+
       <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
           <TextAtom style={styles.label}>{'Faculty Unique Id'}</TextAtom>
@@ -96,27 +98,22 @@ const ListPermissionCard = ({
           </TextAtom>
         </View>
         <View style={{ flex: 1, alignSelf: 'flex-end' }}>
-          <TextAtom style={styles.labelRight}>{'Faculty Type'}</TextAtom>
+          <TextAtom style={styles.labelRight}>{'Class Date'}</TextAtom>
           <TextAtom style={styles.valueRight}>
-            {item.facultyType ?? '-'}
+            {moment(item.classDate).format('DD-MM-YYYY') ?? '-'}
           </TextAtom>
         </View>
       </View>
-      <View style={{ flex: 1 }}>
-        <TextAtom style={styles.label}>{'Faculty Name'}</TextAtom>
-        <TextAtom style={styles.value}>{item.facultyName ?? '-'}</TextAtom>
-      </View>
+
       <View style={styles.rowBetween}>
         <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>{'Class Date'}</TextAtom>
-          <TextAtom style={styles.value}>
-            {moment(item.classDate).format('DD-MMM-YYYY') ?? '-'}
-          </TextAtom>
+          <TextAtom style={styles.label}>{'Faculty Type'}</TextAtom>
+          <TextAtom style={styles.value}>{item.facultyType ?? '-'}</TextAtom>
         </View>
         <View style={{ flex: 1, alignSelf: 'flex-end' }}>
           <TextAtom style={styles.labelRight}>{'Class Count'}</TextAtom>
           <TextAtom style={styles.valueRight}>
-            {item.classCount ? `${item.classCount} Classes` : '-'}
+            {item.classCount ? `${item.classCount}` : '-'}
           </TextAtom>
         </View>
       </View>
@@ -152,62 +149,53 @@ const FilterForm = ({
   hitFilterApi,
 }: FilterFormProps) => (
   <View style={styles.filterContainer}>
-    <DateInputOrganism
-      label={'Start Date'}
-      placeholder={'Start Date'}
-      value={startDate}
-      onChangeText={(val: any) => {
-        setStartDate(val);
-        hitFilterApi({ startDate: val });
+    <FormDatePickerWithTitle
+      title="Start Date"
+      value={startDate ? new Date(startDate) : new Date()}
+      onChange={date => {
+        const dateStr = moment(date).format('DD-MM-YYYY');
+        setStartDate(dateStr);
+        hitFilterApi({ startDate: dateStr });
       }}
-      fieldName="date"
-      dateFormat="DD-MM-YYYY"
+      placeholder="Start Date"
     />
 
-    <DateInputOrganism
-      label={'End Date'}
-      placeholder={'End Date'}
-      value={endDate}
-      onChangeText={(val: any) => {
-        setEndDate(val);
-        hitFilterApi({ endDate: val });
+    <FormDatePickerWithTitle
+      title="End Date"
+      value={endDate ? new Date(endDate) : new Date()}
+      onChange={date => {
+        const dateStr = moment(date).format('DD-MM-YYYY');
+        setEndDate(dateStr);
+        hitFilterApi({ endDate: dateStr });
       }}
-      fieldName="date"
-      dateFormat="DD-MM-YYYY"
+      placeholder="End Date"
     />
 
-    <DropDownOrganism
-      label={'Faculty Type'}
-      placeholder={'Faculty Type'}
-      onPress={() => {
-        navigation.navigate('DropDownModal', {
-          name: 'Faculty Type',
-          Data: facultyTypeList,
-          selectedData: selectedFacultyType,
-          setSelectedData: (data: any) => {
-            setSelectedFacultyType(data);
-            hitFilterApi({ facultyType: data });
-          },
-          typeName: 'name',
-          typeId: 'id',
-        });
+    <FormDropdownFieldWithTitle
+      title="Faculty Type"
+      data={facultyTypeList}
+      value={selectedFacultyType}
+      onChange={data => {
+        setSelectedFacultyType(data);
+        hitFilterApi({ facultyType: data });
       }}
-      inputText={selectedFacultyType?.name}
+      labelField="name"
+      valueField="id"
+      placeholder="Faculty Type"
     />
 
-    <ViewAtom style={styles.buttonRow}>
-      <ButtonOrganism
-        onPress={applyFilter}
-        bttnText={strings.hostelManagement.bedAvailability.applyFilter}
-        containerStyle={styles.applyBtn}
-      />
-      <ButtonOrganism
+    <View style={styles.buttonRow}>
+      <FormWhiteButton
         onPress={clearFilter}
-        bttnText={strings.hostelManagement.bedAvailability.clearFilter}
-        containerStyle={styles.clearBtn}
-        bttnTextStyle={{ color: colors.primary }}
+        title={strings.hostelManagement.bedAvailability.clearFilter}
+        containerStyle={{ flex: 1, marginRight: vw(8) }}
       />
-    </ViewAtom>
+      <FormGradientButton
+        onPress={applyFilter}
+        title={strings.hostelManagement.bedAvailability.applyFilter}
+        containerStyle={{ flex: 1 }}
+      />
+    </View>
   </View>
 );
 
@@ -234,6 +222,7 @@ const FacultyUpcomingClassReport = (props: Props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [showSearch, setShowSearch] = useState(true);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
 
   const [selectedFacultyType, setSelectedFacultyType] = useState<any>({});
@@ -255,6 +244,11 @@ const FacultyUpcomingClassReport = (props: Props) => {
   const toggleFilter = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setShowFilter(!showFilter);
+  };
+
+  const toggleSearchShow = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShowSearch(!showSearch);
   };
 
   useFocusEffect(
@@ -443,87 +437,40 @@ const FacultyUpcomingClassReport = (props: Props) => {
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignSelf: 'flex-end',
-        }}
-      >
-        <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-          <TextAtom style={styles.filterText}>
-            {showFilter
-              ? strings.hostelManagement.bedAvailability.hideFilter
-              : strings.hostelManagement.bedAvailability.showFilter}
-          </TextAtom>
-        </TouchableAtom>
-
-        <TouchableAtom
-          style={styles.filterButton}
-          onPress={() => {
-            downloadExcel();
+      <View style={{ paddingHorizontal: vw(16) }}>
+        <AdminListHeader
+          config={{
+            title: 'Upcoming Class Report',
+            count: data.length,
+            showCount: true,
+            search: {
+              visible: true,
+              onPress: toggleSearchShow,
+            },
+            filter: {
+              visible: true,
+              onPress: () => setShowFilter(true),
+            },
           }}
-        >
-          <ImageAtom
-            source={images.download}
-            style={{
-              tintColor: colors.black,
-              resizeMode: 'contain',
-              width: vw(10),
-              height: vw(10),
-              alignSelf: 'center',
-            }}
-          />
-          <TextAtom
-            style={{
-              color: colors.black,
-              fontFamily: fonts.Roboto_Regular,
-              fontSize: vw(8),
+        />
+        {/* <TouchableAtom
+            style={styles.excelButton}
+            onPress={() => {
+              downloadExcel();
             }}
           >
-            Excel
-          </TextAtom>
-        </TouchableAtom>
-      </View>
-      {crediantialData.user[0].tenantId === 3 && (
-        <DropDownOrganism
-          label={''}
-          placeholder={strings.dashboardIndex.centers}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: strings.dashboardIndex.center,
-              Data: [
-                {
-                  id: strings.dashboardIndex.allCenters,
-                  name: strings.dashboardIndex.allCenters,
-                },
-                {
-                  id: strings.dashboardIndex.gaya,
-                  name: strings.dashboardIndex.gaya,
-                },
-                {
-                  id: strings.dashboardIndex.patna,
-                  name: strings.dashboardIndex.patna,
-                },
-              ],
-              selectedData: centerSerach,
-              setSelectedData: (data: any) => {
-                setCenterSerach(data);
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={centerSerach?.name}
-          containerStyle={{ marginBottom: vh(-10) }}
-        />
-      )}
+            <ImageAtom source={images.download} style={styles.excelIcon} />
+            <TextAtom style={styles.excelText}>Excel</TextAtom>
+          </TouchableAtom> */}
 
-      <SearchBoxOrganism
-        onChangeText={onChangeSearch}
-        searchText={search}
-        onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
-      />
+        {showSearch && (
+          <FormSearch
+            value={search}
+            onChangeText={onChangeSearch}
+            onClear={onClearSearch}
+          />
+        )}
+      </View>
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -545,23 +492,7 @@ const FacultyUpcomingClassReport = (props: Props) => {
             style={styles.loadingContainer}
           />
         }
-        ListHeaderComponent={
-          showFilter ? (
-            <FilterForm
-              navigation={navigation}
-              applyFilter={applyFilter}
-              clearFilter={clearFilter}
-              facultyTypeList={facultyTypeList}
-              selectedFacultyType={selectedFacultyType}
-              setSelectedFacultyType={setSelectedFacultyType}
-              startDate={startDate}
-              setStartDate={setStartDate}
-              endDate={endDate}
-              setEndDate={setEndDate}
-              hitFilterApi={hitFilterApi}
-            />
-          ) : null
-        }
+        ListHeaderComponent={<View />}
         refreshControl={
           <RefreshControl
             tintColor={colors.primary}
@@ -582,6 +513,26 @@ const FacultyUpcomingClassReport = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={BedItemSeparator}
       />
+
+      <AdminBottomModal
+        visible={showFilter}
+        onClose={() => setShowFilter(false)}
+        title="Filters"
+      >
+        <FilterForm
+          navigation={navigation}
+          applyFilter={applyFilter}
+          clearFilter={clearFilter}
+          facultyTypeList={facultyTypeList}
+          selectedFacultyType={selectedFacultyType}
+          setSelectedFacultyType={setSelectedFacultyType}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+          hitFilterApi={hitFilterApi}
+        />
+      </AdminBottomModal>
     </SafeAreaView>
   );
 };
@@ -606,28 +557,34 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
   },
   label: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
+    fontFamily: fonts.Roboto_Regular,
+    fontSize: vw(12),
+    color: colors.grey,
   },
   labelRight: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
+    fontFamily: fonts.Roboto_Regular,
+    fontSize: vw(12),
+    color: colors.grey,
     textAlign: 'right',
   },
   value: {
-    fontFamily: fonts.Roboto_Regular,
+    fontFamily: fonts.Roboto_Medium,
     fontSize: vw(14),
-    color: colors.grey,
+    color: colors.black,
     marginBottom: vh(5),
   },
   valueRight: {
-    fontFamily: fonts.Roboto_Regular,
+    fontFamily: fonts.Roboto_Medium,
     fontSize: vw(14),
-    color: colors.grey,
+    color: colors.black,
     marginBottom: vh(5),
     textAlign: 'right',
+  },
+  cardTitle: {
+    fontFamily: fonts.Roboto_Bold,
+    fontSize: vw(16),
+    color: colors.black,
+    marginBottom: vh(10),
   },
   divider: {
     height: 1,
@@ -705,20 +662,32 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     zIndex: 998,
   },
-  filterButton: {
+  excelButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: vw(10),
+    paddingVertical: vh(5),
     borderWidth: vw(1),
     borderColor: colors.primary,
     borderRadius: vw(4),
-    marginTop: vh(10),
-    alignSelf: 'flex-end',
-    marginRight: vh(15),
-    paddingHorizontal: vw(10),
-    paddingVertical: vh(5),
+    marginLeft: vw(10),
   },
-  filterText: {
+  excelIcon: {
+    tintColor: colors.black,
+    resizeMode: 'contain',
+    width: vw(10),
+    height: vw(10),
+    marginRight: vw(5),
+  },
+  excelText: {
     color: colors.black,
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
+    fontFamily: fonts.Roboto_Regular,
+    fontSize: vw(10),
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   filterContainer: { paddingHorizontal: vw(15) },
   buttonRow: {
