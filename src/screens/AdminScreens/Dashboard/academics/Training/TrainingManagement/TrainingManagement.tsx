@@ -27,8 +27,9 @@ import {
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TrainingDetails from './TrainingDetails';
 import BatchDetails from './BatchDetails';
-import CourseReport from '../CourseReport';
+
 import FacultyFeedbackTrainingWise from '../FacultyFeedbackTrainingWise';
+import { CourseReport } from '../CourseReport';
 
 interface Props {
   route: any;

@@ -207,7 +207,6 @@ import FacultyUpcomingClassReport from '../screens/AdminScreens/Dashboard/academ
 import FacultyUpcomingClassTimeTable from '../screens/AdminScreens/Dashboard/academics/Faculty/FacultyUpcomingClassReport/FacultyUpcomingClassTimeTable';
 import CourseReportManagement from '../screens/AdminScreens/Menu/CourseReportManagement';
 import CourseReportManagementMain from '../screens/AdminScreens/Menu/CourseReportManagement/CourseReportManagementMain';
-import CourseReport from '../screens/AdminScreens/Dashboard/academics/Training/CourseReport';
 import BudgetManagement from '../screens/AdminScreens/Menu/BudgetManagement';
 import BudgetMangementMain from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain';
 import CreateTraining from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/CreateTraining';
@@ -281,6 +280,7 @@ import AddTrainingCategoryMaster from '../screens/AdminScreens/Dashboard/masterC
 import AddTraineeDesignation from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TraineeDesignation/AddTraineeDesignation';
 import { CommsAndSupport } from '../screens/AdminScreens/Dashboard/masterConfiguration/commsSupport';
 import { TrainingManagement } from '../screens/AdminScreens/Dashboard/academics/Training/TrainingManagement';
+import { CourseReport } from '../screens/AdminScreens/Dashboard/academics/Training/CourseReport';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;
