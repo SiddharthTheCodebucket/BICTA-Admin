@@ -30,14 +30,15 @@ import {
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import AdminListHeader from '../../../../../../components/organisms/AdminListHeader';
+import AdminBottomModal from '../../../../../../components/organisms/AdminBottomModal';
+import FormSearch from '../../../../../../components/templates/FormSearch';
+import FormDropdownFieldWithTitle from '../../../../../../components/templates/FormDropdownFieldWithTitle';
+import FormWhiteButton from '../../../../../../components/templates/FormWhiteButton';
+import FormGradientButton from '../../../../../../components/templates/FormGradientButton';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import SubTab from '../../../../../../components/molecules/SubTab';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import {
   useListTraineeDetailsMutation,
   useListTrainingBatchDetailsMutation,
@@ -78,7 +79,7 @@ const TraineeReleaseList = ({ navigation }: Props) => {
   const [totalCount, setTotalCount] = useState(0);
 
   const [showFilter, setShowFilter] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
+  const [showSearch, setShowSearch] = useState(true);
   const [currentAppliedFilters, setCurrentAppliedFilters] = useState<any[]>([]);
 
   const [trainingList, setTrainingList] = useState<any[]>([]);
@@ -287,106 +288,75 @@ const TraineeReleaseList = ({ navigation }: Props) => {
     setShowFilter(prev => !prev);
   };
 
-  const toggleSearch = () => {
+  const toggleSearchShow = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setShowSearch(prev => !prev);
   };
 
   const FilterForm = () => (
     <View style={styles.filterContainer}>
-      <DropDownOrganism
-        label={'Training'}
-        placeholder={'Training'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Training',
-            Data: trainingList,
-            selectedData: selectedTraining,
-            setSelectedData: (item: any) => {
-              setSelectedTraining(item);
-              setSelectedBatch({});
-              listTrainingBatchDetails(item.id);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
+      <FormDropdownFieldWithTitle
+        title="Training"
+        data={trainingList}
+        value={selectedTraining}
+        onChange={(item) => {
+          setSelectedTraining(item);
+          setSelectedBatch({});
+          listTrainingBatchDetails(item.id);
         }}
-        inputText={selectedTraining?.name}
+        labelField="name"
+        valueField="id"
+        placeholder="Training"
       />
 
-      <DropDownOrganism
-        label={'Batch'}
-        placeholder={'Batch'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Batch',
-            Data: batchList,
-            selectedData: selectedBatch,
-            setSelectedData: (item: any) => {
-              setSelectedBatch(item);
-            },
-            typeName: 'batchName',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedBatch?.batchName}
+      <FormDropdownFieldWithTitle
+        title="Batch"
+        data={batchList}
+        value={selectedBatch}
+        onChange={(item) => setSelectedBatch(item)}
+        labelField="batchName"
+        valueField="id"
+        placeholder="Batch"
       />
 
-      <DropDownOrganism
-        label={'Indeminity Bond'}
-        placeholder={'Indeminity Bond'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Indeminity Bond',
-            Data: [
-              { id: 'Yes', name: 'Yes' },
-              { id: 'No', name: 'No' },
-            ],
-            selectedData: selectedIndeminityBond,
-            setSelectedData: (item: any) => {
-              setSelectedIndeminityBond(item);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedIndeminityBond?.name}
+      <FormDropdownFieldWithTitle
+        title="Indeminity Bond"
+        data={[
+          { id: 'Yes', name: 'Yes' },
+          { id: 'No', name: 'No' },
+        ]}
+        value={selectedIndeminityBond}
+        onChange={(item) => setSelectedIndeminityBond(item)}
+        labelField="name"
+        valueField="id"
+        placeholder="Indeminity Bond"
       />
 
-      <DropDownOrganism
-        label={'Trainee Released'}
-        placeholder={'Trainee Released'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Trainee Released',
-            Data: [
-              { id: 'Yes', name: 'Yes' },
-              { id: 'No', name: 'No' },
-            ],
-            selectedData: selectedTraineeReleased,
-            setSelectedData: (item: any) => {
-              setSelectedTraineeReleased(item);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedTraineeReleased?.name}
+      <FormDropdownFieldWithTitle
+        title="Trainee Released"
+        data={[
+          { id: 'Yes', name: 'Yes' },
+          { id: 'No', name: 'No' },
+        ]}
+        value={selectedTraineeReleased}
+        onChange={(item) => setSelectedTraineeReleased(item)}
+        labelField="name"
+        valueField="id"
+        placeholder="Trainee Released"
       />
 
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText="Apply Filter"
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
+      <View style={styles.buttonRow}>
+        <FormWhiteButton
           onPress={clearFilter}
-          bttnText="Clear Filter"
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
+          title="Clear Filter"
+          containerStyle={{ flex: 1, marginRight: vw(8) }}
         />
-      </ViewAtom>
+        <FormGradientButton
+          onPress={applyFilter}
+          title="Apply Filter"
+          containerStyle={{ flex: 1 }}
+        />
+      </View>
     </View>
   );
 
@@ -528,24 +498,22 @@ const TraineeReleaseList = ({ navigation }: Props) => {
             showCount: true,
             search: {
               visible: true,
-              onPress: toggleSearch,
+              onPress: toggleSearchShow,
             },
             filter: {
               visible: true,
-              onPress: toggleFilter,
+              onPress: () => setShowFilter(true),
             },
           }}
         />
+        {showSearch && (
+          <FormSearch
+            value={search}
+            onChangeText={onChangeSearch}
+            onClear={onClearSearch}
+          />
+        )}
       </View>
-
-      {showSearch && (
-        <SearchBoxOrganism
-          onChangeText={onChangeSearch}
-          searchText={search}
-          onPressCross={onClearSearch}
-          searchBox={styles.searchBox}
-        />
-      )}
 
       <SubTab
         tabs={[
@@ -569,7 +537,7 @@ const TraineeReleaseList = ({ navigation }: Props) => {
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
           )
         }
-        ListHeaderComponent={showFilter ? <FilterForm /> : null}
+        ListHeaderComponent={<View />}
         ListFooterComponent={
           <ActivityIndicator
             size={'small'}
@@ -597,6 +565,14 @@ const TraineeReleaseList = ({ navigation }: Props) => {
         contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
+
+      <AdminBottomModal
+        visible={showFilter}
+        onClose={() => setShowFilter(false)}
+        title="Filters"
+      >
+        <FilterForm />
+      </AdminBottomModal>
     </SafeAreaView>
   );
 };
