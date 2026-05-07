@@ -5,7 +5,7 @@ import Menu from '../../screens/AdminScreens/Menu';
 import VehicleManagement from '../../screens/AdminScreens/Menu/VehicleManagement';
 import HostelManagement from '../../screens/AdminScreens/Menu/HostelManagement';
 import LMS from '../../screens/AdminScreens/Menu/LMS';
-import TrainingManagement from '../../screens/AdminScreens/Menu/LMS/TrainingManagement';
+import TrainingManagement from '../../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training';
 import { TraineeManagement } from '../../screens/AdminScreens/Menu/LMS/TraineeManagement';
 import TraineeAttendance from '../../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeAttendance';
 import GateAccess from '../../screens/AdminScreens/Menu/LMS/TraineeManagement/GateAccess';

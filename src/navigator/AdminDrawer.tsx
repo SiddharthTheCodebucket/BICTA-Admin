@@ -47,7 +47,7 @@ const MASTER_CONFIGURATION_ITEMS: DrawerMenuItem[] = [
     id: 'master-academics',
     name: 'Academics',
     screen: screensName.Academics,
-    matchRoutes: [screensName.AddTrainingCategory],
+    matchRoutes: [screensName.AddTrainingCategoryMaster],
   },
   {
     id: 'master-facilities',
@@ -125,23 +125,52 @@ const MAIN_MENU_ITEMS: DrawerMenuItem[] = [
     id: 'academics',
     name: 'Academics',
     icon: 'book-open-page-variant-outline',
-    screen: screensName.LMS,
-    matchRoutes: [
-      screensName.TrainingManagement,
-      screensName.TraineeManagement,
-      screensName.FacultyManagement,
-      screensName.ClassRoomManagement,
-      screensName.Assignment,
-      screensName.Examination,
-      screensName.TimeTable,
-      screensName.FacultyClassApprove,
-      screensName.Question,
-      screensName.AssignQuestion,
-      screensName.AssignmentsDetails,
-      screensName.AssignmentResponse,
-      screensName.CreateTest,
-      screensName.AssignQuestionList,
-      screensName.ExamResponse,
+    children: [
+      {
+        id: 'academics-training',
+        name: 'Training',
+        screen: screensName.TrainingManagement,
+        matchRoutes: [
+          screensName.TrainingDetails,
+          screensName.TrainingDetailsScreen,
+          screensName.AddTrainingDetails,
+          screensName.BatchDetails,
+          screensName.BatchDetailsList,
+          screensName.EditBatchDetails,
+          screensName.MergedBatchForm,
+          screensName.CourseReport,
+          screensName.FacultyFeedbackTrainingWise,
+          screensName.FacultyFeedbackTrainingWiseDetails,
+          screensName.ClassCountList,
+          screensName.FeedbackCountList,
+          screensName.FeedbackGivenByTraineeList,
+        ],
+      },
+      {
+        id: 'academics-trainee',
+        name: 'Trainee',
+        disabled: true,
+      },
+      {
+        id: 'academics-faculty',
+        name: 'Faculty',
+        disabled: true,
+      },
+      {
+        id: 'academics-time-table',
+        name: 'Time Table',
+        disabled: true,
+      },
+      {
+        id: 'academics-assignments',
+        name: 'Assignments',
+        disabled: true,
+      },
+      {
+        id: 'academics-examination',
+        name: 'Examination',
+        disabled: true,
+      },
     ],
   },
   {
@@ -266,8 +295,9 @@ const AdminDrawer = (props: DrawerContentComponentProps) => {
   );
 
   useEffect(() => {
-    if (activeMainItemId === 'master-config') {
-      setExpandedItemId('master-config');
+    const activeItem = MAIN_MENU_ITEMS.find(item => item.id === activeMainItemId);
+    if (activeItem?.children?.length) {
+      setExpandedItemId(activeItem.id);
     }
   }, [activeMainItemId]);
 

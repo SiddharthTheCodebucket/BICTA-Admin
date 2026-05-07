@@ -55,13 +55,13 @@ import AddQuestionField from '../screens/AdminScreens/Dashboard/masterConfigurat
 import FacultyReportMaster from '../screens/AdminScreens/Dashboard/finances/FacultyReportMaster';
 import LMS from '../screens/AdminScreens/Menu/LMS';
 
-import TrainingManagement from '../screens/AdminScreens/Menu/LMS/TrainingManagement';
+import TrainingManagement from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training';
 
-import TrainingDetailsScreen from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingDetails/TrainingDetailsScreen';
-import AddTrainingDetails from '../screens/AdminScreens/Menu/LMS/TrainingManagement/TrainingDetails/AddTrainingDetails';
-import BatchDetailsList from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails/BatchDetailsList';
-import EditBatchDetails from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails/EditBatchDetails';
-import MergedBatchForm from '../screens/AdminScreens/Menu/LMS/TrainingManagement/BatchDetails/MergedBatchForm';
+import TrainingDetailsScreen from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/TrainingManagement/TrainingDetails/TrainingDetailsScreen';
+import AddTrainingDetails from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/TrainingManagement/TrainingDetails/AddTrainingDetails';
+import BatchDetailsList from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/TrainingManagement/BatchDetails/BatchDetailsList';
+import EditBatchDetails from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/TrainingManagement/BatchDetails/EditBatchDetails';
+import MergedBatchForm from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/TrainingManagement/BatchDetails/MergedBatchForm';
 import { TraineeManagement } from '../screens/AdminScreens/Menu/LMS/TraineeManagement';
 import TraineeAttendance from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeAttendance';
 import GateAccess from '../screens/AdminScreens/Menu/LMS/TraineeManagement/GateAccess';
@@ -176,11 +176,11 @@ import MessFeedbackResponse from '../screens/AdminScreens/Menu/FeedbackManagemen
 import MessFeedbackResponseDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/MessFeedbackResponse/MessFeedbackResponseDetails';
 import HouseKeepingFeedbackResponse from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/HouseKeepingFeedbackResponse';
 import HouseKeepingFeedbackResponseDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/HouseKeepingFeedbackResponse/HouseKeepingFeedbackResponseDetails';
-import FacultyFeedbackTrainingWise from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise';
-import FacultyFeedbackTrainingWiseDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/FacultyFeedbackTrainingWiseDetails';
-import ClassCountList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/ClassCountList';
-import FeedbackCountList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/FeedbackCountList';
-import FeedbackGivenByTraineeList from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackTrainingWise/FeedbackGivenByTraineeList';
+import FacultyFeedbackTrainingWise from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/FacultyFeedbackTrainingWise';
+import FacultyFeedbackTrainingWiseDetails from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/FacultyFeedbackTrainingWise/FacultyFeedbackTrainingWiseDetails';
+import ClassCountList from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/FacultyFeedbackTrainingWise/ClassCountList';
+import FeedbackCountList from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/FacultyFeedbackTrainingWise/FeedbackCountList';
+import FeedbackGivenByTraineeList from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/FacultyFeedbackTrainingWise/FeedbackGivenByTraineeList';
 import CommunicationManagementSystem from '../screens/AdminScreens/Menu/CommunicationManagementSystem';
 import Communication from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication';
 import Application from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Application';
@@ -206,7 +206,7 @@ import FacultyUpcomingClassReport from '../screens/AdminScreens/Menu/Report/Facu
 import FacultyUpcomingClassTimeTable from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyUpcomingClassReport/FacultyUpcomingClassTimeTable';
 import CourseReportManagement from '../screens/AdminScreens/Menu/CourseReportManagement';
 import CourseReportManagementMain from '../screens/AdminScreens/Menu/CourseReportManagement/CourseReportManagementMain';
-import CourseReport from '../screens/AdminScreens/Menu/CourseReportManagement/CourseReportManagementMain/CourseReport';
+import CourseReport from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/CourseReport';
 import BudgetManagement from '../screens/AdminScreens/Menu/BudgetManagement';
 import BudgetMangementMain from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain';
 import CreateTraining from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/CreateTraining';
@@ -519,15 +519,10 @@ const RootNavigatorAdmin = () => {
         />
         <RootStackScreen.Screen name="BlockDetails" component={BlockDetails} />
         <RootStackScreen.Screen name="BlockedForm" component={BlockedForm} />
-        <RootStackScreen.Screen name="LMS" component={LMS} />
+        <RootStackScreen.Screen name={screensName.LMS} component={LMS} />
         <RootStackScreen.Screen
-          name="TrainingManagement"
+          name={screensName.TrainingManagement}
           component={TrainingManagement}
-        />
-        <RootStackScreen.Screen
-          name="TrainingCategoryMaster"
-          component={TrainingManagement}
-          initialParams={{ initialTab: 'TrainingCategoryMaster' }}
         />
         <RootStackScreen.Screen
           name={screensName.AddTrainingCategoryMaster}
@@ -538,33 +533,33 @@ const RootNavigatorAdmin = () => {
           component={AddTraineeDesignation}
         />
         <RootStackScreen.Screen
-          name="TrainingDetails"
+          name={screensName.TrainingDetails}
           component={TrainingManagement}
           initialParams={{ initialTab: 'TrainingDetails' }}
         />
         <RootStackScreen.Screen
-          name="TrainingDetailsScreen"
+          name={screensName.TrainingDetailsScreen}
           component={TrainingDetailsScreen}
         />
         <RootStackScreen.Screen
-          name="AddTrainingDetails"
+          name={screensName.AddTrainingDetails}
           component={AddTrainingDetails}
         />
         <RootStackScreen.Screen
-          name="BatchDetails"
+          name={screensName.BatchDetails}
           component={TrainingManagement}
           initialParams={{ initialTab: 'BatchDetails' }}
         />
         <RootStackScreen.Screen
-          name="BatchDetailsList"
+          name={screensName.BatchDetailsList}
           component={BatchDetailsList}
         />
         <RootStackScreen.Screen
-          name="EditBatchDetails"
+          name={screensName.EditBatchDetails}
           component={EditBatchDetails}
         />
         <RootStackScreen.Screen
-          name="MergedBatchForm"
+          name={screensName.MergedBatchForm}
           component={MergedBatchForm}
         />
         <RootStackScreen.Screen
@@ -957,23 +952,23 @@ const RootNavigatorAdmin = () => {
           component={HouseKeepingFeedbackResponseDetails}
         />
         <RootStackScreen.Screen
-          name="FacultyFeedbackTrainingWise"
+          name={screensName.FacultyFeedbackTrainingWise}
           component={FacultyFeedbackTrainingWise}
         />
         <RootStackScreen.Screen
-          name="FacultyFeedbackTrainingWiseDetails"
+          name={screensName.FacultyFeedbackTrainingWiseDetails}
           component={FacultyFeedbackTrainingWiseDetails}
         />
         <RootStackScreen.Screen
-          name="ClassCountList"
+          name={screensName.ClassCountList}
           component={ClassCountList}
         />
         <RootStackScreen.Screen
-          name="FeedbackCountList"
+          name={screensName.FeedbackCountList}
           component={FeedbackCountList}
         />
         <RootStackScreen.Screen
-          name="FeedbackGivenByTraineeList"
+          name={screensName.FeedbackGivenByTraineeList}
           component={FeedbackGivenByTraineeList}
         />
         <RootStackScreen.Screen
@@ -1058,7 +1053,10 @@ const RootNavigatorAdmin = () => {
           name="CourseReportManagementMain"
           component={CourseReportManagementMain}
         />
-        <RootStackScreen.Screen name="CourseReport" component={CourseReport} />
+        <RootStackScreen.Screen
+          name={screensName.CourseReport}
+          component={CourseReport}
+        />
         <RootStackScreen.Screen
           name="BudgetManagement"
           component={BudgetManagement}
