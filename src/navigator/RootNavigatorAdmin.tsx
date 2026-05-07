@@ -55,26 +55,26 @@ import AddQuestionField from '../screens/AdminScreens/Dashboard/masterConfigurat
 import FacultyReportMaster from '../screens/AdminScreens/Dashboard/finances/FacultyReportMaster';
 import LMS from '../screens/AdminScreens/Menu/LMS';
 
-import TrainingManagement from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training';
+import TrainingManagement from '../screens/AdminScreens/Dashboard/academics/Training';
 
-import TrainingDetailsScreen from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/TrainingManagement/TrainingDetails/TrainingDetailsScreen';
-import AddTrainingDetails from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/TrainingManagement/TrainingDetails/AddTrainingDetails';
-import BatchDetailsList from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/TrainingManagement/BatchDetails/BatchDetailsList';
-import EditBatchDetails from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/TrainingManagement/BatchDetails/EditBatchDetails';
-import MergedBatchForm from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/TrainingManagement/BatchDetails/MergedBatchForm';
-import { TraineeManagement } from '../screens/AdminScreens/Menu/LMS/TraineeManagement';
+import TrainingDetailsScreen from '../screens/AdminScreens/Dashboard/academics/Training/TrainingManagement/TrainingDetails/TrainingDetailsScreen';
+import AddTrainingDetails from '../screens/AdminScreens/Dashboard/academics/Training/TrainingManagement/TrainingDetails/AddTrainingDetails';
+import BatchDetailsList from '../screens/AdminScreens/Dashboard/academics/Training/TrainingManagement/BatchDetails/BatchDetailsList';
+import EditBatchDetails from '../screens/AdminScreens/Dashboard/academics/Training/TrainingManagement/BatchDetails/EditBatchDetails';
+import MergedBatchForm from '../screens/AdminScreens/Dashboard/academics/Training/TrainingManagement/BatchDetails/MergedBatchForm';
+import TraineeManagement from '../screens/AdminScreens/Dashboard/academics/Trainee';
 import TraineeAttendance from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeAttendance';
 import GateAccess from '../screens/AdminScreens/Menu/LMS/TraineeManagement/GateAccess';
-import TraineeRegistration from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeRegistration';
-import TraineeRegistrationDetails from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeRegistration/TraineeRegistrationDetails';
-import AddTraineeRegistration from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeRegistration/AddTraineeRegistration';
-import TraineeDetails from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeDetails';
-import TraineeFullDetails from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeDetails/TraineeFullDetails';
-import IndemnityBond from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeDetails/IndemnityBond';
-import TraineeRelease from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeRelease';
-import TraineeReleaseDetails from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeRelease/TraineeReleaseDetails';
-import TraineeReleaseForm from '../screens/AdminScreens/Menu/LMS/TraineeManagement/TraineeRelease/TraineeReleaseForm';
-import OthersRegistration from '../screens/AdminScreens/Menu/LMS/TraineeManagement/OthersRegistration';
+import TraineeRegistration from '../screens/AdminScreens/Dashboard/academics/Trainee/TraineeRegistration';
+import TraineeRegistrationDetails from '../screens/AdminScreens/Dashboard/academics/Trainee/TraineeRegistration/TraineeRegistrationDetails';
+import AddTraineeRegistration from '../screens/AdminScreens/Dashboard/academics/Trainee/TraineeRegistration/AddTraineeRegistration';
+import TraineeDetails from '../screens/AdminScreens/Dashboard/academics/Trainee/TraineeDetails';
+import TraineeFullDetails from '../screens/AdminScreens/Dashboard/academics/Trainee/TraineeDetails/TraineeFullDetails';
+import IndemnityBond from '../screens/AdminScreens/Dashboard/academics/Trainee/TraineeDetails/IndemnityBond';
+import TraineeRelease from '../screens/AdminScreens/Dashboard/academics/Trainee/TraineeRelease';
+import TraineeReleaseDetails from '../screens/AdminScreens/Dashboard/academics/Trainee/TraineeRelease/TraineeReleaseDetails';
+import TraineeReleaseForm from '../screens/AdminScreens/Dashboard/academics/Trainee/TraineeRelease/TraineeReleaseForm';
+import OthersRegistration from '../screens/AdminScreens/Dashboard/academics/Trainee/OthersRegistration';
 import FacultyManagement from '../screens/AdminScreens/Menu/LMS/FacultyManagement';
 import FacultyDetails from '../screens/AdminScreens/Menu/LMS/FacultyManagement/FacultyDetails';
 import FacultyDetailDetails from '../screens/AdminScreens/Menu/LMS/FacultyManagement/FacultyDetails/FacultyDetailDetails';
@@ -176,11 +176,11 @@ import MessFeedbackResponse from '../screens/AdminScreens/Menu/FeedbackManagemen
 import MessFeedbackResponseDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/MessFeedbackResponse/MessFeedbackResponseDetails';
 import HouseKeepingFeedbackResponse from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/HouseKeepingFeedbackResponse';
 import HouseKeepingFeedbackResponseDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/HouseKeepingFeedbackResponse/HouseKeepingFeedbackResponseDetails';
-import FacultyFeedbackTrainingWise from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/FacultyFeedbackTrainingWise';
-import FacultyFeedbackTrainingWiseDetails from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/FacultyFeedbackTrainingWise/FacultyFeedbackTrainingWiseDetails';
-import ClassCountList from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/FacultyFeedbackTrainingWise/ClassCountList';
-import FeedbackCountList from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/FacultyFeedbackTrainingWise/FeedbackCountList';
-import FeedbackGivenByTraineeList from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/FacultyFeedbackTrainingWise/FeedbackGivenByTraineeList';
+import FacultyFeedbackTrainingWise from '../screens/AdminScreens/Dashboard/academics/Training/FacultyFeedbackTrainingWise';
+import FacultyFeedbackTrainingWiseDetails from '../screens/AdminScreens/Dashboard/academics/Training/FacultyFeedbackTrainingWise/FacultyFeedbackTrainingWiseDetails';
+import ClassCountList from '../screens/AdminScreens/Dashboard/academics/Training/FacultyFeedbackTrainingWise/ClassCountList';
+import FeedbackCountList from '../screens/AdminScreens/Dashboard/academics/Training/FacultyFeedbackTrainingWise/FeedbackCountList';
+import FeedbackGivenByTraineeList from '../screens/AdminScreens/Dashboard/academics/Training/FacultyFeedbackTrainingWise/FeedbackGivenByTraineeList';
 import CommunicationManagementSystem from '../screens/AdminScreens/Menu/CommunicationManagementSystem';
 import Communication from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication';
 import Application from '../screens/AdminScreens/Menu/CommunicationManagementSystem/Communication/Application';
@@ -206,7 +206,7 @@ import FacultyUpcomingClassReport from '../screens/AdminScreens/Menu/Report/Facu
 import FacultyUpcomingClassTimeTable from '../screens/AdminScreens/Menu/Report/FacultyReport/FacultyUpcomingClassReport/FacultyUpcomingClassTimeTable';
 import CourseReportManagement from '../screens/AdminScreens/Menu/CourseReportManagement';
 import CourseReportManagementMain from '../screens/AdminScreens/Menu/CourseReportManagement/CourseReportManagementMain';
-import CourseReport from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/Training/CourseReport';
+import CourseReport from '../screens/AdminScreens/Dashboard/academics/Training/CourseReport';
 import BudgetManagement from '../screens/AdminScreens/Menu/BudgetManagement';
 import BudgetMangementMain from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain';
 import CreateTraining from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/CreateTraining';
@@ -563,7 +563,7 @@ const RootNavigatorAdmin = () => {
           component={MergedBatchForm}
         />
         <RootStackScreen.Screen
-          name="TraineeManagement"
+          name={screensName.TraineeManagement}
           component={TraineeManagement}
         />
         <RootStackScreen.Screen
@@ -572,43 +572,43 @@ const RootNavigatorAdmin = () => {
         />
         <RootStackScreen.Screen name="GateAccess" component={GateAccess} />
         <RootStackScreen.Screen
-          name="TraineeRegistration"
+          name={screensName.TraineeRegistration}
           component={TraineeRegistration}
         />
         <RootStackScreen.Screen
-          name="TraineeRegistrationDetails"
+          name={screensName.TraineeRegistrationDetails}
           component={TraineeRegistrationDetails}
         />
         <RootStackScreen.Screen
-          name="AddTraineeRegistration"
+          name={screensName.AddTraineeRegistration}
           component={AddTraineeRegistration}
         />
         <RootStackScreen.Screen
-          name="TraineeDetails"
+          name={screensName.TraineeDetails}
           component={TraineeDetails}
         />
         <RootStackScreen.Screen
-          name="TraineeFullDetails"
+          name={screensName.TraineeFullDetails}
           component={TraineeFullDetails}
         />
         <RootStackScreen.Screen
-          name="IndemnityBond"
+          name={screensName.IndemnityBond}
           component={IndemnityBond}
         />
         <RootStackScreen.Screen
-          name="TraineeRelease"
+          name={screensName.TraineeRelease}
           component={TraineeRelease}
         />
         <RootStackScreen.Screen
-          name="TraineeReleaseDetails"
+          name={screensName.TraineeReleaseDetails}
           component={TraineeReleaseDetails}
         />
         <RootStackScreen.Screen
-          name="TraineeReleaseForm"
+          name={screensName.TraineeReleaseForm}
           component={TraineeReleaseForm}
         />
         <RootStackScreen.Screen
-          name="OthersRegistration"
+          name={screensName.OthersRegistration}
           component={OthersRegistration}
         />
         <RootStackScreen.Screen

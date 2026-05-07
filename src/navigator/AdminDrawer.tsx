@@ -149,7 +149,19 @@ const MAIN_MENU_ITEMS: DrawerMenuItem[] = [
       {
         id: 'academics-trainee',
         name: 'Trainee',
-        disabled: true,
+        screen: screensName.TraineeManagement,
+        matchRoutes: [
+          screensName.TraineeRegistration,
+          screensName.TraineeRegistrationDetails,
+          screensName.AddTraineeRegistration,
+          screensName.TraineeDetails,
+          screensName.TraineeFullDetails,
+          screensName.IndemnityBond,
+          screensName.TraineeRelease,
+          screensName.TraineeReleaseDetails,
+          screensName.TraineeReleaseForm,
+          screensName.OthersRegistration,
+        ],
       },
       {
         id: 'academics-faculty',
