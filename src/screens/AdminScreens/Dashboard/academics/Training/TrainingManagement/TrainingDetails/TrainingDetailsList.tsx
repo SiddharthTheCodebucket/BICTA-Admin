@@ -41,8 +41,12 @@ import SubTab from '../../../../../../../components/molecules/SubTab';
 import ImageAtom from '../../../../../../../components/atoms/ImageAtom';
 import UniversalDropdown from '../../../../../../../components/atoms/UniversalDropdown';
 import FullscreenLoading from '../../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../../components/organisms/SearchBoxOrganism';
-import DateInputOrganism from '../../../../../../../components/organisms/DateInputOrganism';
+import {
+  FormSearch,
+  FormDatePickerWithTitle,
+  FormWhiteButton,
+  FormGradientButton,
+} from '../../../../../../../components/templates';
 import { useAppSelector } from '../../../../../../../hooks';
 import {
   useDeleteTrainingDetailsMutation,
@@ -88,8 +92,8 @@ const TrainingDetailsList = (props: Props) => {
   const [showSearch, setShowSearch] = useState(false);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
 
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
   const [activeStatus, setActiveStatus] = useState<
     'Current Training' | 'Completed Training'
@@ -121,12 +125,12 @@ const TrainingDetailsList = (props: Props) => {
     const filters: any[] = [];
 
     if (startDate) {
-      const formatted = moment(startDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+      const formatted = moment(startDate).format('YYYY-MM-DD');
       filters.push(['courseStartDate', '>=', formatted]);
     }
 
     if (endDate) {
-      const formatted = moment(endDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
+      const formatted = moment(endDate).format('YYYY-MM-DD');
       filters.push(['courseEndDate', '<=', formatted]);
     }
 
@@ -215,8 +219,8 @@ const TrainingDetailsList = (props: Props) => {
   };
 
   const clearFilter = () => {
-    setStartDate('');
-    setEndDate('');
+    setStartDate(null);
+    setEndDate(null);
     setCenterSearch({});
     listTrainingDetails(1, true, search, []);
   };
@@ -436,62 +440,69 @@ const TrainingDetailsList = (props: Props) => {
       </View>
 
       {showSearch && (
-        <SearchBoxOrganism
+        <FormSearch
+          value={search}
           onChangeText={onChangeSearch}
-          searchText={search}
-          onPressCross={onClearSearch}
-          searchBox={styles.searchBox}
+          onClear={onClearSearch}
+          placeholder="Search Training..."
         />
       )}
 
       <AdminBottomModal
         visible={showFilterPanel}
         onClose={() => setShowFilterPanel(false)}
+        title="Filters"
       >
-        {crediantialData?.user?.[0]?.tenantId === 3 && (
-          <UniversalDropdown
-            label="Center"
-            placeholder="Select Center"
-            data={[
-              { id: 'All Centers', name: 'All Centers' },
-              { id: 'Gaya', name: 'Gaya' },
-              { id: 'Patna', name: 'Patna' },
-            ]}
-            value={centerSearch?.id}
-            onChange={(item: any) => setCenterSearch(item)}
-            labelField="name"
-            valueField="id"
-            containerStyle={{ marginBottom: vh(2) }}
+        <View style={styles.filterContent}>
+          {/* {crediantialData?.user?.[0]?.tenantId === 3 && (
+             <UniversalDropdown
+               label="Center"
+               placeholder="Select Center"
+               data={[
+                 { id: 'All Centers', name: 'All Centers' },
+                 { id: 'Gaya', name: 'Gaya' },
+                 { id: 'Patna', name: 'Patna' },
+               ]}
+               value={centerSearch?.id}
+               onChange={(item: any) => setCenterSearch(item)}
+               labelField="name"
+               valueField="id"
+               containerStyle={{ marginBottom: vh(2) }}
+             />
+           )} */}
+
+          <FormDatePickerWithTitle
+            title="Start Date*"
+            value={startDate || new Date()}
+            onChange={date => setStartDate(date)}
+            isMandatory
+            placeholder="Select Start Date"
           />
-        )}
 
-        <DateInputOrganism
-          label={'Start Date*'}
-          placeholder={'Select'}
-          value={startDate}
-          onChangeText={(val: any) => setStartDate(val)}
-          fieldName={'date'}
-          dateFormat="DD-MM-YYYY"
-          containerStyle={styles.fullDateInput}
-        />
+          <FormDatePickerWithTitle
+            title="End Date*"
+            value={endDate || new Date()}
+            onChange={date => setEndDate(date)}
+            isMandatory
+            placeholder="Select End Date"
+          />
 
-        <DateInputOrganism
-          label={'End Date*'}
-          placeholder={'Select'}
-          value={endDate}
-          onChangeText={(val: any) => setEndDate(val)}
-          fieldName={'date'}
-          dateFormat="DD-MM-YYYY"
-          containerStyle={styles.fullDateInput}
-        />
-
-        <View style={styles.filterActionRow}>
-          <TouchableAtom style={styles.clearFilterBtn} onPress={clearFilter}>
-            <TextAtom style={styles.clearFilterText}>Clear</TextAtom>
-          </TouchableAtom>
-          <TouchableAtom style={styles.applyFilterBtn} onPress={applyFilter}>
-            <TextAtom style={styles.applyFilterText}>Apply</TextAtom>
-          </TouchableAtom>
+          <View style={styles.footerButtons}>
+            <View style={{ flex: 1 }}>
+              <FormWhiteButton
+                title="Clear"
+                onPress={clearFilter}
+                buttonStyle={{ flex: 1, marginRight: 10 }}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <FormGradientButton
+                title="Apply"
+                onPress={applyFilter}
+                buttonStyle={{ flex: 1, marginLeft: 10 }}
+              />
+            </View>
+          </View>
         </View>
       </AdminBottomModal>
 
@@ -662,6 +673,14 @@ const styles = StyleSheet.create({
     marginTop: vh(14),
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  filterContent: {
+    paddingBottom: vh(20),
+  },
+  footerButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: vh(20),
   },
   clearFilterBtn: {
     borderWidth: 1,

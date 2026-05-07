@@ -8,3 +8,5 @@ export { default as FormGradientButton } from './FormGradientButton';
 export { default as FormWhiteButton } from './FormWhiteButton';
 export { default as FormStepper } from './FormStepper';
 export { default as FormSwitchForCard } from './FormSwitchForCard';
+export { default as FormDatePickerWithTitle } from './FormDatePickerWithTitle';
+export { default as FormSearch } from './FormSearch';
