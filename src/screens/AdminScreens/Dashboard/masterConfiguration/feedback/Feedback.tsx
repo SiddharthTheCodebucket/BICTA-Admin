@@ -1,15 +1,10 @@
-import {
-  StyleSheet,
-} from 'react-native';
-import React, {
-  useLayoutEffect,
-  useMemo,
-} from 'react';
+import { StyleSheet } from 'react-native';
+import React, { useLayoutEffect, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   createMaterialTopTabNavigator,
 } from '@react-navigation/material-top-tabs';
-import { colors, fonts, vh, vw } from '../../../../../constants';
+import { colors } from '../../../../../constants';
 import {
   Header,
   NavigationType,
@@ -26,6 +21,7 @@ interface Props {
 }
 
 const TopTabs = createMaterialTopTabNavigator();
+const renderTopTabBar = (tabProps: any) => <TopTabBar {...tabProps} />;
 
 const FeedbackMaster = (props: Props) => {
   const { navigation, route } = props;
@@ -53,14 +49,14 @@ const FeedbackMaster = (props: Props) => {
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
-  }, []);
+  }, [navigation]);
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <TopTabs.Navigator
         key={initialRouteName}
         initialRouteName={initialRouteName}
-        tabBar={props => <TopTabBar {...props} />}
+        tabBar={renderTopTabBar}
         screenOptions={{
           swipeEnabled: true,
           sceneStyle: {

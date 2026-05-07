@@ -163,10 +163,10 @@ import SupportTicketHistoryReply from '../screens/AdminScreens/Menu/SupportMain/
 import AddUserRegistration from '../screens/AdminScreens/Menu/UserManagement/User/UserRegistration/AddUserRegistration';
 import FeedbackManagement from '../screens/AdminScreens/Menu/FeedbackManagement';
 // import Feedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback';
-import FeedbackCategory from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackCategory';
-import AddFeedbackCategory from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackCategory/AddFeedbackCategory';
-import FeedbackTopic from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackTopic';
-import AddFeedbackTopic from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FeedbackTopic/AddFeedbackTopic';
+import FeedbackCategory from '../screens/AdminScreens/Dashboard/masterConfiguration/feedback/FeedbackCategory';
+import AddFeedbackCategory from '../screens/AdminScreens/Dashboard/masterConfiguration/feedback/FeedbackCategory/AddFeedbackCategory';
+import FeedbackTopic from '../screens/AdminScreens/Dashboard/masterConfiguration/feedback/FeedbackTopic';
+import AddFeedbackTopic from '../screens/AdminScreens/Dashboard/masterConfiguration/feedback/FeedbackTopic/AddFeedbackTopic';
 import OverallFeedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/OverallFeedback';
 import FacultyFeedbackByTrainee from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackByTrainee';
 import FacultyFeedbackByTraineeDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackByTrainee/FacultyFeedbackByTraineeDetails';
@@ -274,6 +274,7 @@ import ScanQRAndFace from '../screens/AdminScreens/Profile/ScanQRAndFace';
 import DeviceRegistration from '../screens/AdminScreens/Profile/FaceScan/DeviceRegistration';
 import DeviceList from '../screens/AdminScreens/Profile/FaceScan/DeviceList';
 import Feedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback';
+import { FeedbackMaster } from '../screens/AdminScreens/Dashboard/masterConfiguration/feedback';
 import AddTrainingCategoryMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TrainingCategoryMaster/AddTrainingCategoryMaster';
 import AddTraineeDesignation from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TraineeDesignation/AddTraineeDesignation';
 import { CommsAndSupport } from '../screens/AdminScreens/Dashboard/masterConfiguration/commsSupport';
@@ -303,7 +304,10 @@ const AppDrawer = () => (
       name={screensName.CommsAndSupport}
       component={CommsAndSupport}
     />
-    <Drawer.Screen name={screensName.FeedbackMaster} component={Feedback} />
+    <Drawer.Screen
+      name={screensName.FeedbackMaster}
+      component={FeedbackMaster}
+    />
     <Drawer.Screen
       name={screensName.FacultyReportMaster}
       component={FacultyReportMaster}
@@ -899,21 +903,21 @@ const RootNavigatorAdmin = () => {
           name="FeedbackManagement"
           component={FeedbackManagement}
         />
-        <RootStackScreen.Screen name="Feedback" component={Feedback} />
+        <RootStackScreen.Screen name={screensName.Feedback} component={Feedback} />
         <RootStackScreen.Screen
-          name="FeedbackCategory"
+          name={screensName.FeedbackCategory}
           component={FeedbackCategory}
         />
         <RootStackScreen.Screen
-          name="AddFeedbackCategory"
+          name={screensName.AddFeedbackCategory}
           component={AddFeedbackCategory}
         />
         <RootStackScreen.Screen
-          name="FeedbackTopic"
+          name={screensName.FeedbackTopic}
           component={FeedbackTopic}
         />
         <RootStackScreen.Screen
-          name="AddFeedbackTopic"
+          name={screensName.AddFeedbackTopic}
           component={AddFeedbackTopic}
         />
         <RootStackScreen.Screen

@@ -70,7 +70,12 @@ const MASTER_CONFIGURATION_ITEMS: DrawerMenuItem[] = [
     id: 'master-feedback',
     name: 'Feedback',
     screen: screensName.FeedbackMaster,
-    matchRoutes: [screensName.AddFeedbackCategory],
+    matchRoutes: [
+      screensName.FeedbackCategory,
+      screensName.AddFeedbackCategory,
+      screensName.FeedbackTopic,
+      screensName.AddFeedbackTopic,
+    ],
   },
   {
     id: 'master-conference',
