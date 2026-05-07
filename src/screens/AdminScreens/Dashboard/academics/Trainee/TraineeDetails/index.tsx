@@ -400,14 +400,23 @@ const TraineeDetails = (props: Props) => {
   const TraineeCard = ({ item, index, isSelected }: any) => {
     return (
       <TouchableAtom
-        onPress={() => toggleSelect(item)}
-        onLongPress={() => {
+        // onPress={() => toggleSelect(item)}
+        onPress={() => {
           navigation.navigate(screensName.TraineeFullDetails, {
             data: item,
           });
         }}
-        delayLongPress={180}
-        style={[styles.card, isSelected && styles.selectedCard]}
+        // onLongPress={() => {
+        //   navigation.navigate(screensName.TraineeFullDetails, {
+        //     data: item,
+        //   });
+        // }}
+        // delayLongPress={180}
+        style={[
+          styles.card,
+
+          // isSelected && styles.selectedCard
+        ]}
       >
         <View style={styles.cardHeader}>
           <View style={styles.cardHeaderLeft}>
