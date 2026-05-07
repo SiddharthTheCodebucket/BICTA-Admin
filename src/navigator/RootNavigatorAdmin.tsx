@@ -115,16 +115,16 @@ import AssignmentResponse from '../screens/AdminScreens/Dashboard/academics/Assi
 import AssignmentRessponseDetails from '../screens/AdminScreens/Dashboard/academics/Assignments/AssignmentResponse/AssignmentRessponseDetailsList';
 import AssignmentResponseDetails from '../screens/AdminScreens/Dashboard/academics/Assignments/AssignmentResponse/AssignmentResponseDetails';
 import AssessmentDetails from '../screens/AdminScreens/Dashboard/academics/Assignments/AssignmentsDetails/AssessmentDetails';
-import Examination from '../screens/AdminScreens/Menu/LMS/Examination';
-import CreateTest from '../screens/AdminScreens/Menu/LMS/Examination/CreateTest';
-import TestDetailsList from '../screens/AdminScreens/Menu/LMS/Examination/CreateTest/TestDetailsList';
-import AssignQuestionList from '../screens/AdminScreens/Menu/LMS/Examination/AssignQuestion';
-import ExaminationQuestionBank from '../screens/AdminScreens/Menu/LMS/Examination/ExaminationQuestionBank';
-import ExaminationQuestionBankDetails from '../screens/AdminScreens/Menu/LMS/Examination/ExaminationQuestionBank/ExaminationQuestionBankDetails';
-import ExamResponse from '../screens/AdminScreens/Menu/LMS/Examination/ExamResponse';
-import TraineeResponseList from '../screens/AdminScreens/Menu/LMS/Examination/ExamResponse/TraineeResponseList';
-import ExamResponseDetailsListTrainee from '../screens/AdminScreens/Menu/LMS/Examination/ExamResponse/ExamResponseDetailsListTrainee';
-import ExamResponseSheet from '../screens/AdminScreens/Menu/LMS/Examination/ExamResponse/ExamResponseSheet';
+import Examination from '../screens/AdminScreens/Dashboard/academics/Examination';
+import CreateTest from '../screens/AdminScreens/Dashboard/academics/Examination/CreateTest';
+import TestDetailsList from '../screens/AdminScreens/Dashboard/academics/Examination/CreateTest/TestDetailsList';
+import AssignQuestionList from '../screens/AdminScreens/Dashboard/academics/Examination/AssignQuestion';
+import ExaminationQuestionBank from '../screens/AdminScreens/Dashboard/academics/Examination/ExaminationQuestionBank';
+import ExaminationQuestionBankDetails from '../screens/AdminScreens/Dashboard/academics/Examination/ExaminationQuestionBank/ExaminationQuestionBankDetails';
+import ExamResponse from '../screens/AdminScreens/Dashboard/academics/Examination/ExamResponse';
+import TraineeResponseList from '../screens/AdminScreens/Dashboard/academics/Examination/ExamResponse/TraineeResponseList';
+import ExamResponseDetailsListTrainee from '../screens/AdminScreens/Dashboard/academics/Examination/ExamResponse/ExamResponseDetailsListTrainee';
+import ExamResponseSheet from '../screens/AdminScreens/Dashboard/academics/Examination/ExamResponse/ExamResponseSheet';
 import PHCManagement from '../screens/AdminScreens/Menu/PHCManagement';
 import PHCManagemnetMain from '../screens/AdminScreens/Menu/PHCManagement/PHCManagemnetMain';
 import TraineeBMI from '../screens/AdminScreens/Menu/PHCManagement/TraineeBMI';
@@ -336,6 +336,10 @@ const AppDrawer = () => (
     <Drawer.Screen
       name={screensName.AssignmentManagement}
       component={Assignment}
+    />
+    <Drawer.Screen
+      name={screensName.ExaminationManagement}
+      component={Examination}
     />
     <Drawer.Screen
       name={screensName.CurriculumManagemnet}
@@ -778,35 +782,48 @@ const RootNavigatorAdmin = () => {
           name={screensName.AssessmentDetails}
           component={AssessmentDetails}
         />
-        <RootStackScreen.Screen name="Examination" component={Examination} />
-        <RootStackScreen.Screen name="CreateTest" component={CreateTest} />
         <RootStackScreen.Screen
-          name="TestDetailsList"
+          name={screensName.ExaminationManagement}
+          component={Examination}
+        />
+        <RootStackScreen.Screen
+          name={screensName.Examination}
+          component={Examination}
+        />
+        <RootStackScreen.Screen
+          name={screensName.CreateTest}
+          component={CreateTest}
+        />
+        <RootStackScreen.Screen
+          name={screensName.TestDetailsList}
           component={TestDetailsList}
         />
         <RootStackScreen.Screen
-          name="AssignQuestionList"
+          name={screensName.AssignQuestionList}
           component={AssignQuestionList}
         />
         <RootStackScreen.Screen
-          name="ExaminationQuestionBank"
+          name={screensName.ExaminationQuestionBank}
           component={ExaminationQuestionBank}
         />
         <RootStackScreen.Screen
-          name="ExaminationQuestionBankDetails"
+          name={screensName.ExaminationQuestionBankDetails}
           component={ExaminationQuestionBankDetails}
         />
-        <RootStackScreen.Screen name="ExamResponse" component={ExamResponse} />
         <RootStackScreen.Screen
-          name="TraineeResponseList"
+          name={screensName.ExamResponse}
+          component={ExamResponse}
+        />
+        <RootStackScreen.Screen
+          name={screensName.TraineeResponseList}
           component={TraineeResponseList}
         />
         <RootStackScreen.Screen
-          name="ExamResponseDetailsListTrainee"
+          name={screensName.ExamResponseDetailsListTrainee}
           component={ExamResponseDetailsListTrainee}
         />
         <RootStackScreen.Screen
-          name="ExamResponseSheet"
+          name={screensName.ExamResponseSheet}
           component={ExamResponseSheet}
         />
         <RootStackScreen.Screen

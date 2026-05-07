@@ -218,7 +218,7 @@ const AssignQuestionList = (props: Props) => {
       <TouchableAtom
         style={styles.card}
         onPress={() => {
-          navigation.navigate(screensName.QuestionBankDetails, {
+          navigation.navigate(screensName.ExaminationQuestionBankDetails, {
             data: item,
           });
         }}

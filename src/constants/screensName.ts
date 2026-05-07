@@ -115,6 +115,7 @@ export default {
   AssignmentRessponseDetails: 'AssignmentRessponseDetails',
   AssignmentResponseDetails: 'AssignmentResponseDetails',
   AssessmentDetails: 'AssessmentDetails',
+  ExaminationManagement: 'ExaminationManagement',
   Examination: 'Examination',
   CreateTest: 'CreateTest',
   TestDetailsList: 'TestDetailsList',

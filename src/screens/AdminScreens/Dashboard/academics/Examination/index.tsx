@@ -155,11 +155,19 @@ const Examination = (props: Props) => {
         }}
       >
         <TopTabs.Screen
+          name="ExaminationQuestionBank"
+          component={ExaminationQuestionBank}
+          initialParams={{ suppressHeader: true }}
+          options={{
+            tabBarLabel: 'Questions',
+          }}
+        />
+        <TopTabs.Screen
           name="CreateTest"
           component={CreateTest}
           initialParams={{ suppressHeader: true }}
           options={{
-            tabBarLabel: strings.lms.examination.examinationIndex.createTest,
+            tabBarLabel: 'Create Exam',
           }}
         />
         <TopTabs.Screen
@@ -167,16 +175,7 @@ const Examination = (props: Props) => {
           component={AssignQuestionList}
           initialParams={{ suppressHeader: true }}
           options={{
-            tabBarLabel:
-              strings.lms.examination.examinationIndex.assignQuestion,
-          }}
-        />
-        <TopTabs.Screen
-          name="ExaminationQuestionBank"
-          component={ExaminationQuestionBank}
-          initialParams={{ suppressHeader: true }}
-          options={{
-            tabBarLabel: strings.lms.examination.examinationIndex.question,
+            tabBarLabel: 'Assign Exam',
           }}
         />
         <TopTabs.Screen
@@ -184,7 +183,7 @@ const Examination = (props: Props) => {
           component={ExamResponse}
           initialParams={{ suppressHeader: true }}
           options={{
-            tabBarLabel: strings.lms.examination.examinationIndex.examResponse,
+            tabBarLabel: 'Exam Results',
           }}
         />
       </TopTabs.Navigator>
