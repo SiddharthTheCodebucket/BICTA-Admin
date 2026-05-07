@@ -34,15 +34,17 @@ import {
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import AdminListHeader from '../../../../../../components/organisms/AdminListHeader';
+import AdminBottomModal from '../../../../../../components/organisms/AdminBottomModal';
+import FormSearch from '../../../../../../components/templates/FormSearch';
+import FormDropdownFieldWithTitle from '../../../../../../components/templates/FormDropdownFieldWithTitle';
+import FormWhiteButton from '../../../../../../components/templates/FormWhiteButton';
+import FormGradientButton from '../../../../../../components/templates/FormGradientButton';
 import FormSwitchForCard from '../../../../../../components/templates/FormSwitchForCard';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import SubTab from '../../../../../../components/molecules/SubTab';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
 import ImageAtom from '../../../../../../components/atoms/ImageAtom';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
 import {
@@ -624,98 +626,68 @@ const TraineeDetails = (props: Props) => {
 
   const FilterForm = () => (
     <View style={styles.filterContainer}>
-      <DropDownOrganism
-        label={'Training'}
-        placeholder={'Training'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Training',
-            Data: trainingList,
-            selectedData: selectedTraining,
-            setSelectedData: (data: any) => {
-              setSelectedTraining(data);
-              setSelectedBatch({});
-              listTrainingBatchDetails(data.id);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
+      <FormDropdownFieldWithTitle
+        title="Training"
+        data={trainingList}
+        value={selectedTraining}
+        onChange={(item) => {
+          setSelectedTraining(item);
+          setSelectedBatch({});
+          listTrainingBatchDetails(item.id);
         }}
-        inputText={selectedTraining?.name}
+        labelField="name"
+        valueField="id"
+        placeholder="Training"
       />
 
-      <DropDownOrganism
-        label={'Batch'}
-        placeholder={'Batch'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Batch',
-            Data: batchList,
-            selectedData: selectedBatch,
-            setSelectedData: (data: any) => {
-              setSelectedBatch(data);
-            },
-            typeName: 'batchName',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedBatch?.batchName}
+      <FormDropdownFieldWithTitle
+        title="Batch"
+        data={batchList}
+        value={selectedBatch}
+        onChange={(item) => setSelectedBatch(item)}
+        labelField="batchName"
+        valueField="id"
+        placeholder="Batch"
       />
 
-      <DropDownOrganism
-        label={'Pregnancy'}
-        placeholder={'Pregnancy'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Pregnancy',
-            Data: [
-              { id: 'Yes', name: 'Yes' },
-              { id: 'No', name: 'No' },
-            ],
-            selectedData: selectedPregnancy,
-            setSelectedData: (data: any) => {
-              setSelectedPregnancy(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedPregnancy?.name}
-      />
-      <DropDownOrganism
-        label={'Indeminity Bond'}
-        placeholder={'Indeminity Bond'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Indeminity Bond',
-            Data: [
-              { id: 'Yes', name: 'Yes' },
-              { id: 'No', name: 'No' },
-            ],
-            selectedData: selectedIndeminityBond,
-            setSelectedData: (data: any) => {
-              setSelectedIndeminityBond(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedIndeminityBond?.name}
+      <FormDropdownFieldWithTitle
+        title="Pregnancy"
+        data={[
+          { id: 'Yes', name: 'Yes' },
+          { id: 'No', name: 'No' },
+        ]}
+        value={selectedPregnancy}
+        onChange={(item) => setSelectedPregnancy(item)}
+        labelField="name"
+        valueField="id"
+        placeholder="Pregnancy"
       />
 
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText="Apply Filter"
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
+      <FormDropdownFieldWithTitle
+        title="Indeminity Bond"
+        data={[
+          { id: 'Yes', name: 'Yes' },
+          { id: 'No', name: 'No' },
+        ]}
+        value={selectedIndeminityBond}
+        onChange={(item) => setSelectedIndeminityBond(item)}
+        labelField="name"
+        valueField="id"
+        placeholder="Indeminity Bond"
+      />
+
+      <View style={styles.buttonRow}>
+        <FormWhiteButton
           onPress={clearFilter}
-          bttnText="Clear Filter"
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
+          title="Clear Filter"
+          containerStyle={{ flex: 1, marginRight: vw(8) }}
         />
-      </ViewAtom>
+        <FormGradientButton
+          onPress={applyFilter}
+          title="Apply Filter"
+          containerStyle={{ flex: 1 }}
+        />
+      </View>
     </View>
   );
   const clearFilter = () => {
@@ -782,9 +754,14 @@ const TraineeDetails = (props: Props) => {
             title: listTitle ?? 'Trainee Details',
             count: totalCount,
             showCount: true,
-            search: { visible: true, onPress: () => setShowFilter(true) },
+            search: { visible: false },
             filter: { visible: true, onPress: () => setShowFilter(true) },
           }}
+        />
+        <FormSearch
+          value={search}
+          onChangeText={onChangeSearch}
+          onClear={onClearSearch}
         />
       </View>
       <SubTab
@@ -807,7 +784,7 @@ const TraineeDetails = (props: Props) => {
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
           )
         }
-        ListHeaderComponent={<View>{showFilter && <FilterForm />}</View>}
+        ListHeaderComponent={<View />}
         ListFooterComponent={
           <ActivityIndicator
             size={'small'}
@@ -836,6 +813,14 @@ const TraineeDetails = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
       />
+
+      <AdminBottomModal
+        visible={showFilter}
+        onClose={() => setShowFilter(false)}
+        title="Filters"
+      >
+        <FilterForm />
+      </AdminBottomModal>
     </SafeAreaView>
   );
 };
