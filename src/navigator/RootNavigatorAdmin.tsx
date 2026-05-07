@@ -272,7 +272,7 @@ import DeviceList from '../screens/AdminScreens/Profile/FaceScan/DeviceList';
 import Feedback from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback';
 import AddTrainingCategoryMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TrainingCategoryMaster/AddTrainingCategoryMaster';
 import AddTraineeDesignation from '../screens/AdminScreens/Dashboard/masterConfiguration/academics/TraineeDesignation/AddTraineeDesignation';
-import { CommsAndSupport } from '../screens/AdminScreens/Dashboard/masterConfiguration/commsAndSupport';
+import { CommsAndSupport } from '../screens/AdminScreens/Dashboard/masterConfiguration/commsSupport';
 
 const DropDownModalScreen = (props: any) => <DropDownModal {...props} />;
 const ErrorModalScreen = (props: any) => <ErrorModal {...props} />;

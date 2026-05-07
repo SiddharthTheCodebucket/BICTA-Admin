@@ -1,20 +1,12 @@
-import {
-  StyleSheet,
-} from 'react-native';
-import React, {
-  useLayoutEffect,
-  useMemo,
-} from 'react';
+import React, { useLayoutEffect, useMemo } from 'react';
+import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  createMaterialTopTabNavigator,
-} from '@react-navigation/material-top-tabs';
-import { colors, fonts, vh, vw } from '../../../../../constants';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { colors } from '../../../../../constants';
 import {
   Header,
   NavigationType,
 } from '../../../../../components/organisms/HeaderOrganism';
-
 import CategoryTab from './CategoryTab';
 import SubCategoryTab from './SubCategoryTab';
 import IssueTypeTab from './IssueTypeTab';
@@ -28,9 +20,9 @@ interface Props {
 
 const TopTabs = createMaterialTopTabNavigator();
 
-const CommsAndSupport = (props: Props) => {
-  const { navigation, route } = props;
+const renderTopTabBar = (props: any) => <TopTabBar {...props} />;
 
+const CommsAndSupport = ({ navigation, route }: Props) => {
   const initialRouteName = useMemo(() => {
     const initialTab = route?.params?.initialTab;
     if (initialTab) return `${initialTab}Tab`;
@@ -54,14 +46,14 @@ const CommsAndSupport = (props: Props) => {
     navigation.BackButtonPress = () => {
       navigation.goBack();
     };
-  }, []);
+  }, [navigation]);
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <TopTabs.Navigator
         key={initialRouteName}
         initialRouteName={initialRouteName}
-        tabBar={props => <TopTabBar {...props} />}
+        tabBar={renderTopTabBar}
         screenOptions={{
           swipeEnabled: true,
           sceneStyle: {
@@ -77,7 +69,7 @@ const CommsAndSupport = (props: Props) => {
         <TopTabs.Screen
           name="SubCategoryTab"
           component={SubCategoryTab}
-          options={{ tabBarLabel: 'Sub Category' }}
+          options={{ tabBarLabel: 'Sub category' }}
         />
         <TopTabs.Screen
           name="IssueTypeTab"
