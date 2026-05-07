@@ -2,7 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { screensName } from '../../constants';
 import Menu from '../../screens/AdminScreens/Menu';
-import VehicleManagement from '../../screens/AdminScreens/Menu/VehicleManagement';
+import VehicleManagement from '../../screens/AdminScreens/Dashboard/facilities/Vehicle';
 import Hostel from '../../screens/AdminScreens/Dashboard/facilities/Hostel';
 import LMS from '../../screens/AdminScreens/Menu/LMS';
 import TrainingManagement from '../../screens/AdminScreens/Dashboard/academics/Training';

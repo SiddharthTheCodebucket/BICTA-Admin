@@ -22,28 +22,28 @@ import {
   strings,
   vh,
   vw,
-} from '../../../../../constants';
+} from '../../../../../../constants';
 
 import {
   Header,
   NavigationType,
-} from '../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../components/atoms/TextAtom';
-import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../components/organisms/FloatingButton';
+} from '../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../components/atoms/TextAtom';
+import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
+import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
+import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import FloatingButton from '../../../../../../components/organisms/FloatingButton';
 import {
   useAssignNewDriverMutation,
   useCommonDropdownListMutation,
   useDeleteAssignVehicleMutation,
   useListAssignedUploadMutation,
   useRemovedAssignedUploadMutation,
-} from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import ImageAtom from '../../../../../components/atoms/ImageAtom';
-import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
+} from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import moment from 'moment';
-import { useAppSelector } from '../../../../../hooks';
+import { useAppSelector } from '../../../../../../hooks';
 
 interface Props {
   navigation: NavigationType;

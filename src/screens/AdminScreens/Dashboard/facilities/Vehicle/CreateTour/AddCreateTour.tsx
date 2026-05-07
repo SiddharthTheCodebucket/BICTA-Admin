@@ -5,24 +5,24 @@ import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, fonts, vh, vw } from '../../../../../constants';
+import { colors, fonts, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../../components/organisms/HeaderOrganism';
-import TextInputOrganisms from '../../../../../components/organisms/TextInputOrganisms';
-import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
-import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
-import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
-import { isNullUndefined } from '../../../../../utils/CommonFunction';
+} from '../../../../../../components/organisms/HeaderOrganism';
+import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
+import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
+import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
+import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
+import { isNullUndefined } from '../../../../../../utils/CommonFunction';
 import {
   useAddTripDetailsMutation,
   useCommonDropdownListMutation,
   useUpdateTripDetailsMutation,
-} from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+} from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import moment from 'moment';
-import TextAtom from '../../../../../components/atoms/TextAtom';
-import { useAppSelector } from '../../../../../hooks';
+import TextAtom from '../../../../../../components/atoms/TextAtom';
+import { useAppSelector } from '../../../../../../hooks';
 
 interface Props {
   route: any;

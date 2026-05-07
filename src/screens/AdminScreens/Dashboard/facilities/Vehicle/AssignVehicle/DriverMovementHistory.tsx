@@ -8,14 +8,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import { colors, fonts, vh, vw } from '../../../../../constants';
+import { colors, fonts, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../components/atoms/TextAtom';
-import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
-import { useListAssignVehicleDriverMutation } from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+} from '../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../components/atoms/TextAtom';
+import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
+import { useListAssignVehicleDriverMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import moment from 'moment';
 
 interface Props {

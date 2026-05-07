@@ -4,26 +4,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, fonts, strings, vh, vw } from '../../../../../constants';
+import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../../components/organisms/HeaderOrganism';
-import TextInputOrganisms from '../../../../../components/organisms/TextInputOrganisms';
-import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
-import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
-import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
-import RadioSelectableOrganism from '../../../../../components/organisms/RadioSelectableOrganism';
-import { isNullUndefined } from '../../../../../utils/CommonFunction';
+} from '../../../../../../components/organisms/HeaderOrganism';
+import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
+import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
+import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
+import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
+import RadioSelectableOrganism from '../../../../../../components/organisms/RadioSelectableOrganism';
+import { isNullUndefined } from '../../../../../../utils/CommonFunction';
 import {
   useAddAssignVehicleMutation,
   useCommonDropdownListMutation,
   useCommonFileUploadMutation,
   useUpdateAssignVehicleMutation,
-} from '../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+} from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import moment from 'moment';
-import ImageUploadOrganism from '../../../../../components/organisms/ImageUploadOrganism';
-import { useAppSelector } from '../../../../../hooks';
+import ImageUploadOrganism from '../../../../../../components/organisms/ImageUploadOrganism';
+import { useAppSelector } from '../../../../../../hooks';
 
 interface Props {
   route: any;

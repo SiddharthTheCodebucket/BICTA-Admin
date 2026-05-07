@@ -7,15 +7,15 @@ import AlertOrganism from '../components/organisms/AlertOrganism';
 import ErrorModal from '../components/organisms/ErrorModal';
 import BottomTabNavigatorAdmin from './BottomTabNavigatorAdmin';
 import AdminDrawer from './AdminDrawer';
-import VehicleManagement from '../screens/AdminScreens/Menu/VehicleManagement';
+import VehicleManagement from '../screens/AdminScreens/Dashboard/facilities/Vehicle';
 import VehicleRegistration from '../screens/AdminScreens/Menu/VehicleManagement/VehicleRegistration';
 import AddVehicle from '../screens/AdminScreens/Menu/VehicleManagement/VehicleRegistration/AddVehicle';
-import AssignVehicle from '../screens/AdminScreens/Menu/VehicleManagement/AssignVehicle';
-import DriverMovementHistory from '../screens/AdminScreens/Menu/VehicleManagement/AssignVehicle/DriverMovementHistory';
-import AddAssignVehicle from '../screens/AdminScreens/Menu/VehicleManagement/AssignVehicle/AddAssignVehicle';
-import CreateTour from '../screens/AdminScreens/Menu/VehicleManagement/CreateTour';
-import CreateTourDetails from '../screens/AdminScreens/Menu/VehicleManagement/CreateTour/CreateTourDetails';
-import AddCreateTour from '../screens/AdminScreens/Menu/VehicleManagement/CreateTour/AddCreateTour';
+import AssignVehicle from '../screens/AdminScreens/Dashboard/facilities/Vehicle/AssignVehicle';
+import DriverMovementHistory from '../screens/AdminScreens/Dashboard/facilities/Vehicle/AssignVehicle/DriverMovementHistory';
+import AddAssignVehicle from '../screens/AdminScreens/Dashboard/facilities/Vehicle/AssignVehicle/AddAssignVehicle';
+import CreateTour from '../screens/AdminScreens/Dashboard/facilities/Vehicle/CreateTour';
+import CreateTourDetails from '../screens/AdminScreens/Dashboard/facilities/Vehicle/CreateTour/CreateTourDetails';
+import AddCreateTour from '../screens/AdminScreens/Dashboard/facilities/Vehicle/CreateTour/AddCreateTour';
 import Guest from '../screens/AdminScreens/Dashboard/facilities/Hostel/Guest';
 import AddGuest from '../screens/AdminScreens/Dashboard/facilities/Hostel/Guest/AddGuest';
 import Hostel from '../screens/AdminScreens/Dashboard/facilities/Hostel';
@@ -447,33 +447,39 @@ const RootNavigatorAdmin = () => {
           component={AddQuestionField}
         />
         <RootStackScreen.Screen
-          name="VehicleManagement"
+          name={screensName.VehicleManagement}
           component={VehicleManagement}
         />
         <RootStackScreen.Screen
-          name="VehicleRegistration"
+          name={screensName.VehicleRegistration}
           component={VehicleRegistration}
         />
-        <RootStackScreen.Screen name="AddVehicle" component={AddVehicle} />
         <RootStackScreen.Screen
-          name="AssignVehicle"
+          name={screensName.AddVehicle}
+          component={AddVehicle}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AssignVehicle}
           component={AssignVehicle}
         />
         <RootStackScreen.Screen
-          name="DriverMovementHistory"
+          name={screensName.DriverMovementHistory}
           component={DriverMovementHistory}
         />
         <RootStackScreen.Screen
-          name="AddAssignVehicle"
+          name={screensName.AddAssignVehicle}
           component={AddAssignVehicle}
         />
-        <RootStackScreen.Screen name="CreateTour" component={CreateTour} />
         <RootStackScreen.Screen
-          name="CreateTourDetails"
+          name={screensName.CreateTour}
+          component={CreateTour}
+        />
+        <RootStackScreen.Screen
+          name={screensName.CreateTourDetails}
           component={CreateTourDetails}
         />
         <RootStackScreen.Screen
-          name="AddCreateTour"
+          name={screensName.AddCreateTour}
           component={AddCreateTour}
         />
         <RootStackScreen.Screen
