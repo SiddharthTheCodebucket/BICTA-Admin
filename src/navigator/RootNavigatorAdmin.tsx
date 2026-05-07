@@ -47,6 +47,10 @@ import AddHouseKeepingTask from '../screens/AdminScreens/Dashboard/masterConfigu
 import AddMessMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/Mess/AddMessMaster';
 import AddMessTopic from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/Mess/AddMessTopic';
 import AddLibraryMaster from '../screens/AdminScreens/Dashboard/masterConfiguration/facilities/AddLibraryMaster';
+import AddCategory from '../screens/AdminScreens/Dashboard/masterConfiguration/commsSupport/AddCategory';
+import AddSubCategory from '../screens/AdminScreens/Dashboard/masterConfiguration/commsSupport/AddSubCategory';
+import AddIssueType from '../screens/AdminScreens/Dashboard/masterConfiguration/commsSupport/AddIssueType';
+import AddQuestionField from '../screens/AdminScreens/Dashboard/masterConfiguration/commsSupport/AddQuestionField';
 
 import FacultyReportMaster from '../screens/AdminScreens/Dashboard/finances/FacultyReportMaster';
 import LMS from '../screens/AdminScreens/Menu/LMS';
@@ -396,6 +400,22 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name={screensName.AddLibraryMaster}
           component={AddLibraryMaster}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AddCommsCategory}
+          component={AddCategory}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AddCommsSubCategory}
+          component={AddSubCategory}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AddCommsIssueType}
+          component={AddIssueType}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AddCommsQuestionField}
+          component={AddQuestionField}
         />
         <RootStackScreen.Screen
           name="VehicleManagement"

@@ -1,30 +1,17 @@
-import React, { useState } from 'react';
-import { CommsSupportForm, CommsSupportListTab } from './CommsSupportShared';
+import React from 'react';
+import { screensName } from '../../../../../constants';
+import { CommsSupportListScreen } from './CommsSupportShared';
 
 interface Props {
-  onCreate?: () => void;
-  onEdit?: () => void;
+  navigation: any;
 }
 
-const SubCategoryTab = ({ onCreate, onEdit }: Props) => {
-  const [showForm, setShowForm] = useState(false);
-
-  if (showForm) {
-    return (
-      <CommsSupportForm
-        type="subCategory"
-        onCancel={() => setShowForm(false)}
-      />
-    );
-  }
-
-  return (
-    <CommsSupportListTab
-      type="subCategory"
-      onCreate={onCreate || (() => setShowForm(true))}
-      onEdit={onEdit || (() => setShowForm(true))}
-    />
-  );
-};
+const SubCategoryTab = ({ navigation }: Props) => (
+  <CommsSupportListScreen
+    type="subCategory"
+    navigation={navigation}
+    addRouteName={screensName.AddCommsSubCategory}
+  />
+);
 
 export default SubCategoryTab;

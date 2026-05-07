@@ -1,30 +1,17 @@
-import React, { useState } from 'react';
-import { CommsSupportForm, CommsSupportListTab } from './CommsSupportShared';
+import React from 'react';
+import { screensName } from '../../../../../constants';
+import { CommsSupportListScreen } from './CommsSupportShared';
 
 interface Props {
-  onCreate?: () => void;
-  onEdit?: () => void;
+  navigation: any;
 }
 
-const QuestionFieldsTab = ({ onCreate, onEdit }: Props) => {
-  const [showForm, setShowForm] = useState(false);
-
-  if (showForm) {
-    return (
-      <CommsSupportForm
-        type="questionFields"
-        onCancel={() => setShowForm(false)}
-      />
-    );
-  }
-
-  return (
-    <CommsSupportListTab
-      type="questionFields"
-      onCreate={onCreate || (() => setShowForm(true))}
-      onEdit={onEdit || (() => setShowForm(true))}
-    />
-  );
-};
+const QuestionFieldsTab = ({ navigation }: Props) => (
+  <CommsSupportListScreen
+    type="questionFields"
+    navigation={navigation}
+    addRouteName={screensName.AddCommsQuestionField}
+  />
+);
 
 export default QuestionFieldsTab;

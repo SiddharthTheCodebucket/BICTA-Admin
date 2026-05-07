@@ -59,6 +59,12 @@ const MASTER_CONFIGURATION_ITEMS: DrawerMenuItem[] = [
     id: 'master-comms-support',
     name: 'Comms & Support',
     screen: screensName.CommsAndSupport,
+    matchRoutes: [
+      screensName.AddCommsCategory,
+      screensName.AddCommsSubCategory,
+      screensName.AddCommsIssueType,
+      screensName.AddCommsQuestionField,
+    ],
   },
   {
     id: 'master-feedback',

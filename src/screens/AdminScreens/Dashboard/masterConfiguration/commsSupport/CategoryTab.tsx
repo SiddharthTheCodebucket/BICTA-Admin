@@ -1,27 +1,17 @@
-import React, { useState } from 'react';
-import { CommsSupportForm, CommsSupportListTab } from './CommsSupportShared';
+import React from 'react';
+import { screensName } from '../../../../../constants';
+import { CommsSupportListScreen } from './CommsSupportShared';
 
 interface Props {
-  onCreate?: () => void;
-  onEdit?: () => void;
+  navigation: any;
 }
 
-const CategoryTab = ({ onCreate, onEdit }: Props) => {
-  const [showForm, setShowForm] = useState(false);
-
-  if (showForm) {
-    return (
-      <CommsSupportForm type="category" onCancel={() => setShowForm(false)} />
-    );
-  }
-
-  return (
-    <CommsSupportListTab
-      type="category"
-      onCreate={onCreate || (() => setShowForm(true))}
-      onEdit={onEdit || (() => setShowForm(true))}
-    />
-  );
-};
+const CategoryTab = ({ navigation }: Props) => (
+  <CommsSupportListScreen
+    type="category"
+    navigation={navigation}
+    addRouteName={screensName.AddCommsCategory}
+  />
+);
 
 export default CategoryTab;
