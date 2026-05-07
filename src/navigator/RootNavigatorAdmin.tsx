@@ -16,25 +16,24 @@ import AddAssignVehicle from '../screens/AdminScreens/Menu/VehicleManagement/Ass
 import CreateTour from '../screens/AdminScreens/Menu/VehicleManagement/CreateTour';
 import CreateTourDetails from '../screens/AdminScreens/Menu/VehicleManagement/CreateTour/CreateTourDetails';
 import AddCreateTour from '../screens/AdminScreens/Menu/VehicleManagement/CreateTour/AddCreateTour';
-import HostelManagement from '../screens/AdminScreens/Menu/HostelManagement';
-import Guest from '../screens/AdminScreens/Menu/HostelManagement/Guest';
-import AddGuest from '../screens/AdminScreens/Menu/HostelManagement/Guest/AddGuest';
-import Hostel from '../screens/AdminScreens/Menu/HostelManagement/Hostel';
-import HostelDetails from '../screens/AdminScreens/Menu/HostelManagement/Hostel/HostelDetails';
-import AddHostelDetails from '../screens/AdminScreens/Menu/HostelManagement/Hostel/HostelDetails/AddHostelDetails';
-import FloorDetails from '../screens/AdminScreens/Menu/HostelManagement/Hostel/FloorDetails';
-import AddFloorDetails from '../screens/AdminScreens/Menu/HostelManagement/Hostel/FloorDetails/AddFloorDetails';
-import RoomDetails from '../screens/AdminScreens/Menu/HostelManagement/Hostel/RoomDetails';
-import AddRoomDetails from '../screens/AdminScreens/Menu/HostelManagement/Hostel/RoomDetails/AddRoomDetails';
-import BedDetails from '../screens/AdminScreens/Menu/HostelManagement/Hostel/BedDetails';
-import AddBedDetails from '../screens/AdminScreens/Menu/HostelManagement/Hostel/BedDetails/AddBedDetails';
-import BedAvailability from '../screens/AdminScreens/Menu/HostelManagement/Hostel/BedAvailability';
-import HostelAllocationHistory from '../screens/AdminScreens/Menu/HostelManagement/Hostel/HostelAllocationHistory';
-import TrainneHostelAllocationDetails from '../screens/AdminScreens/Menu/HostelManagement/Hostel/HostelAllocationHistory/TrainneHostelAllocationDetails';
-import HostelAllocation from '../screens/AdminScreens/Menu/HostelManagement/Hostel/HostelAllocation';
-import HostelAllocationDetails from '../screens/AdminScreens/Menu/HostelManagement/Hostel/HostelAllocation/HostelAllocationDetails';
-import EditTraineeHostelAllocation from '../screens/AdminScreens/Menu/HostelManagement/Hostel/HostelAllocation/EditTraineeHostelAllocation';
-import EditGuestHostelallocation from '../screens/AdminScreens/Menu/HostelManagement/Hostel/HostelAllocation/EditGuestHostelallocation';
+import Guest from '../screens/AdminScreens/Dashboard/facilities/Hostel/Guest';
+import AddGuest from '../screens/AdminScreens/Dashboard/facilities/Hostel/Guest/AddGuest';
+import Hostel from '../screens/AdminScreens/Dashboard/facilities/Hostel';
+import HostelDetails from '../screens/AdminScreens/Dashboard/facilities/Hostel/HostelDetails';
+import AddHostelDetails from '../screens/AdminScreens/Dashboard/facilities/Hostel/HostelDetails/AddHostelDetails';
+import FloorDetails from '../screens/AdminScreens/Dashboard/facilities/Hostel/FloorDetails';
+import AddFloorDetails from '../screens/AdminScreens/Dashboard/facilities/Hostel/FloorDetails/AddFloorDetails';
+import RoomDetails from '../screens/AdminScreens/Dashboard/facilities/Hostel/RoomDetails';
+import AddRoomDetails from '../screens/AdminScreens/Dashboard/facilities/Hostel/RoomDetails/AddRoomDetails';
+import BedDetails from '../screens/AdminScreens/Dashboard/facilities/Hostel/BedDetails';
+import AddBedDetails from '../screens/AdminScreens/Dashboard/facilities/Hostel/BedDetails/AddBedDetails';
+import BedAvailability from '../screens/AdminScreens/Dashboard/facilities/Hostel/BedAvailability';
+import HostelAllocationHistory from '../screens/AdminScreens/Dashboard/facilities/Hostel/HostelAllocationHistory';
+import TrainneHostelAllocationDetails from '../screens/AdminScreens/Dashboard/facilities/Hostel/HostelAllocationHistory/TrainneHostelAllocationDetails';
+import HostelAllocation from '../screens/AdminScreens/Dashboard/facilities/Hostel/HostelAllocation';
+import HostelAllocationDetails from '../screens/AdminScreens/Dashboard/facilities/Hostel/HostelAllocation/HostelAllocationDetails';
+import EditTraineeHostelAllocation from '../screens/AdminScreens/Dashboard/facilities/Hostel/HostelAllocation/EditTraineeHostelAllocation';
+import EditGuestHostelallocation from '../screens/AdminScreens/Dashboard/facilities/Hostel/HostelAllocation/EditGuestHostelallocation';
 import HostelPlanningDetails from '../screens/AdminScreens/Dashboard/Hostel/HostelPlanningDetails';
 import HostelDetailsDashbaord from '../screens/AdminScreens/Dashboard/Hostel/HostelDetailsDashbaord';
 import BlockDetails from '../screens/AdminScreens/Dashboard/Hostel/BlockDetails';
@@ -362,8 +361,9 @@ const AppDrawer = () => (
     <Drawer.Screen name={screensName.GateAccess} component={GateAccess} />
     <Drawer.Screen
       name={screensName.HostelManagement}
-      component={HostelManagement}
+      component={Hostel}
     />
+    <Drawer.Screen name={screensName.Hostel} component={Hostel} />
     <Drawer.Screen
       name={screensName.UserManagement}
       component={UserManagement}
@@ -468,7 +468,7 @@ const RootNavigatorAdmin = () => {
         />
         <RootStackScreen.Screen
           name="HostelManagement"
-          component={HostelManagement}
+          component={Hostel}
         />
         <RootStackScreen.Screen name="Guest" component={Guest} />
         <RootStackScreen.Screen name="AddGuest" component={AddGuest} />

@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { screensName } from '../../constants';
 import Menu from '../../screens/AdminScreens/Menu';
 import VehicleManagement from '../../screens/AdminScreens/Menu/VehicleManagement';
-import HostelManagement from '../../screens/AdminScreens/Menu/HostelManagement';
+import Hostel from '../../screens/AdminScreens/Dashboard/facilities/Hostel';
 import LMS from '../../screens/AdminScreens/Menu/LMS';
 import TrainingManagement from '../../screens/AdminScreens/Dashboard/academics/Training';
 import TraineeManagement from '../../screens/AdminScreens/Dashboard/academics/Trainee';
@@ -43,8 +43,9 @@ const AdminMenuStack = () => {
       />
       <Stack.Screen
         name={screensName.HostelManagement}
-        component={HostelManagement}
+        component={Hostel}
       />
+      <Stack.Screen name={screensName.Hostel} component={Hostel} />
       <Stack.Screen name={screensName.LMS} component={LMS} />
       <Stack.Screen
         name={screensName.TrainingManagement}

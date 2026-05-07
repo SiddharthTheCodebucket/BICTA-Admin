@@ -22,24 +22,24 @@ import {
   strings,
   vh,
   vw,
-} from '../../../../../constants';
+} from '../../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../components/atoms/TextAtom';
-import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../components/atoms/TouchableAtom';
-import FloatingButton from '../../../../../components/organisms/FloatingButton';
-import ImageAtom from '../../../../../components/atoms/ImageAtom';
-import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
+} from '../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../components/atoms/TextAtom';
+import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
+import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
+import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
+import FloatingButton from '../../../../../../components/organisms/FloatingButton';
+import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 import {
   useDeleteGuestMutation,
   useGuestListMutation,
-} from '../../../../../injectEndpoints/hostelEndpoints';
-import { useAppSelector } from '../../../../../hooks';
-import ViewAtom from '../../../../../components/atoms/ViewAtom';
+} from '../../../../../../injectEndpoints/hostelEndpoints';
+import { useAppSelector } from '../../../../../../hooks';
+import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 
 interface Props {
   navigation: NavigationType;

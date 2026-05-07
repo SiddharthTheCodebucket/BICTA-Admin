@@ -8,7 +8,7 @@ import {
   NavigationType,
 } from '../../../../../components/organisms/HeaderOrganism';
 
-import HostelDetailsList from '../../../Menu/HostelManagement/Hostel/HostelDetails/HostelDetailsList';
+import HostelDetailsList from '../../facilities/Hostel/HostelDetails/HostelDetailsList';
 import LibraryMaster from './/LibraryMaster';
 import VehicleMaster from './VehicleMaster';
 import TopTabBar from '../../../../../components/templates/TopTabBar';

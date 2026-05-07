@@ -23,13 +23,13 @@ import {
   Header,
   NavigationType,
 } from '../../../../../components/organisms/HeaderOrganism';
-import HostelDetails from './HostelDetails';
 import FloorDetails from './FloorDetails';
 import RoomDetails from './RoomDetails';
 import BedDetails from './BedDetails';
 import HostelAllocation from './HostelAllocation';
 import HostelAllocationHistory from './HostelAllocationHistory';
 import BedAvailability from './BedAvailability';
+import Guest from './Guest';
 
 interface Props {
   navigation: NavigationType;
@@ -158,39 +158,47 @@ const Hostel = (props: Props) => {
         }}
       >
         <TopTabs.Screen
-          name="HostelDetails"
-          component={HostelDetails}
-          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.hostelDetails }}
-        />
-        <TopTabs.Screen
           name="FloorDetails"
           component={FloorDetails}
-          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.floorDetails }}
+          options={{
+            tabBarLabel: strings.hostelManagement.hostelMenu.floorDetails,
+          }}
         />
         <TopTabs.Screen
           name="RoomDetails"
           component={RoomDetails}
-          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.roomDetails }}
+          options={{
+            tabBarLabel: strings.hostelManagement.hostelMenu.roomDetails,
+          }}
         />
         <TopTabs.Screen
           name="BedDetails"
           component={BedDetails}
-          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.bedDetails }}
+          options={{
+            tabBarLabel: strings.hostelManagement.hostelMenu.bedDetails,
+          }}
         />
         <TopTabs.Screen
           name="HostelAllocation"
           component={HostelAllocation}
-          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.hostelAllocation }}
+          options={{ tabBarLabel: 'Room Allocation' }}
         />
         <TopTabs.Screen
           name="HostelAllocationHistory"
           component={HostelAllocationHistory}
-          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.hostelAllocationHistory }}
+          options={{ tabBarLabel: 'Allocation History' }}
         />
         <TopTabs.Screen
           name="BedAvailability"
           component={BedAvailability}
-          options={{ tabBarLabel: strings.hostelManagement.hostelMenu.bedAvailability }}
+          options={{
+            tabBarLabel: strings.hostelManagement.hostelMenu.bedAvailability,
+          }}
+        />
+        <TopTabs.Screen
+          name="Guest"
+          component={Guest}
+          options={{ tabBarLabel: 'Guests Registrations' }}
         />
       </TopTabs.Navigator>
     </SafeAreaView>

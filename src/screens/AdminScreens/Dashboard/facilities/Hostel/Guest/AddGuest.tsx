@@ -4,26 +4,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, strings, vh, vw } from '../../../../../constants';
+import { colors, strings, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../../components/organisms/HeaderOrganism';
-import TextInputOrganisms from '../../../../../components/organisms/TextInputOrganisms';
-import DropDownOrganism from '../../../../../components/organisms/DropDownOrganism';
-import ButtonOrganism from '../../../../../components/organisms/ButtonOrganism';
-import FullscreenLoading from '../../../../../components/organisms/FullscreenLoading';
+} from '../../../../../../components/organisms/HeaderOrganism';
+import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
+import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
+import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
+import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
 import {
   isNullUndefined,
   mobileRegex,
   normalizeNumber,
   emailRegex,
-} from '../../../../../utils/CommonFunction';
+} from '../../../../../../utils/CommonFunction';
 import {
   useAddGuestMutation,
   useUpdateGuestMutation,
-} from '../../../../../injectEndpoints/hostelEndpoints';
-import { useAppSelector } from '../../../../../hooks';
+} from '../../../../../../injectEndpoints/hostelEndpoints';
+import { useAppSelector } from '../../../../../../hooks';
 
 interface Props {
   route: any;
