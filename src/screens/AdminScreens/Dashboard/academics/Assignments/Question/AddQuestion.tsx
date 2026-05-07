@@ -12,7 +12,7 @@ interface Props {
   route?: any;
 }
 
-const AddQuestion = ({ navigation, route }: Props) => {
+const AddQuestion = ({ navigation }: Props) => {
   const [form, setForm] = useState({
     subjectId: '',
     topicId: '',

@@ -14,7 +14,7 @@ import TimeTableManagement from '../../screens/AdminScreens/Dashboard/academics/
 import CurriculumManagemnet from '../../screens/AdminScreens/Menu/LMS/CurriculumManagemnet';
 import ClassLocationManagement from '../../screens/AdminScreens/Menu/LMS/ClassLocationManagement';
 import ClassRoomManagement from '../../screens/AdminScreens/Menu/LMS/ClassRoomManagement';
-import Assignment from '../../screens/AdminScreens/Menu/LMS/Assignment';
+import Assignment from '../../screens/AdminScreens/Dashboard/academics/Assignments';
 import Examination from '../../screens/AdminScreens/Menu/LMS/Examination';
 import PHCManagement from '../../screens/AdminScreens/Menu/PHCManagement';
 import InvoiceAndBillManagement from '../../screens/AdminScreens/Menu/InvoiceAndBillManagement';
@@ -78,6 +78,10 @@ const AdminMenuStack = () => {
       <Stack.Screen
         name={screensName.ClassRoomManagement}
         component={ClassRoomManagement}
+      />
+      <Stack.Screen
+        name={screensName.AssignmentManagement}
+        component={Assignment}
       />
       <Stack.Screen name={screensName.Assignment} component={Assignment} />
       <Stack.Screen name={screensName.Examination} component={Examination} />

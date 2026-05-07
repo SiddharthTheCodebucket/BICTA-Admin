@@ -103,16 +103,18 @@ import TimeTableManagement from '../screens/AdminScreens/Dashboard/academics/Tim
 import TimeTable from '../screens/AdminScreens/Dashboard/academics/TimeTable/Timetable';
 import FacultyClassApprove from '../screens/AdminScreens/Dashboard/academics/TimeTable/ClassApproval';
 import FacultyClassApproveDetails from '../screens/AdminScreens/Dashboard/academics/TimeTable/ClassApproval/FacultyClassApproveDetails';
-import Assignment from '../screens/AdminScreens/Menu/LMS/Assignment';
-import Question from '../screens/AdminScreens/Menu/LMS/Assignment/Question';
-import QuestionBankDetails from '../screens/AdminScreens/Menu/LMS/Assignment/Question/QuestionBankDetails';
-import AssignQuestion from '../screens/AdminScreens/Menu/LMS/Assignment/AssignQuestion';
-import EditAssignQuestion from '../screens/AdminScreens/Menu/LMS/Assignment/AssignQuestion/EditAssignQuestion';
-import AssignmentsDetails from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentsDetails';
-import AssignmentDetailsList from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentsDetails/AssignmentDetailsList';
-import AssignmentResponse from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentResponse';
-import AssignmentRessponseDetails from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentResponse/AssignmentRessponseDetailsList';
-import AssessmentDetails from '../screens/AdminScreens/Menu/LMS/Assignment/AssignmentsDetails/AssessmentDetails';
+import Assignment from '../screens/AdminScreens/Dashboard/academics/Assignments';
+import Question from '../screens/AdminScreens/Dashboard/academics/Assignments/Question';
+import AddQuestion from '../screens/AdminScreens/Dashboard/academics/Assignments/Question/AddQuestion';
+import QuestionBankDetails from '../screens/AdminScreens/Dashboard/academics/Assignments/Question/QuestionBankDetails';
+import AssignQuestion from '../screens/AdminScreens/Dashboard/academics/Assignments/AssignQuestion';
+import EditAssignQuestion from '../screens/AdminScreens/Dashboard/academics/Assignments/AssignQuestion/EditAssignQuestion';
+import AssignmentsDetails from '../screens/AdminScreens/Dashboard/academics/Assignments/AssignmentsDetails';
+import AssignmentDetailsList from '../screens/AdminScreens/Dashboard/academics/Assignments/AssignmentsDetails/AssignmentDetailsList';
+import AssignmentResponse from '../screens/AdminScreens/Dashboard/academics/Assignments/AssignmentResponse';
+import AssignmentRessponseDetails from '../screens/AdminScreens/Dashboard/academics/Assignments/AssignmentResponse/AssignmentRessponseDetailsList';
+import AssignmentResponseDetails from '../screens/AdminScreens/Dashboard/academics/Assignments/AssignmentResponse/AssignmentResponseDetails';
+import AssessmentDetails from '../screens/AdminScreens/Dashboard/academics/Assignments/AssignmentsDetails/AssessmentDetails';
 import Examination from '../screens/AdminScreens/Menu/LMS/Examination';
 import CreateTest from '../screens/AdminScreens/Menu/LMS/Examination/CreateTest';
 import TestDetailsList from '../screens/AdminScreens/Menu/LMS/Examination/CreateTest/TestDetailsList';
@@ -330,6 +332,10 @@ const AppDrawer = () => (
     <Drawer.Screen
       name={screensName.TimeTableManagement}
       component={TimeTableManagement}
+    />
+    <Drawer.Screen
+      name={screensName.AssignmentManagement}
+      component={Assignment}
     />
     <Drawer.Screen
       name={screensName.CurriculumManagemnet}
@@ -720,38 +726,56 @@ const RootNavigatorAdmin = () => {
           name={screensName.FacultyClassApproveDetails}
           component={FacultyClassApproveDetails}
         />
-        <RootStackScreen.Screen name="Assignment" component={Assignment} />
-        <RootStackScreen.Screen name="Question" component={Question} />
         <RootStackScreen.Screen
-          name="QuestionBankDetails"
+          name={screensName.AssignmentManagement}
+          component={Assignment}
+        />
+        <RootStackScreen.Screen
+          name={screensName.Assignment}
+          component={Assignment}
+        />
+        <RootStackScreen.Screen
+          name={screensName.Question}
+          component={Question}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AddQuestion}
+          component={AddQuestion}
+        />
+        <RootStackScreen.Screen
+          name={screensName.QuestionBankDetails}
           component={QuestionBankDetails}
         />
         <RootStackScreen.Screen
-          name="AssignQuestion"
+          name={screensName.AssignQuestion}
           component={AssignQuestion}
         />
         <RootStackScreen.Screen
-          name="EditAssignQuestion"
+          name={screensName.EditAssignQuestion}
           component={EditAssignQuestion}
         />
         <RootStackScreen.Screen
-          name="AssignmentsDetails"
+          name={screensName.AssignmentsDetails}
           component={AssignmentsDetails}
         />
         <RootStackScreen.Screen
-          name="AssignmentDetailsList"
+          name={screensName.AssignmentDetailsList}
           component={AssignmentDetailsList}
         />
         <RootStackScreen.Screen
-          name="AssignmentResponse"
+          name={screensName.AssignmentResponse}
           component={AssignmentResponse}
         />
         <RootStackScreen.Screen
-          name="AssignmentRessponseDetails"
+          name={screensName.AssignmentRessponseDetails}
           component={AssignmentRessponseDetails}
         />
         <RootStackScreen.Screen
-          name="AssessmentDetails"
+          name={screensName.AssignmentResponseDetails}
+          component={AssignmentResponseDetails}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AssessmentDetails}
           component={AssessmentDetails}
         />
         <RootStackScreen.Screen name="Examination" component={Examination} />

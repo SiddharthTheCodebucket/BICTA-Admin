@@ -158,13 +158,13 @@ const Assignment = (props: Props) => {
           name="Question"
           component={Question}
           initialParams={{ suppressHeader: true }}
-          options={{ tabBarLabel: strings.assignment.question }}
+          options={{ tabBarLabel: 'Questions' }}
         />
         <TopTabs.Screen
           name="AssignmentsDetails"
           component={AssignmentsDetails}
           initialParams={{ suppressHeader: true }}
-          options={{ tabBarLabel: strings.assignment.assignmentsDetails }}
+          options={{ tabBarLabel: 'Assignment Details' }}
         />
         <TopTabs.Screen
           name="AssignQuestion"
@@ -176,7 +176,7 @@ const Assignment = (props: Props) => {
           name="AssignmentResponse"
           component={AssignmentResponse}
           initialParams={{ suppressHeader: true }}
-          options={{ tabBarLabel: strings.assignment.assignmentsResponse }}
+          options={{ tabBarLabel: 'Responses' }}
         />
       </TopTabs.Navigator>
     </SafeAreaView>

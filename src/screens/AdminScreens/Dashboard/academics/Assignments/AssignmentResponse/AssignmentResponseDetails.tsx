@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, vh, vw } from '../../../../../../constants';
@@ -22,7 +22,7 @@ const AssignmentResponseDetails = (props: Props) => {
   const data = route?.params?.data || {};
 
   const [grade, setGrade] = useState('');
-  const [uploadedFile, setUploadedFile] = useState<any>(null);
+  const [, setUploadedFile] = useState<any>(null);
 
   const handleUpdate = () => {
     Toast.show({
@@ -81,7 +81,7 @@ const AssignmentResponseDetails = (props: Props) => {
 
         <View style={styles.questionSection}>
           <TextAtom style={styles.sectionTitle}>Questions</TextAtom>
-          {questions.map((q, index) => (
+          {questions.map(q => (
             <View key={q.id} style={styles.questionCard}>
               <TextAtom style={styles.questionText}>{q.text}</TextAtom>
               <TouchableAtom onPress={() => {}}>

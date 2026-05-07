@@ -194,7 +194,21 @@ const MAIN_MENU_ITEMS: DrawerMenuItem[] = [
       {
         id: 'academics-assignments',
         name: 'Assignments',
-        disabled: true,
+        screen: screensName.AssignmentManagement,
+        matchRoutes: [
+          screensName.Assignment,
+          screensName.Question,
+          screensName.AddQuestion,
+          screensName.QuestionBankDetails,
+          screensName.AssignQuestion,
+          screensName.EditAssignQuestion,
+          screensName.AssignmentsDetails,
+          screensName.AssignmentDetailsList,
+          screensName.AssignmentResponse,
+          screensName.AssignmentRessponseDetails,
+          screensName.AssignmentResponseDetails,
+          screensName.AssessmentDetails,
+        ],
       },
       {
         id: 'academics-examination',
