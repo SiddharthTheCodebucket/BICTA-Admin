@@ -141,16 +141,20 @@ const OverallFeedback = ({ navigation }: Props) => {
             onChange={() => {}}
           />
           <View style={styles.footerButtons}>
-            <FormWhiteButton
-              title="Clear"
-              onPress={() => setIsFilterOpen(false)}
-              buttonStyle={{ flex: 1, marginRight: 10 }}
-            />
-            <FormGradientButton
-              title="Apply"
-              onPress={() => setIsFilterOpen(false)}
-              buttonStyle={{ flex: 1, marginLeft: 10 }}
-            />
+            <View style={{ flex: 1 }}>
+              <FormWhiteButton
+                title="Clear"
+                onPress={() => setIsFilterOpen(false)}
+                buttonStyle={{ flex: 1, marginRight: 10 }}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <FormGradientButton
+                title="Apply"
+                onPress={() => setIsFilterOpen(false)}
+                buttonStyle={{ flex: 1, marginLeft: 10 }}
+              />
+            </View>
           </View>
         </View>
       </AdminBottomModal>
@@ -231,8 +235,8 @@ const styles = StyleSheet.create({
     paddingBottom: vh(20),
   },
   footerButtons: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: vh(20),
   },
 });
