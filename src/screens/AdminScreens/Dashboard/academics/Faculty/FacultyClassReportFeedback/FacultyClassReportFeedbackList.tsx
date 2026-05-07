@@ -12,7 +12,8 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  ImageBackground,
+  LayoutAnimation,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -35,21 +36,20 @@ import AdminListHeader, {
 } from '../../../../../../components/organisms/AdminListHeader';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
+import FormSearch from '../../../../../../components/templates/FormSearch';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
+import FormDropdownFieldWithTitle from '../../../../../../components/templates/FormDropdownFieldWithTitle';
 import { useReportListFacultyFeedbackReportMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
 import ViewAtom from '../../../../../../components/atoms/ViewAtom';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-
+import FormWhiteButton from '../../../../../../components/templates/FormWhiteButton';
+import FormGradientButton from '../../../../../../components/templates/FormGradientButton';
+import SubTab from '../../../../../../components/molecules/SubTab';
+import { SvgDelete, SvgEye } from '../../../../../../constants/svgs';
 import { useFacultyCenter } from '../context/FacultyCenterContext';
 import AdminBottomModal from '../../../../../../components/organisms/AdminBottomModal';
-import {
-  FormGradientButton,
-  FormWhiteButton,
-} from '../../../../../../components/templates';
+import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
 
 interface Props {
   navigation: NavigationType;
@@ -66,14 +66,16 @@ const FacultyClassReportFeedbackList = (props: Props) => {
 
   const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(1);
-
+  const [activeSecondaryTab, setActiveSecondaryTab] = useState<
+    'trainee' | 'observer' | 'training' | 'faculty'
+  >('trainee');
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [showSearch, setShowSearch] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
 
   const [facultyNameList, setFacultyNameList] = useState<any>([]);
@@ -88,6 +90,11 @@ const FacultyClassReportFeedbackList = (props: Props) => {
 
   const openFilter = useCallback(() => setShowFilter(true), []);
   const closeFilter = useCallback(() => setShowFilter(false), []);
+
+  const toggleSearchShow = useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShowSearch(prev => !prev);
+  }, []);
 
   useLayoutEffect(() => {
     // Header handled by FacultyManagement tabbed screen
@@ -182,71 +189,193 @@ const FacultyClassReportFeedbackList = (props: Props) => {
         </ViewAtom>
       );
     }
-
-    const rounded = Math.round(rating);
-
-    const stars = new Array(5).fill(0).map((_, i) => (
-      <TextAtom key={i.toString() + 'ewrio'} style={styles.starText}>
-        {i < rounded ? '★' : '☆'}
-      </TextAtom>
-    ));
-
-    return <ViewAtom style={styles.starContainer}>{stars}</ViewAtom>;
+    return null;
   };
 
-  const FacultyFeedbackCard = ({ item, index: _index, navigation }: any) => {
-    return (
-      <TouchableAtom
-        style={styles.card}
-        onPress={() => {
-          // navigation.navigate(screensName.FacultySubjectFeedbackDetails, {
-          //   item: item,
-          // });
-        }}
-      >
-        <TextAtom style={styles.cardTitle}>{item.facultyName ?? '-'}</TextAtom>
-
-        <View style={styles.threeColRow}>
-          <View style={styles.infoCol}>
-            <TextAtom style={styles.infoLabel}>
-              {
-                strings.lms.facultyManagement.facultyClassReportFeedback.main
-                  .classCount
-              }
-            </TextAtom>
-            <TextAtom style={styles.infoValue}>
-              {item.totalClassCount ?? '-'}
-            </TextAtom>
-          </View>
-
-          <View style={styles.infoCol}>
-            <TextAtom style={styles.infoLabel}>
-              {
-                strings.lms.facultyManagement.facultyClassReportFeedback.main
-                  .rating
-              }
-            </TextAtom>
-            <StarRating rating={item.rating ?? item.averageRating} />
-          </View>
-
-          <View style={styles.infoCol}>
-            <TextAtom style={styles.infoLabel}>
-              {
-                strings.lms.facultyManagement.facultyClassReportFeedback.main
-                  .averageRating
-              }
-            </TextAtom>
-            <StarRating rating={item.averageRating} />
-          </View>
+  const TraineeFeedbackCard = ({ item, navigation }: any) => (
+    <TouchableAtom style={styles.card} onPress={() => {}}>
+      <View style={styles.cardHeader}>
+        <View>
+          <TextAtom style={styles.cardTitle}>
+            {item.trainingName ?? 'Training Name'}
+          </TextAtom>
+          <TextAtom style={styles.cardSubTitle}>
+            Batch no - {item.batchNo ?? '1'}
+          </TextAtom>
         </View>
-      </TouchableAtom>
-    );
-  };
+        <TouchableAtom onPress={() => {}} style={styles.deleteBtn}>
+          <SvgDelete />
+        </TouchableAtom>
+      </View>
 
-  const renderFacultyFeedbackItem = ({ item, index }: any) => {
-    return (
-      <FacultyFeedbackCard item={item} index={index} navigation={navigation} />
-    );
+      <View style={styles.infoGrid}>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Faculty Name</TextAtom>
+          <TextAtom style={styles.infoValue}>
+            {item.facultyName ?? '-'}
+          </TextAtom>
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Trainee name</TextAtom>
+          <TextAtom style={styles.infoValue}>
+            {item.traineeName ?? '-'}
+          </TextAtom>
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Date Of Class</TextAtom>
+          <TextAtom style={styles.infoValue}>{item.classDate ?? '-'}</TextAtom>
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Feedback Date</TextAtom>
+          <TextAtom style={styles.infoValue}>
+            {item.feedbackDate ?? '-'}
+          </TextAtom>
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Subject Name</TextAtom>
+          <TextAtom style={styles.infoValue}>
+            {item.subjectName ?? '-'}
+          </TextAtom>
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Topic name</TextAtom>
+          <TextAtom style={styles.infoValue}>{item.topicName ?? '-'}</TextAtom>
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Session Handled</TextAtom>
+          <StarRating rating={item.sessionHandled} />
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Subject Knowledge</TextAtom>
+          <StarRating rating={item.subjectKnowledge} />
+        </View>
+      </View>
+
+      <TouchableAtom onPress={() => {}} style={styles.viewMoreBtn}>
+        <TextAtom style={styles.viewMoreText}>View More</TextAtom>
+      </TouchableAtom>
+    </TouchableAtom>
+  );
+
+  const TrainingFeedbackCard = ({ item }: any) => (
+    <TouchableAtom style={styles.card} onPress={() => {}}>
+      <View style={styles.cardHeader}>
+        <TextAtom style={styles.cardTitle}>
+          {item.facultyName ?? 'Faculty Name'}
+        </TextAtom>
+        <TouchableAtom onPress={() => {}} style={styles.deleteBtn}>
+          <SvgDelete />
+        </TouchableAtom>
+      </View>
+
+      <View style={styles.infoGrid}>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Session Handled</TextAtom>
+          <StarRating rating={item.sessionHandled} />
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Subject Knowledge</TextAtom>
+          <StarRating rating={item.subjectKnowledge} />
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Communication</TextAtom>
+          <StarRating rating={item.communication} />
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Methodology</TextAtom>
+          <StarRating rating={item.methodology} />
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Interaction</TextAtom>
+          <StarRating rating={item.interaction} />
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Question Handling</TextAtom>
+          <StarRating rating={item.questionHandling} />
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Average Rating</TextAtom>
+          <StarRating rating={item.averageRating} />
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Class Count</TextAtom>
+          <TextAtom style={styles.infoValue}>{item.classCount ?? '-'}</TextAtom>
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Trainee Count</TextAtom>
+          <TextAtom style={styles.infoValue}>
+            {item.traineeCount ?? '-'}
+          </TextAtom>
+        </View>
+        <View style={styles.gridItem}>
+          <TextAtom style={styles.infoLabel}>Feedback Count</TextAtom>
+          <TextAtom style={styles.infoValue}>
+            {item.feedbackCount ?? '-'}
+          </TextAtom>
+        </View>
+      </View>
+    </TouchableAtom>
+  );
+
+  const FacultyFeedbackCard = ({ item }: any) => (
+    <TouchableAtom style={styles.card} onPress={() => {}}>
+      <View style={styles.cardHeader}>
+        <TextAtom style={styles.cardTitle}>
+          {item.facultyName ?? 'Faculty Name'}
+        </TextAtom>
+        <TouchableAtom onPress={() => {}} style={styles.viewBtn}>
+          <SvgEye />
+        </TouchableAtom>
+      </View>
+
+      <View style={styles.facultyInfoRow}>
+        <View style={styles.facultyInfoItem}>
+          <TextAtom style={styles.infoLabel}>Class Count</TextAtom>
+          <TextAtom style={styles.infoValue}>
+            {item.totalClassCount ?? '4'}
+          </TextAtom>
+        </View>
+        <View style={styles.facultyInfoItem}>
+          <TextAtom style={styles.infoLabel}>Rating</TextAtom>
+          <StarRating rating={item.rating ?? '3.2'} />
+        </View>
+        <View style={styles.facultyInfoItem}>
+          <TextAtom style={styles.infoLabel}>Average Rating</TextAtom>
+          <StarRating rating={item.averageRating ?? '3'} />
+        </View>
+      </View>
+    </TouchableAtom>
+  );
+
+  const renderFeedbackItem = ({ item, index }: any) => {
+    switch (activeSecondaryTab) {
+      case 'trainee':
+        return (
+          <TraineeFeedbackCard
+            item={item}
+            index={index}
+            navigation={navigation}
+          />
+        );
+      case 'training':
+        return (
+          <TrainingFeedbackCard
+            item={item}
+            index={index}
+            navigation={navigation}
+          />
+        );
+      case 'faculty':
+        return (
+          <FacultyFeedbackCard
+            item={item}
+            index={index}
+            navigation={navigation}
+          />
+        );
+      default:
+        return null;
+    }
   };
 
   const FilterForm = () => (
@@ -356,50 +485,57 @@ const FacultyClassReportFeedbackList = (props: Props) => {
   const headerConfig: AdminListHeaderConfig = useMemo(
     () => ({
       title:
-        strings.lms.facultyManagement.facultyClassReportFeedback.main.title,
+        activeSecondaryTab === 'trainee'
+          ? 'By Trainee'
+          : activeSecondaryTab === 'training'
+          ? 'By Training'
+          : activeSecondaryTab === 'faculty'
+          ? 'Faculty Wise'
+          : 'Feedback',
       count: totalCount,
       search: {
         visible: true,
-        onPress: () => setIsSearchVisible(v => !v),
+        onPress: toggleSearchShow,
       },
       filter: {
         visible: true,
         onPress: openFilter,
       },
     }),
-    [openFilter, totalCount],
+    [openFilter, totalCount, activeSecondaryTab],
   );
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <View style={styles.topActionRow}>
-        <TouchableAtom style={styles.filterTrigger} onPress={openFilter}>
-          <TextAtom style={styles.filterTriggerText}>
-            {showFilter
-              ? strings.lms.facultyManagement.facultyClassReportFeedback.main
-                  .hideFilter || 'Hide Filter ▲'
-              : strings.lms.facultyManagement.facultyClassReportFeedback.main
-                  .showFilter || 'Show Filter ▼'}
-          </TextAtom>
-        </TouchableAtom>
-      </View>
+
+      <SubTab
+        tabs={[
+          { label: 'Trainee', value: 'trainee' },
+          { label: 'Observer', value: 'observer' },
+          { label: 'Training', value: 'training' },
+          { label: 'Faculty', value: 'faculty' },
+        ]}
+        activeTab={activeSecondaryTab}
+        onTabChange={value => setActiveSecondaryTab(value as any)}
+        style={{ marginTop: vh(10), marginBottom: vh(15) }}
+      />
+
       <View style={{ paddingHorizontal: vw(16) }}>
         <AdminListHeader config={headerConfig} />
       </View>
-      {isSearchVisible && (
-        <SearchBoxOrganism
+      {showSearch && (
+        <FormSearch
+          value={search}
           onChangeText={onChangeSearch}
-          searchText={search}
-          onPressCross={onClearSearch}
-          searchBox={styles.searchBox}
+          onClear={onClearSearch}
         />
       )}
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderFacultyFeedbackItem}
+        renderItem={renderFeedbackItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={
           initialCall ? null : (
@@ -448,128 +584,103 @@ const FacultyClassReportFeedbackList = (props: Props) => {
 };
 
 export default FacultyClassReportFeedbackList;
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
-  headerRow: {
-    marginTop: vh(10),
-    paddingHorizontal: vw(14),
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
-  headerTitle: {
-    fontFamily: fonts.Inter_Bold,
-    fontSize: adminFontSizes.md,
-    color: colors.new_ui_heading,
-  },
-  headerCount: {
-    marginLeft: vw(4),
-    fontFamily: fonts.Inter_Regular,
-    fontSize: adminFontSizes.sm,
-    color: colors.new_ui_count,
-  },
-  actionsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconBtn: {
-    width: vw(22),
-    height: vw(22),
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: vw(8),
-  },
   flatListContainer: {
     paddingVertical: vh(10),
   },
   card: {
-    backgroundColor: colors.new_ui_card_bg,
+    backgroundColor: colors.white,
     marginHorizontal: vw(15),
     borderRadius: vw(10),
     paddingHorizontal: vw(15),
-    paddingVertical: vh(8),
-    borderWidth: vw(1),
-    borderColor: colors.new_ui_card_border,
-    elevation: 1,
+    paddingVertical: vh(15),
+    elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
+    marginBottom: vh(15),
   },
-  cardTitle: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: adminFontSizes.md,
-    color: colors.new_ui_card_title,
-    marginBottom: vh(10),
-  },
-  threeColRow: {
+  cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: vw(10),
+    alignItems: 'flex-start',
+    marginBottom: vh(15),
   },
-  infoCol: { flex: 1 },
+  cardTitle: {
+    fontFamily: fonts.Roboto_Bold,
+    fontSize: vw(16),
+    color: colors.black,
+  },
+  cardSubTitle: {
+    fontFamily: fonts.Roboto_Regular,
+    fontSize: vw(14),
+    color: colors.grey,
+    marginTop: vh(2),
+  },
+  infoGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  gridItem: {
+    width: '48%',
+    marginBottom: vh(12),
+  },
   infoLabel: {
     fontFamily: fonts.Roboto_Regular,
-    fontSize: adminFontSizes.xs,
-    color: colors.new_ui_card_description,
+    fontSize: vw(12),
+    color: colors.grey,
   },
   infoValue: {
     fontFamily: fonts.Roboto_Medium,
-    fontSize: adminFontSizes.sm,
-    color: colors.new_ui_card_title,
-    marginTop: vh(4),
+    fontSize: vw(14),
+    color: colors.black,
+    marginTop: vh(2),
   },
   ratingValueRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: vw(6),
-    marginTop: vh(4),
+    marginTop: vh(2),
   },
   ratingValueText: {
     fontFamily: fonts.Roboto_Medium,
-    fontSize: adminFontSizes.sm,
-    color: colors.new_ui_card_title,
-  },
-  label: {
-    fontFamily: fonts.Roboto_Medium,
     fontSize: vw(14),
     color: colors.black,
   },
-  value: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
+  viewMoreBtn: {
+    marginTop: vh(10),
+    alignSelf: 'flex-start',
   },
-  emptyText: {
-    textAlign: 'center',
-    marginTop: vh(50),
-    color: colors.grey,
+  viewMoreText: {
+    color: '#CD9F3E',
     fontFamily: fonts.Roboto_Medium,
+    fontSize: vw(14),
   },
-  rowBetween: {
+  deleteBtn: {
+    width: vw(30),
+    height: vw(30),
+    borderRadius: vw(15),
+    backgroundColor: '#FFF5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  viewBtn: {
+    width: vw(30),
+    height: vw(30),
+    borderRadius: vw(15),
+    backgroundColor: '#F5F5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  facultyInfoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
   },
-  filterTrigger: {
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    borderRadius: vw(4),
-    marginTop: vh(10),
-    marginRight: vh(15),
-    paddingHorizontal: vw(10),
-    paddingVertical: vh(5),
-  },
-  filterTriggerText: {
-    color: colors.black,
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
+  facultyInfoItem: {
+    flex: 1,
   },
   filterContainer: { paddingHorizontal: vw(15) },
   buttonRow: {
@@ -577,109 +688,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: vh(5),
   },
-  applyTouchable: {
-    width: vw(150),
-    borderRadius: vw(8),
-    overflow: 'hidden',
-    height: vh(35),
-  },
-  applyButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  applyButtonImage: {
-    borderRadius: vw(8),
-  },
-  applyText: {
-    fontFamily: fonts.Inter_SemiBold,
-    fontSize: adminFontSizes.sm,
-    color: colors.white,
-  },
-  clearBtn: {
-    width: vw(150),
-    height: vh(35),
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    backgroundColor: colors.white,
-  },
-  starText: {
-    fontSize: vw(16),
-    color: colors.primary,
-    marginRight: vw(2),
-  },
-  starContainer: { flexDirection: 'row' },
-  cardHeader: { marginBottom: vh(10), flexDirection: 'row' },
-  srNoLabel: {
+  emptyText: {
+    textAlign: 'center',
+    marginTop: vh(50),
+    color: colors.grey,
     fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    flex: 1,
   },
-  flex1: { flex: 1 },
-  ratingBox: { flex: 1, alignItems: 'flex-end' },
-  downloadButton: {
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    borderRadius: vw(4),
-    marginTop: vh(10),
-    marginRight: vh(15),
-    paddingHorizontal: vw(10),
-    paddingVertical: vh(5),
-  },
-  downloadIcon: { tintColor: colors.black },
-  topActionRow: {
-    flexDirection: 'row',
-    alignSelf: 'flex-end',
-    display: 'none',
-  },
-  centerDropdown: { marginBottom: vh(-10) },
-  searchBox: { marginTop: vh(15) },
   paginationLoader: { marginTop: vh(15) },
   itemSeparator: { height: vh(10) },
-  primaryText: { color: colors.primary },
-  sheetOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.black_20,
-    zIndex: 20,
-  },
-  overlayPressable: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  sheetHandle: {
-    width: vw(44),
-    height: vh(4),
-    borderRadius: vw(10),
-    backgroundColor: colors.grey_1,
-    alignSelf: 'center',
-    marginTop: vh(8),
-    marginBottom: vh(10),
-  },
-  sheetContainer: {
-    flex: 1,
-    backgroundColor: colors.white,
-    paddingHorizontal: vw(20),
-  },
-  sheetHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  sheetTitle: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: adminFontSizes.lg,
-    color: colors.text_black,
-  },
-  sheetClose: {
-    width: vw(34),
-    height: vw(34),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sheetSeparator: {
-    height: vh(1),
-    backgroundColor: colors.borderGrayLight,
-    marginTop: vh(10),
-    marginBottom: vh(10),
-  },
 });
