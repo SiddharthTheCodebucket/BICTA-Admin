@@ -24,29 +24,29 @@ import {
   strings,
   vh,
   vw,
-} from '../../../../../../constants';
+} from '../../../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../../components/atoms/TextAtom';
-import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import { useAppSelector } from '../../../../../../hooks';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+} from '../../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../../components/atoms/TextAtom';
+import FullscreenLoading from '../../../../../../../components/organisms/FullscreenLoading';
+import SearchBoxOrganism from '../../../../../../../components/organisms/SearchBoxOrganism';
+import DropDownOrganism from '../../../../../../../components/organisms/DropDownOrganism';
+import { useAppSelector } from '../../../../../../../hooks';
+import TouchableAtom from '../../../../../../../components/atoms/TouchableAtom';
+import ImageAtom from '../../../../../../../components/atoms/ImageAtom';
 import {
   useHouseKeepingDeleteTaskAssignmentMutation,
   useHouseKeepingListTaskAssignmentMutation,
   useHouseKeepingUpdateTaskAssignmentMutation,
-} from '../../../../../../injectEndpoints/houseKeepingManagementEndpoints';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import DateInputOrganism from '../../../../../../components/organisms/DateInputOrganism';
+} from '../../../../../../../injectEndpoints/houseKeepingManagementEndpoints';
+import ViewAtom from '../../../../../../../components/atoms/ViewAtom';
+import ButtonOrganism from '../../../../../../../components/organisms/ButtonOrganism';
+import DateInputOrganism from '../../../../../../../components/organisms/DateInputOrganism';
 import moment from 'moment';
-import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
-import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+import { downloadAndOpenFile } from '../../../../../../../utils/CommonFunction';
+import { useCommonDropdownListMutation } from '../../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
   navigation: NavigationType;

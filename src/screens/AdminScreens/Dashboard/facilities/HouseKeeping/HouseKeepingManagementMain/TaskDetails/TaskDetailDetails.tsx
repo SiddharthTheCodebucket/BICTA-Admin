@@ -3,13 +3,13 @@ import { StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import moment from 'moment';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
-import { Header } from '../../../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../../../components/atoms/TextAtom';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import { useHouseKeepingUploadTaskAssignedPhotoMutation } from '../../../../../../injectEndpoints/houseKeepingManagementEndpoints';
+import { colors, fonts, strings, vh, vw } from '../../../../../../../constants';
+import { Header } from '../../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../../components/atoms/TextAtom';
+import ViewAtom from '../../../../../../../components/atoms/ViewAtom';
+import { useHouseKeepingUploadTaskAssignedPhotoMutation } from '../../../../../../../injectEndpoints/houseKeepingManagementEndpoints';
 import Toast from 'react-native-toast-message';
-import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
+import FullscreenLoading from '../../../../../../../components/organisms/FullscreenLoading';
 
 const formatNameWithId = (name?: string, id?: number) => {
   if (!name) return '-';

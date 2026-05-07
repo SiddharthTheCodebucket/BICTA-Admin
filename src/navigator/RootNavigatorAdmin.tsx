@@ -177,8 +177,8 @@ import FacultyFeedbackByObserver from '../screens/AdminScreens/Menu/FeedbackMana
 import FacultyFeedbackByObserverDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/FacultyFeedbackByObserver/FacultyFeedbackByObserverDetails';
 import MessFeedbackResponse from '../screens/AdminScreens/Dashboard/facilities/Mess/Feedback';
 import MessFeedbackResponseDetails from '../screens/AdminScreens/Dashboard/facilities/Mess/Feedback/MessFeedbackResponseDetails';
-import HouseKeepingFeedbackResponse from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/HouseKeepingFeedbackResponse';
-import HouseKeepingFeedbackResponseDetails from '../screens/AdminScreens/Menu/FeedbackManagement/Feedback/HouseKeepingFeedbackResponse/HouseKeepingFeedbackResponseDetails';
+import HouseKeepingFeedbackResponse from '../screens/AdminScreens/Dashboard/facilities/HouseKeeping/Feedback';
+import HouseKeepingFeedbackResponseDetails from '../screens/AdminScreens/Dashboard/facilities/HouseKeeping/Feedback/HouseKeepingFeedbackResponseDetails';
 import FacultyFeedbackTrainingWise from '../screens/AdminScreens/Dashboard/academics/Training/FacultyFeedbackTrainingWise';
 import FacultyFeedbackTrainingWiseDetails from '../screens/AdminScreens/Dashboard/academics/Training/FacultyFeedbackTrainingWise/FacultyFeedbackTrainingWiseDetails';
 import ClassCountList from '../screens/AdminScreens/Dashboard/academics/Training/FacultyFeedbackTrainingWise/ClassCountList';
@@ -218,14 +218,14 @@ import Budget from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangemen
 import EstimatedBudgetList from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/Budget/EstimatedBudgetList';
 import AddCreateTraining from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/CreateTraining/AddCreateTraining';
 import AddParticulars from '../screens/AdminScreens/Menu/BudgetManagement/BudgetMangementMain/Particulars/AddParticulars';
-import HouseKeepingManagement from '../screens/AdminScreens/Menu/HouseKeepingManagement';
-import HouseKeepingManagementMain from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain';
-import TaskMaster from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskMaster';
-import TaskMasterDetails from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskMaster/TaskMasterDetails';
-import AddTaskMaster from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskMaster/AddTaskMaster';
-import TaskDetails from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskDetails';
-import TaskDetailDetails from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskDetails/TaskDetailDetails';
-import TransferTask from '../screens/AdminScreens/Menu/HouseKeepingManagement/HouseKeepingManagementMain/TaskDetails/TransferTask';
+import HouseKeeping from '../screens/AdminScreens/Dashboard/facilities/HouseKeeping';
+import HouseKeepingManagementMain from '../screens/AdminScreens/Dashboard/facilities/HouseKeeping/HouseKeepingManagementMain';
+import TaskMaster from '../screens/AdminScreens/Dashboard/facilities/HouseKeeping/HouseKeepingManagementMain/TaskMaster';
+import TaskMasterDetails from '../screens/AdminScreens/Dashboard/facilities/HouseKeeping/HouseKeepingManagementMain/TaskMaster/TaskMasterDetails';
+import AddTaskMaster from '../screens/AdminScreens/Dashboard/facilities/HouseKeeping/HouseKeepingManagementMain/TaskMaster/AddTaskMaster';
+import TaskDetails from '../screens/AdminScreens/Dashboard/facilities/HouseKeeping/HouseKeepingManagementMain/TaskDetails';
+import TaskDetailDetails from '../screens/AdminScreens/Dashboard/facilities/HouseKeeping/HouseKeepingManagementMain/TaskDetails/TaskDetailDetails';
+import TransferTask from '../screens/AdminScreens/Dashboard/facilities/HouseKeeping/HouseKeepingManagementMain/TaskDetails/TransferTask';
 import Mess from '../screens/AdminScreens/Dashboard/facilities/Mess';
 import MessMaster from '../screens/AdminScreens/Dashboard/facilities/Mess/MessMaster';
 import StockDetails from '../screens/AdminScreens/Dashboard/facilities/Mess/StockDetails';
@@ -367,6 +367,10 @@ const AppDrawer = () => (
     <Drawer.Screen name={screensName.Hostel} component={Hostel} />
     <Drawer.Screen name={screensName.PHCManagement} component={HealthCare} />
     <Drawer.Screen name={screensName.MessManagement} component={Mess} />
+    <Drawer.Screen
+      name={screensName.HouseKeepingManagement}
+      component={HouseKeeping}
+    />
     <Drawer.Screen
       name={screensName.UserManagement}
       component={UserManagement}
@@ -1145,7 +1149,7 @@ const RootNavigatorAdmin = () => {
         />
         <RootStackScreen.Screen
           name="HouseKeepingManagement"
-          component={HouseKeepingManagement}
+          component={HouseKeeping}
         />
         <RootStackScreen.Screen
           name="HouseKeepingManagementMain"

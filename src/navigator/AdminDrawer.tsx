@@ -303,8 +303,19 @@ const MAIN_MENU_ITEMS: DrawerMenuItem[] = [
       },
       {
         id: 'facility-housekeeping',
-        name: 'Housekeeping',
+        name: 'House Keeping',
         screen: screensName.HouseKeepingManagement,
+        matchRoutes: [
+          screensName.HouseKeepingManagementMain,
+          screensName.TaskMaster,
+          screensName.TaskMasterDetails,
+          screensName.AddTaskMaster,
+          screensName.TaskDetails,
+          screensName.TaskDetailDetails,
+          screensName.TransferTask,
+          screensName.HouseKeepingFeedbackResponse,
+          screensName.HouseKeepingFeedbackResponseDetails,
+        ],
       },
       {
         id: 'facility-library',

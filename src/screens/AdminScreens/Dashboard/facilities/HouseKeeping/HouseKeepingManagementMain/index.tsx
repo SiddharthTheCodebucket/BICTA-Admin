@@ -1,18 +1,18 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, screensName, vh, vw } from '../../../../constants';
+import { colors, screensName, vh, vw } from '../../../../../../constants';
 import {
   Header,
   NavigationType,
-} from '../../../../components/organisms/HeaderOrganism';
-import TextAtom from '../../../../components/atoms/TextAtom';
+} from '../../../../../../components/organisms/HeaderOrganism';
+import TextAtom from '../../../../../../components/atoms/TextAtom';
 
 interface Props {
   navigation: NavigationType;
 }
 
-const HouseKeepingManagement = (props: Props) => {
+const HouseKeepingManagementMain = (props: Props) => {
   const { navigation } = props;
 
   useLayoutEffect(() => {
@@ -25,9 +25,16 @@ const HouseKeepingManagement = (props: Props) => {
   const DATA = [
     {
       id: 1,
-      name: 'House Keeping Management',
+      name: 'Task Master',
       onPress: () => {
-        navigation.navigate(screensName.HouseKeepingManagementMain);
+        navigation.navigate(screensName.TaskMaster);
+      },
+    },
+    {
+      id: 2,
+      name: 'Task Details',
+      onPress: () => {
+        navigation.navigate(screensName.TaskDetails);
       },
     },
   ];
@@ -51,7 +58,7 @@ const HouseKeepingManagement = (props: Props) => {
   );
 };
 
-export default HouseKeepingManagement;
+export default HouseKeepingManagementMain;
 
 const styles = StyleSheet.create({
   container: {

@@ -4,24 +4,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { colors, fonts, strings, vh, vw } from '../../../../../../constants';
-import { useAppSelector } from '../../../../../../hooks';
+import { colors, fonts, strings, vh, vw } from '../../../../../../../constants';
+import { useAppSelector } from '../../../../../../../hooks';
 import {
   Header,
   NavigationType,
-} from '../../../../../../components/organisms/HeaderOrganism';
-import TextInputOrganisms from '../../../../../../components/organisms/TextInputOrganisms';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import { isNullUndefined } from '../../../../../../utils/CommonFunction';
-import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
+} from '../../../../../../../components/organisms/HeaderOrganism';
+import TextInputOrganisms from '../../../../../../../components/organisms/TextInputOrganisms';
+import DropDownOrganism from '../../../../../../../components/organisms/DropDownOrganism';
+import ButtonOrganism from '../../../../../../../components/organisms/ButtonOrganism';
+import FullscreenLoading from '../../../../../../../components/organisms/FullscreenLoading';
+import { isNullUndefined } from '../../../../../../../utils/CommonFunction';
+import { useCommonDropdownListMutation } from '../../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import {
   useHouseKeepingAddTaskMasterMutation,
   useHouseKeepingUpdateTaskMasterMutation,
-} from '../../../../../../injectEndpoints/houseKeepingManagementEndpoints';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import TextAtom from '../../../../../../components/atoms/TextAtom';
+} from '../../../../../../../injectEndpoints/houseKeepingManagementEndpoints';
+import ViewAtom from '../../../../../../../components/atoms/ViewAtom';
+import TextAtom from '../../../../../../../components/atoms/TextAtom';
 
 interface Props {
   route: any;
