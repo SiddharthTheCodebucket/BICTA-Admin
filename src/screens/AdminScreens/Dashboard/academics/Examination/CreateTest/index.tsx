@@ -192,7 +192,7 @@ const CreateTest = (props: Props) => {
         onPressCreate={() => navigation.navigate(screensName.AddCreateExam)}
       />
 
-      {crediantialData.user[0].tenantId === 3 && (
+      {/* {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
           placeholder={strings.lms.locationDetails.centers}
@@ -224,7 +224,7 @@ const CreateTest = (props: Props) => {
           inputText={centerSerach?.name}
           containerStyle={styles.centerDropdown}
         />
-      )}
+      )} */}
 
       {showSearch && (
         <FormSearch
