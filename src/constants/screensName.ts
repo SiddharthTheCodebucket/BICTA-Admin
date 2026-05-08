@@ -118,6 +118,7 @@ export default {
   ExaminationManagement: 'ExaminationManagement',
   Examination: 'Examination',
   CreateTest: 'CreateTest',
+  AddCreateExam: 'AddCreateExam',
   TestDetailsList: 'TestDetailsList',
   AssignQuestionList: 'AssignQuestionList',
   ExaminationQuestionBank: 'ExaminationQuestionBank',

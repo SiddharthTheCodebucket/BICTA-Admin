@@ -29,9 +29,9 @@ import {
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
 import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
 import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
+import { FormSearch } from '../../../../../../components/templates';
 import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 import ExaminationListHeader from '../components/ExaminationListHeader';
 
@@ -39,16 +39,6 @@ interface Props {
   navigation: NavigationType;
   route?: any;
 }
-
-const debounce = (func: any, delay: number) => {
-  let timer: any;
-  return (...args: any[]) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      func(...args);
-    }, delay);
-  };
-};
 
 const CreateTest = (props: Props) => {
   const { navigation, route } = props;
@@ -91,12 +81,14 @@ const CreateTest = (props: Props) => {
         setFirstTimeLoad(false);
         listTrainingTests();
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [firstTimeLoad, centerSerach, search]),
   );
 
   useEffect(() => {
     if (!centerSerach?.name) return;
     listTrainingTests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [centerSerach]);
 
   const getCentreFilter = () => {
@@ -146,16 +138,9 @@ const CreateTest = (props: Props) => {
       });
   };
 
-  const handleSearch = useCallback(
-    debounce((text: string) => {
-      listTrainingTests();
-    }, 500),
-    [],
-  );
-
   const onChangeSearch = (text: string) => {
     setSearch(text);
-    handleSearch(text);
+    listTrainingTests();
   };
 
   const onClearSearch = () => {
@@ -163,7 +148,7 @@ const CreateTest = (props: Props) => {
     listTrainingTests();
   };
 
-  const TrainingTestCard = ({ item, index, navigation }: any) => {
+  const TrainingTestCard = ({ item, navigation }: any) => {
     const batchCount = item?.noOfBatch ?? item?.noOfBatches;
     const subtitle =
       typeof batchCount !== 'undefined' && batchCount !== null
@@ -204,12 +189,7 @@ const CreateTest = (props: Props) => {
         title={strings.lms.examination.examinationIndex.createTest}
         count={data?.length ?? 0}
         onPressSearch={() => setShowSearch(prev => !prev)}
-        onPressCreate={() => {
-          Toast.show({
-            type: 'info',
-            text2: 'Select a training to create test',
-          });
-        }}
+        onPressCreate={() => navigation.navigate(screensName.AddCreateExam)}
       />
 
       {crediantialData.user[0].tenantId === 3 && (
@@ -234,8 +214,8 @@ const CreateTest = (props: Props) => {
                 },
               ],
               selectedData: centerSerach,
-              setSelectedData: (data: any) => {
-                setCenterSerach(data);
+              setSelectedData: (selectedData: any) => {
+                setCenterSerach(selectedData);
               },
               typeName: 'name',
               typeId: 'id',
@@ -247,11 +227,11 @@ const CreateTest = (props: Props) => {
       )}
 
       {showSearch && (
-        <SearchBoxOrganism
+        <FormSearch
+          value={search}
           onChangeText={onChangeSearch}
-          searchText={search}
-          onPressCross={onClearSearch}
-          searchBox={styles.searchBox}
+          onClear={onClearSearch}
+          containerStyle={styles.searchBox}
         />
       )}
 
