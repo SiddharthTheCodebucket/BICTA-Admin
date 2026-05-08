@@ -5,100 +5,104 @@ import React, {
   useState,
 } from 'react';
 import {
-  StyleSheet,
-  View,
-  FlatList,
   ActivityIndicator,
+  FlatList,
+  Modal,
   RefreshControl,
-  ScrollView,
-  LayoutAnimation,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   colors,
   fonts,
-  images,
-  screensName,
   strings,
   vh,
   vw,
 } from '../../../../../../constants';
+import { SvgEye } from '../../../../../../constants/svgs';
 import {
   Header,
   NavigationType,
 } from '../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../components/atoms/TouchableAtom';
-import DropDownOrganism from '../../../../../../components/organisms/DropDownOrganism';
-import ViewAtom from '../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../components/organisms/ButtonOrganism';
-import ImageAtom from '../../../../../../components/atoms/ImageAtom';
+import { FormGradientButton } from '../../../../../../components/templates';
+import {
+  useListExaminationSubmissionAnswerMutation,
+  useListExaminationSubmissionReportMutation,
+} from '../../../../../../injectEndpoints/lmsEndpoints';
 import { downloadAndOpenFile } from '../../../../../../utils/CommonFunction';
-import { useListExaminationSubmissionReportMutation } from '../../../../../../injectEndpoints/lmsEndpoints';
-
-import { useCommonDropdownListMutation } from '../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
 
 interface Props {
   route: any;
   navigation: NavigationType;
 }
 
-const debounce = (func: any, delay: number) => {
-  let timer: any;
-  return (...args: any[]) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      func(...args);
-    }, delay);
-  };
-};
-
-const DescriptionRow = ({ label, value }: any) => (
-  <View style={styles.flex1}>
-    <TextAtom style={styles.label}>{label}</TextAtom>
-    <TextAtom style={styles.value}>{value}</TextAtom>
+const InfoBlock = ({ label, value }: { label: string; value: any }) => (
+  <View style={styles.infoBlock}>
+    <TextAtom style={styles.infoLabel}>{label}</TextAtom>
+    <TextAtom style={styles.infoValue}>{value ?? '-'}</TextAtom>
   </View>
 );
 
+const Badge = ({
+  value,
+  type,
+}: {
+  value: any;
+  type: 'danger' | 'info';
+}) => (
+  <View style={[styles.badge, type === 'danger' ? styles.failBadge : styles.infoBadge]}>
+    <TextAtom
+      style={[
+        styles.badgeText,
+        type === 'danger' ? styles.failBadgeText : styles.infoBadgeText,
+      ]}
+    >
+      {value ?? '-'}
+    </TextAtom>
+  </View>
+);
+
+const stripHtml = (value?: string) => {
+  if (!value) return '';
+  return value
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .trim();
+};
+
 const TraineeResponseList = (props: Props) => {
   const { navigation } = props;
-  const item = props.route?.params?.data;
-
+  const exam = props.route?.params?.data;
   const [listTraineeResponsesApi] =
     useListExaminationSubmissionReportMutation();
+  const [listExamResponsesApi] = useListExaminationSubmissionAnswerMutation();
 
-  const [dropDownApi] = useCommonDropdownListMutation();
-
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<any[]>([]);
   const [page, setPage] = useState(1);
-
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
-
+  const [search] = useState('');
   const [url, setUrl] = useState('');
-  const [selectedItems] = useState<any>([]);
+  const [selectedTrainee, setSelectedTrainee] = useState<any>(null);
+  const [responses, setResponses] = useState<any[]>([]);
+  const [sheetLoading, setSheetLoading] = useState(false);
 
   const ITEMS_PER_PAGE = 10;
-
-  const [search, setSearch] = React.useState('');
-  const [centerSerach] = React.useState<any>({});
-
-  const [batchList, setBatchList] = useState<any>([]);
-  const [selectedBacth, setSelectedBacth] = useState<any>({});
-  const [selectedResult, setSelectedResult] = useState<any>({});
 
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      strings.lms.examination.traineeResponseList.title,
+      strings.lms.examination.examinationIndex.title,
       undefined,
       undefined,
       undefined,
@@ -107,37 +111,26 @@ const TraineeResponseList = (props: Props) => {
         titleColor: colors.white,
         backIconColor: colors.white,
       },
+      true,
     );
     navigation.BackButtonPress = () => navigation.goBack();
   }, [navigation]);
 
   useFocusEffect(
     useCallback(() => {
-      if (firstTimeLoad && !centerSerach?.name && search === '') {
+      if (firstTimeLoad && search === '') {
         setFirstTimeLoad(false);
         listTraineeResponses(1, true, '');
-        getBatchList();
       }
-    }, [firstTimeLoad, centerSerach, search]),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [firstTimeLoad, search]),
   );
 
   useEffect(() => {
-    if (!centerSerach?.name) return;
-    listTraineeResponses(1, true, '');
-  }, [centerSerach]);
-
-  const getCentreFilter = () => {
-    if (!centerSerach?.name) return null;
-    if (centerSerach.name === strings.dashboardIndex.allCenters) {
-      return [strings.dashboardIndex.gaya, strings.dashboardIndex.patna];
-    }
-    return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
-  };
+    if (!exam?.id) return;
+    listTraineeResponses(1, true, search);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exam?.id]);
 
   const listTraineeResponses = (
     pageNumber: number,
@@ -148,7 +141,6 @@ const TraineeResponseList = (props: Props) => {
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
 
-    const centreFilter = getCentreFilter();
     const params: any = {
       search: keyword,
       sort: {
@@ -156,7 +148,7 @@ const TraineeResponseList = (props: Props) => {
         sorts: ['desc'],
       },
       filters: [
-        ...(item?.id ? [['testId', '=', item.testId]] : []),
+        ...(exam?.id ? [['testId', '=', exam.testId ?? exam.id]] : []),
         ...filtersArray,
       ],
       pageNo: pageNumber,
@@ -166,10 +158,6 @@ const TraineeResponseList = (props: Props) => {
       ...extraParams,
     };
 
-    if (centreFilter) {
-      params.bipardCentre = centreFilter;
-    }
-
     listTraineeResponsesApi(params)
       .unwrap()
       .then((res: any) => {
@@ -177,17 +165,18 @@ const TraineeResponseList = (props: Props) => {
         setInitialCall(false);
         setPagination(false);
         setRefreshing(false);
+
         if (pageNumber !== 1 && data.length > 0) {
-          setData((prev: any) => [...prev, ...newData]);
+          setData(prev => [...prev, ...newData]);
         } else {
           setData(newData);
         }
 
         setPage(pageNumber);
-
-        const totalCount = res?.data?.totalCount ?? 0;
-        setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
-        setUrl(res.data.exportUrl);
+        setNextPageAvailable(
+          pageNumber * ITEMS_PER_PAGE < (res?.data?.totalCount ?? 0),
+        );
+        setUrl(res.data?.exportUrl ?? '');
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -200,237 +189,172 @@ const TraineeResponseList = (props: Props) => {
       });
   };
 
-  const handleSearch = useCallback(
-    debounce((text: string) => {
-      listTraineeResponses(1, true, text);
-    }, 500),
-    [],
-  );
+  const openResponseSheet = (item: any) => {
+    setSelectedTrainee(item);
+    setResponses([]);
+    setSheetLoading(true);
 
-  const onChangeSearch = (text: string) => {
-    setSearch(text);
-    handleSearch(text);
-  };
-
-  const onClearSearch = () => {
-    setSearch('');
-    listTraineeResponses(1, true, '');
-  };
-
-  const TraineeCard = ({ item, index, isSelected }: any) => {
-    return (
-      <TouchableAtom
-        onPress={() => {
-          navigation.navigate(screensName.ExamResponseDetailsListTrainee, {
-            data: item,
-          });
-        }}
-        style={[styles.card, isSelected && styles.selectedCard]}
-      >
-        <View style={styles.cardHeader}>
-          <TextAtom style={styles.flex1Label}>
-            {strings.lms.examination.traineeResponseList.srNo} {index + 1}
-          </TextAtom>
-
-          <TouchableAtom
-            onPress={() =>
-              navigation.navigate(screensName.ExamResponseSheet, {
-                item: item,
-              })
-            }
-            style={styles.responseBtn}
-          >
-            <TextAtom style={styles.responseBtnText}>
-              {strings.lms.examination.traineeResponseList.viewResponse}
-            </TextAtom>
-          </TouchableAtom>
-        </View>
-
-        <DescriptionRow
-          label={strings.lms.examination.traineeResponseList.trainingName}
-          value={item.trainingName || '-'}
-        />
-
-        <DescriptionRow
-          label={strings.lms.examination.traineeResponseList.traineeName}
-          value={`${item.traineeName || '-'} (${item.traineeId})`}
-        />
-
-        <DescriptionRow
-          label={strings.lms.examination.traineeResponseList.batchNo}
-          value={item.batchName || '-'}
-        />
-
-        <DescriptionRow
-          label={strings.lms.examination.traineeResponseList.examName}
-          value={item.testName || '-'}
-        />
-      </TouchableAtom>
-    );
-  };
-
-  const renderTraineeResponseItem = ({ item, index }: any) => {
-    return (
-      <TraineeCard
-        item={item}
-        index={index}
-        navigation={navigation}
-        isSelected={selectedItems.some((x: any) => x.id === item.id)}
-      />
-    );
-  };
-
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DropDownOrganism
-        label={strings.lms.examination.traineeResponseList.batch}
-        placeholder={strings.lms.examination.traineeResponseList.batch}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.examination.traineeResponseList.batch,
-            Data: batchList,
-            selectedData: selectedBacth,
-            setSelectedData: (data: any) => {
-              setSelectedBacth(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedBacth?.name}
-      />
-      <DropDownOrganism
-        label={strings.lms.examination.traineeResponseList.result}
-        placeholder={strings.lms.examination.traineeResponseList.result}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: strings.lms.examination.traineeResponseList.result,
-            Data: [
-              {
-                id: strings.lms.examination.traineeResponseList.fail,
-                name: strings.lms.examination.traineeResponseList.fail,
-              },
-              {
-                id: strings.lms.examination.traineeResponseList.pass,
-                name: strings.lms.examination.traineeResponseList.pass,
-              },
-            ],
-            selectedData: selectedResult,
-            setSelectedData: (data: any) => {
-              setSelectedResult(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedResult?.name}
-      />
-
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText={strings.lms.examination.traineeResponseList.applyFilter}
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText={strings.lms.examination.traineeResponseList.clearFilter}
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={styles.primaryText}
-        />
-      </ViewAtom>
-    </View>
-  );
-
-  const getBatchList = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'list-all-training-batch',
-      bipardCentre: getCentreFilter(),
-      replacements: [item.id, '%%'],
+    const params: any = {
+      traineeId: item.traineeId,
+      submissionId: item.id,
+      search: '',
+      sort: {
+        attributes: ['id'],
+        sorts: ['desc'],
+      },
+      filters: [],
+      pageNo: 1,
+      itemsPerPage: 10,
     };
-    dropDownApi(params)
+
+    listExamResponsesApi(params)
       .unwrap()
       .then((res: any) => {
-        setBatchList(res.data);
-        setInitialCall(false);
+        const newData = res.data?.user?.[0]?.response ?? [];
+        setResponses(newData);
+        setSheetLoading(false);
       })
       .catch((err: any) => {
-        setInitialCall(false);
+        setSheetLoading(false);
         Toast.show({
           type: 'error',
-          text2: err.data.message,
+          text2: err.data?.message || strings.something_went_wrong_,
         });
       });
   };
 
-  const clearFilter = () => {
-    setSelectedBacth({});
-    setSelectedResult({});
-    listTraineeResponses(1, true, search, []);
+  const closeResponseSheet = () => {
+    setSelectedTrainee(null);
+    setResponses([]);
   };
 
-  const applyFilter = (isExport = false) => {
-    const filters: any = [];
+  const renderBackTitle = () => (
+    <View style={styles.titleRow}>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => navigation.goBack()}
+        style={styles.backTitleRow}
+      >
+        <Icon name="chevron-left" size={28} color={colors.text_black} />
+        <TextAtom style={styles.backTitle}>Exam Result Details List</TextAtom>
+      </TouchableOpacity>
+      <TouchableOpacity activeOpacity={0.8} style={styles.searchButton}>
+        <Icon name="magnify" size={24} color={colors.text_black} />
+      </TouchableOpacity>
+    </View>
+  );
 
-    const extraParams: any = {};
+  const renderTraineeResponseItem = ({ item }: { item: any }) => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <TextAtom numberOfLines={1} style={styles.cardTitle}>
+          {item.trainingName ?? 'Training Name here'}
+        </TextAtom>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.iconButton}
+          onPress={() => openResponseSheet(item)}
+        >
+          <SvgEye width={16} height={16} />
+        </TouchableOpacity>
+      </View>
 
-    // Pass Result directly in params
-    if (selectedResult?.id) {
-      extraParams.resultStatus = selectedResult.id;
-    }
+      <View style={styles.infoGrid}>
+        <InfoBlock label="Trainee Name" value={item.traineeName ?? 'ashutosh kumar'} />
+        <InfoBlock label="Trainee Email" value={item.traineeEmail ?? 'anshu@example.com'} />
+        <InfoBlock label="Trainee Batch No" value={item.batchNo ?? item.batchName ?? 5} />
+        <InfoBlock label="Attempt" value={item.attempt ?? 1} />
+        <InfoBlock label="Total Questions" value={item.totalQuestions ?? 30} />
+        <InfoBlock label="Total Marks" value={item.totalMarks ?? 30} />
+        <InfoBlock label="Passing Marks" value={item.passingMarks ?? 15} />
+        <InfoBlock label="Obtained Marks" value={item.totalObtainedMarks ?? 8} />
+      </View>
 
-    // Pass Batch inside filters array
-    if (selectedBacth?.id) {
-      filters.push(['batchId', '=', selectedBacth.id]);
-    }
+      <View style={styles.infoGrid}>
+        <View style={styles.infoBlock}>
+          <TextAtom style={styles.infoLabel}>Status</TextAtom>
+          <Badge value={item.passingStatus ?? 'Fail'} type="danger" />
+        </View>
+        <View style={styles.infoBlock}>
+          <TextAtom style={styles.infoLabel}>Final Submission</TextAtom>
+          <Badge value={item.finalSubmission ?? 'Yes'} type="info" />
+        </View>
+      </View>
+    </View>
+  );
 
-    listTraineeResponses(1, true, search, filters, extraParams);
-    setShowFilter(false);
-  };
+  const renderResponseItem = ({ item }: { item: any }) => (
+    <View style={styles.responseCard}>
+      <TextAtom numberOfLines={2} style={styles.responseQuestion}>
+        {stripHtml(item.mcqQuestion) || 'Question Name here'}
+      </TextAtom>
+      <View style={styles.responseInfoRow}>
+        <InfoBlock label="Answer" value={item.mcqResponse ?? 'Option 2'} />
+        <InfoBlock label="Correct Answer" value={item.correctOption ?? 'Option 3'} />
+      </View>
+    </View>
+  );
+
+  const renderResponseSheet = () => (
+    <Modal
+      transparent
+      visible={!!selectedTrainee}
+      animationType="slide"
+      onRequestClose={closeResponseSheet}
+    >
+      <View style={styles.modalBackdrop}>
+        <View style={styles.sheet}>
+          <View style={styles.sheetHandle} />
+          <View style={styles.sheetHeader}>
+            <TextAtom style={styles.sheetTitle}>Trainee Questions Result</TextAtom>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={closeResponseSheet}
+              style={styles.closeButton}
+            >
+              <Icon name="close" size={28} color={colors.text_black} />
+            </TouchableOpacity>
+          </View>
+
+          <FullscreenLoading isVisible={sheetLoading} />
+          <FlatList
+            data={responses}
+            keyExtractor={(item, index) => `${item?.id ?? 'response'}_${index}`}
+            renderItem={renderResponseItem}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.responseList}
+            ListEmptyComponent={
+              sheetLoading ? null : (
+                <TextAtom style={styles.emptyText}>No responses found</TextAtom>
+              )
+            }
+            ItemSeparatorComponent={() => <View style={styles.responseGap} />}
+          />
+
+          <FormGradientButton
+            title="Download"
+            onPress={() => {
+              if (url) {
+                downloadAndOpenFile(url);
+              }
+            }}
+            buttonStyle={styles.downloadButton}
+          />
+        </View>
+      </View>
+    </Modal>
+  );
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-
-      <View style={styles.headerWrapper}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.rowWrapper}>
-            <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-              <TextAtom style={styles.filterText}>
-                {showFilter
-                  ? strings.lms.examination.traineeResponseList.hideFilter
-                  : strings.lms.examination.traineeResponseList.showFilter}
-              </TextAtom>
-            </TouchableAtom>
-            <TouchableAtom
-              style={styles.filterButton}
-              onPress={() => {
-                if (url) {
-                  downloadAndOpenFile(url);
-                }
-              }}
-            >
-              <ImageAtom
-                source={images.download}
-                style={{ tintColor: colors.black }}
-              />
-            </TouchableAtom>
-          </View>
-          <SearchBoxOrganism
-            onChangeText={onChangeSearch}
-            searchText={search}
-            onPressCross={onClearSearch}
-            searchBox={styles.searchBoxMargin}
-          />
-        </ScrollView>
-      </View>
+      {renderBackTitle()}
 
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
         renderItem={renderTraineeResponseItem}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item, index) => `${item?.id ?? 'trainee'}_${index}`}
         ListEmptyComponent={
           initialCall ? null : (
             <TextAtom style={styles.emptyText}>
@@ -438,7 +362,6 @@ const TraineeResponseList = (props: Props) => {
             </TextAtom>
           )
         }
-        ListHeaderComponent={showFilter ? <FilterForm /> : null}
         ListFooterComponent={
           <ActivityIndicator
             size={'small'}
@@ -454,7 +377,7 @@ const TraineeResponseList = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listTraineeResponses(1, false, '');
+              listTraineeResponses(1, false, search);
             }}
           />
         }
@@ -467,6 +390,8 @@ const TraineeResponseList = (props: Props) => {
         contentContainerStyle={styles.flatListContainer}
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
+
+      {renderResponseSheet()}
     </SafeAreaView>
   );
 };
@@ -474,251 +399,181 @@ const TraineeResponseList = (props: Props) => {
 export default TraineeResponseList;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.new_ui_screen_bg },
-  flatListContainer: {
-    paddingVertical: vh(10),
+  container: {
+    flex: 1,
+    backgroundColor: colors.new_ui_screen_bg,
+    paddingHorizontal: vw(16),
   },
-
-  tabRow: {
+  titleRow: {
+    height: vh(44),
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: vw(10),
-    marginTop: vh(5),
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  tabButton: {
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(20),
-    backgroundColor: colors.lightGray2,
-    borderRadius: vw(6),
+  backTitleRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  activeTab: {
-    backgroundColor: colors.primary,
+  backTitle: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(16),
+    color: colors.text_black,
   },
-  tabText: {
-    color: colors.black,
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
+  searchButton: {
+    width: vw(34),
+    height: vw(34),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  activeTabText: {
-    color: colors.white,
+  flatListContainer: {
+    paddingBottom: vh(24),
   },
-  responseBtn: {
-    backgroundColor: colors.primary,
-    paddingVertical: vh(4),
-    paddingHorizontal: vw(10),
-    borderRadius: vw(4),
-  },
-
-  responseBtnText: {
-    color: colors.white,
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(10),
-  },
-
   card: {
     backgroundColor: colors.white,
-    marginHorizontal: vw(15),
     borderRadius: vw(8),
     paddingHorizontal: vw(15),
-    paddingVertical: vh(8),
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
+    paddingVertical: vh(16),
   },
-
-  label: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: vh(20),
   },
-  labelRight: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    textAlign: 'right',
+  cardTitle: {
+    flex: 1,
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(16),
+    color: colors.text_black,
+    paddingRight: vw(10),
   },
-  value: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
+  iconButton: {
+    width: vw(30),
+    height: vw(30),
+    borderRadius: vw(8),
+    borderWidth: 1,
+    borderColor: '#E6E9EF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.white,
+  },
+  infoGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  infoBlock: {
+    width: '50%',
+    marginBottom: vh(10),
+  },
+  infoLabel: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(12),
+    color: colors.text_light_grey,
     marginBottom: vh(5),
   },
-  valueRight: {
-    fontFamily: fonts.Roboto_Regular,
+  infoValue: {
+    fontFamily: fonts.Inter_Medium,
     fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
-    textAlign: 'right',
+    color: colors.text_black,
   },
-
+  badge: {
+    alignSelf: 'flex-start',
+    borderRadius: vw(4),
+    paddingHorizontal: vw(5),
+    paddingVertical: vh(4),
+  },
+  failBadge: {
+    backgroundColor: '#FFE4E6',
+  },
+  infoBadge: {
+    backgroundColor: '#E6F2FF',
+  },
+  badgeText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(12),
+  },
+  failBadgeText: {
+    color: colors.red,
+  },
+  infoBadgeText: {
+    color: colors.primary_blue,
+  },
+  modalBackdrop: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(14, 34, 57, 0.08)',
+  },
+  sheet: {
+    maxHeight: '78%',
+    minHeight: '72%',
+    borderTopLeftRadius: vw(28),
+    borderTopRightRadius: vw(28),
+    backgroundColor: colors.white,
+    paddingHorizontal: vw(15),
+    paddingTop: vh(10),
+    paddingBottom: vh(40),
+  },
+  sheetHandle: {
+    width: vw(90),
+    height: vh(5),
+    borderRadius: vw(4),
+    backgroundColor: colors.text_grey,
+    alignSelf: 'center',
+    marginBottom: vh(26),
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: vh(18),
+  },
+  sheetTitle: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(16),
+    color: colors.new_ui_heading,
+  },
+  closeButton: {
+    width: vw(36),
+    height: vw(36),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  responseList: {
+    paddingBottom: vh(18),
+  },
+  responseCard: {
+    borderRadius: vw(8),
+    backgroundColor: colors.new_ui_card_bg,
+    paddingHorizontal: vw(15),
+    paddingVertical: vh(15),
+  },
+  responseQuestion: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(16),
+    color: colors.text_black,
+    marginBottom: vh(18),
+  },
+  responseInfoRow: {
+    flexDirection: 'row',
+  },
+  responseGap: {
+    height: vh(14),
+  },
+  downloadButton: {
+    height: vh(40),
+    borderRadius: vw(8),
+  },
   emptyText: {
     textAlign: 'center',
     marginTop: vh(50),
     color: colors.grey,
-    fontFamily: fonts.Roboto_Medium,
+    fontFamily: fonts.Inter_Medium,
   },
-
-  rowBetween: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  paginationLoader: {
+    marginTop: vh(15),
   },
-
-  filterButton: {
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    borderRadius: vw(4),
-    marginTop: vh(10),
-    alignSelf: 'flex-end',
-    marginRight: vh(15),
-    paddingHorizontal: vw(10),
-    paddingVertical: vh(5),
+  itemSeparator: {
+    height: vh(10),
   },
-  filterText: {
-    color: colors.black,
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-  },
-  filterContainer: { paddingHorizontal: vw(15) },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: vh(5),
-  },
-  applyBtn: { width: vw(150), height: vh(35) },
-  clearBtn: {
-    width: vw(150),
-    height: vh(35),
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    backgroundColor: colors.white,
-  },
-  selectedCard: {
-    borderWidth: 1,
-    borderColor: colors.primary,
-    backgroundColor: colors.selectedCardBg,
-  },
-  statusBox: {
-    marginTop: vh(8),
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(12),
-    borderRadius: vw(6),
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  activeBox: {
-    backgroundColor: colors.lightGreenBg,
-    borderColor: colors.darkGreen,
-  },
-
-  inActiveBox: {
-    backgroundColor: colors.lightRedBg,
-    borderColor: colors.darkRed,
-  },
-
-  statusText: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-  },
-
-  activeText: { color: colors.greenText },
-  inActiveText: { color: colors.redText },
-
-  dropMenu: {
-    marginTop: vh(6),
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.grey,
-    borderRadius: vw(6),
-    overflow: 'hidden',
-  },
-
-  dropItem: {
-    paddingVertical: vh(10),
-    paddingHorizontal: vw(12),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.chinese_silver,
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'transparent',
-    zIndex: 998,
-  },
-  fileInputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: vh(6),
-  },
-
-  fileInput: {
-    flex: 1,
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    borderRadius: vw(6),
-    paddingHorizontal: vw(10),
-    paddingVertical: vh(6),
-    fontSize: vw(14),
-    color: colors.black,
-  },
-
-  checkBtn: {
-    marginLeft: vw(10),
-    padding: vw(6),
-    borderRadius: vw(6),
-    backgroundColor: colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 2,
-  },
-
-  fileDisplayBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(10),
-    borderWidth: vw(1),
-    borderColor: colors.grey_3,
-    borderRadius: vw(6),
-    backgroundColor: colors.lightGray2,
-    marginTop: vh(6),
-  },
-
-  fileText: {
-    fontSize: vw(14),
-    color: colors.grey,
-    fontFamily: fonts.Roboto_Medium,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: vh(10),
-  },
-  flex1Label: {
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-    color: colors.black,
-    flex: 1,
-  },
-  actionRow: { flexDirection: 'row', gap: vw(15) },
-  flex1: { flex: 1 },
-  headerWrapper: { height: vh(100) },
-  rowWrapper: {
-    flexDirection: 'row',
-    alignSelf: 'flex-end',
-  },
-  searchBoxMargin: { marginTop: vh(10) },
-  paginationLoader: { marginTop: vh(10) },
-  itemSeparator: { height: vh(10) },
-  primaryText: { color: colors.primary },
 });
