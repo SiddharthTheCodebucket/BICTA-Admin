@@ -5,16 +5,19 @@ import React, {
   useState,
 } from 'react';
 import {
-  StyleSheet,
-  View,
-  FlatList,
   ActivityIndicator,
+  FlatList,
+  Modal,
   RefreshControl,
-  LayoutAnimation,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import moment from 'moment';
 import {
   colors,
   fonts,
@@ -22,136 +25,118 @@ import {
   vh,
   vw,
 } from '../../../../../../../constants';
-import { useAppSelector } from '../../../../../../../hooks';
 import {
   Header,
   NavigationType,
 } from '../../../../../../../components/organisms/HeaderOrganism';
 import TextAtom from '../../../../../../../components/atoms/TextAtom';
 import FullscreenLoading from '../../../../../../../components/organisms/FullscreenLoading';
-import SearchBoxOrganism from '../../../../../../../components/organisms/SearchBoxOrganism';
-import TouchableAtom from '../../../../../../../components/atoms/TouchableAtom';
-import DropDownOrganism from '../../../../../../../components/organisms/DropDownOrganism';
-import { useCommonDropdownListMutation } from '../../../../../../../injectEndpoints/vehicleManagemnetEndpoints';
-import ViewAtom from '../../../../../../../components/atoms/ViewAtom';
-import ButtonOrganism from '../../../../../../../components/organisms/ButtonOrganism';
+import {
+  ActionPopover,
+  FormGradientButton,
+  FormWhiteButton,
+} from '../../../../../../../components/templates';
 import { useListPatientSymptomsDetailsMutation } from '../../../../../../../injectEndpoints/phcEndpoints';
-import DateInputOrganism from '../../../../../../../components/organisms/DateInputOrganism';
-import moment from 'moment';
 
-interface Props {
+type Props = {
   navigation: NavigationType;
-}
-
-const debounce = (func: any, delay: number) => {
-  let timer: any;
-  return (...args: any[]) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      func(...args);
-    }, delay);
-  };
 };
 
-const BasicPatientDetails = (props: Props) => {
-  const { navigation } = props;
+type PatientTab = 'Trainee' | 'Employee' | 'Other';
 
-  const { crediantialData } = useAppSelector(state => state.Auth);
+const InfoBlock = ({ label, value, danger }: any) => (
+  <View style={styles.infoBlock}>
+    <TextAtom style={styles.infoLabel}>{label}</TextAtom>
+    <TextAtom numberOfLines={0} style={[styles.infoValue, danger && styles.dangerText]}>
+      {value ?? '-'}
+    </TextAtom>
+  </View>
+);
 
-  const [commonDropdownApi] = useCommonDropdownListMutation();
+const SelectBox = ({ label, wide, disabled }: any) => (
+  <View style={[wide ? styles.fullFilterField : styles.halfFilterField]}>
+    <TextAtom style={styles.filterLabel}>{label}</TextAtom>
+    <View style={[styles.selectBox, disabled && styles.selectBoxDisabled]}>
+      <TextAtom style={[styles.selectText, disabled && styles.selectTextDisabled]}>
+        Select
+      </TextAtom>
+      <Icon
+        name={label.includes('Date') ? 'calendar-month-outline' : 'chevron-down'}
+        size={22}
+        color={disabled ? '#C4CAD5' : colors.text_black}
+      />
+    </View>
+  </View>
+);
+
+const BasicPatientDetails = ({ navigation }: Props) => {
   const [listPatientSymptomsDetailsApi] =
     useListPatientSymptomsDetailsMutation();
-
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<any[]>([]);
   const [page, setPage] = useState(1);
-
   const [nextPageAvailable, setNextPageAvailable] = useState(false);
   const [firstTimeLoad, setFirstTimeLoad] = useState(true);
   const [pagination, setPagination] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
-
-  const [trainingList, setTrainingList] = useState<any>([]);
-  const [selectedTraining, setSelectedTraining] = useState<any>({});
-  const [batchList, setBatchList] = useState<any>([]);
-  const [selectedBatch, setSelectedBatch] = useState<any>({});
-  const [selectedPatientType, setSelectedPatientType] = useState<any>({});
-  const [bloodGroupList, setBloodGroupList] = useState<any>([]);
-  const [selectedBloodGroup, setSelectedBloodGroup] = useState<any>({});
-  const [doctorList, setDoctorList] = useState<any>([]);
-  const [selectedDoctor, setSelectedDoctor] = useState<any>({});
-  const [selectedTreatmentType, setSelectedTreatmentType] = useState<any>({});
-  const [toDate, setToDate] = useState('');
-  const [fromDate, setFromDate] = useState('');
+  const [activeType, setActiveType] = useState<PatientTab>('Trainee');
+  const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [search] = useState('');
 
   const ITEMS_PER_PAGE = 10;
 
-  const [search, setSearch] = React.useState('');
-  const [centerSerach, setCenterSerach] = React.useState<any>({});
-
   useLayoutEffect(() => {
-    Header.setNavigation(navigation, 'Patient Details');
+    Header.setNavigation(
+      navigation,
+      'Health Centre',
+      undefined,
+      undefined,
+      undefined,
+      {
+        backgroundColor: colors.primary_dark_blue,
+        titleColor: colors.white,
+        backIconColor: colors.white,
+      },
+      true,
+    );
     navigation.BackButtonPress = () => navigation.goBack();
-  });
+  }, [navigation]);
 
   useFocusEffect(
     useCallback(() => {
-      if (firstTimeLoad && !centerSerach?.name && search === '') {
-        getTrainingList();
-        getBloodGroup();
-        getDoctorList();
+      if (firstTimeLoad && search === '') {
         setFirstTimeLoad(false);
-        listFacultyDetails(1, true, '');
+        listPatientDetails(1, true, '');
       }
-    }, [firstTimeLoad, centerSerach, search]),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [firstTimeLoad, search]),
   );
 
   useEffect(() => {
-    if (!centerSerach?.name) return;
-    listFacultyDetails(1, true, '');
-  }, [centerSerach]);
+    listPatientDetails(1, true, search);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeType]);
 
-  const getCentreFilter = () => {
-    if (!centerSerach?.name) return null;
-
-    if (centerSerach.name === 'All Centers') {
-      return ['Gaya', 'Patna'];
-    }
-
-    return [centerSerach.name];
-  };
-
-  const toggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowFilter(!showFilter);
-  };
-
-  const listFacultyDetails = (
+  const listPatientDetails = (
     pageNumber: number,
     initial: boolean,
     keyword: string,
     filtersArray: any[] = [],
-    extraParams: any = {},
   ) => {
     initial ? setInitialCall(true) : setInitialCall(false);
 
-    const centreFilter = getCentreFilter();
     const params: any = {
       search: keyword,
       sort: {
         attributes: ['id'],
         sorts: ['desc'],
       },
-      filters: filtersArray,
+      filters: [['patientType', '=', activeType], ...filtersArray],
       pageNo: pageNumber,
       itemsPerPage: ITEMS_PER_PAGE,
-      ...extraParams,
     };
-
-    if (centreFilter) {
-      params.bipardCentre = centreFilter;
-    }
 
     listPatientSymptomsDetailsApi(params)
       .unwrap()
@@ -160,16 +145,17 @@ const BasicPatientDetails = (props: Props) => {
         setInitialCall(false);
         setPagination(false);
         setRefreshing(false);
+
         if (pageNumber !== 1 && data.length > 0) {
-          setData((prev: any) => [...prev, ...newData]);
+          setData(prev => [...prev, ...newData]);
         } else {
           setData(newData);
         }
 
         setPage(pageNumber);
-
-        const totalCount = res?.data?.totalCount ?? 0;
-        setNextPageAvailable(pageNumber * ITEMS_PER_PAGE < totalCount);
+        setNextPageAvailable(
+          pageNumber * ITEMS_PER_PAGE < (res?.data?.totalCount ?? 0),
+        );
       })
       .catch((err: any) => {
         setInitialCall(false);
@@ -182,434 +168,347 @@ const BasicPatientDetails = (props: Props) => {
       });
   };
 
-  const handleSearch = useCallback(
-    debounce((text: string) => {
-      listFacultyDetails(1, true, text);
-    }, 500),
-    [],
+  const patientIdText = (item: any) =>
+    item.uniqueId
+      ? `Unique ID: ${item.uniqueId}`
+      : `ID: ${item.id ?? 'BIP/GAYA/41727/2026'}`;
+
+  const displayDate = (item: any) =>
+    item.currentDatetime
+      ? moment(item.currentDatetime).format('DD-MM-YYYY')
+      : '13-04-2026';
+
+  const toggleExpand = (item: any) => {
+    const id = String(item.id ?? item.uniqueId);
+    setExpandedIds(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const isExpanded = (item: any, index: number) => {
+    const id = String(item.id ?? item.uniqueId);
+    return expandedIds[id] ?? index === 1;
+  };
+
+  const openVisitDetails = (item: any) => {
+    navigation.navigate(screensName.PatientDetailDetails, {
+      data: item,
+      patientType: activeType,
+    });
+  };
+
+  const renderHeader = () => (
+    <>
+      <View style={styles.headerRow}>
+        <TextAtom style={styles.headerTitle}>
+          Basic Patient Details{' '}
+          <TextAtom style={styles.headerCount}>(99877)</TextAtom>
+        </TextAtom>
+        <View style={styles.headerActions}>
+          <TouchableOpacity activeOpacity={0.8} style={styles.iconOnly}>
+            <Icon name="magnify" size={24} color={colors.text_black} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.iconOnly}
+            onPress={() => setFilterVisible(true)}
+          >
+            <Icon name="filter-variant" size={22} color={colors.text_black} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            style={styles.createButton}
+            onPress={() =>
+              navigation.navigate(screensName.AddBasicPatientDetails, {
+                patientType: activeType,
+              })
+            }
+          >
+            <TextAtom style={styles.createText}>+ Create</TextAtom>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.segmentRow}>
+        {(['Trainee', 'Employee', 'Other'] as PatientTab[]).map(tab => (
+          <TouchableOpacity
+            key={tab}
+            activeOpacity={0.85}
+            onPress={() => setActiveType(tab)}
+            style={[
+              styles.segmentButton,
+              activeType === tab && styles.segmentButtonActive,
+            ]}
+          >
+            <TextAtom
+              style={[
+                styles.segmentText,
+                activeType === tab && styles.segmentTextActive,
+              ]}
+            >
+              {tab}
+            </TextAtom>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </>
   );
 
-  const onChangeSearch = (text: string) => {
-    setSearch(text);
-    handleSearch(text);
-  };
+  const renderCollapsedFields = (item: any) => {
+    if (activeType === 'Trainee') {
+      return (
+        <>
+          <InfoBlock label="Training Programme" value={item.trainingName ?? 'Six Days Residential training Programme for Gram Kachahari Sachiv, Panchayati Raj Depart., Govt. of Bihar (486)'} />
+          <View style={styles.infoGrid}>
+            <InfoBlock label="Patient Type" value="Trainee" />
+            <InfoBlock label="Visit Count" value="04" />
+            <InfoBlock label="Batch" value={item.batchNo ?? '01'} />
+            <InfoBlock label="DOB" value="10-06-1990" />
+            <InfoBlock label="Age (Years)" value="35" />
+            <InfoBlock label="Gender" value={item.gender ?? 'Female'} />
+          </View>
+        </>
+      );
+    }
 
-  const onClearSearch = () => {
-    setSearch('');
-    listFacultyDetails(1, true, '');
-  };
-  const BedCard = ({ item, index, navigation }: any) => {
+    if (activeType === 'Employee') {
+      return (
+        <View style={styles.infoGrid}>
+          <InfoBlock label="Patient Type" value="Employee" />
+          <InfoBlock label="Vendor" value={item.vendorName ?? 'Vaishnavi Consultancy Services'} />
+          <InfoBlock label="Designation" value={item.designation ?? 'Admin'} />
+          <InfoBlock label="Visit Count" value="04" />
+          <InfoBlock label="DOB" value="10-06-1990" />
+          <InfoBlock label="Age (Years)" value="35" />
+          <InfoBlock label="Gender" value={item.gender ?? 'Female'} />
+          <InfoBlock label="Blood Group" value={item.bloodGroup ?? 'B+'} />
+          <InfoBlock label="Temp (°C)" value="40 °C" danger />
+          <InfoBlock label="BP (mmHg)" value={item.bloodPressure ?? '110/70'} />
+        </View>
+      );
+    }
+
     return (
-      <TouchableAtom
-        style={styles.card}
-        onPress={() => {
-          navigation.navigate(screensName.PatientDetailDetails, {
-            data: item,
-          });
-        }}
-      >
-        <View style={[styles.rowBetween]}>
-          <View style={[styles.rowBetween]}>
-            <View style={{ flex: 1 }}>
-              <TextAtom style={styles.label}> Sr. No</TextAtom>
-              <TextAtom style={styles.value}>{index + 1}</TextAtom>
-            </View>
-            <View style={{ flex: 1, alignSelf: 'flex-end' }}>
-              <TextAtom style={styles.labelRight}>ID</TextAtom>
-              <TextAtom style={styles.valueRight}>
-                {item.uniqueId ?? '-'}
-              </TextAtom>
-            </View>
-          </View>
-        </View>
-        <View style={[styles.rowBetween]}>
-          <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>Patient Type</TextAtom>
-            <TextAtom style={styles.value}>{item.patientType ?? '-'}</TextAtom>
-          </View>
-          <View style={{ flex: 1, alignSelf: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>Visit Count</TextAtom>
-            <TextAtom style={styles.valueRight}>
-              {item.visitCount ?? '-'}
-            </TextAtom>
-          </View>
-        </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Name</TextAtom>
-          <TextAtom style={styles.value}>{item.name ?? '-'}</TextAtom>
-        </View>
-        <View style={{ flex: 1 }}>
-          <TextAtom style={styles.label}>Training Name</TextAtom>
-          <TextAtom style={styles.value}>{item.trainingName ?? '-'}</TextAtom>
-        </View>
-      </TouchableAtom>
+      <View style={styles.infoGrid}>
+        <InfoBlock label="Patient Type" value="Other" />
+        <InfoBlock label="Visit Count" value="04" />
+        <InfoBlock label="DOB" value="10-06-1990" />
+        <InfoBlock label="Age (Years)" value="35" />
+        <InfoBlock label="Gender" value={item.gender ?? 'Female'} />
+        <InfoBlock label="Blood Group" value={item.bloodGroup ?? 'B+'} />
+        <InfoBlock label="Temp (°C)" value="40 °C" danger />
+        <InfoBlock label="BP (mmHg)" value={item.bloodPressure ?? '110/70'} />
+      </View>
     );
   };
 
-  const renderListBedDetails = ({ item, index }: any) => {
-    return <BedCard item={item} index={index} navigation={navigation} />;
-  };
-
-  const FilterForm = () => (
-    <View style={styles.filterContainer}>
-      <DropDownOrganism
-        label={'Training'}
-        placeholder={'Training'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Training',
-            Data: trainingList,
-            selectedData: selectedTraining,
-            setSelectedData: (data: any) => {
-              setSelectedTraining(data);
-              getBacth(data.id);
-              setSelectedBatch({});
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedTraining?.name}
-      />
-      <DropDownOrganism
-        label={'Batch'}
-        placeholder={'Batch'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Batch',
-            Data: batchList,
-            selectedData: selectedBatch,
-            setSelectedData: (data: any) => {
-              setSelectedBatch(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedBatch?.name}
-      />
-      <DropDownOrganism
-        label={'Patient Type'}
-        placeholder={'Patient Type'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Patient Type',
-            Data: [
-              { id: 'trainee', name: 'OT' },
-              { id: 'Other', name: 'Other' },
-            ],
-            selectedData: selectedPatientType,
-            setSelectedData: (data: any) => {
-              setSelectedPatientType(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedPatientType?.name}
-      />
-      <DropDownOrganism
-        label={'Blood Group'}
-        placeholder={'Blood Group'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Blood Group',
-            Data: bloodGroupList,
-            selectedData: selectedBloodGroup,
-            setSelectedData: (data: any) => {
-              setSelectedBloodGroup(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedBloodGroup?.name}
-      />
-      <DropDownOrganism
-        label={'Doctor'}
-        placeholder={'Doctor'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Doctor',
-            Data: doctorList,
-            selectedData: selectedDoctor,
-            setSelectedData: (data: any) => {
-              setSelectedDoctor(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedDoctor?.name}
-      />
-      <DropDownOrganism
-        label={'Treatment Type'}
-        placeholder={'Treatment Type'}
-        onPress={() => {
-          navigation.navigate('DropDownModal', {
-            name: 'Treatment Type',
-            Data: [
-              { id: 'OPD', name: 'OPD' },
-              { id: 'IPD', name: 'IPD' },
-            ],
-            selectedData: selectedTreatmentType,
-            setSelectedData: (data: any) => {
-              setSelectedTreatmentType(data);
-            },
-            typeName: 'name',
-            typeId: 'id',
-          });
-        }}
-        inputText={selectedTreatmentType?.name}
-      />
-      <DateInputOrganism
-        label={'To Date'}
-        placeholder={'To Date'}
-        value={toDate}
-        onChangeText={(val: any) => {
-          setToDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <DateInputOrganism
-        label={'From Date'}
-        placeholder={'From Date'}
-        value={fromDate}
-        onChangeText={(val: any) => {
-          setFromDate(val);
-        }}
-        fieldName={'date'}
-        dateFormat="DD-MM-YYYY"
-      />
-      <ViewAtom style={styles.buttonRow}>
-        <ButtonOrganism
-          onPress={applyFilter}
-          bttnText="Apply Filter"
-          containerStyle={styles.applyBtn}
-        />
-        <ButtonOrganism
-          onPress={clearFilter}
-          bttnText="Clear Filter"
-          containerStyle={styles.clearBtn}
-          bttnTextStyle={{ color: colors.primary }}
-        />
-      </ViewAtom>
+  const renderExpandedFields = (item: any) => (
+    <View style={styles.infoGrid}>
+      {activeType === 'Trainee' && (
+        <>
+          <InfoBlock label="Training Programme" value={item.trainingName ?? 'Six Days Residential training Programme for Gram Kachahari Sachiv, Panchayati Raj Depart., Govt. of Bihar (486)'} />
+          <InfoBlock label="Batch" value={item.batchNo ?? '01'} />
+        </>
+      )}
+      {activeType === 'Employee' && (
+        <>
+          <InfoBlock label="Patient Type" value="Employee" />
+          <InfoBlock label="Vendor" value={item.vendorName ?? 'Vaishnavi Consultancy Services'} />
+          <InfoBlock label="Designation" value={item.designation ?? 'Admin'} />
+          <InfoBlock label="Visit Count" value="04" />
+        </>
+      )}
+      {activeType === 'Other' && (
+        <>
+          <InfoBlock label="Patient Type" value="Other" />
+          <InfoBlock label="Visit Count" value="04" />
+        </>
+      )}
+      <InfoBlock label="DOB" value="10-06-1990" />
+      <InfoBlock label="Age (Years)" value="35" />
+      <InfoBlock label="Gender" value={item.gender ?? 'Female'} />
+      <InfoBlock label="Blood Group" value={item.bloodGroup ?? 'B+'} />
+      <InfoBlock label="Temp (°C)" value="40 °C" danger />
+      <InfoBlock label="BP (mmHg)" value={item.bloodPressure ?? '110/70'} danger={activeType === 'Trainee'} />
+      <InfoBlock label="Weight (Kg)" value={item.weight ?? '51'} />
+      <InfoBlock label="Doctor" value={item.assignDoctorName ?? 'Dr. Saurav Kumar'} />
+      <InfoBlock label="Treatment Type" value={item.treatmentTypes ?? 'OPD'} />
+      <InfoBlock label="Visit Date" value={displayDate(item)} />
+      <InfoBlock label="Symptoms" value={item.primaryObservations ?? 'Acidity, vomiting'} />
+      <View style={styles.photoBlock}>
+        <TextAtom style={styles.infoLabel}>Live Photo</TextAtom>
+        <View style={styles.photoRow}>
+          <View style={styles.photoThumb} />
+          <TouchableOpacity activeOpacity={0.85} style={styles.viewButton}>
+            <TextAtom style={styles.viewText}>View</TextAtom>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={styles.photoBlock}>
+        <TextAtom style={styles.infoLabel}>Profile Photo</TextAtom>
+        <View style={styles.photoRow}>
+          <View style={styles.photoThumb} />
+          <TouchableOpacity activeOpacity={0.85} style={styles.viewButton}>
+            <TextAtom style={styles.viewText}>View</TextAtom>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <InfoBlock label="Created By" value={item.createdBy ?? 'Vishal Pathak'} />
+      <InfoBlock label="Updated By" value={item.updatedBy ?? 'Vishal Pathak'} />
     </View>
   );
 
-  const clearFilter = () => {
-    setSelectedTraining({});
-    setSelectedBatch({});
-    setSelectedPatientType({});
-    setSelectedBloodGroup({});
-    setSelectedDoctor({});
-    setSelectedTreatmentType({});
-    setToDate('');
-    setFromDate('');
-    listFacultyDetails(1, true, search, []);
+  const renderListItem = ({ item, index }: { item: any; index: number }) => {
+    const expanded = isExpanded(item, index);
+    const id = String(item.id ?? item.uniqueId ?? index);
+
+    return (
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            style={styles.cardTitleWrap}
+            onPress={() => openVisitDetails(item)}
+          >
+            <TextAtom numberOfLines={2} style={styles.cardTitle}>
+              {item.name ?? 'Gita Kumari'}{' '}
+              <TextAtom style={styles.cardSubtitle}>({patientIdText(item)})</TextAtom>
+            </TextAtom>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            style={styles.menuButton}
+            onPress={() => setOpenMenuId(id)}
+          >
+            <Icon name="dots-vertical" size={18} color={colors.text_black} />
+          </TouchableOpacity>
+        </View>
+
+        {expanded ? renderExpandedFields(item) : renderCollapsedFields(item)}
+
+        <TouchableOpacity activeOpacity={0.85} onPress={() => toggleExpand(item)}>
+          <TextAtom style={styles.moreText}>{expanded ? 'View Less' : 'View More'}</TextAtom>
+        </TouchableOpacity>
+
+        <ActionPopover
+          visible={openMenuId === id}
+          onClose={() => setOpenMenuId(null)}
+          anchorStyle={styles.popoverAnchor}
+          items={[
+            {
+              label: 'Download',
+              onPress: () => Toast.show({ type: 'info', text2: 'Download' }),
+            },
+            {
+              label: 'Edit',
+              onPress: () =>
+                navigation.navigate(screensName.AddBasicPatientDetails, {
+                  patientType: activeType,
+                  item,
+                }),
+            },
+            {
+              label: 'Delete',
+              destructive: true,
+              onPress: () => {
+                Toast.show({ type: 'success', text2: 'Patient deleted' });
+                setData(prev => prev.filter(row => row !== item));
+              },
+            },
+          ]}
+        />
+      </View>
+    );
   };
 
-  const buildFilters = () => {
-    const filters: any = [];
+  const renderFilterSheet = () => (
+    <Modal
+      transparent
+      visible={filterVisible}
+      animationType="slide"
+      onRequestClose={() => setFilterVisible(false)}
+    >
+      <View style={styles.filterBackdrop}>
+        <View style={styles.filterSheet}>
+          <View style={styles.sheetHandle} />
+          <View style={styles.filterTitleRow}>
+            <TextAtom style={styles.filterTitle}>Filters</TextAtom>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={() => setFilterVisible(false)}
+              style={styles.closeButton}
+            >
+              <Icon name="close" size={28} color={colors.text_black} />
+            </TouchableOpacity>
+          </View>
 
-    if (selectedTraining?.id) {
-      filters.push(['trainingId', '=', selectedTraining.id]);
-    }
+          {activeType === 'Trainee' && (
+            <>
+              <SelectBox label="Training" wide />
+              <SelectBox label="Batch" wide />
+            </>
+          )}
+          {activeType === 'Employee' && (
+            <>
+              <SelectBox label="Vendor" wide />
+              <SelectBox label="Employee" wide disabled />
+            </>
+          )}
+          <SelectBox label="Doctor" wide />
+          <View style={styles.filterGrid}>
+            <SelectBox label="Blood Group" />
+            <SelectBox label="Gender" />
+            <SelectBox label="Treatment Type" />
+            <SelectBox label="Visit Count" />
+            <SelectBox label="From Date" />
+            <SelectBox label="To Date" />
+          </View>
 
-    if (selectedBatch?.id) {
-      filters.push(['batchId', '=', selectedBatch.id]);
-    }
-
-    if (selectedPatientType?.id) {
-      filters.push(['patientType', '=', selectedPatientType.id]);
-    }
-
-    if (selectedBloodGroup?.id) {
-      filters.push(['bloodGroup', '=', selectedBloodGroup.id]);
-    }
-
-    if (selectedDoctor?.id) {
-      filters.push(['assignDoctorId', '=', selectedDoctor.id]);
-    }
-
-    if (selectedTreatmentType?.id) {
-      filters.push(['treatmentTypes', '=', selectedTreatmentType.id]);
-    }
-
-    if (toDate) {
-      const formatted = moment(toDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
-      filters.push(['currentDatetime', '>=', formatted]);
-    }
-
-    if (fromDate) {
-      const formatted = moment(fromDate, 'DD-MM-YYYY').format('YYYY-MM-DD');
-      filters.push(['currentDatetime', '<=', formatted]);
-    }
-
-    return filters;
-  };
-
-  const applyFilter = () => {
-    const filters = buildFilters();
-    listFacultyDetails(1, true, search, filters);
-  };
-
-  const getTrainingList = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'list-all-training',
-      bipardCentre: getCentreFilter(),
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setTrainingList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
-
-  const getBacth = (id: any) => {
-    setInitialCall(true);
-    const params = {
-      listType: 'trainee_batch_no_filter',
-      bipardCentre: getCentreFilter(),
-      replacements: ['%%', id],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setBatchList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
-  const getBloodGroup = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'select_blood_group',
-      bipardCentre: [],
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setBloodGroupList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
-  const getDoctorList = () => {
-    setInitialCall(true);
-    const params = {
-      listType: 'select_phc_doctors',
-      bipardCentre: getCentreFilter(),
-      replacements: ['%%'],
-    };
-    commonDropdownApi(params)
-      .unwrap()
-      .then((res: any) => {
-        setDoctorList(res.data);
-        setInitialCall(false);
-      })
-      .catch((err: any) => {
-        setInitialCall(false);
-        Toast.show({
-          type: 'error',
-          text2: err.data.message,
-          autoHide: true,
-        });
-      });
-  };
+          <View style={styles.filterActions}>
+            <FormWhiteButton
+              title="Clear"
+              onPress={() => setFilterVisible(false)}
+              containerStyle={styles.filterButtonHalf}
+              buttonStyle={styles.filterBottomButton}
+            />
+            <FormGradientButton
+              title="Apply"
+              onPress={() => setFilterVisible(false)}
+              containerStyle={styles.filterButtonHalf}
+              buttonStyle={styles.filterBottomButton}
+            />
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <View
-        style={{
-          flexDirection: 'row',
-          alignSelf: 'flex-end',
-        }}
-      >
-        <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-          <TextAtom style={styles.filterText}>
-            {showFilter ? 'Hide Filter ▲' : 'Show Filter ▼'}
-          </TextAtom>
-        </TouchableAtom>
-      </View>
-
-      {crediantialData.user[0].tenantId === 3 && (
-        <DropDownOrganism
-          label={''}
-          placeholder={'Center'}
-          onPress={() => {
-            navigation.navigate('DropDownModal', {
-              name: 'Center',
-              Data: [
-                { id: 'All Centers', name: 'All Centers' },
-                { id: 'Gaya', name: 'Gaya' },
-                { id: 'Patna', name: 'Patna' },
-              ],
-              selectedData: centerSerach,
-              setSelectedData: (data: any) => {
-                setCenterSerach(data);
-              },
-              typeName: 'name',
-              typeId: 'id',
-            });
-          }}
-          inputText={centerSerach?.name}
-          containerStyle={{ marginBottom: vh(-10) }}
-        />
-      )}
-      <SearchBoxOrganism
-        onChangeText={onChangeSearch}
-        searchText={search}
-        onPressCross={onClearSearch}
-        searchBox={{ marginTop: vh(15) }}
-      />
-
+      {renderHeader()}
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={renderListBedDetails}
-        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderListItem}
+        keyExtractor={(item, index) => `${item?.id ?? 'patient'}_${index}`}
         ListEmptyComponent={
           initialCall ? null : (
             <TextAtom style={styles.emptyText}>No data found</TextAtom>
           )
         }
-        ListHeaderComponent={<View>{showFilter && <FilterForm />}</View>}
         ListFooterComponent={
-          <ActivityIndicator
-            size={'small'}
-            color={colors.primary}
-            animating={pagination}
-            style={{ marginTop: vh(15) }}
-          />
+          <>
+            <ActivityIndicator
+              size={'small'}
+              color={colors.primary}
+              animating={pagination}
+              style={styles.paginationLoader}
+            />
+            {data.length > 0 && (
+              <TouchableOpacity activeOpacity={0.85} style={styles.loadMore}>
+                <TextAtom style={styles.loadMoreText}>Load More</TextAtom>
+              </TouchableOpacity>
+            )}
+          </>
         }
         refreshControl={
           <RefreshControl
@@ -618,24 +517,20 @@ const BasicPatientDetails = (props: Props) => {
             refreshing={refreshing}
             onRefresh={() => {
               setRefreshing(true);
-              listFacultyDetails(1, false, '');
+              listPatientDetails(1, false, search);
             }}
           />
         }
         onEndReached={() => {
           setPagination(true);
           nextPageAvailable
-            ? listFacultyDetails(page + 1, false, search)
+            ? listPatientDetails(page + 1, false, search)
             : setPagination(false);
         }}
         contentContainerStyle={styles.flatListContainer}
-        ItemSeparatorComponent={() => <View style={{ height: vh(10) }} />}
+        ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
       />
-      {/* <FloatingButton
-        onButtonPress={() => {
-          // navigation.navigate(screensName.AddFacultyDetails);
-        }}
-      /> */}
+      {renderFilterSheet()}
     </SafeAreaView>
   );
 };
@@ -643,149 +538,286 @@ const BasicPatientDetails = (props: Props) => {
 export default BasicPatientDetails;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.backgroundColor },
+  container: {
+    flex: 1,
+    backgroundColor: colors.new_ui_screen_bg,
+    paddingHorizontal: vw(16),
+  },
+  headerRow: {
+    height: vh(48),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerTitle: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(16),
+    color: colors.text_black,
+    flex: 1,
+  },
+  headerCount: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(14),
+    color: colors.new_ui_count,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: vw(5),
+  },
+  iconOnly: {
+    width: vw(30),
+    height: vw(32),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  createButton: {
+    height: vh(36),
+    borderRadius: vw(8),
+    backgroundColor: colors.primary_blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: vw(10),
+  },
+  createText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(13),
+    color: colors.white,
+  },
+  segmentRow: {
+    height: vh(34),
+    borderRadius: vw(8),
+    backgroundColor: colors.light_sky_blue,
+    flexDirection: 'row',
+    overflow: 'hidden',
+    marginBottom: vh(10),
+  },
+  segmentButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  segmentButtonActive: {
+    backgroundColor: colors.primary_blue,
+    borderRadius: vw(8),
+  },
+  segmentText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(14),
+    color: colors.text_black,
+  },
+  segmentTextActive: {
+    color: colors.white,
+  },
   flatListContainer: {
-    paddingVertical: vh(10),
+    paddingBottom: vh(30),
   },
   card: {
-    backgroundColor: colors.white,
-    marginHorizontal: vw(15),
     borderRadius: vw(8),
+    backgroundColor: colors.white,
     paddingHorizontal: vw(15),
-    paddingVertical: vh(8),
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
+    paddingVertical: vh(16),
   },
-  label: {
-    fontFamily: fonts.Roboto_Medium,
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: vh(16),
+  },
+  cardTitleWrap: {
+    flex: 1,
+  },
+  cardTitle: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(16),
+    color: colors.text_black,
+  },
+  cardSubtitle: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(13),
+    color: colors.text_grey,
+  },
+  menuButton: {
+    width: vw(30),
+    height: vw(30),
+    borderRadius: vw(8),
+    borderWidth: 1,
+    borderColor: '#E6E9EF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.white,
+    marginLeft: vw(8),
+  },
+  infoGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  infoBlock: {
+    width: '50%',
+    marginBottom: vh(10),
+  },
+  infoLabel: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(12),
+    color: colors.text_light_grey,
+    marginBottom: vh(4),
+  },
+  infoValue: {
+    fontFamily: fonts.Inter_Medium,
     fontSize: vw(14),
-    color: colors.black,
+    color: colors.text_black,
   },
-  labelRight: {
-    fontFamily: fonts.Roboto_Medium,
+  dangerText: {
+    color: colors.red,
+  },
+  photoBlock: {
+    width: '50%',
+    marginBottom: vh(10),
+  },
+  photoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  photoThumb: {
+    width: vw(24),
+    height: vw(24),
+    borderRadius: vw(3),
+    backgroundColor: '#D8C0A8',
+    marginRight: vw(6),
+  },
+  viewButton: {
+    height: vh(25),
+    borderRadius: vw(4),
+    backgroundColor: colors.primary_dark_blue,
+    paddingHorizontal: vw(8),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  viewText: {
+    fontFamily: fonts.Inter_Medium,
+    fontSize: vw(12),
+    color: colors.white,
+  },
+  moreText: {
+    marginTop: vh(4),
+    fontFamily: fonts.Inter_Medium,
     fontSize: vw(14),
-    color: colors.black,
-    textAlign: 'right',
+    color: '#D48A00',
   },
-  value: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
+  popoverAnchor: {
+    top: vh(92),
+    right: vw(18),
   },
-  valueRight: {
-    fontFamily: fonts.Roboto_Regular,
-    fontSize: vw(14),
-    color: colors.grey,
-    marginBottom: vh(5),
-    textAlign: 'right',
+  filterBackdrop: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(14, 34, 57, 0.08)',
   },
-  divider: {
-    height: 1,
-    backgroundColor: colors.chinese_silver,
-    marginVertical: vh(5),
+  filterSheet: {
+    borderTopLeftRadius: vw(28),
+    borderTopRightRadius: vw(28),
+    backgroundColor: colors.white,
+    paddingHorizontal: vw(16),
+    paddingTop: vh(10),
+    paddingBottom: vh(46),
+  },
+  sheetHandle: {
+    width: vw(90),
+    height: vh(5),
+    borderRadius: vw(4),
+    backgroundColor: colors.text_grey,
+    alignSelf: 'center',
+    marginBottom: vh(26),
+  },
+  filterTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: vh(18),
+  },
+  filterTitle: {
+    fontFamily: fonts.Inter_SemiBold,
+    fontSize: vw(17),
+    color: colors.new_ui_heading,
+  },
+  closeButton: {
+    width: vw(36),
+    height: vw(36),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  filterGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    columnGap: vw(14),
+  },
+  fullFilterField: {
+    width: '100%',
+    marginBottom: vh(18),
+  },
+  halfFilterField: {
+    width: '48%',
+    marginBottom: vh(18),
+  },
+  filterLabel: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(16),
+    color: colors.new_ui_heading,
+    marginBottom: vh(10),
+  },
+  selectBox: {
+    height: vh(48),
+    borderWidth: 1,
+    borderColor: '#C8CDD5',
+    borderRadius: vw(8),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: vw(14),
+  },
+  selectBoxDisabled: {
+    backgroundColor: '#E9EEF6',
+    borderColor: '#E9EEF6',
+  },
+  selectText: {
+    fontFamily: fonts.Inter_Regular,
+    fontSize: vw(16),
+    color: colors.new_ui_heading,
+  },
+  selectTextDisabled: {
+    color: '#C4CAD5',
+  },
+  filterActions: {
+    flexDirection: 'row',
+    gap: vw(10),
+    marginTop: vh(12),
+  },
+  filterButtonHalf: {
+    flex: 1,
+  },
+  filterBottomButton: {
+    height: vh(40),
+    borderRadius: vw(8),
   },
   emptyText: {
     textAlign: 'center',
     marginTop: vh(50),
     color: colors.grey,
-    fontFamily: fonts.Roboto_Medium,
+    fontFamily: fonts.Inter_Medium,
   },
-  rowBetween: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  paginationLoader: {
+    marginTop: vh(15),
   },
-  thumbnail: {
-    width: 70,
-    height: 70,
-    backgroundColor: '#eaeaea',
-    borderRadius: 8,
-    marginTop: 6,
+  itemSeparator: {
+    height: vh(10),
   },
-  statusBox: {
-    marginTop: vh(8),
-    paddingVertical: vh(8),
-    paddingHorizontal: vw(12),
-    borderRadius: vw(6),
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  loadMore: {
+    alignSelf: 'center',
+    paddingVertical: vh(16),
   },
-
-  activeBox: {
-    backgroundColor: '#ddffdd',
-    borderColor: '#22aa22',
-  },
-
-  inActiveBox: {
-    backgroundColor: '#ffdddd',
-    borderColor: '#cc2222',
-  },
-
-  statusText: {
-    fontFamily: fonts.Roboto_Medium,
+  loadMoreText: {
+    fontFamily: fonts.Inter_Medium,
     fontSize: vw(14),
-  },
-
-  activeText: { color: '#008800' },
-  inActiveText: { color: '#bb0000' },
-
-  dropMenu: {
-    marginTop: vh(6),
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.grey,
-    borderRadius: vw(6),
-    overflow: 'hidden',
-  },
-
-  dropItem: {
-    paddingVertical: vh(10),
-    paddingHorizontal: vw(12),
-    borderBottomWidth: 1,
-    borderBottomColor: colors.chinese_silver,
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'transparent',
-    zIndex: 998,
-  },
-  filterButton: {
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    borderRadius: vw(4),
-    marginTop: vh(10),
-    alignSelf: 'flex-end',
-    marginRight: vh(15),
-    paddingHorizontal: vw(10),
-    paddingVertical: vh(5),
-  },
-  filterText: {
-    color: colors.black,
-    fontFamily: fonts.Roboto_Medium,
-    fontSize: vw(14),
-  },
-  filterContainer: { paddingHorizontal: vw(15) },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: vh(5),
-  },
-  applyBtn: { width: vw(150), height: vh(35) },
-  clearBtn: {
-    width: vw(150),
-    height: vh(35),
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    backgroundColor: colors.white,
+    color: '#D48A00',
   },
 });

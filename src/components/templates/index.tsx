@@ -10,3 +10,5 @@ export { default as FormStepper } from './FormStepper';
 export { default as FormSwitchForCard } from './FormSwitchForCard';
 export { default as FormDatePickerWithTitle } from './FormDatePickerWithTitle';
 export { default as FormSearch } from './FormSearch';
+export { default as ActionPopover } from './ActionPopover';
+export type { ActionPopoverItem } from './ActionPopover';

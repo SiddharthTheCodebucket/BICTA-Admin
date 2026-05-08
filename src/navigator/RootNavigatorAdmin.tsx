@@ -137,6 +137,7 @@ import StockReport from '../screens/AdminScreens/Dashboard/facilities/HealthCare
 import BMI from '../screens/AdminScreens/Dashboard/facilities/HealthCare/TraineeBMI/BMI';
 import BMIDetails from '../screens/AdminScreens/Dashboard/facilities/HealthCare/TraineeBMI/BMI/BMIDetails';
 import BasicPatientDetails from '../screens/AdminScreens/Dashboard/facilities/HealthCare/PHCManagemnetMain/BasicPatientDetails';
+import AddBasicPatientDetails from '../screens/AdminScreens/Dashboard/facilities/HealthCare/PHCManagemnetMain/BasicPatientDetails/AddBasicPatientDetails';
 import PatientDetailDetails from '../screens/AdminScreens/Dashboard/facilities/HealthCare/PHCManagemnetMain/BasicPatientDetails/PatientDetailDetails';
 import InvoiceAndBillManagement from '../screens/AdminScreens/Menu/InvoiceAndBillManagement';
 import InvoiceDetails from '../screens/AdminScreens/Menu/InvoiceAndBillManagement/InvoiceDetails';
@@ -874,6 +875,10 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name="BasicPatientDetails"
           component={BasicPatientDetails}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AddBasicPatientDetails}
+          component={AddBasicPatientDetails}
         />
         <RootStackScreen.Screen
           name="PatientDetailDetails"

@@ -144,6 +144,7 @@ export default {
   BMI: 'BMI',
   BMIDetails: 'BMIDetails',
   BasicPatientDetails: 'BasicPatientDetails',
+  AddBasicPatientDetails: 'AddBasicPatientDetails',
   PatientDetailDetails: 'PatientDetailDetails',
   InvoiceAndBillManagement: 'InvoiceAndBillManagement',
   InvoiceDetails: 'InvoiceDetails',

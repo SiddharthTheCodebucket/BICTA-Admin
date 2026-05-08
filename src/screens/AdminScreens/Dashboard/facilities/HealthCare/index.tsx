@@ -26,7 +26,7 @@ const HealthCare = (props: Props) => {
   useLayoutEffect(() => {
     Header.setNavigation(
       navigation,
-      'Health Care',
+      'Health Centre',
       undefined,
       undefined,
       undefined,
