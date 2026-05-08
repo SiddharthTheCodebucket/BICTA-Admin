@@ -121,6 +121,7 @@ export default {
   TestDetailsList: 'TestDetailsList',
   AssignQuestionList: 'AssignQuestionList',
   ExaminationQuestionBank: 'ExaminationQuestionBank',
+  AddExaminationQuestion: 'AddExaminationQuestion',
   ExaminationQuestionBankDetails: 'ExaminationQuestionBankDetails',
   ExamResponse: 'ExamResponse',
   TraineeResponseList: 'TraineeResponseList',

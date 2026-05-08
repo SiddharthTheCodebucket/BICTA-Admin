@@ -117,6 +117,7 @@ import CreateTest from '../screens/AdminScreens/Dashboard/academics/Examination/
 import TestDetailsList from '../screens/AdminScreens/Dashboard/academics/Examination/CreateTest/TestDetailsList';
 import AssignQuestionList from '../screens/AdminScreens/Dashboard/academics/Examination/AssignQuestion';
 import ExaminationQuestionBank from '../screens/AdminScreens/Dashboard/academics/Examination/ExaminationQuestionBank';
+import AddExaminationQuestion from '../screens/AdminScreens/Dashboard/academics/Examination/ExaminationQuestionBank/AddExaminationQuestion';
 import ExaminationQuestionBankDetails from '../screens/AdminScreens/Dashboard/academics/Examination/ExaminationQuestionBank/ExaminationQuestionBankDetails';
 import ExamResponse from '../screens/AdminScreens/Dashboard/academics/Examination/ExamResponse';
 import TraineeResponseList from '../screens/AdminScreens/Dashboard/academics/Examination/ExamResponse/TraineeResponseList';
@@ -817,6 +818,10 @@ const RootNavigatorAdmin = () => {
         <RootStackScreen.Screen
           name={screensName.ExaminationQuestionBank}
           component={ExaminationQuestionBank}
+        />
+        <RootStackScreen.Screen
+          name={screensName.AddExaminationQuestion}
+          component={AddExaminationQuestion}
         />
         <RootStackScreen.Screen
           name={screensName.ExaminationQuestionBankDetails}

@@ -116,7 +116,7 @@ const StepConnector = ({
     return null;
   }
 
-  const sideInset = `${50 / totalSteps}%`;
+  const sideInset = `${50 / totalSteps}%` as `${number}%`;
 
   return (
     <View
