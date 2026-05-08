@@ -121,6 +121,7 @@ export default {
   AddCreateExam: 'AddCreateExam',
   TestDetailsList: 'TestDetailsList',
   AssignQuestionList: 'AssignQuestionList',
+  AddAssignExam: 'AddAssignExam',
   ExaminationQuestionBank: 'ExaminationQuestionBank',
   AddExaminationQuestion: 'AddExaminationQuestion',
   ExaminationQuestionBankDetails: 'ExaminationQuestionBankDetails',
