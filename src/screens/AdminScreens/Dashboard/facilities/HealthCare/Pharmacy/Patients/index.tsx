@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   LayoutAnimation,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -39,6 +40,7 @@ import ViewAtom from '../../../../../../../components/atoms/ViewAtom';
 import ButtonOrganism from '../../../../../../../components/organisms/ButtonOrganism';
 import { useListPatientPrescriptionsMutation } from '../../../../../../../injectEndpoints/phcEndpoints';
 import { downloadAndOpenFile } from '../../../../../../../utils/CommonFunction';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 interface Props {
   navigation: NavigationType;
@@ -70,6 +72,7 @@ const Patients = (props: Props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [initialCall, setInitialCall] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
 
   const [dateTimeList, setDateTimeList] = useState<any>([]);
   const [selectedDateTime, setSelectedDateTime] = useState<any>({});
@@ -228,7 +231,14 @@ const Patients = (props: Props) => {
     setSearch('');
     listPatients(1, true, '');
   };
+  const toggleCard = (id: string | number) => {
+    const key = String(id);
+    setExpandedIds(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
   const BedCard = ({ item, index, navigation }: any) => {
+    const key = String(item.id ?? index);
+    const isExpanded = !!expandedIds[key];
     return (
       <TouchableAtom
         style={styles.card}
@@ -238,22 +248,26 @@ const Patients = (props: Props) => {
           });
         }}
       >
-        <View style={[styles.rowBetween, { marginBottom: vh(10) }]}>
-          <TextAtom style={[styles.label, { flex: 1 }]}>
-            {strings.sr_no} {index + 1}
+        <View style={[styles.rowBetween, { marginBottom: vh(10), alignItems: 'flex-start' }]}>
+          <TextAtom style={[styles.titleName, { flex: 1 }]}>
+            {item.name || `Patient ${index + 1}`}
           </TextAtom>
+          <TouchableAtom onPress={() => {}} style={styles.deleteButton}>
+            <Icon name="delete-outline" size={18} color={colors.inactive_red} />
+          </TouchableAtom>
         </View>
-
-        <View style={[styles.rowBetween]}>
+        <TextAtom style={styles.label}>Training Programme</TextAtom>
+        <TextAtom style={[styles.value, { marginBottom: vh(10) }]}>
+          {item.trainingProgramme || '-'}
+        </TextAtom>
+        <View style={[styles.rowBetween, { alignItems: 'flex-start' }]}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>{strings.symptom_id}</TextAtom>
-            <TextAtom style={styles.value}>{item.symptomId ?? '-'}</TextAtom>
+            <TextAtom style={styles.label}>Batch</TextAtom>
+            <TextAtom style={styles.value}>{item.batch ?? '-'}</TextAtom>
           </View>
 
           <View style={{ flex: 1, alignSelf: 'flex-end' }}>
-            <TextAtom style={styles.labelRight}>
-              {strings.patient_type}
-            </TextAtom>
+            <TextAtom style={styles.labelRight}>{strings.patient_type}</TextAtom>
             <TextAtom style={styles.valueRight}>
               {item.patientType ?? '-'}
             </TextAtom>
@@ -261,10 +275,43 @@ const Patients = (props: Props) => {
         </View>
         <View style={[styles.rowBetween]}>
           <View style={{ flex: 1 }}>
-            <TextAtom style={styles.label}>{strings.unique_id}</TextAtom>
-            <TextAtom style={styles.value}>{item.uniqueId ?? '-'}</TextAtom>
+            <TextAtom style={styles.label}>{strings.symptom_id}</TextAtom>
+            <TextAtom style={styles.value}>{item.symptomId ?? '-'}</TextAtom>
+          </View>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.labelRight}>Prescription ID</TextAtom>
+            <TextAtom style={styles.valueRight}>{item.prescriptionId ?? '-'}</TextAtom>
           </View>
         </View>
+        <View style={[styles.rowBetween]}>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.label}>Age (Years)</TextAtom>
+            <TextAtom style={styles.value}>{item.age ?? '-'}</TextAtom>
+          </View>
+          <View style={{ flex: 1 }}>
+            <TextAtom style={styles.labelRight}>Gender</TextAtom>
+            <TextAtom style={styles.valueRight}>{item.gender ?? '-'}</TextAtom>
+          </View>
+        </View>
+        <TextAtom style={styles.label}>Blood Group</TextAtom>
+        <TextAtom style={styles.value}>{item.bloodGroup ?? '-'}</TextAtom>
+        {isExpanded && (
+          <>
+            <TextAtom style={styles.label}>Primary Observations</TextAtom>
+            <TextAtom style={styles.value}>{item.primaryObservations ?? '-'}</TextAtom>
+            <TextAtom style={styles.label}>Medicines</TextAtom>
+            <TextAtom style={styles.value}>{item.medicines ?? '-'}</TextAtom>
+          </>
+        )}
+        <TouchableAtom onPress={() => toggleCard(key)}>
+          <TextAtom style={styles.viewMoreText}>{isExpanded ? 'View Less' : 'View More'}</TextAtom>
+        </TouchableAtom>
+        {isExpanded && (
+          <View>
+            <TextAtom style={styles.label}>Unique ID</TextAtom>
+            <TextAtom style={styles.value}>{item.uniqueId ?? '-'}</TextAtom>
+          </View>
+        )}
       </TouchableAtom>
     );
   };
@@ -329,19 +376,23 @@ const Patients = (props: Props) => {
   return (
     <SafeAreaView edges={['bottom']} style={styles.container}>
       <FullscreenLoading isVisible={initialCall} />
-      <View
-        style={{
-          flexDirection: 'row',
-          alignSelf: 'flex-end',
-        }}
-      >
-        <TouchableAtom style={styles.filterButton} onPress={toggleFilter}>
-          <TextAtom style={styles.filterText}>
-            {showFilter ? strings.hide_filter : strings.show_filter}
-          </TextAtom>
+      <View style={styles.headerRow}>
+        <TextAtom style={styles.mainTitle}>Prescription Details (99877)</TextAtom>
+        <TouchableAtom style={styles.iconBtn}>
+          <Icon name="magnify" size={22} color={colors.black} />
+        </TouchableAtom>
+        <TouchableAtom style={styles.iconBtn} onPress={toggleFilter}>
+          <Icon name="filter-variant" size={20} color={colors.black} />
         </TouchableAtom>
         <TouchableAtom
-          style={styles.filterButton}
+          style={styles.createBtn}
+          onPress={() => {}}
+        >
+          <TextAtom style={styles.createText}>+ Create</TextAtom>
+        </TouchableAtom>
+      </View>
+      <TouchableAtom
+          style={styles.downloadBtn}
           onPress={() => {
             if (selectedDateTime?.id) {
               if (exportUrl) {
@@ -355,13 +406,15 @@ const Patients = (props: Props) => {
             }
           }}
         >
-          <ImageAtom
-            source={images.download}
-            style={{ tintColor: colors.black }}
-          />
-        </TouchableAtom>
-      </View>
-      {showFilter && <FilterForm />}
+          <ImageAtom source={images.download} style={{ tintColor: colors.primary_dark_blue }} />
+      </TouchableAtom>
+      <Modal visible={showFilter} transparent animationType="slide">
+        <TouchableAtom style={styles.modalOverlay} onPress={toggleFilter} />
+        <View style={styles.filterBottomSheet}>
+          <View style={styles.sheetHandle} />
+          <FilterForm />
+        </View>
+      </Modal>
       {crediantialData.user[0].tenantId === 3 && (
         <DropDownOrganism
           label={''}
@@ -556,22 +609,24 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     zIndex: 998,
   },
-  filterButton: {
-    borderWidth: vw(1),
-    borderColor: colors.primary,
-    borderRadius: vw(4),
-    marginTop: vh(10),
-    alignSelf: 'flex-end',
-    marginRight: vh(15),
-    paddingHorizontal: vw(10),
-    paddingVertical: vh(5),
-  },
+  titleName: { fontFamily: fonts.Roboto_Medium, fontSize: vw(15), color: colors.primary_dark_blue },
+  deleteButton: { borderWidth: 1, borderColor: colors.light_gray, borderRadius: 8, padding: 4 },
+  viewMoreText: { color: '#CA8A04', fontFamily: fonts.Roboto_Medium, marginTop: vh(6) },
+  headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: vw(15), marginTop: vh(8) },
+  mainTitle: { flex: 1, color: colors.black, fontFamily: fonts.Roboto_Medium, fontSize: vw(16) },
+  iconBtn: { marginHorizontal: vw(3) },
+  createBtn: { backgroundColor: colors.primary_dark_blue, borderRadius: 10, paddingHorizontal: vw(12), paddingVertical: vh(8), marginLeft: vw(5) },
+  createText: { color: colors.white, fontFamily: fonts.Roboto_Medium },
+  downloadBtn: { alignSelf: 'flex-end', marginRight: vw(15), marginTop: vh(8) },
   filterText: {
     color: colors.black,
     fontFamily: fonts.Roboto_Medium,
     fontSize: vw(14),
   },
   filterContainer: { paddingHorizontal: vw(15) },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.25)' },
+  filterBottomSheet: { backgroundColor: colors.white, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: vh(25), paddingTop: vh(12) },
+  sheetHandle: { alignSelf: 'center', width: vw(80), height: 5, borderRadius: 10, backgroundColor: colors.grey, marginBottom: vh(16) },
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
